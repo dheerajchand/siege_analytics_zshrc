@@ -1,0 +1,87 @@
+#!/usr/bin/env zsh
+# ============================================
+# Spark Integration for Python
+# ============================================
+
+# Setup Spark Python paths
+setup_spark_python() {
+    case "$PYTHON_MANAGER" in
+        pyenv)
+            export PYSPARK_PYTHON=$(pyenv which python)
+            ;;
+        uv)
+            export PYSPARK_PYTHON=$(uv run which python)
+            ;;
+    esac
+    export PYSPARK_DRIVER_PYTHON=$PYSPARK_PYTHON
+}
+
+# Initialize Spark project
+pyspark_init() {
+    local name=$1
+    local python_version=${2:-3.11}
+    
+    if [[ -z "$name" ]]; then
+        echo "Usage: pyspark_init <project-name> [python-version]"
+        return 1
+    fi
+    
+    mkdir -p "$name"
+    cd "$name"
+    
+    case "$PYTHON_MANAGER" in
+        pyenv)
+            pyenv local "$python_version"
+            python -m venv .venv
+            source .venv/bin/activate
+            pip install pyspark pandas pyarrow numpy
+            ;;
+        uv)
+            uv init --python "$python_version"
+            uv venv
+            source .venv/bin/activate
+            uv add pyspark pandas pyarrow numpy
+            ;;
+    esac
+    
+    mkdir -p src tests data output
+    
+    cat > src/main.py << 'PY'
+from pyspark.sql import SparkSession
+import pandas as pd
+
+def main():
+    spark = SparkSession.builder \
+        .appName("MyApp") \
+        .config("spark.sql.adaptive.enabled", "true") \
+        .getOrCreate()
+    
+    print(f"Spark version: {spark.version}")
+    print(f"Python version: {spark.sparkContext.pythonVer}")
+    
+    # Your code here
+    
+    spark.stop()
+
+if __name__ == "__main__":
+    main()
+PY
+    
+    echo "✅ Spark project created: $name"
+    echo "   Run: python src/main.py"
+}
+
+# Wrapper for Spark submit
+spark_submit_universal() {
+    setup_spark_python
+    
+    # Call your existing smart_spark_submit if it exists
+    if type smart_spark_submit > /dev/null; then
+        smart_spark_submit "$@"
+    else
+        spark-submit "$@"
+    fi
+}
+
+alias pyspark-init="pyspark_init"
+alias pyspark-submit="spark_submit_universal"
