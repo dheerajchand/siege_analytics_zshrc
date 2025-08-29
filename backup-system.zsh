@@ -220,30 +220,29 @@ function auto_backup_trigger {
 
 # Enhanced backup with automatic sync
 function enhanced_backup {
-    """
-    Perform a complete backup operation with automatic repository synchronization.
-    
-    This function orchestrates a full backup workflow: first syncs the config
-    repository, then creates a backup, and finally syncs the backup repository.
-    It's the recommended way to perform backups as it ensures both repositories
-    are up-to-date.
-    
-    Args:
-        commit_message (str, optional): Custom commit message for the backup.
-                                       Defaults to "Enhanced backup with sync".
-    
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Workflow:
-        1. Sync config repository
-        2. Create backup with metadata
-        3. Sync backup repository
-        
-    Example:
-        enhanced_backup "Major feature update"
-        enhanced_backup  # Uses default message
-    """
+    # Perform a complete backup operation with automatic repository synchronization.
+    #
+    # This function orchestrates a full backup workflow: first syncs the config
+    # repository, then syncs documentation between repos, creates a backup,
+    # and finally syncs the backup repository. It's the recommended way to
+    # perform backups as it ensures both repositories are up-to-date.
+    #
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the backup.
+    #                                    Defaults to "Enhanced backup with sync".
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #         
+    # Workflow:
+    #     1. Sync config repository
+    #     2. Sync documentation between repositories
+    #     3. Create backup with metadata
+    #     4. Sync backup repository
+    #         
+    # Example:
+    #     enhanced_backup "Major feature update"
+    #     enhanced_backup  # Uses default message
     local commit_message="${1:-Enhanced backup with sync}"
     
     echo "🚀 Starting enhanced backup with automatic sync..."
@@ -251,6 +250,13 @@ function enhanced_backup {
     # First sync the config repository
     if sync_config_repository "$commit_message"; then
         echo "✅ Config repository synced"
+        
+        # Then sync documentation between repositories
+        if sync_documentation_between_repos "$commit_message"; then
+            echo "✅ Documentation synced between repositories"
+        else
+            echo "⚠️  Documentation sync failed, continuing with backup"
+        fi
         
         # Then create backup
         if backup_zsh_config "$commit_message"; then
@@ -277,29 +283,27 @@ function enhanced_backup {
 
 # Sync only config repository
 function sync_config_repository {
-    """
-    Synchronize only the config repository with GitHub.
-    
-    This function handles committing and pushing changes to the main configuration
-    repository. It includes retry logic with exponential backoff and automatic
-    conflict resolution.
-    
-    Args:
-        commit_message (str, optional): Custom commit message for the sync.
-                                       Defaults to "Config repository sync".
-    
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Features:
-        - Automatic conflict detection and resolution
-        - Retry logic with exponential backoff
-        - Pull before retry to resolve conflicts
-        
-    Example:
-        sync_config_repository "Update core functions"
-        sync_config_repository  # Uses default message
-    """
+    # Synchronize only the config repository with GitHub.
+    #
+    # This function handles committing and pushing changes to the main configuration
+    # repository. It includes retry logic with exponential backoff and automatic
+    # conflict resolution.
+    #
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the sync.
+    #                                    Defaults to "Config repository sync".
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #         
+    # Features:
+    #     - Automatic conflict detection and resolution
+    #     - Retry logic with exponential backoff
+    #     - Pull before retry to resolve conflicts
+    #         
+    # Example:
+    #     sync_config_repository "Update core functions"
+    #     sync_config_repository  # Uses default message
     local commit_message="${1:-Config repository sync}"
     local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
     
@@ -352,6 +356,89 @@ function sync_config_repository {
             echo "❌ Config repo: Commit failed"
             return 1
         fi
+    fi
+}
+
+# Sync documentation between repositories
+function sync_documentation_between_repos {
+    # """
+    # Synchronize key documentation files between the main config and backup repositories.
+    #
+    # This function ensures that important documentation files (README, docs, etc.)
+    # are kept in sync between both repositories. It copies updated files from
+    # the main config repo to the backup repo's root directory.
+    #
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the sync.
+    #                                    Defaults to "Documentation sync between repos".
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #
+    # Files Synced:
+    #     - README.md (main repository overview)
+    #     - docs/ directory (comprehensive documentation)
+    #     - Key configuration files
+    #
+    # Example:
+    #     sync_documentation_between_repos "Update documentation"
+    #     sync_documentation_between_repos  # Uses default message
+    # """
+    local commit_message="${1:-Documentation sync between repos}"
+    
+    echo "📚 Syncing documentation between repositories..."
+    
+    # Check if both repositories exist
+    if [[ ! -d "$ZSHRC_CONFIG_DIR" ]] || [[ ! -d "$ZSHRC_BACKUPS" ]]; then
+        echo "❌ One or both repositories not found"
+        return 1
+    fi
+    
+    # List of key files to sync
+    local key_files=(
+        "README.md"
+        "docs/"
+        "help-module.zsh"
+        "backup-system.zsh"
+    )
+    
+    local sync_success=true
+    
+    for file in "${key_files[@]}"; do
+        local source_path="$ZSHRC_CONFIG_DIR/$file"
+        local dest_path="$ZSHRC_BACKUPS/$file"
+        
+        if [[ -e "$source_path" ]]; then
+            echo "📄 Syncing $file..."
+            
+            if [[ -d "$source_path" ]]; then
+                # Directory sync
+                if rsync -av --delete "$source_path/" "$dest_path/" 2>/dev/null; then
+                    echo "✅ Directory $file synced successfully"
+                else
+                    echo "❌ Failed to sync directory $file"
+                    sync_success=false
+                fi
+            else
+                # File sync
+                if cp "$source_path" "$dest_path" 2>/dev/null; then
+                    echo "✅ File $file synced successfully"
+                else
+                    echo "❌ Failed to sync file $file"
+                    sync_success=false
+                fi
+            fi
+        else
+            echo "⚠️  Source file $file not found, skipping"
+        fi
+    done
+    
+    if [[ "$sync_success" == true ]]; then
+        echo "✅ Documentation sync completed successfully"
+        return 0
+    else
+        echo "❌ Some documentation files failed to sync"
+        return 1
     fi
 }
 
@@ -495,28 +582,27 @@ alias autobackup='auto_backup_trigger'
 
 # Enhanced sync with better error handling and automatic pushing
 function sync_zsh_repositories {
-    """
-    Synchronize both the config and backup repositories with GitHub.
-    
-    This function performs a complete synchronization of both repositories,
-    ensuring they are up-to-date with the remote GitHub repositories. It
-    handles errors gracefully and provides detailed feedback on the sync process.
-    
-    Args:
-        commit_message (str, optional): Custom commit message for the sync.
-                                       Defaults to "Automatic sync of zsh configuration".
-    
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Workflow:
-        1. Sync config repository
-        2. Sync backup repository
-        
-    Example:
-        sync_zsh_repositories "Update all modules"
-        sync_zsh_repositories  # Uses default message
-    """
+    # Synchronize both the config and backup repositories with GitHub.
+    #
+    # This function performs a complete synchronization of both repositories,
+    # ensuring they are up-to-date with the remote GitHub repositories. It
+    # handles errors gracefully and provides detailed feedback on the sync process.
+    #
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the sync.
+    #                                    Defaults to "Automatic sync of zsh configuration".
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #         
+    # Workflow:
+    #     1. Sync config repository
+    #     2. Sync documentation between repositories
+    #     3. Sync backup repository
+    #         
+    # Example:
+    #     sync_zsh_repositories "Update all modules"
+    #     sync_zsh_repositories  # Uses default message
     local commit_message="${1:-Automatic sync of zsh configuration}"
     
     echo "🔄 Syncing zsh configuration repositories..."
@@ -529,7 +615,12 @@ function sync_zsh_repositories {
         return 1
     fi
     
-    # Step 2: Sync backup repository
+    # Step 2: Sync documentation between repositories
+    if ! sync_documentation_between_repos "$commit_message"; then
+        echo "⚠️  Documentation sync failed, continuing with backup sync"
+    fi
+    
+    # Step 3: Sync backup repository
     if ! sync_backup_repository "$commit_message - backup sync"; then
         echo "❌ Backup repository sync failed"
         return 1
