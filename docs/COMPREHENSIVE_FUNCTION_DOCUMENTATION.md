@@ -28,6 +28,39 @@ This document provides comprehensive documentation for all functions in the enha
 
 ## 💾 Backup System Module
 
+### `deduplicate_path()`
+
+**Purpose**: Remove duplicate PATH entries while preserving order for optimal performance.
+
+**Parameters**: None (uses global PATH variable)
+
+**Returns**: None (modifies global PATH variable)
+
+**Performance Impact**:
+- Reduces PATH length by removing duplicates
+- Improves Finder dialog performance on macOS
+- Faster shell startup and command execution
+
+**Configuration**:
+- `PATH_DEDUPLICATION_ENABLED`: Enable/disable automatic PATH optimization (default: true)
+
+**Features**:
+- Automatic execution during backup and sync operations
+- Preserves PATH entry order
+- Silent operation (only logs in verbose mode)
+- Available via `optimize` alias
+
+**Example**:
+```bash
+deduplicate_path  # Manual PATH optimization
+optimize          # Same as above (convenience alias)
+```
+
+**Auto-triggered**: Runs automatically during:
+- `enhanced_backup` operations
+- `sync_zsh_repositories` operations
+- Can be disabled by setting `PATH_DEDUPLICATION_ENABLED=false`
+
 ### `get_backup_path(timestamp)`
 
 **Purpose**: Generate a time-based backup path with year/month/week organization.

@@ -102,6 +102,7 @@ This system maintains two synchronized repositories:
 backup                     # Create enhanced backup with sync
 sync                       # Quick sync of both repositories
 syncbackup                 # Sync and backup combo
+optimize                   # Optimize PATH for performance
 
 # Status and health
 repostatus                 # Check repository status

@@ -10,6 +10,71 @@ export ZSHRC_BACKUPS="$HOME/.zshrc_backups"
 export AUTO_BACKUP_ON_CHANGE=true
 export AUTO_BACKUP_INTERVAL=3600  # 1 hour in seconds
 
+# Performance optimization: PATH deduplication
+export PATH_DEDUPLICATION_ENABLED=true
+
+# PATH deduplication function for performance optimization
+function deduplicate_path {
+    # Remove duplicate PATH entries while preserving order for optimal performance.
+    #
+    # This function eliminates duplicate PATH entries that can cause slow Finder
+    # dialogs and other performance issues on macOS. It preserves the order of
+    # entries while removing duplicates.
+    #
+    # Args:
+    #     None (uses global PATH variable)
+    #
+    # Returns:
+    #     None (modifies global PATH variable)
+    #
+    # Performance Impact:
+    #     - Reduces PATH length by removing duplicates
+    #     - Improves Finder dialog performance
+    #     - Faster shell startup and command execution
+    #
+    # Example:
+    #     deduplicate_path  # Removes duplicates from current PATH
+    
+    # Only run if enabled
+    if [[ "$PATH_DEDUPLICATION_ENABLED" != "true" ]]; then
+        return 0
+    fi
+    
+    # Get current PATH
+    local current_path="$PATH"
+    local cleaned_path=""
+    local seen=()
+    local duplicates_removed=0
+    
+    # Split PATH and process each entry
+    for entry in ${(s/:/)current_path}; do
+        # Skip empty entries
+        if [[ -z "$entry" ]]; then
+            continue
+        fi
+        
+        # Check if we've seen this entry before
+        if [[ ! " ${seen[@]} " =~ " ${entry} " ]]; then
+            seen+=("$entry")
+            if [[ -z "$cleaned_path" ]]; then
+                cleaned_path="$entry"
+            else
+                cleaned_path="$cleaned_path:$entry"
+            fi
+        else
+            duplicates_removed=$((duplicates_removed + 1))
+        fi
+    done
+    
+    # Set the cleaned PATH
+    export PATH="$cleaned_path"
+    
+    # Log if duplicates were removed (only in verbose mode)
+    if [[ $duplicates_removed -gt 0 && -n "$VERBOSE_BACKUP" ]]; then
+        echo "🔧 PATH optimized: removed $duplicates_removed duplicates"
+    fi
+}
+
 function get_backup_path {
     """
     Generate a time-based backup path with year/month/week organization.
@@ -251,12 +316,18 @@ function enhanced_backup {
     if sync_config_repository "$commit_message"; then
         echo "✅ Config repository synced"
         
-        # Then sync documentation between repositories
-        if sync_documentation_between_repos "$commit_message"; then
-            echo "✅ Documentation synced between repositories"
-        else
-            echo "⚠️  Documentation sync failed, continuing with backup"
-        fi
+            # Then sync documentation between repositories
+    if sync_documentation_between_repos "$commit_message"; then
+        echo "✅ Documentation synced between repositories"
+    else
+        echo "⚠️  Documentation sync failed, continuing with backup"
+    fi
+    
+    # Optimize PATH performance
+    if [[ "$PATH_DEDUPLICATION_ENABLED" == "true" ]]; then
+        deduplicate_path
+        echo "✅ PATH optimized for performance"
+    fi
         
         # Then create backup
         if backup_zsh_config "$commit_message"; then
@@ -575,6 +646,7 @@ function list_zsh_backups {
 alias backup='enhanced_backup'
 alias backups='list_zsh_backups'
 alias autobackup='auto_backup_trigger'
+alias optimize='deduplicate_path'
 
 # =====================================================
 # ENHANCED DUAL REPOSITORY SYNC SYSTEM
@@ -618,6 +690,12 @@ function sync_zsh_repositories {
     # Step 2: Sync documentation between repositories
     if ! sync_documentation_between_repos "$commit_message"; then
         echo "⚠️  Documentation sync failed, continuing with backup sync"
+    fi
+    
+    # Step 2.5: Optimize PATH performance
+    if [[ "$PATH_DEDUPLICATION_ENABLED" == "true" ]]; then
+        deduplicate_path
+        echo "✅ PATH optimized for performance"
     fi
     
     # Step 3: Sync backup repository
