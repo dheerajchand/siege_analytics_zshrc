@@ -129,3 +129,148 @@ function list_zsh_backups {
 # Convenience aliases
 alias backup='backup_zsh_config'
 alias backups='list_zsh_backups'
+
+# =====================================================
+# DUAL REPOSITORY SYNC SYSTEM
+# =====================================================
+
+# Sync both config and backup repositories
+function sync_zsh_repositories {
+    local commit_message="${1:-Automatic sync of zsh configuration}"
+    local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+    
+    echo "🔄 Syncing zsh configuration repositories..."
+    echo "📁 Config repo: $ZSHRC_CONFIG_DIR"
+    echo "💾 Backup repo: $ZSHRC_BACKUPS"
+    
+    # Step 1: Sync config repository
+    if [[ -d "$ZSHRC_CONFIG_DIR/.git" ]]; then
+        echo "🔄 Syncing config repository..."
+        cd "$ZSHRC_CONFIG_DIR"
+        
+        # Add all changes
+        git add .
+        
+        # Commit if there are changes
+        if git diff --staged --quiet; then
+            echo "✅ Config repo: No changes to commit"
+        else
+            if git commit -m "$commit_message ($timestamp)"; then
+                echo "✅ Config repo: Changes committed"
+                
+                # Push to origin
+                if git push origin main; then
+                    echo "🚀 Config repo: Successfully pushed to GitHub"
+                else
+                    echo "❌ Config repo: Push failed"
+                    return 1
+                fi
+            else
+                echo "❌ Config repo: Commit failed"
+                return 1
+            fi
+        fi
+    else
+        echo "❌ Config repo: Not a git repository"
+        return 1
+    fi
+    
+    # Step 2: Sync backup repository
+    if [[ -d "$ZSHRC_BACKUPS/.git" ]]; then
+        echo "🔄 Syncing backup repository..."
+        cd "$ZSHRC_BACKUPS"
+        
+        # Add all changes
+        git add .
+        
+        # Commit if there are changes
+        if git diff --staged --quiet; then
+            echo "✅ Backup repo: No changes to commit"
+        else
+            if git commit -m "$commit_message - backup sync ($timestamp)"; then
+                echo "✅ Backup repo: Changes committed"
+                
+                # Push to origin
+                if git push origin main; then
+                    echo "🚀 Backup repo: Successfully pushed to GitHub"
+                else
+                    echo "❌ Backup repo: Push failed"
+                    return 1
+                fi
+            else
+                echo "❌ Backup repo: Commit failed"
+                return 1
+            fi
+        fi
+    else
+        echo "❌ Backup repo: Not a git repository"
+        return 1
+    fi
+    
+    echo "✅ Both repositories synced successfully!"
+    echo "📚 Config: https://github.com/dheerajchand/siege_analytics_zshrc"
+    echo "💾 Backups: https://github.com/dheerajchand/zshrc_backups"
+}
+
+# Quick sync with default message
+function sync_zsh {
+    sync_zsh_repositories "Configuration update"
+}
+
+# Sync and backup in one operation
+function sync_and_backup {
+    local commit_message="${1:-Configuration update and backup}"
+    
+    echo "🔄 Performing sync and backup operation..."
+    
+    # First sync the repositories
+    if sync_zsh_repositories "$commit_message"; then
+        echo "💾 Creating backup after successful sync..."
+        backup_zsh_config "$commit_message - post-sync backup"
+    else
+        echo "❌ Sync failed, skipping backup"
+        return 1
+    fi
+}
+
+# Status check for both repositories
+function zsh_repo_status {
+    echo "📊 ZSH Repository Status"
+    echo "========================"
+    
+    # Config repository status
+    if [[ -d "$ZSHRC_CONFIG_DIR/.git" ]]; then
+        echo "📁 Config Repository ($ZSHRC_CONFIG_DIR):"
+        cd "$ZSHRC_CONFIG_DIR"
+        echo "   Branch: $(git branch --show-current)"
+        echo "   Status: $(git status --porcelain | wc -l | tr -d ' ') files modified"
+        echo "   Remote: $(git remote get-url origin)"
+        echo "   Ahead: $(git rev-list --count origin/main..HEAD) commits ahead"
+        echo "   Behind: $(git rev-list --count HEAD..origin/main) commits behind"
+        echo ""
+    else
+        echo "❌ Config repository not found"
+    fi
+    
+    # Backup repository status
+    if [[ -d "$ZSHRC_BACKUPS/.git" ]]; then
+        echo "💾 Backup Repository ($ZSHRC_BACKUPS):"
+        cd "$ZSHRC_BACKUPS"
+        echo "   Branch: $(git branch --show-current)"
+        echo "   Status: $(git status --porcelain | wc -l | tr -d ' ') files modified"
+        echo "   Remote: $(git remote get-url origin)"
+        echo "   Ahead: $(git rev-list --count origin/main..HEAD) commits ahead"
+        echo "   Behind: $(git rev-list --count HEAD..origin/main) commits behind"
+        echo ""
+    else
+        echo "❌ Backup repository not found"
+    fi
+    
+    # Return to original directory
+    cd "$ZSHRC_CONFIG_DIR"
+}
+
+# Convenience aliases for sync functions
+alias sync='sync_zsh'
+alias syncbackup='sync_and_backup'
+alias repostatus='zsh_repo_status'

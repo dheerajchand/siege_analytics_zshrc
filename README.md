@@ -23,7 +23,7 @@ This repository contains the **custom modules and functions** that extend your b
 ## 🔗 **Repository Structure**
 
 - **Main Dotfiles**: [~/.dotfiles](https://github.com/dheerajchand/dotfiles) - Core shell configuration
-- **This Config**: [~/.config/zsh](https://github.com/dheerajchand/spark_ready_zshrc) - Custom modules and functions
+- **This Config**: [~/.config/zsh](https://github.com/dheerajchand/siege_analytics_zshrc) - Custom modules and functions
 - **Documentation**: [zshrc_backups Wiki](https://github.com/dheerajchand/zshrc_backups/wiki) - Comprehensive guides
 
 ## ⚡ **Quick Commands**
@@ -43,6 +43,11 @@ toggle_key_repeat          # Toggle key repeat behavior
 pyspark_shell              # Python shell with dependencies
 spark_shell_scala          # Scala shell with optimization
 smart_spark_shell          # Intelligent shell selection
+
+# Repository sync (NEW!)
+sync                        # Sync both config and backup repos
+syncbackup                  # Sync repos and create backup
+repostatus                  # Check status of both repositories
 ```
 
 ## 🚀 **Getting Started**
@@ -59,12 +64,26 @@ This repository is designed to work with the main dotfiles system. The configura
 ~/.zshrc → ~/.dotfiles/homedir/.zshrc → ~/.config/zsh/ (this repo)
 ```
 
+## 🔄 **Repository Sync System**
+
+This configuration includes an intelligent sync system that keeps both repositories updated:
+
+- **`sync`** - Syncs both config and backup repositories
+- **`syncbackup`** - Syncs repos and creates a backup
+- **`repostatus`** - Shows status of both repositories
+
+The system automatically:
+- Commits changes to both repositories
+- Pushes updates to GitHub
+- Maintains synchronization between config and backups
+- Provides detailed status information
+
 ## 📖 **Need Help?**
 
 - **📚 [Wiki Documentation](https://github.com/dheerajchand/zshrc_backups/wiki)** - Comprehensive guides
 - **🚀 [Quick Start](https://github.com/dheerajchand/zshrc_backups/wiki/Quick-Start)** - Immediate setup
 - **🏗️ [Architecture](https://github.com/dheerajchand/zshrc_backups/wiki/System-Architecture)** - System design
-- **💬 [Issues](https://github.com/dheerajchand/spark_ready_zshrc/issues)** - Report problems
+- **💬 [Issues](https://github.com/dheerajchand/siege_analytics_zshrc/issues)** - Report problems
 
 ---
 
