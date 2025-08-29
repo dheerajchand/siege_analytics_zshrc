@@ -76,6 +76,7 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 - **Functions & Dependencies** - Function relationships and dependency mapping
 - **Repository Management** - Dual repository system and sync mechanisms
 - **Testing & Validation** - Testing framework and validation procedures
+- **Cross-Platform Guide** - Ubuntu Linux, RedHat Linux, and Docker compatibility
 
 ### 🏗️ System Architecture
 - **Modular design** with clear separation of concerns
@@ -91,6 +92,13 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 - **Return value specifications** and feature lists
 - **Usage examples** and practical demonstrations
 - **Dependencies** and requirements clearly stated
+
+### 🌍 Cross-Platform Compatibility
+- **macOS**: Native support with Homebrew and system tools
+- **Ubuntu Linux**: Full compatibility with apt package management
+- **RedHat Linux**: Support for RHEL, CentOS, and Rocky Linux
+- **Docker Containers**: Ready-to-use containerized environments
+- **Remote Servers**: Automated deployment scripts and configurations
 
 ### ❓ Interactive Help System
 - **Access help for any function** via `zsh_help` commands
@@ -146,6 +154,28 @@ backup "Major update"
 
 # Check repository health
 zsh_repo_status
+```
+
+### 🐳 Quick Docker Setup
+```bash
+# Set up Docker environment
+chmod +x docker-setup.sh
+./docker-setup.sh
+
+# Start development container
+./start-enhanced-zsh.sh
+
+# Or use Docker Compose
+docker-compose up zsh-dev
+```
+
+### 🌍 Cross-Platform Deployment
+```bash
+# Deploy to remote server
+chmod +x deploy-enhanced-zsh.sh
+./deploy-enhanced-zsh.sh username server.example.com
+
+# See docs/CROSS_PLATFORM_GUIDE.md for detailed instructions
 ```
 
 ## 📁 Repository Structure
