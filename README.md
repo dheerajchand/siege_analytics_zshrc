@@ -1,8 +1,25 @@
-# 🚀 Enhanced Zsh Configuration - Backup Repository
+# 🚀 Enhanced Zsh Configuration System
+
+<div align="center">
+
+![Siege Analytics](https://www.siegeanalytics.com/wp-content/uploads/2019/10/logo.png)
+
+# Enhanced Zsh Configuration System
+### Main Configuration Repository & Modules
+
+**Spatial Intelligence • Data Science • Advanced Analytics**
+
+[![Main Repository](https://img.shields.io/badge/Main%20Repo-siege__analytics__zshrc-blue?style=for-the-badge&logo=github)](https://github.com/dheerajchand/siege_analytics_zshrc)
+[![Backup Repository](https://img.shields.io/badge/Backup%20Repo-zshrc__backups-green?style=for-the-badge&logo=github)](https://github.com/dheerajchand/zshrc_backups)
+[![Website](https://img.shields.io/badge/Website-siegeanalytics.com-orange?style=for-the-badge&logo=globe)](https://www.siegeanalytics.com)
+
+</div>
+
+---
 
 ## Overview
 
-This is the **backup repository** for the enhanced Zsh configuration system. It works in conjunction with the main configuration repository to provide comprehensive backup, documentation, and historical tracking.
+This is the **main configuration repository** for the enhanced Zsh configuration system. It contains the active, working configuration files and modules that power your shell environment. This repository works in conjunction with the backup repository to provide comprehensive backup, documentation, and historical tracking.
 
 ## 🔄 Dual Repository System
 
@@ -32,13 +49,13 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 
 ### Repository Relationships
 
-1. **Main Config Repository** (`siege_analytics_zshrc`)
+1. **Main Config Repository** (`siege_analytics_zshrc`) - **This Repository**
    - Contains active, working configuration files
    - Updated frequently with new features and changes
    - Pushed to GitHub for version control and collaboration
    - Serves as the source of truth for current configuration
 
-2. **Backup Repository** (`zshrc_backups`) - **This Repository**
+2. **Backup Repository** (`zshrc_backups`)
    - Contains historical backups with timestamps
    - Stores comprehensive documentation and wiki content
    - Automatically synchronized with main repository
@@ -46,11 +63,11 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 
 ## 📚 What This Repository Contains
 
-### 🕒 Historical Backups
-- **Time-organized backups** in `YYYY/MM/weekN/` structure
-- **Complete configuration snapshots** with metadata
-- **Restore scripts** for easy recovery
-- **System information** and environment details
+### 🔧 Active Configuration Files
+- **Core Zsh Configuration** - Main `.zshrc` and modular configuration files
+- **Module System** - Organized modules for different functionality areas
+- **Environment Setup** - Paths, aliases, and environment variables
+- **Utility Functions** - Custom functions and productivity tools
 
 ### 📖 Comprehensive Documentation
 - **Complete Function Documentation** - Every function documented with detailed docstrings
@@ -239,6 +256,19 @@ sync_zsh_repositories "Emergency sync"
 
 ## 🔗 Repository Links
 
+<div align="center">
+
+### 📚 **Repository URLs**
+
+| Repository | Purpose | URL |
+|------------|---------|-----|
+| **🏠 Main Config** | Active configuration & modules | [`github.com/dheerajchand/siege_analytics_zshrc`](https://github.com/dheerajchand/siege_analytics_zshrc) |
+| **💾 Backup & Docs** | Historical backups & comprehensive docs | [`github.com/dheerajchand/zshrc_backups`](https://github.com/dheerajchand/zshrc_backups) *(this repository)* |
+| **🌐 Company Website** | Siege Analytics official site | [`siegeanalytics.com`](https://www.siegeanalytics.com) |
+
+</div>
+
+**Quick Access:**
 - **Main Repository**: [siege_analytics_zshrc](https://github.com/dheerajchand/siege_analytics_zshrc)
 - **Backup Repository**: [zshrc_backups](https://github.com/dheerajchand/zshrc_backups) (this repository)
 - **Documentation Wiki**: Available in this repository
@@ -271,4 +301,16 @@ sync_zsh_repositories "Emergency sync"
 
 ---
 
-*This backup repository provides comprehensive historical tracking, documentation, and disaster recovery for the enhanced Zsh configuration system. It works seamlessly with the main configuration repository to maintain a robust, well-documented, and maintainable shell environment.*
+<div align="center">
+
+---
+
+### 🚀 **Powered by Siege Analytics**
+
+*This main configuration repository provides the active, working Zsh configuration system with comprehensive documentation, interactive help, and automated backup capabilities. It works seamlessly with the backup repository to maintain a robust, well-documented, and maintainable shell environment.*
+
+**Spatial Intelligence • Data Science • Advanced Analytics**
+
+[![Siege Analytics](https://www.siegeanalytics.com/wp-content/uploads/2019/10/logo.png)](https://www.siegeanalytics.com)
+
+</div>
