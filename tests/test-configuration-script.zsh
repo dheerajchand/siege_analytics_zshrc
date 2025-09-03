@@ -294,7 +294,7 @@ function test_config_confirmation {
     # Test confirmation prompt format (cancel with 'n')
     local test_output
     test_output=$(echo -e "n\nn" | "$TEST_SCRIPT_PATH" --mode standalone 2>&1)
-    if echo "$test_output" | grep -q "\[Y/n\]"; then
+    if echo "$test_output" | grep -q "Proceed with shell configuration"; then
         echo "✅ Confirmation prompt format correct"
     else
         echo "❌ Confirmation prompt format incorrect"
