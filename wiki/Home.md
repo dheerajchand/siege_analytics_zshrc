@@ -90,6 +90,12 @@ python_status              # Check environment status
 
 # Testing framework
 test_system                # Run quick system tests
+test_backup                # Test backup system
+test_python                # Test Python functions
+test_spark                 # Test Spark functions
+test_jvm                   # Test JVM/Hadoop/YARN functions
+test_jupyter               # Test Jupyter functions
+test_compatibility         # Test bash compatibility
 zsh run-tests.zsh          # Run comprehensive test suite
 zsh run-tests.zsh --coverage # Run tests with coverage
 ```

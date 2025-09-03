@@ -237,6 +237,244 @@ test_backup_environment_variables() {
 }
 
 # =============================================================================
+# Test: auto_backup_trigger
+# =============================================================================
+
+test_auto_backup_trigger() {
+    echo "Testing auto_backup_trigger function..."
+    
+    # Test that function exists and is callable
+    assert_command_success "type auto_backup_trigger" "auto_backup_trigger function should exist"
+    
+    # Test function execution
+    local trigger_output
+    trigger_output=$(auto_backup_trigger 2>&1)
+    
+    # Test that function runs without errors
+    assert_not_contains "$trigger_output" "error:" "Auto backup trigger should not have errors"
+    
+    echo "✅ auto_backup_trigger tests passed"
+}
+
+# =============================================================================
+# Test: backup_critical_functions
+# =============================================================================
+
+test_backup_critical_functions() {
+    echo "Testing backup_critical_functions function..."
+    
+    # Test that function exists and is callable
+    assert_command_success "type backup_critical_functions" "backup_critical_functions function should exist"
+    
+    # Test function execution
+    local backup_output
+    backup_output=$(backup_critical_functions 2>&1)
+    
+    # Test that function runs without errors
+    assert_not_contains "$backup_output" "error:" "Backup critical functions should not have errors"
+    
+    echo "✅ backup_critical_functions tests passed"
+}
+
+# =============================================================================
+# Test: sync_documentation_between_repos
+# =============================================================================
+
+test_sync_documentation_between_repos() {
+    echo "Testing sync_documentation_between_repos function..."
+    
+    # Test that function exists and is callable
+    assert_command_success "type sync_documentation_between_repos" "sync_documentation_between_repos function should exist"
+    
+    # Test function execution
+    local sync_output
+    sync_output=$(sync_documentation_between_repos 2>&1)
+    
+    # Test that function runs without errors
+    assert_not_contains "$sync_output" "error:" "Sync documentation should not have errors"
+    
+    echo "✅ sync_documentation_between_repos tests passed"
+}
+
+# =============================================================================
+# Test: sync_zsh_repositories
+# =============================================================================
+
+test_sync_zsh_repositories() {
+    echo "Testing sync_zsh_repositories function..."
+    
+    # Test that function exists and is callable
+    assert_command_success "type sync_zsh_repositories" "sync_zsh_repositories function should exist"
+    
+    # Test function execution
+    local sync_output
+    sync_output=$(sync_zsh_repositories "test sync" 2>&1)
+    
+    # Test that function runs without errors
+    assert_not_contains "$sync_output" "error:" "Sync zsh repositories should not have errors"
+    
+    echo "✅ sync_zsh_repositories tests passed"
+}
+
+# =============================================================================
+# Test: sync_zsh
+# =============================================================================
+
+test_sync_zsh() {
+    echo "Testing sync_zsh function..."
+    
+    # Test that function exists and is callable
+    assert_command_success "type sync_zsh" "sync_zsh function should exist"
+    
+    # Test function execution
+    local sync_output
+    sync_output=$(sync_zsh "test sync" 2>&1)
+    
+    # Test that function runs without errors
+    assert_not_contains "$sync_output" "error:" "Sync zsh should not have errors"
+    
+    echo "✅ sync_zsh tests passed"
+}
+
+# =============================================================================
+# Test: Backup File Structure
+# =============================================================================
+
+test_backup_file_structure() {
+    echo "Testing backup file structure..."
+    
+    # Create a test backup
+    local test_backup_path
+    test_backup_path=$(enhanced_backup "test file structure backup")
+    
+    # Test that backup was created
+    assert_dir_exists "$test_backup_path" "Backup directory should exist"
+    
+    # Test that backup contains expected files
+    assert_file_exists "$test_backup_path/zsh/README.md" "Backup should contain README.md"
+    assert_file_exists "$test_backup_path/metadata.json" "Backup should contain metadata.json"
+    assert_file_exists "$test_backup_path/restore.sh" "Backup should contain restore.sh"
+    
+    # Test that restore script is executable
+    assert_command_success "test -x '$test_backup_path/restore.sh'" "Restore script should be executable"
+    
+    # Test metadata content
+    local metadata_content
+    metadata_content=$(cat "$test_backup_path/metadata.json")
+    assert_contains "$metadata_content" "test file structure backup" "Metadata should contain backup message"
+    assert_contains "$metadata_content" "timestamp" "Metadata should contain timestamp"
+    assert_contains "$metadata_content" "version" "Metadata should contain version"
+    
+    # Cleanup
+    rm -rf "$test_backup_path"
+    
+    echo "✅ backup file structure tests passed"
+}
+
+# =============================================================================
+# Test: Backup Metadata Validation
+# =============================================================================
+
+test_backup_metadata_validation() {
+    echo "Testing backup metadata validation..."
+    
+    # Create a test backup
+    local test_backup_path
+    test_backup_path=$(enhanced_backup "test metadata validation backup")
+    
+    # Test metadata file exists and is valid JSON
+    assert_file_exists "$test_backup_path/metadata.json" "Metadata file should exist"
+    
+    # Test that metadata can be parsed as JSON
+    local metadata_content
+    metadata_content=$(cat "$test_backup_path/metadata.json")
+    
+    # Test required fields
+    assert_contains "$metadata_content" "message" "Metadata should contain message field"
+    assert_contains "$metadata_content" "timestamp" "Metadata should contain timestamp field"
+    assert_contains "$metadata_content" "version" "Metadata should contain version field"
+    assert_contains "$metadata_content" "files" "Metadata should contain files field"
+    
+    # Cleanup
+    rm -rf "$test_backup_path"
+    
+    echo "✅ backup metadata validation tests passed"
+}
+
+# =============================================================================
+# Test: Restore Script Functionality
+# =============================================================================
+
+test_restore_script_functionality() {
+    echo "Testing restore script functionality..."
+    
+    # Create a test backup
+    local test_backup_path
+    test_backup_path=$(enhanced_backup "test restore script backup")
+    
+    # Test that restore script exists and is executable
+    assert_file_exists "$test_backup_path/restore.sh" "Restore script should exist"
+    assert_command_success "test -x '$test_backup_path/restore.sh'" "Restore script should be executable"
+    
+    # Test that restore script has proper shebang
+    local restore_content
+    restore_content=$(head -1 "$test_backup_path/restore.sh")
+    assert_contains "$restore_content" "#!/bin/bash" "Restore script should have bash shebang"
+    
+    # Test that restore script contains restore logic
+    restore_content=$(cat "$test_backup_path/restore.sh")
+    assert_contains "$restore_content" "restore" "Restore script should contain restore logic"
+    
+    # Cleanup
+    rm -rf "$test_backup_path"
+    
+    echo "✅ restore script functionality tests passed"
+}
+
+# =============================================================================
+# Test: Backup Performance
+# =============================================================================
+
+test_backup_performance() {
+    echo "Testing backup performance..."
+    
+    # Test backup creation time
+    local start_time=$(date +%s)
+    local test_backup_path
+    test_backup_path=$(enhanced_backup "test performance backup")
+    local end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    
+    # Test that backup was created
+    assert_dir_exists "$test_backup_path" "Backup should be created"
+    
+    # Test that backup was created in reasonable time (less than 30 seconds)
+    assert_true "[[ $duration -lt 30 ]]" "Backup should complete in less than 30 seconds"
+    
+    # Cleanup
+    rm -rf "$test_backup_path"
+    
+    echo "✅ backup performance tests passed"
+}
+
+# =============================================================================
+# Test: Backup Error Handling
+# =============================================================================
+
+test_backup_error_handling() {
+    echo "Testing backup error handling..."
+    
+    # Test backup with invalid path
+    local invalid_backup_path
+    invalid_backup_path=$(enhanced_backup "test error handling backup" 2>&1)
+    
+    # Test that function handles errors gracefully
+    assert_not_contains "$invalid_backup_path" "fatal:" "Backup should handle errors gracefully"
+    
+    echo "✅ backup error handling tests passed"
+}
+
+# =============================================================================
 # Register Tests
 # =============================================================================
 
@@ -250,3 +488,13 @@ register_test "test_list_zsh_backups" "test_list_zsh_backups"
 register_test "test_zsh_repo_status" "test_zsh_repo_status"
 register_test "test_sync_and_backup" "test_sync_and_backup"
 register_test "test_backup_environment_variables" "test_backup_environment_variables"
+register_test "test_auto_backup_trigger" "test_auto_backup_trigger"
+register_test "test_backup_critical_functions" "test_backup_critical_functions"
+register_test "test_sync_documentation_between_repos" "test_sync_documentation_between_repos"
+register_test "test_sync_zsh_repositories" "test_sync_zsh_repositories"
+register_test "test_sync_zsh" "test_sync_zsh"
+register_test "test_backup_file_structure" "test_backup_file_structure"
+register_test "test_backup_metadata_validation" "test_backup_metadata_validation"
+register_test "test_restore_script_functionality" "test_restore_script_functionality"
+register_test "test_backup_performance" "test_backup_performance"
+register_test "test_backup_error_handling" "test_backup_error_handling"

@@ -101,6 +101,117 @@ test_bash_compatibility() {
     echo "🧪 Bash compatibility tests completed"
 }
 
+# Add test functions to Spark system
+test_spark_system() {
+    echo "🧪 Testing Spark system functions..."
+    
+    # Test Spark setup
+    setup_spark
+    if [[ -n "$SPARK_HOME" && "$PATH" == *"$SPARK_HOME/bin"* ]]; then
+        echo "✅ setup_spark: PASSED"
+    else
+        echo "❌ setup_spark: FAILED"
+    fi
+    
+    # Test Hadoop setup
+    setup_hadoop
+    if [[ -n "$HADOOP_HOME" && "$PATH" == *"$HADOOP_HOME/bin"* ]]; then
+        echo "✅ setup_hadoop: PASSED"
+    else
+        echo "❌ setup_hadoop: FAILED"
+    fi
+    
+    # Test YARN setup
+    setup_yarn
+    if [[ -n "$YARN_HOME" && "$PATH" == *"$YARN_HOME/bin"* ]]; then
+        echo "✅ setup_yarn: PASSED"
+    else
+        echo "❌ setup_yarn: FAILED"
+    fi
+    
+    # Test Spark config display
+    local config_output=$(show_spark_config 2>&1)
+    if [[ "$config_output" == *"Spark Configuration"* ]]; then
+        echo "✅ show_spark_config: PASSED"
+    else
+        echo "❌ show_spark_config: FAILED"
+    fi
+    
+    echo "🧪 Spark system tests completed"
+}
+
+# Add test functions to Jupyter system
+test_jupyter_system() {
+    echo "🧪 Testing Jupyter system functions..."
+    
+    # Test Jupyter setup
+    setup_jupyter
+    if [[ -n "$JUPYTER_HOME" && "$PATH" == *"$JUPYTER_HOME/bin"* ]]; then
+        echo "✅ setup_jupyter: PASSED"
+    else
+        echo "❌ setup_jupyter: FAILED"
+    fi
+    
+    # Test Jupyter status
+    local status_output=$(jupyter_status 2>&1)
+    if [[ "$status_output" == *"Jupyter"* ]]; then
+        echo "✅ jupyter_status: PASSED"
+    else
+        echo "❌ jupyter_status: FAILED"
+    fi
+    
+    echo "🧪 Jupyter system tests completed"
+}
+
+# Add test functions to JVM system
+test_jvm_system() {
+    echo "🧪 Testing JVM system functions..."
+    
+    # Test Java environment
+    if command -v java >/dev/null 2>&1; then
+        local java_version=$(java -version 2>&1 | head -1)
+        if [[ "$java_version" == *"version"* ]]; then
+            echo "✅ Java environment: PASSED"
+        else
+            echo "❌ Java environment: FAILED"
+        fi
+    else
+        echo "⚠️  Java not available - skipping Java tests"
+    fi
+    
+    # Test Hadoop setup
+    setup_hadoop
+    if [[ -n "$HADOOP_HOME" && "$PATH" == *"$HADOOP_HOME/bin"* ]]; then
+        echo "✅ setup_hadoop: PASSED"
+    else
+        echo "❌ setup_hadoop: FAILED"
+    fi
+    
+    # Test YARN setup
+    setup_yarn
+    if [[ -n "$YARN_HOME" && "$PATH" == *"$YARN_HOME/bin"* ]]; then
+        echo "✅ setup_yarn: PASSED"
+    else
+        echo "❌ setup_yarn: FAILED"
+    fi
+    
+    # Test HDFS availability
+    if command -v hdfs >/dev/null 2>&1; then
+        echo "✅ HDFS: PASSED"
+    else
+        echo "⚠️  HDFS not available"
+    fi
+    
+    # Test MapReduce availability
+    if command -v hadoop >/dev/null 2>&1; then
+        echo "✅ MapReduce: PASSED"
+    else
+        echo "⚠️  MapReduce not available"
+    fi
+    
+    echo "🧪 JVM system tests completed"
+}
+
 # Run all quick tests
 run_quick_tests() {
     echo "🚀 Running quick system tests..."
@@ -112,6 +223,12 @@ run_quick_tests() {
     echo ""
     test_bash_compatibility
     echo ""
+    test_spark_system
+    echo ""
+    test_jupyter_system
+    echo ""
+    test_jvm_system
+    echo ""
     
     echo "🎉 Quick tests completed!"
 }
@@ -121,3 +238,6 @@ alias test_system='run_quick_tests'
 alias test_backup='test_backup_system'
 alias test_python='test_python_system'
 alias test_compatibility='test_bash_compatibility'
+alias test_spark='test_spark_system'
+alias test_jupyter='test_jupyter_system'
+alias test_jvm='test_jvm_system'
