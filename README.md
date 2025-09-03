@@ -70,13 +70,21 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 - **Utility Functions** - Custom functions and productivity tools
 
 ### 📖 Comprehensive Documentation
+
+#### **📚 [Read the Docs Documentation](docs/_build/html/index.html)**
+- **Professional Sphinx Documentation** - Complete system documentation with Read the Docs theme
+- **Interactive Navigation** - Searchable, cross-referenced documentation
+- **Siege Analytics Branding** - Custom styling and professional appearance
+- **Comprehensive Guides** - Installation, configuration, troubleshooting, and advanced usage
+
+#### **📝 [Wiki Documentation](wiki/Home.md)**
 - **Complete Function Documentation** - Every function documented with detailed docstrings
 - **Help System Quick Reference** - Interactive help system guide
 - **System Architecture** - Technical system details and module dependencies
 - **Functions & Dependencies** - Function relationships and dependency mapping
 - **Repository Management** - Dual repository system and sync mechanisms
 - **Testing & Validation** - Testing framework and validation procedures
-- **Cross-Platform Guide** - Ubuntu Linux, RedHat Linux, and Docker compatibility
+- **Bash Compatibility** - Cross-shell compatibility layer and installation guides
 
 ### 🏗️ System Architecture
 - **Modular design** with clear separation of concerns
@@ -311,11 +319,15 @@ sync_zsh_repositories "Emergency sync"
 
 ## 📖 Documentation Sources
 
+### **📚 Primary Documentation**
+- **[Read the Docs](docs/_build/html/index.html)**: Professional Sphinx documentation with interactive navigation
+- **[Wiki](wiki/Home.md)**: Comprehensive guides and function references
 - **Interactive Help**: Use `zsh_help` commands for real-time assistance
+
+### **📝 Additional Resources**
 - **Function Documentation**: Every function has embedded docstrings
-- **Comprehensive Docs**: Detailed documentation in the `docs/` directory
-- **Wiki**: Additional documentation in this repository's wiki
 - **Source Code**: Well-commented source files with examples
+- **Installation Scripts**: Automated setup for both zsh and bash compatibility
 
 ---
 

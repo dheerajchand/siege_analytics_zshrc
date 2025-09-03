@@ -4,6 +4,12 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 
 ## 📚 **Documentation Sections**
 
+### **📖 [Read the Docs Documentation](../docs/_build/html/index.html)**
+- **Professional documentation** with Sphinx and Read the Docs theme
+- **Comprehensive guides** for all system components
+- **Interactive navigation** and search functionality
+- **Siege Analytics branding** with custom styling
+
 ### **🚀 [Quick Start Guide](Quick-Start)**
 - Installation and setup
 - First-time configuration
@@ -13,6 +19,12 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - Modular design overview
 - Configuration flow
 - Environment variables
+
+### **🐚 [Bash Compatibility](Bash-Compatibility)**
+- Cross-shell compatibility layer
+- Platform-specific adaptations
+- Function translation between zsh and bash
+- Installation scripts for both shells
 
 ### **⚡ [Spark & Big Data](Spark-Big-Data)**
 - Spark shell management
