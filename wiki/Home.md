@@ -15,7 +15,7 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - First-time configuration
 - Essential commands
 
-### **🎯 [Idiot-Proof Guide](../docs/IDIOT_LEVEL_GUIDE.md)**
+### **🎯 [Idiot-Proof Guide](../IDIOT_LEVEL_GUIDE.md)**
 - **Complete beginner-friendly setup guide**
 - **Step-by-step instructions** for all skill levels
 - **Multiple setup options** (simple, power user, bash)

@@ -72,7 +72,7 @@ source ~/.bashrc
 ```
 
 ### 📖 Need More Help?
-- **🎯 [Idiot-Proof Guide](docs/IDIOT_LEVEL_GUIDE.md)** - Complete beginner-friendly setup guide
+- **🎯 [Idiot-Proof Guide](IDIOT_LEVEL_GUIDE.md)** - Complete beginner-friendly setup guide
 - **📝 [Wiki Documentation](wiki/Home.md)** - Comprehensive system documentation
 - **💡 Interactive Help** - Use `zsh_help` commands for real-time assistance
 
@@ -141,7 +141,7 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 - **Testing & Validation** - Testing framework and validation procedures
 - **Bash Compatibility** - Cross-shell compatibility layer and installation guides
 
-#### **🎯 [Idiot-Proof Guide](docs/IDIOT_LEVEL_GUIDE.md)**
+#### **🎯 [Idiot-Proof Guide](IDIOT_LEVEL_GUIDE.md)**
 - **Step-by-Step Instructions** - Complete beginner-friendly setup guide
 - **Multiple Setup Options** - Simple, power user, and bash compatibility modes
 - **Troubleshooting Guide** - Common problems and solutions

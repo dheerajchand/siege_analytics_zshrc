@@ -151,7 +151,7 @@ function show_main_help {
     echo "   zsh_help usage pyspark_shell - Show pyspark_shell usage"
     echo ""
     echo "📖 Documentation:"
-    echo "   🎯 Idiot-Proof Guide: docs/IDIOT_LEVEL_GUIDE.md"
+    echo "   🎯 Idiot-Proof Guide: IDIOT_LEVEL_GUIDE.md"
     echo "   📝 Wiki Documentation: wiki/Home.md"
     echo "   🔧 Configuration Script: ./configure-shell.sh --help"
 }
