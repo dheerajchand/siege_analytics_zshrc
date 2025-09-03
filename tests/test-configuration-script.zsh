@@ -70,7 +70,7 @@ function test_config_validation {
 function test_config_env_setup {
     echo "🧪 Testing environment setup..."
     
-    # Test environment setup
+    # Test environment setup (non-interactive)
     if "$TEST_SCRIPT_PATH" --mode standalone --setup-env 2>&1 | grep -q "Environment setup complete"; then
         echo "✅ Environment setup works"
     else
@@ -102,7 +102,7 @@ function test_config_env_setup {
 function test_config_personal_defaults {
     echo "🧪 Testing personal defaults..."
     
-    # Test personal mode
+    # Test personal mode (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --personal --force 2>&1 | grep -q "Mode: symlink"; then
         echo "✅ Personal defaults work"
     else
@@ -117,7 +117,7 @@ function test_config_personal_defaults {
 function test_config_modes {
     echo "🧪 Testing different modes..."
     
-    # Test standalone mode
+    # Test standalone mode (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode standalone --force 2>&1 | grep -q "Mode: standalone"; then
         echo "✅ Standalone mode works"
     else
@@ -125,7 +125,7 @@ function test_config_modes {
         return 1
     fi
     
-    # Test copy mode
+    # Test copy mode (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode copy --force 2>&1 | grep -q "Mode: copy"; then
         echo "✅ Copy mode works"
     else
@@ -133,7 +133,7 @@ function test_config_modes {
         return 1
     fi
     
-    # Test symlink mode
+    # Test symlink mode (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode symlink --target "$TEST_TEMP_DIR" --force 2>&1 | grep -q "Mode: symlink"; then
         echo "✅ Symlink mode works"
     else
@@ -148,7 +148,7 @@ function test_config_modes {
 function test_config_shell_options {
     echo "🧪 Testing shell options..."
     
-    # Test zsh only
+    # Test zsh only (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --shell zsh --force 2>&1 | grep -q "Shell: zsh"; then
         echo "✅ Zsh-only option works"
     else
@@ -156,7 +156,7 @@ function test_config_shell_options {
         return 1
     fi
     
-    # Test bash only
+    # Test bash only (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --shell bash --force 2>&1 | grep -q "Shell: bash"; then
         echo "✅ Bash-only option works"
     else
@@ -164,7 +164,7 @@ function test_config_shell_options {
         return 1
     fi
     
-    # Test both shells
+    # Test both shells (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --shell both --force 2>&1 | grep -q "Shell: both"; then
         echo "✅ Both shells option works"
     else
@@ -179,10 +179,7 @@ function test_config_shell_options {
 function test_config_backup {
     echo "🧪 Testing backup functionality..."
     
-    # Create a test file
-    echo "test content" > "$TEST_TEMP_DIR/test-file"
-    
-    # Test backup creation
+    # Test backup creation (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode standalone --backup --force 2>&1 | grep -q "Created backup"; then
         echo "✅ Backup functionality works"
     else
@@ -197,7 +194,7 @@ function test_config_backup {
 function test_config_force {
     echo "🧪 Testing force option..."
     
-    # Test force mode
+    # Test force mode (non-interactive)
     if "$TEST_SCRIPT_PATH" --mode standalone --force 2>&1 | grep -q "Force: true"; then
         echo "✅ Force option works"
     else
@@ -212,9 +209,8 @@ function test_config_force {
 function test_config_env_integration {
     echo "🧪 Testing environment variable integration..."
     
-    # Test with environment variables
-    SHELL_CONFIG_MODE=copy "$TEST_SCRIPT_PATH" --force 2>&1 | grep -q "Mode: copy"
-    if [[ $? -eq 0 ]]; then
+    # Test with environment variables (non-interactive with --force)
+    if SHELL_CONFIG_MODE=copy "$TEST_SCRIPT_PATH" --force 2>&1 | grep -q "Mode: copy"; then
         echo "✅ Environment variable integration works"
     else
         echo "❌ Environment variable integration failed"
@@ -249,7 +245,7 @@ function test_config_error_handling {
 function test_config_file_operations {
     echo "🧪 Testing file operations..."
     
-    # Test symlink creation
+    # Test symlink creation (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode symlink --target "$TEST_TEMP_DIR" --force 2>&1 | grep -q "Created symlink"; then
         echo "✅ Symlink creation works"
     else
@@ -257,7 +253,7 @@ function test_config_file_operations {
         return 1
     fi
     
-    # Test file copying
+    # Test file copying (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode copy --force 2>&1 | grep -q "Copied"; then
         echo "✅ File copying works"
     else
@@ -272,11 +268,88 @@ function test_config_file_operations {
 function test_config_summary {
     echo "🧪 Testing configuration summary..."
     
-    # Test summary display
+    # Test summary display (non-interactive with --force)
     if "$TEST_SCRIPT_PATH" --mode standalone --force 2>&1 | grep -q "Configuration Summary"; then
         echo "✅ Configuration summary works"
     else
         echo "❌ Configuration summary failed"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Test confirmation logic
+function test_config_confirmation {
+    echo "🧪 Testing confirmation logic..."
+    
+    # Test that --force bypasses confirmation
+    if "$TEST_SCRIPT_PATH" --mode standalone --force 2>&1 | grep -q "Force: true"; then
+        echo "✅ Force option bypasses confirmation"
+    else
+        echo "❌ Force option failed"
+        return 1
+    fi
+    
+    # Test confirmation prompt format (cancel with 'n')
+    local test_output
+    test_output=$(echo -e "n\nn" | "$TEST_SCRIPT_PATH" --mode standalone 2>&1)
+    if echo "$test_output" | grep -q "\[Y/n\]"; then
+        echo "✅ Confirmation prompt format correct"
+    else
+        echo "❌ Confirmation prompt format incorrect"
+        return 1
+    fi
+    
+    # Test that 'n' actually cancels
+    if echo "$test_output" | grep -q "Configuration cancelled"; then
+        echo "✅ Confirmation cancellation works"
+    else
+        echo "❌ Confirmation cancellation failed"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Test edge cases and error conditions
+function test_config_edge_cases {
+    echo "🧪 Testing edge cases..."
+    
+    # Test with empty target path (should auto-detect, non-interactive)
+    local test_output
+    test_output=$(echo -e "n\nn" | "$TEST_SCRIPT_PATH" --mode symlink --target "" 2>&1)
+    if echo "$test_output" | grep -q "Target Path:"; then
+        echo "✅ Empty target path auto-detection works"
+    else
+        echo "❌ Empty target path auto-detection failed"
+        return 1
+    fi
+    
+    # Test with non-existent target (should prompt to create, then cancel)
+    test_output=$(echo -e "n\nn" | "$TEST_SCRIPT_PATH" --mode symlink --target "/nonexistent/path" 2>&1)
+    if echo "$test_output" | grep -q "Target path does not exist"; then
+        echo "✅ Non-existent target validation works"
+    else
+        echo "❌ Non-existent target validation failed"
+        return 1
+    fi
+    
+    # Test invalid mode (non-interactive)
+    test_output=$("$TEST_SCRIPT_PATH" --mode invalid 2>&1)
+    if echo "$test_output" | grep -q "Invalid mode"; then
+        echo "✅ Invalid mode validation works"
+    else
+        echo "❌ Invalid mode validation failed"
+        return 1
+    fi
+    
+    # Test invalid shell (non-interactive)
+    test_output=$("$TEST_SCRIPT_PATH" --shell invalid 2>&1)
+    if echo "$test_output" | grep -q "Invalid shell"; then
+        echo "✅ Invalid shell validation works"
+    else
+        echo "❌ Invalid shell validation failed"
         return 1
     fi
     
@@ -327,6 +400,8 @@ function test_configuration_script {
         "test_config_error_handling"
         "test_config_file_operations"
         "test_config_summary"
+        "test_config_confirmation"
+        "test_config_edge_cases"
     )
     
     for test in "${tests[@]}"; do

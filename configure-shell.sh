@@ -186,8 +186,9 @@ auto_detect_target() {
         fi
     done
     
-    # Default to script directory if nothing found
-    echo "$SCRIPT_DIR"
+    # If no existing directory found, return the first option as default
+    echo "$HOME/.dotfiles/homedir"
+    return 0
 }
 
 # Check if file exists and is not a symlink
