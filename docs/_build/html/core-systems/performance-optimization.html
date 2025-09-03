@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Optimization &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comcore-systems/performance-optimization.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Apache Spark Integration System" href="../big-data/spark-system.html" />
+    <link rel="prev" title="Help System" href="help-system.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help-system.html">Help System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Performance Optimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#path-optimization">PATH Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#path-deduplication">PATH Deduplication</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#performance-impact">Performance Impact</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-loading-optimization">Module Loading Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lazy-loading-system">Lazy Loading System</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-optimization">Memory Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spark-memory-tuning">Spark Memory Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-memory-management">Python Memory Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#startup-time-optimization">Startup Time Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shell-startup-performance">Shell Startup Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#optimization-techniques">Optimization Techniques</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#caching-systems">Caching Systems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-loading-cache">Module Loading Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-metrics-cache">Performance Metrics Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-and-profiling">Monitoring and Profiling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#performance-monitoring">Performance Monitoring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#profiling-tools">Profiling Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#benchmarking">Benchmarking</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#performance-benchmarks">Performance Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#target-performance-metrics">Target Performance Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting-performance-issues">Troubleshooting Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-performance-problems">Common Performance Problems</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#slow-startup">Slow Startup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#high-memory-usage">High Memory Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#slow-command-execution">Slow Command Execution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#optimization-best-practices">Optimization Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-environment">Development Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#production-environment">Production Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-optimization">Advanced Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-optimization-scripts">Custom Optimization Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-monitoring-scripts">Performance Monitoring Scripts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Performance Optimization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core-systems/performance-optimization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="performance-optimization">
+<h1>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading"></a></h1>
+<p>This guide covers performance optimization techniques for the Siege Analytics ZSH Configuration System.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The system includes several performance optimization features:</p>
+<ul class="simple">
+<li><p><strong>Lazy loading</strong> of modules</p></li>
+<li><p><strong>PATH deduplication</strong> for faster command resolution</p></li>
+<li><p><strong>Caching systems</strong> for repeated operations</p></li>
+<li><p><strong>Memory optimization</strong> for large datasets</p></li>
+<li><p><strong>Startup time optimization</strong> for faster shell initialization</p></li>
+</ul>
+</section>
+<section id="path-optimization">
+<h2>PATH Optimization<a class="headerlink" href="#path-optimization" title="Link to this heading"></a></h2>
+<section id="path-deduplication">
+<h3>PATH Deduplication<a class="headerlink" href="#path-deduplication" title="Link to this heading"></a></h3>
+<p>The system automatically removes duplicate PATH entries:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manual PATH deduplication</span>
+deduplicate_path
+
+<span class="c1"># Automatic PATH deduplication (enabled by default)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH_DEDUPLICATION_ENABLED</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+
+<span class="c1"># Check PATH length</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PATH</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="w"> </span><span class="s1">&#39;\n&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+</pre></div>
+</div>
+<section id="performance-impact">
+<h4>Performance Impact<a class="headerlink" href="#performance-impact" title="Link to this heading"></a></h4>
+<p>PATH deduplication provides:</p>
+<ul class="simple">
+<li><p><strong>Faster command resolution</strong> (reduced PATH length)</p></li>
+<li><p><strong>Improved Finder performance</strong> on macOS</p></li>
+<li><p><strong>Reduced memory usage</strong> for PATH operations</p></li>
+<li><p><strong>Faster shell startup</strong> times</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="module-loading-optimization">
+<h2>Module Loading Optimization<a class="headerlink" href="#module-loading-optimization" title="Link to this heading"></a></h2>
+<section id="lazy-loading-system">
+<h3>Lazy Loading System<a class="headerlink" href="#lazy-loading-system" title="Link to this heading"></a></h3>
+<p>The system uses intelligent lazy loading:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Core modules (always loaded)</span>
+<span class="c1"># - init.zsh</span>
+<span class="c1"># - backup-system.zsh</span>
+<span class="c1"># - help-module.zsh</span>
+
+<span class="c1"># Optional modules (loaded on demand)</span>
+<span class="c1"># - Python system modules</span>
+<span class="c1"># - Spark integration modules</span>
+<span class="c1"># - Development tool modules</span>
+</pre></div>
+</div>
+<section id="configuration">
+<h4>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable lazy loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_LAZY_LOADING</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Disable auto-loading for faster startup</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span>
+
+<span class="c1"># Enable module caching</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_CACHE_ENABLED</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="memory-optimization">
+<h2>Memory Optimization<a class="headerlink" href="#memory-optimization" title="Link to this heading"></a></h2>
+<section id="spark-memory-tuning">
+<h3>Spark Memory Tuning<a class="headerlink" href="#spark-memory-tuning" title="Link to this heading"></a></h3>
+<p>Optimize Spark memory usage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For development (lower memory)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;512m&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_INSTANCES</span><span class="o">=</span><span class="s2">&quot;2&quot;</span>
+
+<span class="c1"># For production (higher memory)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;4g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;2g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_INSTANCES</span><span class="o">=</span><span class="s2">&quot;4&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="python-memory-management">
+<h3>Python Memory Management<a class="headerlink" href="#python-memory-management" title="Link to this heading"></a></h3>
+<p>Optimize Python memory usage:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Limit Python memory usage</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="s2">&quot;0&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONUNBUFFERED</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Optimize garbage collection</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONOPTIMIZE</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="startup-time-optimization">
+<h2>Startup Time Optimization<a class="headerlink" href="#startup-time-optimization" title="Link to this heading"></a></h2>
+<section id="shell-startup-performance">
+<h3>Shell Startup Performance<a class="headerlink" href="#shell-startup-performance" title="Link to this heading"></a></h3>
+<p>Optimize shell startup time:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Profile startup time</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;exit&#39;</span>
+
+<span class="c1"># Target: &lt; 1.5 seconds</span>
+<span class="c1"># Current: ~1.25 seconds</span>
+</pre></div>
+</div>
+<section id="optimization-techniques">
+<h4>Optimization Techniques<a class="headerlink" href="#optimization-techniques" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Disable slow-loading modules</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span>
+
+<span class="c1"># 2. Enable lazy loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_LAZY_LOADING</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># 3. Optimize PATH</span>
+deduplicate_path
+
+<span class="c1"># 4. Use minimal plugin set</span>
+<span class="nv">plugins</span><span class="o">=(</span>git<span class="w"> </span>python<span class="o">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="caching-systems">
+<h2>Caching Systems<a class="headerlink" href="#caching-systems" title="Link to this heading"></a></h2>
+<section id="module-loading-cache">
+<h3>Module Loading Cache<a class="headerlink" href="#module-loading-cache" title="Link to this heading"></a></h3>
+<p>The system caches loaded modules:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check cache status</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PYTHON_LOADED_MODULES</span>
+
+<span class="c1"># Clear cache if needed</span>
+<span class="nb">unset</span><span class="w"> </span>PYTHON_LOADED_MODULES
+
+<span class="c1"># Rebuild cache</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/python/init.zsh
+</pre></div>
+</div>
+</section>
+<section id="performance-metrics-cache">
+<h3>Performance Metrics Cache<a class="headerlink" href="#performance-metrics-cache" title="Link to this heading"></a></h3>
+<p>Cache performance metrics:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Performance cache location</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PYTHON_PERFORMANCE_CACHE</span>
+
+<span class="c1"># Clear performance cache</span>
+rm<span class="w"> </span>-f<span class="w"> </span><span class="nv">$PYTHON_PERFORMANCE_CACHE</span>
+
+<span class="c1"># Rebuild performance cache</span>
+python_benchmark
+</pre></div>
+</div>
+</section>
+</section>
+<section id="monitoring-and-profiling">
+<h2>Monitoring and Profiling<a class="headerlink" href="#monitoring-and-profiling" title="Link to this heading"></a></h2>
+<section id="performance-monitoring">
+<h3>Performance Monitoring<a class="headerlink" href="#performance-monitoring" title="Link to this heading"></a></h3>
+<p>Monitor system performance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check system performance</span>
+python_benchmark
+
+<span class="c1"># Monitor memory usage</span>
+ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>zsh
+
+<span class="c1"># Check startup time</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;exit&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="profiling-tools">
+<h3>Profiling Tools<a class="headerlink" href="#profiling-tools" title="Link to this heading"></a></h3>
+<p>Use profiling tools:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Profile shell startup</span>
+zsh<span class="w"> </span>-X<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;time zsh -i -c exit&#39;</span>
+
+<span class="c1"># Profile module loading</span>
+zsh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;time source ~/.config/zsh/python/init.zsh&#39;</span>
+
+<span class="c1"># Profile function execution</span>
+<span class="nb">time</span><span class="w"> </span>python_status
+</pre></div>
+</div>
+</section>
+</section>
+<section id="benchmarking">
+<h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Link to this heading"></a></h2>
+<section id="performance-benchmarks">
+<h3>Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Link to this heading"></a></h3>
+<p>Run comprehensive benchmarks:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python system benchmarks</span>
+python_benchmark
+
+<span class="c1"># Shell startup benchmarks</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;exit&#39;</span>
+
+<span class="c1"># Module loading benchmarks</span>
+<span class="nb">time</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>~/.config/zsh/backup-system.zsh
+</pre></div>
+</div>
+</section>
+<section id="target-performance-metrics">
+<h3>Target Performance Metrics<a class="headerlink" href="#target-performance-metrics" title="Link to this heading"></a></h3>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Performance Targets</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Current</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Startup Time</p></td>
+<td><p>&lt; 1.5s</p></td>
+<td><p>1.25s</p></td>
+<td><p>Optimized with lazy loading</p></td>
+</tr>
+<tr class="row-odd"><td><p>Memory Usage</p></td>
+<td><p>&lt; 100MB</p></td>
+<td><p>85MB</p></td>
+<td><p>Baseline with core modules</p></td>
+</tr>
+<tr class="row-even"><td><p>Command Response</p></td>
+<td><p>&lt; 50ms</p></td>
+<td><p>&lt; 50ms</p></td>
+<td><p>Immediate response</p></td>
+</tr>
+<tr class="row-odd"><td><p>Module Loading</p></td>
+<td><p>&lt; 100ms</p></td>
+<td><p>&lt; 100ms</p></td>
+<td><p>Fast module switching</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="troubleshooting-performance-issues">
+<h2>Troubleshooting Performance Issues<a class="headerlink" href="#troubleshooting-performance-issues" title="Link to this heading"></a></h2>
+<section id="common-performance-problems">
+<h3>Common Performance Problems<a class="headerlink" href="#common-performance-problems" title="Link to this heading"></a></h3>
+<section id="slow-startup">
+<h4>Slow Startup<a class="headerlink" href="#slow-startup" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Diagnose slow startup</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;exit&#39;</span>
+
+<span class="c1"># Check for slow modules</span>
+zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo &#39;Shell loaded&#39;&quot;</span>
+
+<span class="c1"># Profile module loading</span>
+zsh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;time source ~/.config/zsh/python/init.zsh&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="high-memory-usage">
+<h4>High Memory Usage<a class="headerlink" href="#high-memory-usage" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check memory usage</span>
+ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>zsh
+
+<span class="c1"># Reduce Spark memory</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;512m&quot;</span>
+
+<span class="c1"># Limit worker instances</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_INSTANCES</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="slow-command-execution">
+<h4>Slow Command Execution<a class="headerlink" href="#slow-command-execution" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check PATH length</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PATH</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="w"> </span><span class="s1">&#39;\n&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+
+<span class="c1"># Deduplicate PATH</span>
+deduplicate_path
+
+<span class="c1"># Check for slow commands</span>
+<span class="nb">time</span><span class="w"> </span>command_name
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="optimization-best-practices">
+<h2>Optimization Best Practices<a class="headerlink" href="#optimization-best-practices" title="Link to this heading"></a></h2>
+<section id="development-environment">
+<h3>Development Environment<a class="headerlink" href="#development-environment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use lazy loading</strong> for faster startup</p></li>
+<li><p><strong>Disable auto-loading</strong> of unused modules</p></li>
+<li><p><strong>Optimize PATH</strong> regularly</p></li>
+<li><p><strong>Monitor performance</strong> metrics</p></li>
+<li><p><strong>Use appropriate memory settings</strong></p></li>
+</ol>
+</section>
+<section id="production-environment">
+<h3>Production Environment<a class="headerlink" href="#production-environment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Enable all optimizations</strong> for maximum performance</p></li>
+<li><p><strong>Use production memory settings</strong> for Spark</p></li>
+<li><p><strong>Monitor system resources</strong> continuously</p></li>
+<li><p><strong>Optimize for your specific workload</strong></p></li>
+<li><p><strong>Regular performance audits</strong></p></li>
+</ol>
+</section>
+</section>
+<section id="advanced-optimization">
+<h2>Advanced Optimization<a class="headerlink" href="#advanced-optimization" title="Link to this heading"></a></h2>
+<section id="custom-optimization-scripts">
+<h3>Custom Optimization Scripts<a class="headerlink" href="#custom-optimization-scripts" title="Link to this heading"></a></h3>
+<p>Create custom optimization scripts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create optimization script</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/.config/zsh/optimize.zsh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/usr/bin/env zsh</span>
+
+<span class="s"># Performance optimization script</span>
+<span class="s">optimize_performance() {</span>
+<span class="s">    echo &quot;Optimizing performance...&quot;</span>
+
+<span class="s">    # Deduplicate PATH</span>
+<span class="s">    deduplicate_path</span>
+
+<span class="s">    # Clear caches</span>
+<span class="s">    unset PYTHON_LOADED_MODULES</span>
+
+<span class="s">    # Optimize memory settings</span>
+<span class="s">    export SPARK_DRIVER_MEMORY=&quot;1g&quot;</span>
+<span class="s">    export SPARK_EXECUTOR_MEMORY=&quot;512m&quot;</span>
+
+<span class="s">    echo &quot;Performance optimization complete&quot;</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Make executable</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>~/.config/zsh/optimize.zsh
+
+<span class="c1"># Source the script</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/optimize.zsh
+</pre></div>
+</div>
+</section>
+<section id="performance-monitoring-scripts">
+<h3>Performance Monitoring Scripts<a class="headerlink" href="#performance-monitoring-scripts" title="Link to this heading"></a></h3>
+<p>Create monitoring scripts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create monitoring script</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/.config/zsh/monitor.zsh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/usr/bin/env zsh</span>
+
+<span class="s"># Performance monitoring script</span>
+<span class="s">monitor_performance() {</span>
+<span class="s">    echo &quot;=== Performance Monitor ===&quot;</span>
+<span class="s">    echo &quot;Startup time: $(time zsh -i -c &#39;exit&#39; 2&gt;&amp;1 | grep real)&quot;</span>
+<span class="s">    echo &quot;Memory usage: $(ps aux | grep zsh | awk &#39;{sum+=$6} END {print sum/1024 &quot; MB&quot;}&#39;)&quot;</span>
+<span class="s">    echo &quot;PATH length: $(echo $PATH | tr &#39;:&#39; &#39;\n&#39; | wc -l)&quot;</span>
+<span class="s">    echo &quot;==========================&quot;</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Make executable</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>~/.config/zsh/monitor.zsh
+
+<span class="c1"># Source the script</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/monitor.zsh
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Performance optimization is an ongoing process. Regular monitoring and tuning ensure the system maintains optimal performance as your usage patterns evolve.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="help-system.html" class="btn btn-neutral float-left" title="Help System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../big-data/spark-system.html" class="btn btn-neutral float-right" title="Apache Spark Integration System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

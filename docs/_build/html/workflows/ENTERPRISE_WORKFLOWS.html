@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏢 Enterprise Development Workflows &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comworkflows/ENTERPRISE_WORKFLOWS.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">🏢 Enterprise Development Workflows</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/workflows/ENTERPRISE_WORKFLOWS.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="enterprise-development-workflows">
+<h1>🏢 Enterprise Development Workflows<a class="headerlink" href="#enterprise-development-workflows" title="Link to this heading"></a></h1>
+<section id="geospatial-data-analytics">
+<h2>🌍 Geospatial Data Analytics<a class="headerlink" href="#geospatial-data-analytics" title="Link to this heading"></a></h2>
+<section id="large-scale-geospatial-processing">
+<h3><strong>Large-Scale Geospatial Processing</strong><a class="headerlink" href="#large-scale-geospatial-processing" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Environment setup</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span>activate<span class="w"> </span>geo31111
+python_status<span class="w">  </span><span class="c1"># Verify geospatial environment</span>
+
+<span class="c1"># 2. Load enterprise big data stack</span>
+load_big_data<span class="w">  </span><span class="c1"># 74K-line Spark system + Hadoop</span>
+
+<span class="c1"># 3. Start cluster services</span>
+start_hadoop<span class="w">   </span><span class="c1"># HDFS + YARN services</span>
+
+<span class="c1"># 4. Launch analysis environment</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span><span class="w">  </span><span class="c1"># Spark + Sedona + GeoPandas</span>
+
+<span class="c1"># 5. Monitor via web UIs</span>
+open<span class="w"> </span>http://localhost:9870<span class="w">  </span><span class="c1"># HDFS NameNode</span>
+open<span class="w"> </span>http://localhost:8088<span class="w">  </span><span class="c1"># YARN Resource Manager</span>
+open<span class="w"> </span>http://localhost:8889<span class="w">  </span><span class="c1"># Jupyter Lab</span>
+</pre></div>
+</div>
+</section>
+<section id="api-heavy-geospatial-workloads">
+<h3><strong>API-Heavy Geospatial Workloads</strong><a class="headerlink" href="#api-heavy-geospatial-workloads" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optimized for geocoding, reverse geocoding, API calls</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span>activate<span class="w"> </span>geo31111
+load_big_data
+
+<span class="c1"># Run with API optimization</span>
+heavy_api_submit<span class="w"> </span>geocoding_pipeline.py<span class="w"> </span>auto
+
+<span class="c1"># Features:</span>
+<span class="c1"># - Increased API timeouts</span>
+<span class="c1"># - Enhanced error handling for network calls</span>
+<span class="c1"># - Optimized serialization for complex geodata</span>
+<span class="c1"># - Adaptive query execution for varying API response times</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="data-science-research-pipeline">
+<h2>📊 Data Science Research Pipeline<a class="headerlink" href="#data-science-research-pipeline" title="Link to this heading"></a></h2>
+<section id="multi-stage-analysis-pipeline">
+<h3><strong>Multi-Stage Analysis Pipeline</strong><a class="headerlink" href="#multi-stage-analysis-pipeline" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stage 1: Data ingestion and cleaning</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span>activate<span class="w"> </span>research_env
+load_big_data
+
+<span class="c1"># Stage 2: Distributed processing  </span>
+distributed_spark_submit<span class="w"> </span>data_processing.py
+
+<span class="c1"># Stage 3: Analysis and modeling</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+<span class="c1"># Available: Spark MLlib, Sedona geospatial, GraphFrames</span>
+
+<span class="c1"># Stage 4: Results and visualization  </span>
+python_benchmark<span class="w">  </span><span class="c1"># Performance analysis</span>
+<span class="c1"># Export results for reporting</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="production-deployment-workflow">
+<h2>🚀 Production Deployment Workflow<a class="headerlink" href="#production-deployment-workflow" title="Link to this heading"></a></h2>
+<section id="development-staging-production">
+<h3><strong>Development → Staging → Production</strong><a class="headerlink" href="#development-staging-production" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Development environment</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span><span class="nb">local</span><span class="w"> </span>dev_env
+load_big_data
+jupyter_spark<span class="w"> </span><span class="m">8889</span><span class="w">  </span><span class="c1"># Interactive development</span>
+
+<span class="c1"># Staging testing</span>
+pyenv<span class="w"> </span>activate<span class="w"> </span>staging_env
+test_spark_comprehensive<span class="w">  </span><span class="c1"># Full system validation</span>
+
+<span class="c1"># Production deployment  </span>
+pyenv<span class="w"> </span>activate<span class="w"> </span>prod_env
+spark_yarn_submit<span class="w"> </span>production_pipeline.py<span class="w">  </span><span class="c1"># YARN cluster execution</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="machine-learning-operations-mlops">
+<h2>🤖 Machine Learning Operations (MLOps)<a class="headerlink" href="#machine-learning-operations-mlops" title="Link to this heading"></a></h2>
+<section id="distributed-ml-pipeline">
+<h3><strong>Distributed ML Pipeline</strong><a class="headerlink" href="#distributed-ml-pipeline" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Feature engineering</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span>activate<span class="w"> </span>ml_env
+load_big_data
+
+<span class="c1"># 2. Distributed training</span>
+distributed_spark_submit<span class="w"> </span>train_distributed_model.py
+
+<span class="c1"># 3. Model validation  </span>
+smart_spark_submit<span class="w"> </span>validate_model.py<span class="w">  </span><span class="c1"># Auto-detect best execution</span>
+
+<span class="c1"># 4. Deployment pipeline</span>
+<span class="c1"># Integration with Docker module for containerized deployment</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="multi-project-development">
+<h2>🔄 Multi-Project Development<a class="headerlink" href="#multi-project-development" title="Link to this heading"></a></h2>
+<section id="parallel-development-environments">
+<h3><strong>Parallel Development Environments</strong><a class="headerlink" href="#parallel-development-environments" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Terminal 1: Geospatial Research</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span>activate<span class="w"> </span>geo_research<span class="w">  </span>
+load_big_data<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># Terminal 2: Web API Development</span>
+setup_uv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/projects/geo_api
+uv<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>main:app<span class="w"> </span>--reload
+
+<span class="c1"># Terminal 3: DevOps and Deployment</span>
+<span class="c1"># Docker functions available</span>
+<span class="c1"># System administration utilities</span>
+
+<span class="c1"># Terminal 4: Performance Analysis  </span>
+python_benchmark<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python_health_check
+<span class="c1"># Monitor system performance across all environments</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

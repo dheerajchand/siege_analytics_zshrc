@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🛠️ Installation Guide for Enterprise ZSH System (SDKMAN-Based) &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comguides/INSTALLATION.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">🛠️ Installation Guide for Enterprise ZSH System (SDKMAN-Based)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/INSTALLATION.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="installation-guide-for-enterprise-zsh-system-sdkman-based">
+<h1>🛠️ Installation Guide for Enterprise ZSH System (SDKMAN-Based)<a class="headerlink" href="#installation-guide-for-enterprise-zsh-system-sdkman-based" title="Link to this heading"></a></h1>
+<section id="system-requirements">
+<h2>🎯 System Requirements<a class="headerlink" href="#system-requirements" title="Link to this heading"></a></h2>
+<section id="prerequisites">
+<h3><strong>Prerequisites</strong><a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>macOS, Ubuntu Linux, or RedHat Linux</p></li>
+<li><p>Zsh shell (macOS default, installable on Linux)</p></li>
+<li><p>Git for version control</p></li>
+<li><p>Oh My Zsh framework</p></li>
+<li><p><strong>SDKMAN</strong> for all tool management (cross-platform consistency)</p></li>
+</ul>
+</section>
+<section id="sdkman-first-philosophy">
+<h3><strong>SDKMAN-First Philosophy</strong><a class="headerlink" href="#sdkman-first-philosophy" title="Link to this heading"></a></h3>
+<p>This system uses <strong>SDKMAN</strong> for all development tool management, ensuring:</p>
+<ul class="simple">
+<li><p><strong>Consistent installation</strong> across all platforms</p></li>
+<li><p><strong>Version management</strong> for all tools</p></li>
+<li><p><strong>No root privileges</strong> required</p></li>
+<li><p><strong>Cross-platform compatibility</strong> (macOS, Ubuntu, RedHat)</p></li>
+</ul>
+</section>
+</section>
+<section id="installation-methods">
+<h2>🚀 Installation Methods<a class="headerlink" href="#installation-methods" title="Link to this heading"></a></h2>
+<section id="method-1-complete-system-clone-recommended">
+<h3><strong>Method 1: Complete System Clone (Recommended)</strong><a class="headerlink" href="#method-1-complete-system-clone-recommended" title="Link to this heading"></a></h3>
+<section id="step-1-install-sdkman">
+<h4>Step 1: Install SDKMAN<a class="headerlink" href="#step-1-install-sdkman" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install SDKMAN (works on all platforms)</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+
+<span class="c1"># Reload shell</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># Verify installation</span>
+sdk<span class="w"> </span>version
+</pre></div>
+</div>
+</section>
+<section id="step-2-install-all-tools-via-sdkman">
+<h4>Step 2: Install All Tools via SDKMAN<a class="headerlink" href="#step-2-install-all-tools-via-sdkman" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Java (OpenJDK 17 - recommended for Spark 3.5.3)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+sdk<span class="w"> </span>default<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+
+<span class="c1"># Scala (2.12.18 for Spark compatibility)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>scala<span class="w"> </span><span class="m">2</span>.12.18
+sdk<span class="w"> </span>default<span class="w"> </span>scala<span class="w"> </span><span class="m">2</span>.12.18
+
+<span class="c1"># Spark (3.5.3 - latest stable)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>spark<span class="w"> </span><span class="m">3</span>.5.3
+sdk<span class="w"> </span>default<span class="w"> </span>spark<span class="w"> </span><span class="m">3</span>.5.3
+
+<span class="c1"># Hadoop (3.3.6 - compatible with Spark 3.5.3)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>hadoop<span class="w"> </span><span class="m">3</span>.3.6
+sdk<span class="w"> </span>default<span class="w"> </span>hadoop<span class="w"> </span><span class="m">3</span>.3.6
+
+<span class="c1"># Maven (for dependency management)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>maven<span class="w"> </span><span class="m">3</span>.9.6
+sdk<span class="w"> </span>default<span class="w"> </span>maven<span class="w"> </span><span class="m">3</span>.9.6
+
+<span class="c1"># Gradle (alternative build tool)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>gradle<span class="w"> </span><span class="m">8</span>.5
+sdk<span class="w"> </span>default<span class="w"> </span>gradle<span class="w"> </span><span class="m">8</span>.5
+</pre></div>
+</div>
+</section>
+<section id="step-3-install-python-tools">
+<h4>Step 3: Install Python Tools<a class="headerlink" href="#step-3-install-python-tools" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># pyenv (Python version management)</span>
+sdk<span class="w"> </span>install<span class="w"> </span>pyenv
+sdk<span class="w"> </span>default<span class="w"> </span>pyenv
+
+<span class="c1"># Initialize pyenv</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYENV_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/pyenv/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PYENV_ROOT</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>pyenv<span class="w"> </span>init<span class="w"> </span>-<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>pyenv<span class="w"> </span>virtualenv-init<span class="w"> </span>-<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># Install Python 3.11 (recommended)</span>
+pyenv<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.11.7
+pyenv<span class="w"> </span>global<span class="w"> </span><span class="m">3</span>.11.7
+
+<span class="c1"># Install uv (modern Python package manager)</span>
+curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.local/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-install-node-js-tools">
+<h4>Step 4: Install Node.js Tools<a class="headerlink" href="#step-4-install-node-js-tools" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># NVM (Node version management)</span>
+curl<span class="w"> </span>-o-<span class="w"> </span>https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+
+<span class="c1"># Install Node.js LTS</span>
+nvm<span class="w"> </span>install<span class="w"> </span>--lts
+nvm<span class="w"> </span>use<span class="w"> </span>--lts
+nvm<span class="w"> </span><span class="nb">alias</span><span class="w"> </span>default<span class="w"> </span>lts/*
+</pre></div>
+</div>
+</section>
+<section id="step-5-clone-and-setup-configuration">
+<h4>Step 5: Clone and Setup Configuration<a class="headerlink" href="#step-5-clone-and-setup-configuration" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Navigate to configuration directory</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config
+
+<span class="c1"># 2. Backup existing zsh config</span>
+<span class="o">[</span><span class="w"> </span>-d<span class="w"> </span>zsh<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mv<span class="w"> </span>zsh<span class="w"> </span>zsh.backup.<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d_%H%M%S<span class="k">)</span>
+
+<span class="c1"># 3. Clone the enterprise system</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dheerajchand/siege_analytics_zshrc.git<span class="w"> </span>zsh
+
+<span class="c1"># 4. Setup main zshrc symlink  </span>
+ln<span class="w"> </span>-sf<span class="w"> </span>~/.config/zsh/zshrc<span class="w"> </span>~/.zshrc
+
+<span class="c1"># 5. Install Oh My Zsh if needed</span>
+sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># 6. Install Powerlevel10k theme</span>
+git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">1</span><span class="w"> </span>https://github.com/romkatv/powerlevel10k.git<span class="w"> </span>~/.oh-my-zsh/custom/themes/powerlevel10k
+
+<span class="c1"># 7. Test installation</span>
+<span class="nb">exec</span><span class="w"> </span>zsh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="method-2-selective-module-installation">
+<h3><strong>Method 2: Selective Module Installation</strong><a class="headerlink" href="#method-2-selective-module-installation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install just Python system</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>~/.config/zsh/python
+cp<span class="w"> </span>-r<span class="w"> </span>python/<span class="w"> </span>~/.config/zsh/
+
+<span class="c1"># Install specific big data modules</span>
+cp<span class="w"> </span>spark.zsh<span class="w"> </span>~/.config/zsh/<span class="w">     </span><span class="c1"># 74K-line Spark system</span>
+cp<span class="w"> </span>hadoop.zsh<span class="w"> </span>~/.config/zsh/<span class="w">    </span><span class="c1"># Hadoop integration</span>
+cp<span class="w"> </span>notebooks.zsh<span class="w"> </span>~/.config/zsh/<span class="w"> </span><span class="c1"># Jupyter integration</span>
+
+<span class="c1"># Update main zshrc to source selected modules</span>
+</pre></div>
+</div>
+</section>
+<section id="method-3-development-setup">
+<h3><strong>Method 3: Development Setup</strong><a class="headerlink" href="#method-3-development-setup" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For development/customization of the system</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dheerajchand/siege_analytics_zshrc.git<span class="w"> </span>zsh-dev
+<span class="nb">cd</span><span class="w"> </span>zsh-dev
+
+<span class="c1"># Make modifications</span>
+<span class="c1"># Test with: ./scripts/setup/quick_install.sh</span>
+
+<span class="c1"># Apply when ready:</span>
+mv<span class="w"> </span>~/.config/zsh<span class="w"> </span>~/.config/zsh.backup
+mv<span class="w"> </span>~/.config/zsh-dev<span class="w"> </span>~/.config/zsh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validation-testing">
+<h2>🧪 Validation &amp; Testing<a class="headerlink" href="#validation-testing" title="Link to this heading"></a></h2>
+<section id="installation-validation">
+<h3><strong>Installation Validation</strong><a class="headerlink" href="#installation-validation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Test startup time (should be &lt;1.5s)</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;exit&#39;</span>
+
+<span class="c1"># 2. Test core functions</span>
+zsh_help<span class="w"> </span>all<span class="w">               </span><span class="c1"># Comprehensive guide</span>
+zsh_help<span class="w"> </span>backup<span class="w">            </span><span class="c1"># Backup system help</span>
+zsh_help<span class="w"> </span>spark<span class="w">             </span><span class="c1"># Spark system help</span>
+
+<span class="c1"># 3. Test Python system</span>
+setup_pyenv<span class="w">               </span><span class="c1"># Initialize Python management</span>
+pyenv<span class="w"> </span>versions<span class="w">            </span><span class="c1"># Should show available versions</span>
+
+<span class="c1"># 4. Test big data system  </span>
+load_big_data<span class="w">             </span><span class="c1"># Load 74K-line Spark system</span>
+<span class="c1"># Should see: Spark, Hadoop, notebook support loaded</span>
+
+<span class="c1"># 5. Test advanced features</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span><span class="w">        </span><span class="c1"># Spark-enabled Jupyter</span>
+python_benchmark<span class="w">         </span><span class="c1"># Performance testing</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-targets">
+<h3><strong>Performance Targets</strong><a class="headerlink" href="#performance-targets" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>✅ Startup time</strong>: &lt;1.5 seconds</p></li>
+<li><p><strong>✅ Memory usage</strong>: &lt;100MB baseline</p></li>
+<li><p><strong>✅ Command response</strong>: Immediate (no hanging)</p></li>
+<li><p><strong>✅ Module loading</strong>: On-demand, fast</p></li>
+</ul>
+</section>
+<section id="common-issues-fixes">
+<h3><strong>Common Issues &amp; Fixes</strong><a class="headerlink" href="#common-issues-fixes" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Slow startup</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="w">   </span><span class="c1"># Disable auto-loading</span>
+
+<span class="c1"># Missing functions</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/backup-system.zsh<span class="w"> </span><span class="c1"># Reload backup system</span>
+
+<span class="c1"># Spark not working  </span>
+load_big_data<span class="w">                        </span><span class="c1"># Manual loading required</span>
+
+<span class="c1"># Python environment issues</span>
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python_status<span class="w">         </span><span class="c1"># Reinitialize and check</span>
+
+<span class="c1"># SDKMAN issues</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span><span class="w">  </span><span class="c1"># Reload SDKMAN</span>
+sdk<span class="w"> </span>current<span class="w">                          </span><span class="c1"># Check installed tools</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration">
+<h2>🔧 Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<section id="set-default-python-environment">
+<h3><strong>Set Default Python Environment</strong><a class="headerlink" href="#set-default-python-environment" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># After installation</span>
+setup_pyenv<span class="w">  </span>
+pyenv<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.11.7<span class="w">              </span><span class="c1"># Install Python version</span>
+pyenv<span class="w"> </span>virtualenv<span class="w"> </span><span class="m">3</span>.11.7<span class="w"> </span>default<span class="w">   </span><span class="c1"># Create default environment</span>
+pyenv<span class="w"> </span>global<span class="w"> </span>default<span class="w">               </span><span class="c1"># Set as system default</span>
+
+<span class="c1"># For data science</span>
+pyenv<span class="w"> </span>virtualenv<span class="w"> </span><span class="m">3</span>.11.7<span class="w"> </span>data_science
+pip<span class="w"> </span>install<span class="w"> </span>pandas<span class="w"> </span>numpy<span class="w"> </span>jupyter<span class="w"> </span>matplotlib<span class="w"> </span>seaborn
+pyenv<span class="w"> </span>global<span class="w"> </span>data_science
+</pre></div>
+</div>
+</section>
+<section id="enable-advanced-features">
+<h3><strong>Enable Advanced Features</strong><a class="headerlink" href="#enable-advanced-features" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edit ~/.config/zsh/python/init.zsh for more automation:</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">     </span><span class="c1"># Auto-load all Python modules</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTO_INIT</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">            </span><span class="c1"># Auto-initialize Python</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_SHOW_STATUS_ON_LOAD</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">  </span><span class="c1"># Show startup status</span>
+
+<span class="c1"># Trade some startup speed for more automatic functionality</span>
+</pre></div>
+</div>
+</section>
+<section id="big-data-configuration">
+<h3><strong>Big Data Configuration</strong><a class="headerlink" href="#big-data-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure Spark memory (adjust for your system)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;4g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;2g&quot;</span>
+
+<span class="c1"># For heavy API workloads</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HEAVY_API_MODE</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="sdkman-environment-variables">
+<h3><strong>SDKMAN Environment Variables</strong><a class="headerlink" href="#sdkman-environment-variables" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to ~/.zshrc for consistent SDKMAN integration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SDKMAN_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman&quot;</span>
+<span class="o">[[</span><span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># SDKMAN-managed environment variables</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/java/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SCALA_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/scala/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/spark/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/hadoop/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MAVEN_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/maven/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">GRADLE_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/gradle/current&quot;</span>
+
+<span class="c1"># Add to PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$JAVA_HOME</span><span class="s2">/bin:</span><span class="nv">$SCALA_HOME</span><span class="s2">/bin:</span><span class="nv">$SPARK_HOME</span><span class="s2">/bin:</span><span class="nv">$HADOOP_HOME</span><span class="s2">/bin:</span><span class="nv">$MAVEN_HOME</span><span class="s2">/bin:</span><span class="nv">$GRADLE_HOME</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="post-installation">
+<h2>🎯 Post-Installation<a class="headerlink" href="#post-installation" title="Link to this heading"></a></h2>
+<section id="verify-complete-system">
+<h3><strong>Verify Complete System</strong><a class="headerlink" href="#verify-complete-system" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check all major components</span>
+zsh_help<span class="w"> </span>all<span class="w">                  </span><span class="c1"># Help system</span>
+load_big_data<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>hadoop_status<span class="w"> </span><span class="c1"># Big data stack  </span>
+python_status<span class="w">                 </span><span class="c1"># Python system</span>
+
+<span class="c1"># Performance check</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;exit&#39;</span><span class="w">        </span><span class="c1"># Should be fast</span>
+
+<span class="c1"># Module inventory</span>
+find<span class="w"> </span>~/.config/zsh<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.zsh&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="w">  </span><span class="c1"># Should show 15+ modules</span>
+
+<span class="c1"># SDKMAN verification</span>
+sdk<span class="w"> </span>current<span class="w">                   </span><span class="c1"># Should show all installed tools</span>
+</pre></div>
+</div>
+</section>
+<section id="create-first-project">
+<h3><strong>Create First Project</strong><a class="headerlink" href="#create-first-project" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Data science project</span>
+mkdir<span class="w"> </span>my_analysis<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>my_analysis
+setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span><span class="nb">local</span><span class="w"> </span>data_science
+load_big_data<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># Modern web project</span>
+mkdir<span class="w"> </span>my_api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>my_api<span class="w">  </span>
+setup_uv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>init<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
+uv<span class="w"> </span>add<span class="w"> </span>fastapi<span class="w"> </span>uvicorn
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cross-platform-notes">
+<h2>🌍 Cross-Platform Notes<a class="headerlink" href="#cross-platform-notes" title="Link to this heading"></a></h2>
+<section id="macos">
+<h3><strong>macOS</strong><a class="headerlink" href="#macos" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>SDKMAN works natively</p></li>
+<li><p>No additional system dependencies required</p></li>
+<li><p>All tools managed through SDKMAN</p></li>
+</ul>
+</section>
+<section id="ubuntu-linux">
+<h3><strong>Ubuntu Linux</strong><a class="headerlink" href="#ubuntu-linux" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install minimal system dependencies</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>update
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>zsh<span class="w"> </span>git<span class="w"> </span>curl<span class="w"> </span>wget<span class="w"> </span>build-essential<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-venv<span class="w"> </span>python3-dev
+
+<span class="c1"># Then follow SDKMAN installation above</span>
+</pre></div>
+</div>
+</section>
+<section id="redhat-linux">
+<h3><strong>RedHat Linux</strong><a class="headerlink" href="#redhat-linux" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install minimal system dependencies</span>
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>epel-release
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>zsh<span class="w"> </span>git<span class="w"> </span>curl<span class="w"> </span>wget<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>make<span class="w"> </span>python3<span class="w"> </span>python3-pip<span class="w"> </span>python3-devel
+
+<span class="c1"># Then follow SDKMAN installation above</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>🔧 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="sdkman-issues">
+<h3><strong>SDKMAN Issues</strong><a class="headerlink" href="#sdkman-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check SDKMAN installation</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.sdkman
+
+<span class="c1"># Reinstall if needed</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># Check installed tools</span>
+sdk<span class="w"> </span>current
+
+<span class="c1"># List available candidates</span>
+sdk<span class="w"> </span>list<span class="w"> </span>java
+sdk<span class="w"> </span>list<span class="w"> </span>scala
+sdk<span class="w"> </span>list<span class="w"> </span>spark
+</pre></div>
+</div>
+</section>
+<section id="tool-not-found-issues">
+<h3><strong>Tool Not Found Issues</strong><a class="headerlink" href="#tool-not-found-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check environment variables</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;JAVA_HOME: </span><span class="nv">$JAVA_HOME</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SPARK_HOME: </span><span class="nv">$SPARK_HOME</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;HADOOP_HOME: </span><span class="nv">$HADOOP_HOME</span><span class="s2">&quot;</span>
+
+<span class="c1"># Reload SDKMAN</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># Reinstall tools if needed</span>
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+sdk<span class="w"> </span>default<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+</pre></div>
+</div>
+</section>
+<section id="performance-issues">
+<h3><strong>Performance Issues</strong><a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Profile shell startup</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="nb">exit</span>
+
+<span class="c1"># Check for slow-loading modules</span>
+zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo &#39;Shell loaded&#39;&quot;</span>
+
+<span class="c1"># Use optimization function</span>
+optimize
+</pre></div>
+</div>
+<hr class="docutils" />
+<p><strong>🎉 Installation complete!</strong> You now have access to the enterprise-grade modular ZSH system with 100K+ lines of professional development capabilities, all managed through SDKMAN for consistent cross-platform operation.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

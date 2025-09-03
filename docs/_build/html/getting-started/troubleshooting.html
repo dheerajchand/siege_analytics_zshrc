@@ -1,0 +1,602 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Troubleshooting Guide &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comgetting-started/troubleshooting.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Python Management System" href="../core-systems/python-management.html" />
+    <link rel="prev" title="Configuration Guide" href="configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shell-not-loading">Shell Not Loading</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#symptoms">Symptoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solutions">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#functions-not-available">Functions Not Available</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Symptoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#python-issues">Python Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Symptoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sdkman-issues">SDKMAN Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Symptoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#spark-issues">Spark Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Symptoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#backup-system-issues">Backup System Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id9">Symptoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Solutions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#slow-startup">Slow Startup</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#diagnosis">Diagnosis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#high-memory-usage">High Memory Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id12">Diagnosis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#command-not-found-errors">Command Not Found Errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id14">Diagnosis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">Solutions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-techniques">Debugging Techniques</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enable-debug-mode">Enable Debug Mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#log-analysis">Log Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-testing">Module Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#recovery-procedures">Recovery Procedures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#complete-reset">Complete Reset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#partial-reset">Partial Reset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-reset">Environment Reset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#support-channels">Support Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emergency-contacts">Emergency Contacts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Troubleshooting Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/getting-started/troubleshooting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="troubleshooting-guide">
+<h1>Troubleshooting Guide<a class="headerlink" href="#troubleshooting-guide" title="Link to this heading"></a></h1>
+<p>This guide helps you diagnose and resolve common issues with the Siege Analytics ZSH Configuration System.</p>
+<section id="common-issues">
+<h2>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h2>
+<section id="shell-not-loading">
+<h3>Shell Not Loading<a class="headerlink" href="#shell-not-loading" title="Link to this heading"></a></h3>
+<section id="symptoms">
+<h4>Symptoms<a class="headerlink" href="#symptoms" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Shell hangs during startup</p></li>
+<li><p>Error messages during initialization</p></li>
+<li><p>Functions not available</p></li>
+</ul>
+</section>
+<section id="solutions">
+<h4>Solutions<a class="headerlink" href="#solutions" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if zshrc exists and is a symlink</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.zshrc
+file<span class="w"> </span>~/.zshrc
+
+<span class="c1"># Recreate symlink if needed</span>
+ln<span class="w"> </span>-sf<span class="w"> </span>~/.config/zsh/zshrc<span class="w"> </span>~/.zshrc
+
+<span class="c1"># Test configuration syntax</span>
+zsh<span class="w"> </span>-n<span class="w"> </span>~/.zshrc
+
+<span class="c1"># Start with minimal configuration</span>
+zsh<span class="w"> </span>-f
+</pre></div>
+</div>
+</section>
+</section>
+<section id="functions-not-available">
+<h3>Functions Not Available<a class="headerlink" href="#functions-not-available" title="Link to this heading"></a></h3>
+<section id="id1">
+<h4>Symptoms<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Commands like <cite>zsh_help</cite> not found</p></li>
+<li><p>Python functions not working</p></li>
+<li><p>Backup functions missing</p></li>
+</ul>
+</section>
+<section id="id2">
+<h4>Solutions<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reload configuration</span>
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+
+<span class="c1"># Check if modules are loaded</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$HELP_MODULE_LOADED</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PYTHON_MODULE_LOADED</span>
+
+<span class="c1"># Manually load modules</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/backup-system.zsh
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
+
+<span class="c1"># Check module paths</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.config/zsh/*.zsh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="python-issues">
+<h3>Python Issues<a class="headerlink" href="#python-issues" title="Link to this heading"></a></h3>
+<section id="id3">
+<h4>Symptoms<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Python commands not working</p></li>
+<li><p>Virtual environments not activating</p></li>
+<li><p>Spark Python integration failing</p></li>
+</ul>
+</section>
+<section id="id4">
+<h4>Solutions<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Python status</span>
+python_status
+
+<span class="c1"># Reinitialize Python system</span>
+setup_pyenv
+setup_uv
+
+<span class="c1"># Check Python version</span>
+python<span class="w"> </span>--version
+pyenv<span class="w"> </span>versions
+
+<span class="c1"># Test Python integration</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import sys; print(sys.executable)&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sdkman-issues">
+<h3>SDKMAN Issues<a class="headerlink" href="#sdkman-issues" title="Link to this heading"></a></h3>
+<section id="id5">
+<h4>Symptoms<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>SDKMAN commands not found</p></li>
+<li><p>Tools not installing</p></li>
+<li><p>Environment variables not set</p></li>
+</ul>
+</section>
+<section id="id6">
+<h4>Solutions<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reload SDKMAN</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># Check SDKMAN installation</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.sdkman
+
+<span class="c1"># Reinstall SDKMAN if needed</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+
+<span class="c1"># Check installed tools</span>
+sdk<span class="w"> </span>current
+
+<span class="c1"># List available candidates</span>
+sdk<span class="w"> </span>list<span class="w"> </span>java
+sdk<span class="w"> </span>list<span class="w"> </span>spark
+</pre></div>
+</div>
+</section>
+</section>
+<section id="spark-issues">
+<h3>Spark Issues<a class="headerlink" href="#spark-issues" title="Link to this heading"></a></h3>
+<section id="id7">
+<h4>Symptoms<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Spark not starting</p></li>
+<li><p>Jupyter not connecting to Spark</p></li>
+<li><p>Memory errors</p></li>
+</ul>
+</section>
+<section id="id8">
+<h4>Solutions<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Spark installation</span>
+ls<span class="w"> </span>-la<span class="w"> </span><span class="nv">$SPARK_HOME</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SPARK_HOME: </span><span class="nv">$SPARK_HOME</span><span class="s2">&quot;</span>
+
+<span class="c1"># Verify Java installation</span>
+java<span class="w"> </span>-version
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;JAVA_HOME: </span><span class="nv">$JAVA_HOME</span><span class="s2">&quot;</span>
+
+<span class="c1"># Test Spark</span>
+spark-shell<span class="w"> </span>--version
+
+<span class="c1"># Check Spark configuration</span>
+show_spark_config
+
+<span class="c1"># Adjust memory settings</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;512m&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="backup-system-issues">
+<h3>Backup System Issues<a class="headerlink" href="#backup-system-issues" title="Link to this heading"></a></h3>
+<section id="id9">
+<h4>Symptoms<a class="headerlink" href="#id9" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Backup commands failing</p></li>
+<li><p>Repository sync issues</p></li>
+<li><p>Git errors</p></li>
+</ul>
+</section>
+<section id="id10">
+<h4>Solutions<a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check backup system status</span>
+repostatus
+zsh_repo_status
+
+<span class="c1"># Verify environment variables</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$ZSHRC_CONFIG_DIR</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$ZSHRC_BACKUPS</span>
+
+<span class="c1"># Check Git status</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config/zsh<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>status
+<span class="nb">cd</span><span class="w"> </span>~/.zshrc_backups<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>status
+
+<span class="c1"># Force sync if needed</span>
+sync_zsh_repositories<span class="w"> </span><span class="s2">&quot;Emergency sync&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="performance-issues">
+<h2>Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h2>
+<section id="slow-startup">
+<h3>Slow Startup<a class="headerlink" href="#slow-startup" title="Link to this heading"></a></h3>
+<section id="diagnosis">
+<h4>Diagnosis<a class="headerlink" href="#diagnosis" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Profile startup time</span>
+<span class="nb">time</span><span class="w"> </span>zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="nb">exit</span>
+
+<span class="c1"># Check for slow modules</span>
+zsh<span class="w"> </span>-i<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;echo &#39;Shell loaded&#39;&quot;</span>
+
+<span class="c1"># Monitor module loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_DEBUG</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h4>Solutions<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Disable auto-loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span>
+
+<span class="c1"># Enable lazy loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_LAZY_LOADING</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Optimize PATH</span>
+deduplicate_path
+
+<span class="c1"># Remove unused modules</span>
+<span class="c1"># Comment out unused module sources in zshrc</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="high-memory-usage">
+<h3>High Memory Usage<a class="headerlink" href="#high-memory-usage" title="Link to this heading"></a></h3>
+<section id="id12">
+<h4>Diagnosis<a class="headerlink" href="#id12" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check memory usage</span>
+ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>zsh
+top<span class="w"> </span>-p<span class="w"> </span><span class="nv">$$</span>
+
+<span class="c1"># Check Spark memory</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SPARK_DRIVER_MEMORY: </span><span class="nv">$SPARK_DRIVER_MEMORY</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SPARK_EXECUTOR_MEMORY: </span><span class="nv">$SPARK_EXECUTOR_MEMORY</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h4>Solutions<a class="headerlink" href="#id13" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reduce Spark memory</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;512m&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;256m&quot;</span>
+
+<span class="c1"># Limit worker instances</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_INSTANCES</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Disable unused features</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="command-not-found-errors">
+<h3>Command Not Found Errors<a class="headerlink" href="#command-not-found-errors" title="Link to this heading"></a></h3>
+<section id="id14">
+<h4>Diagnosis<a class="headerlink" href="#id14" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check PATH</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PATH</span>
+
+<span class="c1"># Check if command exists</span>
+which<span class="w"> </span>command_name
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>command_name
+
+<span class="c1"># Check module loading</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$HELP_MODULE_LOADED</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h4>Solutions<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reload configuration</span>
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+
+<span class="c1"># Check module files</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.config/zsh/*.zsh
+
+<span class="c1"># Manually load modules</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="debugging-techniques">
+<h2>Debugging Techniques<a class="headerlink" href="#debugging-techniques" title="Link to this heading"></a></h2>
+<section id="enable-debug-mode">
+<h3>Enable Debug Mode<a class="headerlink" href="#enable-debug-mode" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable Python debug mode</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_DEBUG</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Enable shell debug mode</span>
+<span class="nb">set</span><span class="w"> </span>-x
+
+<span class="c1"># Check debug output</span>
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+</section>
+<section id="log-analysis">
+<h3>Log Analysis<a class="headerlink" href="#log-analysis" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check system logs</span>
+tail<span class="w"> </span>-f<span class="w"> </span>/var/log/system.log
+
+<span class="c1"># Check shell history</span>
+<span class="nb">history</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-20
+
+<span class="c1"># Check error logs</span>
+dmesg<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-20
+</pre></div>
+</div>
+</section>
+<section id="module-testing">
+<h3>Module Testing<a class="headerlink" href="#module-testing" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test individual modules</span>
+zsh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/backup-system.zsh; backup &#39;test&#39;&quot;</span>
+
+<span class="c1"># Test Python system</span>
+zsh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/python/init.zsh; python_status&quot;</span>
+
+<span class="c1"># Test help system</span>
+zsh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/help-module.zsh; zsh_help all&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="recovery-procedures">
+<h2>Recovery Procedures<a class="headerlink" href="#recovery-procedures" title="Link to this heading"></a></h2>
+<section id="complete-reset">
+<h3>Complete Reset<a class="headerlink" href="#complete-reset" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Backup current configuration</span>
+cp<span class="w"> </span>-r<span class="w"> </span>~/.config/zsh<span class="w"> </span>~/.config/zsh.backup.<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d_%H%M%S<span class="k">)</span>
+
+<span class="c1"># Remove current configuration</span>
+rm<span class="w"> </span>-rf<span class="w"> </span>~/.config/zsh
+rm<span class="w"> </span>-f<span class="w"> </span>~/.zshrc
+
+<span class="c1"># Reinstall from repository</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dheerajchand/siege_analytics_zshrc.git<span class="w"> </span>zsh
+ln<span class="w"> </span>-sf<span class="w"> </span>~/.config/zsh/zshrc<span class="w"> </span>~/.zshrc
+
+<span class="c1"># Restart shell</span>
+<span class="nb">exec</span><span class="w"> </span>zsh
+</pre></div>
+</div>
+</section>
+<section id="partial-reset">
+<h3>Partial Reset<a class="headerlink" href="#partial-reset" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reset specific modules</span>
+git<span class="w"> </span>checkout<span class="w"> </span>HEAD<span class="w"> </span>--<span class="w"> </span>~/.config/zsh/backup-system.zsh
+git<span class="w"> </span>checkout<span class="w"> </span>HEAD<span class="w"> </span>--<span class="w"> </span>~/.config/zsh/help-module.zsh
+
+<span class="c1"># Reload modules</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/backup-system.zsh
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
+</pre></div>
+</div>
+</section>
+<section id="environment-reset">
+<h3>Environment Reset<a class="headerlink" href="#environment-reset" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reset environment variables</span>
+<span class="nb">unset</span><span class="w"> </span>PYTHON_MANAGER
+<span class="nb">unset</span><span class="w"> </span>SPARK_DRIVER_MEMORY
+<span class="nb">unset</span><span class="w"> </span>SPARK_EXECUTOR_MEMORY
+
+<span class="c1"># Reload configuration</span>
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>This documentation</strong>: Comprehensive guides and references</p></li>
+<li><p><strong>Interactive help</strong>: Use <cite>zsh_help</cite> commands</p></li>
+<li><p><strong>Function documentation</strong>: Every function has built-in help</p></li>
+<li><p><strong>GitHub repositories</strong>: Source code and issues</p></li>
+</ul>
+</section>
+<section id="support-channels">
+<h3>Support Channels<a class="headerlink" href="#support-channels" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>GitHub Issues</strong>: Bug reports and feature requests</p></li>
+<li><p><strong>Documentation</strong>: This comprehensive guide</p></li>
+<li><p><strong>Interactive Help</strong>: Built-in help system</p></li>
+</ul>
+</section>
+<section id="emergency-contacts">
+<h3>Emergency Contacts<a class="headerlink" href="#emergency-contacts" title="Link to this heading"></a></h3>
+<p>For critical issues:</p>
+<ol class="arabic simple">
+<li><p><strong>Check this troubleshooting guide</strong> first</p></li>
+<li><p><strong>Use the interactive help system</strong> (<cite>zsh_help</cite>)</p></li>
+<li><p><strong>Create a GitHub issue</strong> with detailed information</p></li>
+<li><p><strong>Include system information</strong> and error messages</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Most issues can be resolved by following the solutions in this guide. If problems persist, the interactive help system and GitHub issues provide additional support.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configuration.html" class="btn btn-neutral float-left" title="Configuration Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../core-systems/python-management.html" class="btn btn-neutral float-right" title="Python Management System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

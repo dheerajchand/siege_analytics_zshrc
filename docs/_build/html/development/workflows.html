@@ -1,0 +1,745 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Workflows &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comdevelopment/workflows.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development Workflows</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/development/workflows.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-workflows">
+<h1>Development Workflows<a class="headerlink" href="#development-workflows" title="Link to this heading"></a></h1>
+<p>This section covers comprehensive development workflows for data science, enterprise development, and system administration using the Siege Analytics ZSH Configuration System.</p>
+<section id="data-science-workflows">
+<h2>Data Science Workflows<a class="headerlink" href="#data-science-workflows" title="Link to this heading"></a></h2>
+<section id="complete-data-science-setup">
+<h3>Complete Data Science Setup<a class="headerlink" href="#complete-data-science-setup" title="Link to this heading"></a></h3>
+<section id="environment-setup">
+<h4>Environment Setup<a class="headerlink" href="#environment-setup" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Setup Python environment</span>
+setup_pyenv
+pyenv<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.11.7
+pyenv<span class="w"> </span>virtualenv<span class="w"> </span><span class="m">3</span>.11.7<span class="w"> </span>data_science
+pyenv<span class="w"> </span>activate<span class="w"> </span>data_science
+
+<span class="c1"># 2. Install data science packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>pandas<span class="w"> </span>numpy<span class="w"> </span>matplotlib<span class="w"> </span>seaborn<span class="w"> </span>jupyter<span class="w"> </span>scikit-learn
+
+<span class="c1"># 3. Load big data stack</span>
+load_big_data
+
+<span class="c1"># 4. Start Spark-enabled Jupyter</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+</pre></div>
+</div>
+</section>
+<section id="project-structure">
+<h4>Project Structure<a class="headerlink" href="#project-structure" title="Link to this heading"></a></h4>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>data_science_project/
+├── data/                    # Raw data files
+├── notebooks/               # Jupyter notebooks
+├── src/                     # Source code
+├── models/                  # Trained models
+├── results/                 # Analysis results
+├── requirements.txt         # Python dependencies
+└── README.md               # Project documentation
+</pre></div>
+</div>
+</section>
+</section>
+<section id="geospatial-analytics-workflow">
+<h3>Geospatial Analytics Workflow<a class="headerlink" href="#geospatial-analytics-workflow" title="Link to this heading"></a></h3>
+<section id="setup-geospatial-environment">
+<h4>Setup Geospatial Environment<a class="headerlink" href="#setup-geospatial-environment" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Create geospatial environment</span>
+pyenv<span class="w"> </span>virtualenv<span class="w"> </span><span class="m">3</span>.11.7<span class="w"> </span>geo_analysis
+pyenv<span class="w"> </span>activate<span class="w"> </span>geo_analysis
+
+<span class="c1"># 2. Install geospatial packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>geopandas<span class="w"> </span>shapely<span class="w"> </span>folium<span class="w"> </span>contextily
+pip<span class="w"> </span>install<span class="w"> </span>apache-sedona-python<span class="w">  </span><span class="c1"># For Spark geospatial</span>
+
+<span class="c1"># 3. Load Spark with geospatial support</span>
+load_big_data
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># 4. In Jupyter, geospatial libraries are available</span>
+<span class="c1"># - Spark with Sedona</span>
+<span class="c1"># - GeoPandas for local processing</span>
+<span class="c1"># - Folium for mapping</span>
+</pre></div>
+</div>
+</section>
+<section id="large-scale-data-processing">
+<h4>Large-Scale Data Processing<a class="headerlink" href="#large-scale-data-processing" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Configure Spark for large datasets</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;8g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;4g&quot;</span>
+
+<span class="c1"># 2. Start Spark cluster</span>
+load_big_data
+
+<span class="c1"># 3. Process large datasets</span>
+spark-submit<span class="w"> </span>--master<span class="w"> </span>local<span class="o">[</span>*<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.sql.adaptive.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>large_data_processing.py
+</pre></div>
+</div>
+</section>
+</section>
+<section id="machine-learning-pipeline">
+<h3>Machine Learning Pipeline<a class="headerlink" href="#machine-learning-pipeline" title="Link to this heading"></a></h3>
+<section id="model-development">
+<h4>Model Development<a class="headerlink" href="#model-development" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Setup ML environment</span>
+pyenv<span class="w"> </span>virtualenv<span class="w"> </span><span class="m">3</span>.11.7<span class="w"> </span>ml_pipeline
+pyenv<span class="w"> </span>activate<span class="w"> </span>ml_pipeline
+
+<span class="c1"># 2. Install ML packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>scikit-learn<span class="w"> </span>xgboost<span class="w"> </span>lightgbm
+pip<span class="w"> </span>install<span class="w"> </span>mlflow<span class="w">  </span><span class="c1"># For experiment tracking</span>
+
+<span class="c1"># 3. Start Jupyter for model development</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+</pre></div>
+</div>
+</section>
+<section id="model-training-and-evaluation">
+<h4>Model Training and Evaluation<a class="headerlink" href="#model-training-and-evaluation" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Train models with Spark MLlib</span>
+spark-submit<span class="w"> </span>--class<span class="w"> </span>MLPipeline<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--master<span class="w"> </span>local<span class="o">[</span>*<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ml_pipeline.py
+
+<span class="c1"># 2. Evaluate models</span>
+python<span class="w"> </span>evaluate_models.py
+
+<span class="c1"># 3. Deploy models</span>
+mlflow<span class="w"> </span>models<span class="w"> </span>serve<span class="w"> </span>-m<span class="w"> </span>models:/production_model/1
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="enterprise-development-workflows">
+<h2>Enterprise Development Workflows<a class="headerlink" href="#enterprise-development-workflows" title="Link to this heading"></a></h2>
+<section id="modern-web-development">
+<h3>Modern Web Development<a class="headerlink" href="#modern-web-development" title="Link to this heading"></a></h3>
+<section id="api-development-with-fastapi">
+<h4>API Development with FastAPI<a class="headerlink" href="#api-development-with-fastapi" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Create new project</span>
+mkdir<span class="w"> </span>my_api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>my_api
+uv_init_project<span class="w"> </span><span class="m">3</span>.12
+
+<span class="c1"># 2. Add dependencies</span>
+uv<span class="w"> </span>add<span class="w"> </span>fastapi<span class="w"> </span>uvicorn
+uv<span class="w"> </span>add<span class="w"> </span>--dev<span class="w"> </span>pytest<span class="w"> </span>black<span class="w"> </span>ruff
+
+<span class="c1"># 3. Create API structure</span>
+mkdir<span class="w"> </span>app
+touch<span class="w"> </span>app/__init__.py
+touch<span class="w"> </span>app/main.py
+
+<span class="c1"># 4. Run development server</span>
+uv<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--reload
+</pre></div>
+</div>
+</section>
+<section id="microservices-architecture">
+<h4>Microservices Architecture<a class="headerlink" href="#microservices-architecture" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Create service directory</span>
+mkdir<span class="w"> </span>microservices<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>microservices
+
+<span class="c1"># 2. Create individual services</span>
+mkdir<span class="w"> </span>user-service<span class="w"> </span>auth-service<span class="w"> </span>data-service
+
+<span class="c1"># 3. Setup each service</span>
+<span class="nb">cd</span><span class="w"> </span>user-service
+uv_init_project<span class="w"> </span><span class="m">3</span>.12
+uv<span class="w"> </span>add<span class="w"> </span>fastapi<span class="w"> </span>uvicorn<span class="w"> </span>sqlalchemy
+
+<span class="c1"># 4. Run all services</span>
+uv<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--port<span class="w"> </span><span class="m">8001</span><span class="w"> </span><span class="p">&amp;</span>
+uv<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--port<span class="w"> </span><span class="m">8002</span><span class="w"> </span><span class="p">&amp;</span>
+uv<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--port<span class="w"> </span><span class="m">8003</span><span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="database-integration">
+<h3>Database Integration<a class="headerlink" href="#database-integration" title="Link to this heading"></a></h3>
+<section id="postgresql-integration">
+<h4>PostgreSQL Integration<a class="headerlink" href="#postgresql-integration" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Install PostgreSQL tools</span>
+brew<span class="w"> </span>install<span class="w"> </span>postgresql<span class="w">  </span><span class="c1"># macOS</span>
+<span class="c1"># or</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>postgresql<span class="w"> </span>postgresql-contrib<span class="w">  </span><span class="c1"># Ubuntu</span>
+
+<span class="c1"># 2. Setup database</span>
+createdb<span class="w"> </span>myapp_db
+
+<span class="c1"># 3. Install Python database packages</span>
+uv<span class="w"> </span>add<span class="w"> </span>sqlalchemy<span class="w"> </span>psycopg2-binary<span class="w"> </span>alembic
+
+<span class="c1"># 4. Run migrations</span>
+uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</pre></div>
+</div>
+</section>
+<section id="redis-integration">
+<h4>Redis Integration<a class="headerlink" href="#redis-integration" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Install Redis</span>
+brew<span class="w"> </span>install<span class="w"> </span>redis<span class="w">  </span><span class="c1"># macOS</span>
+<span class="c1"># or</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>redis-server<span class="w">  </span><span class="c1"># Ubuntu</span>
+
+<span class="c1"># 2. Start Redis</span>
+redis-server
+
+<span class="c1"># 3. Install Python Redis client</span>
+uv<span class="w"> </span>add<span class="w"> </span>redis
+
+<span class="c1"># 4. Use Redis in application</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import redis; r = redis.Redis(); print(r.ping())&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="docker-development">
+<h2>Docker Development<a class="headerlink" href="#docker-development" title="Link to this heading"></a></h2>
+<section id="containerized-development">
+<h3>Containerized Development<a class="headerlink" href="#containerized-development" title="Link to this heading"></a></h3>
+<section id="dockerfile-for-python-applications">
+<h4>Dockerfile for Python Applications<a class="headerlink" href="#dockerfile-for-python-applications" title="Link to this heading"></a></h4>
+<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="w"> </span><span class="s">python:3.12-slim</span>
+
+<span class="c"># Install system dependencies</span>
+<span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span>curl<span class="w"> </span>wget<span class="w"> </span>build-essential<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
+
+<span class="c"># Install SDKMAN</span>
+<span class="k">RUN</span><span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<span class="k">RUN</span><span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.sdkman/bin/sdkman-init.sh &amp;&amp; \</span>
+<span class="s2">    sdk install java 17.0.9-tem &amp;&amp; \</span>
+<span class="s2">    sdk install spark 3.5.3&quot;</span>
+
+<span class="c"># Set working directory</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="c"># Copy requirements and install</span>
+<span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c"># Copy application code</span>
+<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
+
+<span class="c"># Expose port</span>
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8000</span>
+
+<span class="c"># Run application</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;app.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8000&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-compose-for-full-stack">
+<h4>Docker Compose for Full Stack<a class="headerlink" href="#docker-compose-for-full-stack" title="Link to this heading"></a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">app</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8000:8000&quot;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DATABASE_URL=postgresql://user:pass@db:5432/myapp</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">REDIS_URL=redis://redis:6379</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
+
+<span class="w">  </span><span class="nt">db</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:15</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myapp</span>
+<span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pass</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres_data:/var/lib/postgresql/data</span>
+
+<span class="w">  </span><span class="nt">redis</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:7-alpine</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;6379:6379&quot;</span>
+
+<span class="w">  </span><span class="nt">spark</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apache/spark:3.5.3</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8080:8080&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;7077:7077&quot;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPARK_MODE=master</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPARK_RPC_AUTHENTICATION_ENABLED=no</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPARK_RPC_ENCRYPTION_ENABLED=no</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPARK_SSL_ENABLED=no</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres_data</span><span class="p">:</span>
+</pre></div>
+</div>
+</section>
+<section id="development-commands">
+<h4>Development Commands<a class="headerlink" href="#development-commands" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build and run</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>--build
+
+<span class="c1"># Run in background</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># View logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>app
+
+<span class="c1"># Stop services</span>
+docker-compose<span class="w"> </span>down
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="remote-development">
+<h2>Remote Development<a class="headerlink" href="#remote-development" title="Link to this heading"></a></h2>
+<section id="ssh-development-setup">
+<h3>SSH Development Setup<a class="headerlink" href="#ssh-development-setup" title="Link to this heading"></a></h3>
+<section id="connect-to-remote-server">
+<h4>Connect to Remote Server<a class="headerlink" href="#connect-to-remote-server" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Connect to remote server</span>
+ssh<span class="w"> </span>username@server.example.com
+
+<span class="c1"># 2. Install SDKMAN on remote server</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># 3. Install tools</span>
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+sdk<span class="w"> </span>install<span class="w"> </span>python<span class="w"> </span><span class="m">3</span>.11.7
+sdk<span class="w"> </span>install<span class="w"> </span>spark<span class="w"> </span><span class="m">3</span>.5.3
+
+<span class="c1"># 4. Clone configuration</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dheerajchand/siege_analytics_zshrc.git<span class="w"> </span>~/.config/zsh
+ln<span class="w"> </span>-sf<span class="w"> </span>~/.config/zsh/zshrc<span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+</section>
+<section id="vs-code-remote-development">
+<h4>VS Code Remote Development<a class="headerlink" href="#vs-code-remote-development" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Install VS Code Remote SSH extension</span>
+code<span class="w"> </span>--install-extension<span class="w"> </span>ms-vscode-remote.remote-ssh
+
+<span class="c1"># 2. Connect to remote server</span>
+<span class="c1"># Use VS Code command palette: Remote-SSH: Connect to Host</span>
+
+<span class="c1"># 3. Open project on remote server</span>
+<span class="c1"># File -&gt; Open Folder -&gt; /path/to/project</span>
+
+<span class="c1"># 4. Install Python extension on remote</span>
+<span class="c1"># Extensions -&gt; Python -&gt; Install</span>
+</pre></div>
+</div>
+</section>
+<section id="jupyter-remote-development">
+<h4>Jupyter Remote Development<a class="headerlink" href="#jupyter-remote-development" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Start Jupyter on remote server</span>
+jupyter<span class="w"> </span>lab<span class="w"> </span>--ip<span class="o">=</span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="o">=</span><span class="m">8888</span><span class="w"> </span>--no-browser
+
+<span class="c1"># 2. Forward port to local machine</span>
+ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">8888</span>:localhost:8888<span class="w"> </span>username@server.example.com
+
+<span class="c1"># 3. Access Jupyter from local browser</span>
+<span class="c1"># http://localhost:8888</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="ci-cd-workflows">
+<h2>CI/CD Workflows<a class="headerlink" href="#ci-cd-workflows" title="Link to this heading"></a></h2>
+<section id="github-actions">
+<h3>GitHub Actions<a class="headerlink" href="#github-actions" title="Link to this heading"></a></h3>
+<section id="python-application-ci-cd">
+<h4>Python Application CI/CD<a class="headerlink" href="#python-application-ci-cd" title="Link to this heading"></a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Python CI/CD</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">develop</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up Python</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install dependencies</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">pip install -r requirements.txt</span>
+<span class="w">        </span><span class="no">pip install -r requirements-dev.txt</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">pytest tests/</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run linting</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">black --check .</span>
+<span class="w">        </span><span class="no">ruff check .</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build Docker image</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">docker build -t myapp:${{ github.sha }} .</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deploy to staging</span>
+<span class="w">      </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.ref == &#39;refs/heads/develop&#39;</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">docker push myapp:${{ github.sha }}</span>
+<span class="w">        </span><span class="no"># Deploy to staging environment</span>
+</pre></div>
+</div>
+</section>
+<section id="spark-application-ci-cd">
+<h4>Spark Application CI/CD<a class="headerlink" href="#spark-application-ci-cd" title="Link to this heading"></a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Spark CI/CD</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up Java</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-java@v3</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">java-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;17&#39;</span>
+<span class="w">        </span><span class="nt">distribution</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;temurin&#39;</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up Python</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install Spark</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">wget https://archive.apache.org/dist/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz</span>
+<span class="w">        </span><span class="no">tar -xzf spark-3.5.3-bin-hadoop3.tgz</span>
+<span class="w">        </span><span class="no">export SPARK_HOME=$PWD/spark-3.5.3-bin-hadoop3</span>
+<span class="w">        </span><span class="no">export PATH=$PATH:$SPARK_HOME/bin</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install Python dependencies</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">pip install -r requirements.txt</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Spark tests</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">spark-submit --master local[*] tests/test_spark_app.py</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="performance-optimization-workflows">
+<h2>Performance Optimization Workflows<a class="headerlink" href="#performance-optimization-workflows" title="Link to this heading"></a></h2>
+<section id="application-profiling">
+<h3>Application Profiling<a class="headerlink" href="#application-profiling" title="Link to this heading"></a></h3>
+<section id="python-profiling">
+<h4>Python Profiling<a class="headerlink" href="#python-profiling" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Install profiling tools</span>
+uv<span class="w"> </span>add<span class="w"> </span>--dev<span class="w"> </span>py-spy<span class="w"> </span>memory-profiler
+
+<span class="c1"># 2. Profile application</span>
+py-spy<span class="w"> </span>record<span class="w"> </span>-o<span class="w"> </span>profile.svg<span class="w"> </span>--<span class="w"> </span>python<span class="w"> </span>app.py
+
+<span class="c1"># 3. Memory profiling</span>
+python<span class="w"> </span>-m<span class="w"> </span>memory_profiler<span class="w"> </span>app.py
+
+<span class="c1"># 4. Line-by-line profiling</span>
+kernprof<span class="w"> </span>-l<span class="w"> </span>-v<span class="w"> </span>app.py
+</pre></div>
+</div>
+</section>
+<section id="spark-performance-tuning">
+<h4>Spark Performance Tuning<a class="headerlink" href="#spark-performance-tuning" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Configure Spark for performance</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_SQL_ADAPTIVE_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_SQL_ADAPTIVE_COALESCE_PARTITIONS_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_SQL_ADAPTIVE_SKEW_JOIN_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># 2. Monitor Spark UI</span>
+<span class="c1"># Access at http://localhost:4040</span>
+
+<span class="c1"># 3. Tune memory settings</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;4g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;2g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY_FRACTION</span><span class="o">=</span><span class="m">0</span>.8
+
+<span class="c1"># 4. Optimize data formats</span>
+<span class="c1"># Use Parquet for better compression</span>
+<span class="c1"># Use Delta Lake for ACID transactions</span>
+</pre></div>
+</div>
+</section>
+<section id="database-optimization">
+<h4>Database Optimization<a class="headerlink" href="#database-optimization" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. PostgreSQL optimization</span>
+<span class="c1"># Edit postgresql.conf</span>
+<span class="nv">shared_buffers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>256MB
+<span class="nv">effective_cache_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>1GB
+<span class="nv">work_mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>4MB
+<span class="nv">maintenance_work_mem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>64MB
+
+<span class="c1"># 2. Redis optimization</span>
+<span class="c1"># Edit redis.conf</span>
+maxmemory<span class="w"> </span>256mb
+maxmemory-policy<span class="w"> </span>allkeys-lru
+
+<span class="c1"># 3. Connection pooling</span>
+uv<span class="w"> </span>add<span class="w"> </span>sqlalchemy<span class="o">[</span>pool<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="monitoring-and-observability">
+<h2>Monitoring and Observability<a class="headerlink" href="#monitoring-and-observability" title="Link to this heading"></a></h2>
+<section id="application-monitoring">
+<h3>Application Monitoring<a class="headerlink" href="#application-monitoring" title="Link to this heading"></a></h3>
+<section id="logging-setup">
+<h4>Logging Setup<a class="headerlink" href="#logging-setup" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">structlog</span>
+
+<span class="c1"># Configure structured logging</span>
+<span class="n">structlog</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+    <span class="n">processors</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">stdlib</span><span class="o">.</span><span class="n">filter_by_level</span><span class="p">,</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">stdlib</span><span class="o">.</span><span class="n">add_logger_name</span><span class="p">,</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">stdlib</span><span class="o">.</span><span class="n">add_log_level</span><span class="p">,</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">stdlib</span><span class="o">.</span><span class="n">PositionalArgumentsFormatter</span><span class="p">(),</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">TimeStamper</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">),</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">StackInfoRenderer</span><span class="p">(),</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">format_exc_info</span><span class="p">,</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">UnicodeDecoder</span><span class="p">(),</span>
+        <span class="n">structlog</span><span class="o">.</span><span class="n">processors</span><span class="o">.</span><span class="n">JSONRenderer</span><span class="p">()</span>
+    <span class="p">],</span>
+    <span class="n">context_class</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>
+    <span class="n">logger_factory</span><span class="o">=</span><span class="n">structlog</span><span class="o">.</span><span class="n">stdlib</span><span class="o">.</span><span class="n">LoggerFactory</span><span class="p">(),</span>
+    <span class="n">wrapper_class</span><span class="o">=</span><span class="n">structlog</span><span class="o">.</span><span class="n">stdlib</span><span class="o">.</span><span class="n">BoundLogger</span><span class="p">,</span>
+    <span class="n">cache_logger_on_first_use</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="metrics-collection">
+<h4>Metrics Collection<a class="headerlink" href="#metrics-collection" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Install metrics tools</span>
+uv<span class="w"> </span>add<span class="w"> </span>prometheus-client
+
+<span class="c1"># 2. Collect application metrics</span>
+from<span class="w"> </span>prometheus_client<span class="w"> </span>import<span class="w"> </span>Counter,<span class="w"> </span>Histogram,<span class="w"> </span>start_http_server
+
+<span class="c1"># 3. Start metrics server</span>
+start_http_server<span class="o">(</span><span class="m">8000</span><span class="o">)</span>
+
+<span class="c1"># 4. Access metrics at http://localhost:8000/metrics</span>
+</pre></div>
+</div>
+</section>
+<section id="health-checks">
+<h4>Health Checks<a class="headerlink" href="#health-checks" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span> <span class="nn">fastapi.health</span> <span class="kn">import</span> <span class="n">health_check</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">health</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()}</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/ready&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">readiness</span><span class="p">():</span>
+    <span class="c1"># Check database connection</span>
+    <span class="c1"># Check Redis connection</span>
+    <span class="c1"># Check external services</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ready&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="development-practices">
+<h3>Development Practices<a class="headerlink" href="#development-practices" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use version control</strong> for all code and configuration</p></li>
+<li><p><strong>Write tests</strong> for all functionality</p></li>
+<li><p><strong>Use linting and formatting</strong> tools consistently</p></li>
+<li><p><strong>Document code</strong> with docstrings and comments</p></li>
+<li><p><strong>Use environment variables</strong> for configuration</p></li>
+</ol>
+</section>
+<section id="deployment-practices">
+<h3>Deployment Practices<a class="headerlink" href="#deployment-practices" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use containerization</strong> for consistent deployments</p></li>
+<li><p><strong>Implement health checks</strong> for monitoring</p></li>
+<li><p><strong>Use configuration management</strong> for different environments</p></li>
+<li><p><strong>Monitor performance</strong> and optimize as needed</p></li>
+<li><p><strong>Implement proper logging</strong> for debugging</p></li>
+</ol>
+</section>
+<section id="security-practices">
+<h3>Security Practices<a class="headerlink" href="#security-practices" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use secrets management</strong> for sensitive data</p></li>
+<li><p><strong>Implement authentication</strong> and authorization</p></li>
+<li><p><strong>Use HTTPS</strong> for all communications</p></li>
+<li><p><strong>Regular security updates</strong> for dependencies</p></li>
+<li><p><strong>Audit dependencies</strong> for vulnerabilities</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These workflows provide comprehensive development patterns for data science, enterprise development, and system administration using the Siege Analytics ZSH Configuration System.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

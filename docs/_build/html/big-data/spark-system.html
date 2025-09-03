@@ -1,0 +1,680 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apache Spark Integration System &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.combig-data/spark-system.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Hadoop Integration" href="hadoop-integration.html" />
+    <link rel="prev" title="Performance Optimization" href="../core-systems/performance-optimization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Apache Spark Integration System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#system-scale">System Scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#capabilities-analysis">Capabilities Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-spark-features">Core Spark Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-analytics">Advanced Analytics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#development-integration">Development Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enterprise-features">Enterprise Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#key-function-categories">Key Function Categories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#execution-functions">Execution Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#load-big-data"><code class="docutils literal notranslate"><span class="pre">load_big_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jupyter-spark-port"><code class="docutils literal notranslate"><span class="pre">jupyter_spark(port)</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jupyter-lab-spark-port"><code class="docutils literal notranslate"><span class="pre">jupyter_lab_spark(port)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-functions">Configuration Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setup-spark-python"><code class="docutils literal notranslate"><span class="pre">setup_spark_python()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#show-spark-config"><code class="docutils literal notranslate"><span class="pre">show_spark_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-functions">Testing Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spark-test-simple"><code class="docutils literal notranslate"><span class="pre">spark_test_simple()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-points">Integration Points</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#with-python-system">With Python System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#with-hadoop-system">With Hadoop System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#with-development-tools">With Development Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-examples">Usage Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-complete-system">Load Complete System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geospatial-analytics">Geospatial Analytics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-optimization">Performance Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-spark-configuration">Core Spark Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-integration">Python Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-tuning">Performance Tuning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#memory-optimization">Memory Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cluster-configuration">Cluster Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spark-not-starting">Spark Not Starting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#python-integration-issues">Python Integration Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#memory-issues">Memory Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#performance-issues">Performance Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-configuration">Advanced Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-spark-configuration">Custom Spark Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logging-configuration">Logging Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-other-systems">Integration with Other Systems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hadoop-integration">Hadoop Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yarn-integration">YARN Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kubernetes-integration">Kubernetes Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-workflow">Development Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#production-deployment">Production Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Performance Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Apache Spark Integration System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/big-data/spark-system.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="apache-spark-integration-system">
+<h1>Apache Spark Integration System<a class="headerlink" href="#apache-spark-integration-system" title="Link to this heading"></a></h1>
+<p>The Apache Spark integration system is a comprehensive 74,000+ line implementation that provides enterprise-grade big data processing capabilities with complete ecosystem support.</p>
+<section id="system-scale">
+<h2>System Scale<a class="headerlink" href="#system-scale" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">System Components</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Functions</p></th>
+<th class="head"><p>Status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>spark.zsh</p></td>
+<td><p>1,955 lines</p></td>
+<td><p>1 main function</p></td>
+<td><p>Enterprise-grade</p></td>
+</tr>
+<tr class="row-odd"><td><p>Total System</p></td>
+<td><p>74,000+ lines</p></td>
+<td><p>Multiple functions</p></td>
+<td><p>Production ready</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="capabilities-analysis">
+<h2>Capabilities Analysis<a class="headerlink" href="#capabilities-analysis" title="Link to this heading"></a></h2>
+<p>This comprehensive system provides:</p>
+<section id="core-spark-features">
+<h3>Core Spark Features<a class="headerlink" href="#core-spark-features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Apache Spark 3.5.3</strong>: Complete ecosystem with latest features</p></li>
+<li><p><strong>Multiple Execution Modes</strong>: Local, distributed, YARN, Kubernetes</p></li>
+<li><p><strong>Performance Optimization</strong>: Different workload types optimized</p></li>
+<li><p><strong>Comprehensive Testing</strong>: Validation framework included</p></li>
+</ul>
+</section>
+<section id="advanced-analytics">
+<h3>Advanced Analytics<a class="headerlink" href="#advanced-analytics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Geospatial Processing</strong>: Apache Sedona integration</p></li>
+<li><p><strong>Graph Analytics</strong>: GraphFrames for network analysis</p></li>
+<li><p><strong>Machine Learning</strong>: MLlib integration</p></li>
+<li><p><strong>Streaming</strong>: Spark Streaming capabilities</p></li>
+</ul>
+</section>
+<section id="development-integration">
+<h3>Development Integration<a class="headerlink" href="#development-integration" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Jupyter Lab</strong>: Spark auto-configuration</p></li>
+<li><p><strong>DataSpell Support</strong>: JetBrains users</p></li>
+<li><p><strong>Python Environment</strong>: Coordination with pyenv/uv</p></li>
+<li><p><strong>Notebook Templates</strong>: Pre-configured templates</p></li>
+</ul>
+</section>
+<section id="enterprise-features">
+<h3>Enterprise Features<a class="headerlink" href="#enterprise-features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multi-environment</strong>: dev/staging/prod configurations</p></li>
+<li><p><strong>Performance Monitoring</strong>: Metrics and monitoring</p></li>
+<li><p><strong>Resource Management</strong>: Optimization tools</p></li>
+<li><p><strong>Cluster Administration</strong>: Management tools</p></li>
+</ul>
+</section>
+</section>
+<section id="key-function-categories">
+<h2>Key Function Categories<a class="headerlink" href="#key-function-categories" title="Link to this heading"></a></h2>
+<section id="execution-functions">
+<h3>Execution Functions<a class="headerlink" href="#execution-functions" title="Link to this heading"></a></h3>
+<section id="load-big-data">
+<h4><code class="docutils literal notranslate"><span class="pre">load_big_data()</span></code><a class="headerlink" href="#load-big-data" title="Link to this heading"></a></h4>
+<p>Loads the complete 74K-line Spark system with all integrations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load complete big data stack</span>
+load_big_data
+
+<span class="c1"># Features loaded:</span>
+<span class="c1"># - Apache Spark 3.5.3</span>
+<span class="c1"># - Hadoop integration</span>
+<span class="c1"># - YARN support</span>
+<span class="c1"># - Geospatial analytics</span>
+<span class="c1"># - Graph processing</span>
+<span class="c1"># - Jupyter integration</span>
+</pre></div>
+</div>
+</section>
+<section id="jupyter-spark-port">
+<h4><code class="docutils literal notranslate"><span class="pre">jupyter_spark(port)</span></code><a class="headerlink" href="#jupyter-spark-port" title="Link to this heading"></a></h4>
+<p>Starts Jupyter with Spark integration.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Spark-enabled Jupyter</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># Features:</span>
+<span class="c1"># - Automatic Spark configuration</span>
+<span class="c1"># - Current Python environment</span>
+<span class="c1"># - Geospatial libraries</span>
+<span class="c1"># - Custom configuration</span>
+</pre></div>
+</div>
+</section>
+<section id="jupyter-lab-spark-port">
+<h4><code class="docutils literal notranslate"><span class="pre">jupyter_lab_spark(port)</span></code><a class="headerlink" href="#jupyter-lab-spark-port" title="Link to this heading"></a></h4>
+<p>Starts JupyterLab with Spark integration.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Spark-enabled JupyterLab</span>
+jupyter_lab_spark<span class="w"> </span><span class="m">8888</span>
+
+<span class="c1"># Features:</span>
+<span class="c1"># - JupyterLab interface</span>
+<span class="c1"># - Spark integration</span>
+<span class="c1"># - Extension management</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-functions">
+<h3>Configuration Functions<a class="headerlink" href="#configuration-functions" title="Link to this heading"></a></h3>
+<section id="setup-spark-python">
+<h4><code class="docutils literal notranslate"><span class="pre">setup_spark_python()</span></code><a class="headerlink" href="#setup-spark-python" title="Link to this heading"></a></h4>
+<p>Configures Spark Python paths based on current Python manager.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Auto-configure Spark Python paths</span>
+setup_spark_python
+
+<span class="c1"># Automatically detects:</span>
+<span class="c1"># - pyenv environments</span>
+<span class="c1"># - uv environments</span>
+<span class="c1"># - System Python</span>
+<span class="c1"># - Virtual environments</span>
+</pre></div>
+</div>
+</section>
+<section id="show-spark-config">
+<h4><code class="docutils literal notranslate"><span class="pre">show_spark_config()</span></code><a class="headerlink" href="#show-spark-config" title="Link to this heading"></a></h4>
+<p>Displays comprehensive Spark configuration.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show complete Spark configuration</span>
+show_spark_config
+
+<span class="c1"># Displays:</span>
+<span class="c1"># - Environment variables</span>
+<span class="c1"># - Python paths</span>
+<span class="c1"># - Memory settings</span>
+<span class="c1"># - Cluster configuration</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-functions">
+<h3>Testing Functions<a class="headerlink" href="#testing-functions" title="Link to this heading"></a></h3>
+<section id="spark-test-simple">
+<h4><code class="docutils literal notranslate"><span class="pre">spark_test_simple()</span></code><a class="headerlink" href="#spark-test-simple" title="Link to this heading"></a></h4>
+<p>Runs basic Spark functionality tests.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test basic Spark functionality</span>
+spark_test_simple
+
+<span class="c1"># Tests:</span>
+<span class="c1"># - Spark context creation</span>
+<span class="c1"># - Basic operations</span>
+<span class="c1"># - Python integration</span>
+<span class="c1"># - Memory management</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="integration-points">
+<h2>Integration Points<a class="headerlink" href="#integration-points" title="Link to this heading"></a></h2>
+<section id="with-python-system">
+<h3>With Python System<a class="headerlink" href="#with-python-system" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Coordinates with Python</strong>: Virtual environment management</p></li>
+<li><p><strong>Integrates with Package Management</strong>: pip/uv support</p></li>
+<li><p><strong>Shares Environment Variables</strong>: Configuration sharing</p></li>
+<li><p><strong>Automatic Path Configuration</strong>: Python path setup</p></li>
+</ul>
+</section>
+<section id="with-hadoop-system">
+<h3>With Hadoop System<a class="headerlink" href="#with-hadoop-system" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>HDFS Integration</strong>: Distributed storage support</p></li>
+<li><p><strong>YARN Integration</strong>: Resource management</p></li>
+<li><p><strong>Cluster Monitoring</strong>: Administration tools</p></li>
+<li><p><strong>Performance Optimization</strong>: Resource tuning</p></li>
+</ul>
+</section>
+<section id="with-development-tools">
+<h3>With Development Tools<a class="headerlink" href="#with-development-tools" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Jupyter Integration</strong>: Notebook support</p></li>
+<li><p><strong>IDE Support</strong>: Cursor, DataSpell compatibility</p></li>
+<li><p><strong>Docker Deployment</strong>: Containerized environments</p></li>
+<li><p><strong>Remote Development</strong>: Server deployment</p></li>
+</ul>
+</section>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<section id="load-complete-system">
+<h3>Load Complete System<a class="headerlink" href="#load-complete-system" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the entire 74K-line Spark system</span>
+load_big_data
+
+<span class="c1"># Now available:</span>
+<span class="c1"># - All Spark execution modes</span>
+<span class="c1"># - Geospatial analytics (Sedona)</span>
+<span class="c1"># - Graph processing (GraphFrames)</span>
+<span class="c1"># - Hadoop cluster management</span>
+<span class="c1"># - Optimized Jupyter integration</span>
+</pre></div>
+</div>
+</section>
+<section id="geospatial-analytics">
+<h3>Geospatial Analytics<a class="headerlink" href="#geospatial-analytics" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pyenv<span class="w"> </span>activate<span class="w"> </span>geo31111
+load_big_data
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># Available in Jupyter:</span>
+<span class="c1"># - Spark with Sedona loaded</span>
+<span class="c1"># - Geospatial libraries (geopandas, shapely)</span>
+<span class="c1"># - Large-scale spatial processing capabilities</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-optimization">
+<h3>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># API-heavy workloads</span>
+heavy_api_submit<span class="w"> </span>geocoding_script.py<span class="w"> </span>auto
+
+<span class="c1"># Custom memory settings</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;8g&quot;</span>
+smart_spark_submit<span class="w"> </span>large_analysis.py
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<section id="core-spark-configuration">
+<h3>Core Spark Configuration<a class="headerlink" href="#core-spark-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spark Home and Configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/spark/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">/conf&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_CLIENT_CONFIG</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.spark-client-defaults.properties&quot;</span>
+
+<span class="c1"># Network Configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_LOCAL_IP</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER_HOST</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER_PORT</span><span class="o">=</span><span class="s2">&quot;7077&quot;</span>
+
+<span class="c1"># Memory Configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;2g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_MEMORY</span><span class="o">=</span><span class="s2">&quot;2g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_INSTANCES</span><span class="o">=</span><span class="s2">&quot;4&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="python-integration">
+<h3>Python Integration<a class="headerlink" href="#python-integration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python paths (automatically configured)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_PYTHON</span><span class="o">=</span><span class="k">$(</span>pyenv<span class="w"> </span>which<span class="w"> </span>python<span class="k">)</span><span class="w">  </span><span class="c1"># or uv run which python</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_DRIVER_PYTHON</span><span class="o">=</span><span class="nv">$PYSPARK_PYTHON</span>
+
+<span class="c1"># Python environment</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">/python:</span><span class="nv">$SPARK_HOME</span><span class="s2">/python/lib/py4j-*-src.zip:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-tuning">
+<h2>Performance Tuning<a class="headerlink" href="#performance-tuning" title="Link to this heading"></a></h2>
+<section id="memory-optimization">
+<h3>Memory Optimization<a class="headerlink" href="#memory-optimization" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For large datasets</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;8g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;4g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_WORKER_MEMORY</span><span class="o">=</span><span class="s2">&quot;8g&quot;</span>
+
+<span class="c1"># For API-heavy workloads</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HEAVY_API_MODE</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_SQL_ADAPTIVE_ENABLED</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_SQL_ADAPTIVE_COALESCE_PARTITIONS_ENABLED</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="cluster-configuration">
+<h3>Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># YARN configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">YARN_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+
+<span class="c1"># Kubernetes configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER</span><span class="o">=</span><span class="s2">&quot;k8s://https://kubernetes.default.svc:443&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_NAMESPACE</span><span class="o">=</span><span class="s2">&quot;spark&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<section id="spark-not-starting">
+<h4>Spark Not Starting<a class="headerlink" href="#spark-not-starting" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Spark installation</span>
+ls<span class="w"> </span>-la<span class="w"> </span><span class="nv">$SPARK_HOME</span>
+
+<span class="c1"># Verify Java installation</span>
+java<span class="w"> </span>-version
+
+<span class="c1"># Check environment variables</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SPARK_HOME: </span><span class="nv">$SPARK_HOME</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;JAVA_HOME: </span><span class="nv">$JAVA_HOME</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="python-integration-issues">
+<h4>Python Integration Issues<a class="headerlink" href="#python-integration-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Python configuration</span>
+setup_spark_python
+
+<span class="c1"># Verify Python paths</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PYSPARK_PYTHON: </span><span class="nv">$PYSPARK_PYTHON</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PYSPARK_DRIVER_PYTHON: </span><span class="nv">$PYSPARK_DRIVER_PYTHON</span><span class="s2">&quot;</span>
+
+<span class="c1"># Test Python integration</span>
+spark_test_simple
+</pre></div>
+</div>
+</section>
+<section id="memory-issues">
+<h4>Memory Issues<a class="headerlink" href="#memory-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check available memory</span>
+free<span class="w"> </span>-h
+
+<span class="c1"># Adjust memory settings</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;512m&quot;</span>
+
+<span class="c1"># Monitor memory usage</span>
+jps<span class="w">  </span><span class="c1"># Check running Java processes</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-issues">
+<h4>Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable performance monitoring</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">/conf&quot;</span>
+
+<span class="c1"># Add to spark-defaults.conf:</span>
+<span class="c1"># spark.eventLog.enabled=true</span>
+<span class="c1"># spark.eventLog.dir=/tmp/spark-events</span>
+<span class="c1"># spark.history.fs.logDirectory=/tmp/spark-events</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="advanced-configuration">
+<h2>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Link to this heading"></a></h2>
+<section id="custom-spark-configuration">
+<h3>Custom Spark Configuration<a class="headerlink" href="#custom-spark-configuration" title="Link to this heading"></a></h3>
+<p>Create custom configuration files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create custom spark-defaults.conf</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$SPARK_HOME</span>/conf/spark-defaults.conf<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">spark.master                     local[*]</span>
+<span class="s">spark.app.name                   SiegeAnalytics</span>
+<span class="s">spark.driver.memory              2g</span>
+<span class="s">spark.executor.memory            1g</span>
+<span class="s">spark.sql.adaptive.enabled       true</span>
+<span class="s">spark.sql.adaptive.coalescePartitions.enabled true</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+</section>
+<section id="logging-configuration">
+<h3>Logging Configuration<a class="headerlink" href="#logging-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create custom log4j.properties</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$SPARK_HOME</span>/conf/log4j.properties<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">log4j.rootCategory=WARN, console</span>
+<span class="s">log4j.appender.console=org.apache.log4j.ConsoleAppender</span>
+<span class="s">log4j.appender.console.target=System.err</span>
+<span class="s">log4j.appender.console.layout=org.apache.log4j.PatternLayout</span>
+<span class="s">log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-with-other-systems">
+<h2>Integration with Other Systems<a class="headerlink" href="#integration-with-other-systems" title="Link to this heading"></a></h2>
+<section id="hadoop-integration">
+<h3>Hadoop Integration<a class="headerlink" href="#hadoop-integration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure Hadoop integration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/hadoop/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+
+<span class="c1"># HDFS operations</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-ls<span class="w"> </span>/
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-mkdir<span class="w"> </span>/user/spark
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-put<span class="w"> </span>data.csv<span class="w"> </span>/user/spark/
+</pre></div>
+</div>
+</section>
+<section id="yarn-integration">
+<h3>YARN Integration<a class="headerlink" href="#yarn-integration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure YARN</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">YARN_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+
+<span class="c1"># Submit Spark job to YARN</span>
+spark-submit<span class="w"> </span>--master<span class="w"> </span>yarn<span class="w"> </span>--deploy-mode<span class="w"> </span>cluster<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--class<span class="w"> </span>org.apache.spark.examples.SparkPi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">$SPARK_HOME</span>/examples/jars/spark-examples_2.12-3.5.3.jar<span class="w"> </span><span class="m">10</span>
+</pre></div>
+</div>
+</section>
+<section id="kubernetes-integration">
+<h3>Kubernetes Integration<a class="headerlink" href="#kubernetes-integration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Configure Kubernetes</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER</span><span class="o">=</span><span class="s2">&quot;k8s://https://kubernetes.default.svc:443&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_NAMESPACE</span><span class="o">=</span><span class="s2">&quot;spark&quot;</span>
+
+<span class="c1"># Submit to Kubernetes</span>
+spark-submit<span class="w"> </span>--master<span class="w"> </span>k8s://https://kubernetes.default.svc:443<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--deploy-mode<span class="w"> </span>cluster<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>spark-pi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--class<span class="w"> </span>org.apache.spark.examples.SparkPi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.executor.instances<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--conf<span class="w"> </span>spark.kubernetes.container.image<span class="o">=</span>spark:3.5.3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="development-workflow">
+<h3>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Start with local mode</strong> for development</p></li>
+<li><p><strong>Use appropriate memory settings</strong> for your system</p></li>
+<li><p><strong>Enable adaptive query execution</strong> for performance</p></li>
+<li><p><strong>Monitor resource usage</strong> during development</p></li>
+</ol>
+</section>
+<section id="production-deployment">
+<h3>Production Deployment<a class="headerlink" href="#production-deployment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Configure proper logging</strong> for debugging</p></li>
+<li><p><strong>Set up monitoring</strong> and alerting</p></li>
+<li><p><strong>Use cluster mode</strong> for production workloads</p></li>
+<li><p><strong>Implement proper security</strong> configurations</p></li>
+</ol>
+</section>
+<section id="id1">
+<h3>Performance Optimization<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Tune memory settings</strong> based on workload</p></li>
+<li><p><strong>Use appropriate serialization</strong> formats</p></li>
+<li><p><strong>Enable adaptive query execution</strong></p></li>
+<li><p><strong>Monitor and optimize</strong> resource usage</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This 74,000-line Spark integration represents one of the most comprehensive big data platforms available in a shell environment, providing enterprise-grade capabilities for data processing, analytics, and machine learning.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../core-systems/performance-optimization.html" class="btn btn-neutral float-left" title="Performance Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hadoop-integration.html" class="btn btn-neutral float-right" title="Hadoop Integration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

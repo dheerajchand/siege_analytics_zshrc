@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bash Compatibility System &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comcore-systems/bash-compatibility.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Bash Compatibility System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core-systems/bash-compatibility.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bash-compatibility-system">
+<h1>Bash Compatibility System<a class="headerlink" href="#bash-compatibility-system" title="Link to this heading"></a></h1>
+<p>This guide covers the bash compatibility layer that allows the Siege Analytics ZSH Configuration System to work on bash shells across different platforms.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The bash compatibility system provides:</p>
+<ul class="simple">
+<li><p><strong>Cross-shell functionality</strong> for zsh and bash</p></li>
+<li><p><strong>Platform-specific adaptations</strong> for macOS and Linux</p></li>
+<li><p><strong>Function translation</strong> between zsh and bash syntax</p></li>
+<li><p><strong>Environment variable compatibility</strong></p></li>
+<li><p><strong>Tool integration</strong> across different shells</p></li>
+</ul>
+</section>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h2>
+<section id="compatibility-layer">
+<h3>Compatibility Layer<a class="headerlink" href="#compatibility-layer" title="Link to this heading"></a></h3>
+<figure class="align-default" id="id1">
+<pre  class="mermaid">
+        graph TB
+    A[Shell Detection] --&gt; B[ZSH Mode]
+    A --&gt; C[Bash Mode]
+
+    B --&gt; D[ZSH Functions]
+    C --&gt; E[Bash Functions]
+
+    D --&gt; F[Core Functionality]
+    E --&gt; F
+
+    F --&gt; G[Python Management]
+    F --&gt; H[Backup System]
+    F --&gt; I[Spark Integration]
+    F --&gt; J[Help System]
+    </pre><figcaption>
+<p><span class="caption-text">Bash Compatibility Architecture</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="shell-detection">
+<h3>Shell Detection<a class="headerlink" href="#shell-detection" title="Link to this heading"></a></h3>
+<p>Automatic shell detection and adaptation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Shell detection function</span>
+detect_shell<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ZSH_VERSION</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;zsh&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BASH_VERSION</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;bash&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;unknown&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="c1"># Set shell-specific variables</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CURRENT_SHELL</span><span class="o">=</span><span class="k">$(</span>detect_shell<span class="k">)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">IS_ZSH</span><span class="o">=</span><span class="k">$(</span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CURRENT_SHELL</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;zsh&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;false&quot;</span><span class="k">)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">IS_BASH</span><span class="o">=</span><span class="k">$(</span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CURRENT_SHELL</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bash&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;false&quot;</span><span class="k">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="function-translation">
+<h2>Function Translation<a class="headerlink" href="#function-translation" title="Link to this heading"></a></h2>
+<section id="zsh-to-bash-translation">
+<h3>ZSH to Bash Translation<a class="headerlink" href="#zsh-to-bash-translation" title="Link to this heading"></a></h3>
+<p>Translate zsh-specific syntax to bash:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ZSH array syntax to bash</span>
+<span class="c1"># ZSH: array=(item1 item2 item3)</span>
+<span class="c1"># Bash: array=(&quot;item1&quot; &quot;item2&quot; &quot;item3&quot;)</span>
+
+<span class="c1"># ZSH associative arrays to bash</span>
+<span class="c1"># ZSH: declare -A array; array[key]=value</span>
+<span class="c1"># Bash: declare -A array; array[key]=value</span>
+
+<span class="c1"># ZSH parameter expansion to bash</span>
+<span class="c1"># ZSH: ${var:-default}</span>
+<span class="c1"># Bash: ${var:-default}</span>
+</pre></div>
+</div>
+</section>
+<section id="available-functions">
+<h3>Available Functions<a class="headerlink" href="#available-functions" title="Link to this heading"></a></h3>
+<p>The bash compatibility layer provides these functions:</p>
+<p><strong>Core Functions:</strong>
+- <strong>Shell Detection</strong>: <cite>detect_shell()</cite>, <cite>detect_platform()</cite>
+- <strong>Environment Setup</strong>: <cite>init_compatibility()</cite></p>
+<p><strong>Python Management:</strong>
+- <cite>setup_python_manager()</cite> - Setup Python manager (pyenv/uv/auto)
+- <cite>setup_pyenv()</cite> - Setup pyenv environment
+- <cite>setup_uv()</cite> - Setup uv environment
+- <cite>python_status()</cite> - Show Python environment status</p>
+<p><strong>Backup System:</strong>
+- <cite>backup()</cite> - Create system backup with metadata</p>
+<p><strong>Spark Integration:</strong>
+- <cite>setup_spark()</cite> - Setup Spark environment
+- <cite>show_spark_config()</cite> - Display Spark configuration</p>
+<p><strong>Performance Optimization:</strong>
+- <cite>deduplicate_path()</cite> - Remove duplicate PATH entries
+- <cite>optimize_shell()</cite> - Optimize shell performance</p>
+<p><strong>Help System:</strong>
+- <cite>zsh_help()</cite> - Interactive help system with topics</p>
+<p><strong>Testing &amp; Validation:</strong>
+- <cite>test_compatibility()</cite> - Test cross-shell compatibility
+- <cite>validate_environment()</cite> - Validate system environment</p>
+</section>
+<section id="common-function-patterns">
+<h3>Common Function Patterns<a class="headerlink" href="#common-function-patterns" title="Link to this heading"></a></h3>
+<p>Functions that work in both shells:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cross-shell function template</span>
+cross_shell_function<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">shell_type</span><span class="o">=</span><span class="k">$(</span>detect_shell<span class="k">)</span>
+
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$shell_type</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">        </span><span class="s2">&quot;zsh&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="c1"># ZSH-specific implementation</span>
+<span class="w">            </span><span class="nb">local</span><span class="w"> </span>-A<span class="w"> </span>zsh_array
+<span class="w">            </span>zsh_array<span class="o">[</span>key<span class="o">]=</span><span class="s2">&quot;value&quot;</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span><span class="s2">&quot;bash&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="c1"># Bash-specific implementation</span>
+<span class="w">            </span><span class="nb">declare</span><span class="w"> </span>-A<span class="w"> </span>bash_array
+<span class="w">            </span>bash_array<span class="o">[</span>key<span class="o">]=</span><span class="s2">&quot;value&quot;</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">    </span><span class="k">esac</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<section id="cross-shell-variables">
+<h3>Cross-Shell Variables<a class="headerlink" href="#cross-shell-variables" title="Link to this heading"></a></h3>
+<p>Environment variables that work in both shells:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Core configuration (works in both shells)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSHRC_CONFIG_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.config/zsh&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSHRC_BACKUPS</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.zshrc_backups&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_MANAGER</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH_DEDUPLICATION_ENABLED</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+
+<span class="c1"># SDKMAN configuration (works in both shells)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SDKMAN_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/java/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/spark/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/hadoop/current&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="shell-specific-variables">
+<h3>Shell-Specific Variables<a class="headerlink" href="#shell-specific-variables" title="Link to this heading"></a></h3>
+<p>Variables that need shell-specific handling:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ZSH-specific variables</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$IS_ZSH</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span>ZSH_VERSION
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_THEME</span><span class="o">=</span><span class="s2">&quot;powerlevel10k/powerlevel10k&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># Bash-specific variables</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$IS_BASH</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span>BASH_VERSION
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;\\u@\\h:\\w\\</span>$<span class="s2"> &quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="platform-compatibility">
+<h2>Platform Compatibility<a class="headerlink" href="#platform-compatibility" title="Link to this heading"></a></h2>
+<section id="macos-compatibility">
+<h3>macOS Compatibility<a class="headerlink" href="#macos-compatibility" title="Link to this heading"></a></h3>
+<p>macOS-specific adaptations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># macOS detection</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;darwin&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;macos&quot;</span>
+
+<span class="w">    </span><span class="c1"># macOS-specific paths</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">BREW_PREFIX</span><span class="o">=</span><span class="s2">&quot;/opt/homebrew&quot;</span><span class="w">  </span><span class="c1"># Apple Silicon</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BREW_PREFIX</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">BREW_PREFIX</span><span class="o">=</span><span class="s2">&quot;/usr/local&quot;</span><span class="w">  </span><span class="c1"># Intel</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="c1"># macOS-specific tools</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$BREW_PREFIX</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+<section id="linux-compatibility">
+<h3>Linux Compatibility<a class="headerlink" href="#linux-compatibility" title="Link to this heading"></a></h3>
+<p>Linux-specific adaptations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Linux detection</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;linux-gnu&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;linux&quot;</span>
+
+<span class="w">    </span><span class="c1"># Detect Linux distribution</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span>/etc/os-release<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>.<span class="w"> </span>/etc/os-release
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">LINUX_DISTRO</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$ID</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">LINUX_VERSION</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$VERSION_ID</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="c1"># Distribution-specific paths</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LINUX_DISTRO</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">        </span><span class="s2">&quot;ubuntu&quot;</span><span class="p">|</span><span class="s2">&quot;debian&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="nb">export</span><span class="w"> </span><span class="nv">PACKAGE_MANAGER</span><span class="o">=</span><span class="s2">&quot;apt&quot;</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span><span class="s2">&quot;rhel&quot;</span><span class="p">|</span><span class="s2">&quot;centos&quot;</span><span class="p">|</span><span class="s2">&quot;rocky&quot;</span><span class="p">|</span><span class="s2">&quot;almalinux&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="nb">export</span><span class="w"> </span><span class="nv">PACKAGE_MANAGER</span><span class="o">=</span><span class="s2">&quot;dnf&quot;</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">    </span><span class="k">esac</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="core-function-compatibility">
+<h2>Core Function Compatibility<a class="headerlink" href="#core-function-compatibility" title="Link to this heading"></a></h2>
+<section id="python-management">
+<h3>Python Management<a class="headerlink" href="#python-management" title="Link to this heading"></a></h3>
+<p>Cross-shell Python management:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python manager detection (works in both shells)</span>
+setup_python_manager<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">manager</span><span class="o">=</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">$PYTHON_MANAGER</span><span class="si">}</span>
+
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$manager</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">        </span><span class="s2">&quot;pyenv&quot;</span><span class="o">)</span>
+<span class="w">            </span>setup_pyenv
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span><span class="s2">&quot;uv&quot;</span><span class="o">)</span>
+<span class="w">            </span>setup_uv
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">        </span><span class="s2">&quot;auto&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;.python-version&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span>setup_pyenv
+<span class="w">            </span><span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;pyproject.toml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">                </span>setup_uv
+<span class="w">            </span><span class="k">else</span>
+<span class="w">                </span>setup_pyenv<span class="w">  </span><span class="c1"># Default</span>
+<span class="w">            </span><span class="k">fi</span>
+<span class="w">            </span><span class="p">;;</span>
+<span class="w">    </span><span class="k">esac</span>
+<span class="o">}</span>
+
+<span class="c1"># Cross-shell pyenv setup</span>
+setup_pyenv<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYENV_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.pyenv&quot;</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PYENV_ROOT</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>pyenv<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>pyenv<span class="w"> </span>init<span class="w"> </span>-<span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>pyenv-virtualenv<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>pyenv<span class="w"> </span>virtualenv-init<span class="w"> </span>-<span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="backup-system">
+<h3>Backup System<a class="headerlink" href="#backup-system" title="Link to this heading"></a></h3>
+<p>Cross-shell backup functionality:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cross-shell backup function</span>
+backup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">message</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">timestamp</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y-%m-%d_%H-%M-%S&quot;</span><span class="k">)</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">backup_dir</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$ZSHRC_BACKUPS</span><span class="s2">/</span><span class="k">$(</span>date<span class="w"> </span>+%Y<span class="k">)</span><span class="s2">/</span><span class="k">$(</span>date<span class="w"> </span>+%m<span class="k">)</span><span class="s2">/week</span><span class="k">$(</span>date<span class="w"> </span>+%V<span class="k">)</span><span class="s2">/config_</span><span class="nv">$timestamp</span><span class="s2">&quot;</span>
+
+<span class="w">    </span><span class="c1"># Create backup directory</span>
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$backup_dir</span><span class="s2">&quot;</span>
+
+<span class="w">    </span><span class="c1"># Backup configuration</span>
+<span class="w">    </span>cp<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ZSHRC_CONFIG_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$backup_dir</span><span class="s2">/zsh&quot;</span>
+
+<span class="w">    </span><span class="c1"># Create metadata</span>
+<span class="w">    </span>cat<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$backup_dir</span><span class="s2">/metadata.json&quot;</span><span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">{</span>
+<span class="s">    &quot;timestamp&quot;: &quot;$timestamp&quot;,</span>
+<span class="s">    &quot;message&quot;: &quot;$message&quot;,</span>
+<span class="s">    &quot;shell&quot;: &quot;$CURRENT_SHELL&quot;,</span>
+<span class="s">    &quot;platform&quot;: &quot;$PLATFORM&quot;,</span>
+<span class="s">    &quot;version&quot;: &quot;2.1.0&quot;</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Backup created: </span><span class="nv">$backup_dir</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="spark-integration">
+<h3>Spark Integration<a class="headerlink" href="#spark-integration" title="Link to this heading"></a></h3>
+<p>Cross-shell Spark integration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cross-shell Spark setup</span>
+setup_spark<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/spark/current&quot;</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+
+<span class="w">    </span><span class="c1"># Set Spark Python paths</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$IS_ZSH</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_PYTHON</span><span class="o">=</span><span class="k">$(</span>pyenv<span class="w"> </span>which<span class="w"> </span>python<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>which<span class="w"> </span>python3<span class="k">)</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_PYTHON</span><span class="o">=</span><span class="k">$(</span>pyenv<span class="w"> </span>which<span class="w"> </span>python<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>which<span class="w"> </span>python3<span class="k">)</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_DRIVER_PYTHON</span><span class="o">=</span><span class="nv">$PYSPARK_PYTHON</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="installation-scripts">
+<h2>Installation Scripts<a class="headerlink" href="#installation-scripts" title="Link to this heading"></a></h2>
+<section id="bash-installation-script">
+<h3>Bash Installation Script<a class="headerlink" href="#bash-installation-script" title="Link to this heading"></a></h3>
+<p>Create a bash-compatible installation script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># install-bash-compatibility.sh</span>
+
+<span class="nb">set</span><span class="w"> </span>-e
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Installing Siege Analytics Configuration for Bash&quot;</span>
+
+<span class="c1"># Detect platform</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;darwin&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;macos&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;linux-gnu&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;linux&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Unsupported platform: </span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># Install SDKMAN</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<span class="k">fi</span>
+
+<span class="c1"># Source SDKMAN</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># Install tools</span>
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+sdk<span class="w"> </span>install<span class="w"> </span>scala<span class="w"> </span><span class="m">2</span>.12.18
+sdk<span class="w"> </span>install<span class="w"> </span>spark<span class="w"> </span><span class="m">3</span>.5.3
+sdk<span class="w"> </span>install<span class="w"> </span>hadoop<span class="w"> </span><span class="m">3</span>.3.6
+
+<span class="c1"># Clone configuration</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dheerajchand/siege_analytics_zshrc.git<span class="w"> </span>zsh
+
+<span class="c1"># Create bash compatibility</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/.bashrc_siege<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s"># Siege Analytics Configuration for Bash</span>
+<span class="s">export ZSHRC_CONFIG_DIR=&quot;$HOME/.config/zsh&quot;</span>
+<span class="s">source &quot;$ZSHRC_CONFIG_DIR/bash-compatibility.zsh&quot;</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Add to existing .bashrc</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source ~/.bashrc_siege&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Installation complete. Restart your shell or run: source ~/.bashrc&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="zsh-installation-script">
+<h3>ZSH Installation Script<a class="headerlink" href="#zsh-installation-script" title="Link to this heading"></a></h3>
+<p>Create a zsh-compatible installation script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/zsh</span>
+<span class="c1"># install-zsh-compatibility.sh</span>
+
+<span class="nb">set</span><span class="w"> </span>-e
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Installing Siege Analytics Configuration for ZSH&quot;</span>
+
+<span class="c1"># Detect platform</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;darwin&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;macos&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;linux-gnu&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;linux&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Unsupported platform: </span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># Install SDKMAN</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<span class="k">fi</span>
+
+<span class="c1"># Source SDKMAN</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># Install tools</span>
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">17</span>.0.9-tem
+sdk<span class="w"> </span>install<span class="w"> </span>scala<span class="w"> </span><span class="m">2</span>.12.18
+sdk<span class="w"> </span>install<span class="w"> </span>spark<span class="w"> </span><span class="m">3</span>.5.3
+sdk<span class="w"> </span>install<span class="w"> </span>hadoop<span class="w"> </span><span class="m">3</span>.3.6
+
+<span class="c1"># Clone configuration</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dheerajchand/siege_analytics_zshrc.git<span class="w"> </span>zsh
+
+<span class="c1"># Create zsh symlink</span>
+ln<span class="w"> </span>-sf<span class="w"> </span>~/.config/zsh/zshrc<span class="w"> </span>~/.zshrc
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Installation complete. Restart your shell or run: exec zsh&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-and-validation">
+<h2>Testing and Validation<a class="headerlink" href="#testing-and-validation" title="Link to this heading"></a></h2>
+<section id="cross-shell-testing">
+<h3>Cross-Shell Testing<a class="headerlink" href="#cross-shell-testing" title="Link to this heading"></a></h3>
+<p>Test functions in both shells:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test script for both shells</span>
+test_compatibility<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing shell compatibility...&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Current shell: </span><span class="nv">$CURRENT_SHELL</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Platform: </span><span class="nv">$PLATFORM</span><span class="s2">&quot;</span>
+
+<span class="w">    </span><span class="c1"># Test Python management</span>
+<span class="w">    </span>setup_python_manager<span class="w"> </span>auto
+<span class="w">    </span>python_status
+
+<span class="w">    </span><span class="c1"># Test backup system</span>
+<span class="w">    </span>backup<span class="w"> </span><span class="s2">&quot;Compatibility test&quot;</span>
+
+<span class="w">    </span><span class="c1"># Test Spark integration</span>
+<span class="w">    </span>setup_spark
+<span class="w">    </span>show_spark_config
+
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Compatibility test complete&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="validation-scripts">
+<h3>Validation Scripts<a class="headerlink" href="#validation-scripts" title="Link to this heading"></a></h3>
+<p>Create validation scripts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># validate-bash-compatibility.sh</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating Bash Compatibility&quot;</span>
+
+<span class="c1"># Test basic functions</span>
+test_compatibility
+
+<span class="c1"># Test environment variables</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ZSHRC_CONFIG_DIR: </span><span class="nv">$ZSHRC_CONFIG_DIR</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PYTHON_MANAGER: </span><span class="nv">$PYTHON_MANAGER</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SPARK_HOME: </span><span class="nv">$SPARK_HOME</span><span class="s2">&quot;</span>
+
+<span class="c1"># Test tool availability</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>java<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Java: OK&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Java: MISSING&quot;</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>spark-shell<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Spark: OK&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Spark: MISSING&quot;</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>pyenv<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Pyenv: OK&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Pyenv: MISSING&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validation complete&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<section id="shell-detection-issues">
+<h4>Shell Detection Issues<a class="headerlink" href="#shell-detection-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debug shell detection</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ZSH_VERSION: </span><span class="nv">$ZSH_VERSION</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;BASH_VERSION: </span><span class="nv">$BASH_VERSION</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;CURRENT_SHELL: </span><span class="nv">$CURRENT_SHELL</span><span class="s2">&quot;</span>
+
+<span class="c1"># Manual shell detection</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ZSH_VERSION</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Running in ZSH&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BASH_VERSION</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Running in Bash&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Unknown shell&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+<section id="function-translation-issues">
+<h4>Function Translation Issues<a class="headerlink" href="#function-translation-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test function compatibility</span>
+test_function<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">shell_type</span><span class="o">=</span><span class="k">$(</span>detect_shell<span class="k">)</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Function running in: </span><span class="nv">$shell_type</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+
+<span class="c1"># Test array handling</span>
+test_arrays<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$IS_ZSH</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">local</span><span class="w"> </span>-A<span class="w"> </span>test_array
+<span class="w">        </span>test_array<span class="o">[</span>key<span class="o">]=</span><span class="s2">&quot;value&quot;</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ZSH array: </span><span class="si">${</span><span class="nv">test_array</span><span class="p">[key]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">declare</span><span class="w"> </span>-A<span class="w"> </span>test_array
+<span class="w">        </span>test_array<span class="o">[</span>key<span class="o">]=</span><span class="s2">&quot;value&quot;</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Bash array: </span><span class="si">${</span><span class="nv">test_array</span><span class="p">[key]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="platform-detection-issues">
+<h4>Platform Detection Issues<a class="headerlink" href="#platform-detection-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debug platform detection</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;OSTYPE: </span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PLATFORM: </span><span class="nv">$PLATFORM</span><span class="s2">&quot;</span>
+
+<span class="c1"># Manual platform detection</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;darwin&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;macOS detected&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OSTYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;linux-gnu&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Linux detected&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Unknown platform&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="development-guidelines">
+<h3>Development Guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use cross-shell compatible syntax</strong> whenever possible</p></li>
+<li><p><strong>Test functions in both shells</strong> before deployment</p></li>
+<li><p><strong>Use shell detection</strong> for shell-specific features</p></li>
+<li><p><strong>Document shell-specific behavior</strong> clearly</p></li>
+<li><p><strong>Provide fallbacks</strong> for unsupported features</p></li>
+</ol>
+</section>
+<section id="deployment-guidelines">
+<h3>Deployment Guidelines<a class="headerlink" href="#deployment-guidelines" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Create separate installation scripts</strong> for each shell</p></li>
+<li><p><strong>Test on multiple platforms</strong> (macOS, Ubuntu, RedHat)</p></li>
+<li><p><strong>Provide clear documentation</strong> for each shell</p></li>
+<li><p><strong>Include validation scripts</strong> for testing</p></li>
+<li><p><strong>Maintain backward compatibility</strong> when possible</p></li>
+</ol>
+</section>
+<section id="maintenance-guidelines">
+<h3>Maintenance Guidelines<a class="headerlink" href="#maintenance-guidelines" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Regular testing</strong> of cross-shell compatibility</p></li>
+<li><p><strong>Update documentation</strong> when adding new features</p></li>
+<li><p><strong>Monitor for shell-specific issues</strong> in user feedback</p></li>
+<li><p><strong>Keep installation scripts</strong> up to date</p></li>
+<li><p><strong>Test with new shell versions</strong> as they’re released</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The bash compatibility system ensures that the Siege Analytics ZSH Configuration System works seamlessly across different shells and platforms, providing a consistent experience regardless of the user’s shell preference.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

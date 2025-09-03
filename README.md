@@ -86,6 +86,13 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 
 ## 🚀 Key Features
 
+### 🎯 SDKMAN-First Architecture
+- **Cross-Platform Consistency**: All tools managed through SDKMAN
+- **Version Management**: Easy switching between tool versions
+- **No Root Required**: User-level installations across all platforms
+- **Unified Installation**: Same process on macOS, Ubuntu, and RedHat
+- **Tool Ecosystem**: Java, Scala, Spark, Hadoop, Maven, Gradle via SDKMAN
+
 ### 🔧 Comprehensive Function Documentation
 - **Every function documented** with Python-style docstrings (converted to Zsh comments)
 - **Parameter documentation** with types and descriptions
@@ -94,11 +101,11 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 - **Dependencies** and requirements clearly stated
 
 ### 🌍 Cross-Platform Compatibility
-- **macOS**: Native support with Homebrew and system tools
-- **Ubuntu Linux**: Full compatibility with apt package management
-- **RedHat Linux**: Support for RHEL, CentOS, and Rocky Linux
-- **Docker Containers**: Ready-to-use containerized environments
-- **Remote Servers**: Automated deployment scripts and configurations
+- **macOS**: Native support with SDKMAN for all tool management
+- **Ubuntu Linux**: Full compatibility with SDKMAN-based installation
+- **RedHat Linux**: Support for RHEL, CentOS, and Rocky Linux via SDKMAN
+- **Docker Containers**: Ready-to-use containerized environments with SDKMAN
+- **Remote Servers**: Automated deployment scripts with SDKMAN integration
 
 ### ❓ Interactive Help System
 - **Access help for any function** via `zsh_help` commands
@@ -156,26 +163,25 @@ backup "Major update"
 zsh_repo_status
 ```
 
-### 🐳 Quick Docker Setup
+### 🐳 Quick Docker Setup (SDKMAN-Based)
 ```bash
-# Set up Docker environment
-chmod +x docker-setup.sh
-./docker-setup.sh
+# Set up Docker environment with SDKMAN
+docker build -t enhanced-zsh-sdkman .
 
 # Start development container
-./start-enhanced-zsh.sh
+docker run -it --rm enhanced-zsh-sdkman
 
 # Or use Docker Compose
 docker-compose up zsh-dev
 ```
 
-### 🌍 Cross-Platform Deployment
+### 🌍 Cross-Platform Deployment (SDKMAN-Based)
 ```bash
-# Deploy to remote server
-chmod +x deploy-enhanced-zsh.sh
-./deploy-enhanced-zsh.sh username server.example.com
+# Deploy to remote server with SDKMAN
+chmod +x deploy-enhanced-zsh-sdkman.sh
+./deploy-enhanced-zsh-sdkman.sh username server.example.com
 
-# See docs/CROSS_PLATFORM_GUIDE.md for detailed instructions
+# See docs/CROSS_PLATFORM_GUIDE.md for detailed SDKMAN instructions
 ```
 
 ## 📁 Repository Structure

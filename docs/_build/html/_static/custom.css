@@ -1,0 +1,279 @@
+/* Siege Analytics Branding for Documentation */
+
+/* Import Google Fonts for professional typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Brand Colors - Siege Analytics Neon Green Theme */
+:root {
+    --siege-primary: #00FF41;      /* Neon green primary */
+    --siege-secondary: #00CC33;    /* Darker neon green accent */
+    --siege-dark: #1a1a1a;         /* Dark background */
+    --siege-light: #f0f0f0;        /* Light gray */
+    --siege-success: #00FF41;      /* Neon green success */
+    --siege-warning: #FFD700;      /* Gold warning */
+    --siege-danger: #FF4444;       /* Red danger */
+    --siege-accent: #00BFFF;       /* Bright blue accent */
+}
+
+/* Override RTD theme colors with Siege Analytics branding */
+.wy-side-nav-search {
+    background-color: var(--siege-primary) !important;
+}
+
+.wy-side-nav-search input[type="text"] {
+    border-color: var(--siege-secondary) !important;
+}
+
+.wy-side-nav-search input[type="text"]:focus {
+    border-color: var(--siege-secondary) !important;
+    box-shadow: 0 0 5px rgba(230, 126, 34, 0.3) !important;
+}
+
+.wy-menu-vertical a {
+    color: var(--siege-dark) !important;
+}
+
+.wy-menu-vertical a:hover {
+    background-color: var(--siege-light) !important;
+    color: var(--siege-primary) !important;
+}
+
+.wy-menu-vertical li.current > a {
+    background-color: var(--siege-primary) !important;
+    color: white !important;
+}
+
+.wy-menu-vertical li.current > a:hover {
+    background-color: var(--siege-secondary) !important;
+}
+
+/* Header styling */
+.rst-content h1, .rst-content h2, .rst-content h3, .rst-content h4, .rst-content h5, .rst-content h6 {
+    color: var(--siege-dark) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+.rst-content h1 {
+    border-bottom: 3px solid var(--siege-primary) !important;
+    padding-bottom: 10px !important;
+}
+
+.rst-content h2 {
+    border-bottom: 2px solid var(--siege-secondary) !important;
+    padding-bottom: 8px !important;
+}
+
+/* Code blocks */
+.rst-content .highlight {
+    background-color: #f8f9fa !important;
+    border-left: 4px solid var(--siege-primary) !important;
+}
+
+.rst-content .highlight pre {
+    background-color: #f8f9fa !important;
+}
+
+/* Inline code */
+.rst-content code {
+    background-color: var(--siege-light) !important;
+    color: var(--siege-dark) !important;
+    border: 1px solid #ddd !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+
+/* Buttons and links */
+.rst-content a {
+    color: var(--siege-primary) !important;
+}
+
+.rst-content a:hover {
+    color: var(--siege-secondary) !important;
+}
+
+/* Admonitions */
+.rst-content .admonition {
+    border-left: 4px solid var(--siege-primary) !important;
+}
+
+.rst-content .admonition-title {
+    background-color: var(--siege-primary) !important;
+    color: white !important;
+}
+
+.rst-content .admonition.note {
+    border-left-color: var(--siege-primary) !important;
+}
+
+.rst-content .admonition.warning {
+    border-left-color: var(--siege-warning) !important;
+}
+
+.rst-content .admonition.warning .admonition-title {
+    background-color: var(--siege-warning) !important;
+}
+
+.rst-content .admonition.danger {
+    border-left-color: var(--siege-danger) !important;
+}
+
+.rst-content .admonition.danger .admonition-title {
+    background-color: var(--siege-danger) !important;
+}
+
+.rst-content .admonition.tip {
+    border-left-color: var(--siege-success) !important;
+}
+
+.rst-content .admonition.tip .admonition-title {
+    background-color: var(--siege-success) !important;
+}
+
+/* Tables */
+.rst-content table {
+    border: 1px solid #ddd !important;
+}
+
+.rst-content table th {
+    background-color: var(--siege-primary) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+.rst-content table td {
+    border: 1px solid #ddd !important;
+}
+
+.rst-content table tr:nth-child(even) {
+    background-color: var(--siege-light) !important;
+}
+
+/* Navigation breadcrumbs */
+.wy-breadcrumbs {
+    background-color: var(--siege-light) !important;
+}
+
+.wy-breadcrumbs a {
+    color: var(--siege-primary) !important;
+}
+
+/* Footer */
+.rst-footer-buttons {
+    border-top: 1px solid #ddd !important;
+}
+
+.rst-footer-buttons a {
+    background-color: var(--siege-primary) !important;
+    color: white !important;
+    border: 1px solid var(--siege-primary) !important;
+}
+
+.rst-footer-buttons a:hover {
+    background-color: var(--siege-secondary) !important;
+    border-color: var(--siege-secondary) !important;
+}
+
+/* Custom branding elements */
+.siege-branding {
+    background: linear-gradient(135deg, var(--siege-primary), var(--siege-secondary));
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.siege-branding h3 {
+    color: white !important;
+    margin: 0 0 10px 0;
+}
+
+.siege-branding p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Performance metrics styling */
+.performance-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.performance-metric {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.performance-metric h4 {
+    color: var(--siege-primary) !important;
+    margin: 0 0 10px 0;
+}
+
+.performance-metric .metric-value {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--siege-secondary) !important;
+    margin: 10px 0;
+}
+
+.performance-metric .metric-label {
+    color: var(--siege-dark) !important;
+    font-size: 0.9em;
+}
+
+/* Code copy button styling */
+.copybutton {
+    background-color: var(--siege-primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 3px !important;
+    padding: 5px 10px !important;
+    font-size: 0.8em !important;
+}
+
+.copybutton:hover {
+    background-color: var(--siege-secondary) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .performance-metrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .siege-branding {
+        padding: 15px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --siege-primary: #3498DB;
+        --siege-secondary: #F39C12;
+        --siege-dark: #ECF0F1;
+        --siege-light: #2C3E50;
+    }
+    
+    .rst-content {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+    }
+    
+    .rst-content .highlight {
+        background-color: #2d2d2d !important;
+    }
+    
+    .rst-content code {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
+}

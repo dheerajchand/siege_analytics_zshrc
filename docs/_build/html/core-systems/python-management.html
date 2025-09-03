@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Management System &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comcore-systems/python-management.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Backup System" href="backup-system.html" />
+    <link rel="prev" title="Troubleshooting Guide" href="../getting-started/troubleshooting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python Management System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#system-overview">System Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-architecture">Core Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-structure">Module Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#python-manager-switching-system">Python Manager Switching System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#intelligent-manager-detection">Intelligent Manager Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#manager-switching-functions">Manager Switching Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#switch-python-manager-manager"><code class="docutils literal notranslate"><span class="pre">switch_python_manager(manager)</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup-pyenv"><code class="docutils literal notranslate"><span class="pre">setup_pyenv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup-uv"><code class="docutils literal notranslate"><span class="pre">setup_uv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-environment-detection">Automatic Environment Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#virtual-environment-management">Virtual Environment Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyenv-virtual-environments">pyenv Virtual Environments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyenv-install-latest-major-version"><code class="docutils literal notranslate"><span class="pre">pyenv_install_latest(major_version)</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-pyenv-environment-name-python-version"><code class="docutils literal notranslate"><span class="pre">create_pyenv_environment(name,</span> <span class="pre">python_version)</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyenv-status"><code class="docutils literal notranslate"><span class="pre">pyenv_status()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#uv-virtual-environments">uv Virtual Environments</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uv-init-project-python-version"><code class="docutils literal notranslate"><span class="pre">uv_init_project(python_version)</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uv-project-status"><code class="docutils literal notranslate"><span class="pre">uv_project_status()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-status-and-health">Environment Status and Health</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#python-status"><code class="docutils literal notranslate"><span class="pre">python_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#python-health-check"><code class="docutils literal notranslate"><span class="pre">python_health_check()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-optimization">Performance Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lazy-loading-system">Lazy Loading System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#caching-system">Caching System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-benchmarks">Performance Benchmarks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#python-benchmark"><code class="docutils literal notranslate"><span class="pre">python_benchmark()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#spark-integration">Spark Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-spark-python-configuration">Automatic Spark Python Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spark-aware-environment-switching">Spark-Aware Environment Switching</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#jupyter-integration">Jupyter Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#jupyter-spark-port"><code class="docutils literal notranslate"><span class="pre">jupyter_spark(port)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jupyter-lab-spark-port"><code class="docutils literal notranslate"><span class="pre">jupyter_lab_spark(port)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#development-tools-integration">Development Tools Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ide-integration">IDE Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#package-management">Package Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyenv-pip">pyenv + pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uv-modern-workflow">uv Modern Workflow</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-options">Configuration Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#manager-specific-configuration">Manager-Specific Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyenv-configuration">pyenv Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uv-configuration">uv Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#manager-not-found">Manager Not Found</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#virtual-environment-issues">Virtual Environment Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spark-integration-issues">Spark Integration Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#performance-issues">Performance Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#debug-mode">Debug Mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-usage-examples">Advanced Usage Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-science-workflow">Data Science Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modern-web-development">Modern Web Development</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixed-environment-project">Mixed Environment Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spark-development">Spark Development</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#project-organization">Project Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Performance Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-management">Integration Management</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python Management System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core-systems/python-management.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="python-management-system">
+<h1>Python Management System<a class="headerlink" href="#python-management-system" title="Link to this heading"></a></h1>
+<p>The Python management system is a sophisticated 8-module subsystem that provides intelligent switching between <cite>pyenv</cite> and <cite>uv</cite> package managers, rich virtual environment management, and seamless integration with the big data stack.</p>
+<section id="system-overview">
+<h2>System Overview<a class="headerlink" href="#system-overview" title="Link to this heading"></a></h2>
+<section id="core-architecture">
+<h3>Core Architecture<a class="headerlink" href="#core-architecture" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Modular Design</strong>: 8 specialized modules for different aspects of Python management</p></li>
+<li><p><strong>Intelligent Switching</strong>: Automatic detection and switching between pyenv and uv</p></li>
+<li><p><strong>Performance Optimized</strong>: Lazy loading and caching for fast startup</p></li>
+<li><p><strong>Integration Ready</strong>: Seamless integration with Spark, Hadoop, and development tools</p></li>
+</ul>
+</section>
+<section id="module-structure">
+<h3>Module Structure<a class="headerlink" href="#module-structure" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>python/
+├── init.zsh                    # Main initialization and module loader
+├── managers/
+│   ├── pyenv.zsh              # pyenv-specific functionality
+│   └── uv.zsh                 # uv-specific functionality
+├── integrations/
+│   ├── notebooks.zsh          # Jupyter/notebook integration
+│   └── spark.zsh              # Spark integration
+├── utils/
+│   ├── benchmarks.zsh         # Performance testing
+│   └── health.zsh             # System health monitoring
+└── projects/                  # Project-specific configurations
+</pre></div>
+</div>
+</section>
+</section>
+<section id="python-manager-switching-system">
+<h2>Python Manager Switching System<a class="headerlink" href="#python-manager-switching-system" title="Link to this heading"></a></h2>
+<section id="intelligent-manager-detection">
+<h3>Intelligent Manager Detection<a class="headerlink" href="#intelligent-manager-detection" title="Link to this heading"></a></h3>
+<p>The system automatically detects and switches between Python managers based on:</p>
+<ol class="arabic simple">
+<li><p><strong>Current Directory Context</strong>: Detects <cite>.python-version</cite> (pyenv) or <cite>pyproject.toml</cite> (uv)</p></li>
+<li><p><strong>Environment Variables</strong>: <cite>PYTHON_MANAGER</cite> setting</p></li>
+<li><p><strong>Available Tools</strong>: Checks which managers are installed</p></li>
+<li><p><strong>Project Requirements</strong>: Analyzes project structure</p></li>
+</ol>
+</section>
+<section id="manager-switching-functions">
+<h3>Manager Switching Functions<a class="headerlink" href="#manager-switching-functions" title="Link to this heading"></a></h3>
+<section id="switch-python-manager-manager">
+<h4><code class="docutils literal notranslate"><span class="pre">switch_python_manager(manager)</span></code><a class="headerlink" href="#switch-python-manager-manager" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Switch to pyenv</span>
+switch_python_manager<span class="w"> </span>pyenv
+
+<span class="c1"># Switch to uv</span>
+switch_python_manager<span class="w"> </span>uv
+
+<span class="c1"># Auto-detect based on current directory</span>
+switch_python_manager<span class="w"> </span>auto
+</pre></div>
+</div>
+</section>
+<section id="setup-pyenv">
+<h4><code class="docutils literal notranslate"><span class="pre">setup_pyenv()</span></code><a class="headerlink" href="#setup-pyenv" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize pyenv with full configuration</span>
+setup_pyenv
+
+<span class="c1"># Features:</span>
+<span class="c1"># - Sets PYENV_ROOT and PATH</span>
+<span class="c1"># - Initializes pyenv and pyenv-virtualenv</span>
+<span class="c1"># - Sets default Python version</span>
+<span class="c1"># - Configures Spark Python paths</span>
+<span class="c1"># - Creates helpful aliases</span>
+</pre></div>
+</div>
+</section>
+<section id="setup-uv">
+<h4><code class="docutils literal notranslate"><span class="pre">setup_uv()</span></code><a class="headerlink" href="#setup-uv" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize uv with full configuration</span>
+setup_uv
+
+<span class="c1"># Features:</span>
+<span class="c1"># - Sets UV environment variables</span>
+<span class="c1"># - Configures Python preference to &quot;managed&quot;</span>
+<span class="c1"># - Sets up automatic Python downloads</span>
+<span class="c1"># - Creates uv aliases (uvpy, uvrun, uvsync, etc.)</span>
+<span class="c1"># - Configures Spark Python paths</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="automatic-environment-detection">
+<h3>Automatic Environment Detection<a class="headerlink" href="#automatic-environment-detection" title="Link to this heading"></a></h3>
+<p>The system automatically detects the appropriate Python manager:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In a pyenv project (has .python-version)</span>
+<span class="nb">cd</span><span class="w"> </span>my-pyenv-project
+python_status<span class="w">  </span><span class="c1"># Automatically uses pyenv</span>
+
+<span class="c1"># In a uv project (has pyproject.toml)</span>
+<span class="nb">cd</span><span class="w"> </span>my-uv-project
+python_status<span class="w">  </span><span class="c1"># Automatically uses uv</span>
+
+<span class="c1"># In a mixed environment</span>
+<span class="nb">cd</span><span class="w"> </span>mixed-project
+switch_python_manager<span class="w"> </span>auto<span class="w">  </span><span class="c1"># Detects and switches appropriately</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="virtual-environment-management">
+<h2>Virtual Environment Management<a class="headerlink" href="#virtual-environment-management" title="Link to this heading"></a></h2>
+<section id="pyenv-virtual-environments">
+<h3>pyenv Virtual Environments<a class="headerlink" href="#pyenv-virtual-environments" title="Link to this heading"></a></h3>
+<section id="pyenv-install-latest-major-version">
+<h4><code class="docutils literal notranslate"><span class="pre">pyenv_install_latest(major_version)</span></code><a class="headerlink" href="#pyenv-install-latest-major-version" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install latest Python 3.11</span>
+pyenv_install_latest<span class="w"> </span><span class="m">3</span>
+
+<span class="c1"># Install latest Python 3.12</span>
+pyenv_install_latest<span class="w"> </span><span class="m">3</span>.12
+</pre></div>
+</div>
+</section>
+<section id="create-pyenv-environment-name-python-version">
+<h4><code class="docutils literal notranslate"><span class="pre">create_pyenv_environment(name,</span> <span class="pre">python_version)</span></code><a class="headerlink" href="#create-pyenv-environment-name-python-version" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new virtual environment</span>
+create_pyenv_environment<span class="w"> </span>data_science<span class="w"> </span><span class="m">3</span>.11.7
+
+<span class="c1"># Activate the environment</span>
+pyenv<span class="w"> </span>activate<span class="w"> </span>data_science
+</pre></div>
+</div>
+</section>
+<section id="pyenv-status">
+<h4><code class="docutils literal notranslate"><span class="pre">pyenv_status()</span></code><a class="headerlink" href="#pyenv-status" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show comprehensive pyenv status</span>
+pyenv_status
+
+<span class="c1"># Output includes:</span>
+<span class="c1"># - Current Python version</span>
+<span class="c1"># - Active virtual environment</span>
+<span class="c1"># - Available versions</span>
+<span class="c1"># - Environment variables</span>
+<span class="c1"># - Spark integration status</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="uv-virtual-environments">
+<h3>uv Virtual Environments<a class="headerlink" href="#uv-virtual-environments" title="Link to this heading"></a></h3>
+<section id="uv-init-project-python-version">
+<h4><code class="docutils literal notranslate"><span class="pre">uv_init_project(python_version)</span></code><a class="headerlink" href="#uv-init-project-python-version" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize a new uv project</span>
+uv_init_project<span class="w"> </span><span class="m">3</span>.11
+
+<span class="c1"># Creates:</span>
+<span class="c1"># - pyproject.toml with project configuration</span>
+<span class="c1"># - .venv virtual environment</span>
+<span class="c1"># - Development dependencies (pytest, black, ruff)</span>
+</pre></div>
+</div>
+</section>
+<section id="uv-project-status">
+<h4><code class="docutils literal notranslate"><span class="pre">uv_project_status()</span></code><a class="headerlink" href="#uv-project-status" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show comprehensive uv project status</span>
+uv_project_status
+
+<span class="c1"># Output includes:</span>
+<span class="c1"># - Project configuration</span>
+<span class="c1"># - Virtual environment status</span>
+<span class="c1"># - Dependencies</span>
+<span class="c1"># - Python version</span>
+<span class="c1"># - Spark integration status</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-status-and-health">
+<h3>Environment Status and Health<a class="headerlink" href="#environment-status-and-health" title="Link to this heading"></a></h3>
+<section id="python-status">
+<h4><code class="docutils literal notranslate"><span class="pre">python_status()</span></code><a class="headerlink" href="#python-status" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Comprehensive Python environment status</span>
+python_status
+
+<span class="c1"># Shows:</span>
+<span class="c1"># - Active manager (pyenv/uv)</span>
+<span class="c1"># - Current Python version</span>
+<span class="c1"># - Virtual environment status</span>
+<span class="c1"># - PATH configuration</span>
+<span class="c1"># - Spark integration</span>
+<span class="c1"># - Performance metrics</span>
+</pre></div>
+</div>
+</section>
+<section id="python-health-check">
+<h4><code class="docutils literal notranslate"><span class="pre">python_health_check()</span></code><a class="headerlink" href="#python-health-check" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Complete health check of Python system</span>
+python_health_check
+
+<span class="c1"># Checks:</span>
+<span class="c1"># - Manager availability</span>
+<span class="c1"># - Python installation</span>
+<span class="c1"># - Virtual environment integrity</span>
+<span class="c1"># - Package manager functionality</span>
+<span class="c1"># - Spark integration</span>
+<span class="c1"># - Performance benchmarks</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="performance-optimization">
+<h2>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading"></a></h2>
+<section id="lazy-loading-system">
+<h3>Lazy Loading System<a class="headerlink" href="#lazy-loading-system" title="Link to this heading"></a></h3>
+<p>The Python system uses intelligent lazy loading:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Core modules loaded immediately</span>
+<span class="c1"># - init.zsh (always loaded)</span>
+<span class="c1"># - managers/pyenv.zsh (if pyenv detected)</span>
+<span class="c1"># - managers/uv.zsh (if uv detected)</span>
+
+<span class="c1"># Optional modules loaded on demand</span>
+<span class="c1"># - integrations/notebooks.zsh (when jupyter commands used)</span>
+<span class="c1"># - integrations/spark.zsh (when Spark functions called)</span>
+<span class="c1"># - utils/benchmarks.zsh (when performance testing needed)</span>
+<span class="c1"># - utils/health.zsh (when health checks run)</span>
+</pre></div>
+</div>
+</section>
+<section id="caching-system">
+<h3>Caching System<a class="headerlink" href="#caching-system" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Module loading cache</span>
+<span class="nb">declare</span><span class="w"> </span>-A<span class="w"> </span>PYTHON_LOADED_MODULES
+
+<span class="c1"># Manager state cache</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_MANAGER_STATE_FILE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.config/python_manager_state&quot;</span>
+
+<span class="c1"># Performance metrics cache</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_PERFORMANCE_CACHE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.config/python_performance_cache&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-benchmarks">
+<h3>Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Link to this heading"></a></h3>
+<section id="python-benchmark">
+<h4><code class="docutils literal notranslate"><span class="pre">python_benchmark()</span></code><a class="headerlink" href="#python-benchmark" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run comprehensive performance benchmarks</span>
+python_benchmark
+
+<span class="c1"># Tests:</span>
+<span class="c1"># - Module loading times</span>
+<span class="c1"># - Virtual environment activation speed</span>
+<span class="c1"># - Package installation performance</span>
+<span class="c1"># - Spark integration overhead</span>
+<span class="c1"># - Memory usage</span>
+<span class="c1"># - Startup time impact</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="spark-integration">
+<h2>Spark Integration<a class="headerlink" href="#spark-integration" title="Link to this heading"></a></h2>
+<section id="automatic-spark-python-configuration">
+<h3>Automatic Spark Python Configuration<a class="headerlink" href="#automatic-spark-python-configuration" title="Link to this heading"></a></h3>
+<p>The system automatically configures Spark to use the correct Python:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For pyenv environments</span>
+setup_pyenv
+<span class="c1"># Automatically sets:</span>
+<span class="c1"># export PYSPARK_PYTHON=$(pyenv which python)</span>
+<span class="c1"># export PYSPARK_DRIVER_PYTHON=$PYSPARK_PYTHON</span>
+
+<span class="c1"># For uv environments</span>
+setup_uv
+<span class="c1"># Automatically sets:</span>
+<span class="c1"># export PYSPARK_PYTHON=$(uv run which python)</span>
+<span class="c1"># export PYSPARK_DRIVER_PYTHON=$PYSPARK_PYTHON</span>
+</pre></div>
+</div>
+</section>
+<section id="spark-aware-environment-switching">
+<h3>Spark-Aware Environment Switching<a class="headerlink" href="#spark-aware-environment-switching" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Switch Python manager and update Spark configuration</span>
+switch_python_manager<span class="w"> </span>pyenv
+setup_spark_python<span class="w">  </span><span class="c1"># Updates Spark Python paths</span>
+
+<span class="c1"># Or automatically</span>
+switch_python_manager<span class="w"> </span>auto<span class="w">  </span><span class="c1"># Detects and configures everything</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="jupyter-integration">
+<h2>Jupyter Integration<a class="headerlink" href="#jupyter-integration" title="Link to this heading"></a></h2>
+<section id="jupyter-spark-port">
+<h3><code class="docutils literal notranslate"><span class="pre">jupyter_spark(port)</span></code><a class="headerlink" href="#jupyter-spark-port" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Jupyter with Spark integration</span>
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># Features:</span>
+<span class="c1"># - Automatic Spark configuration</span>
+<span class="c1"># - Current Python environment</span>
+<span class="c1"># - Geospatial libraries (if available)</span>
+<span class="c1"># - Custom Jupyter configuration</span>
+<span class="c1"># - Port management</span>
+</pre></div>
+</div>
+</section>
+<section id="jupyter-lab-spark-port">
+<h3><code class="docutils literal notranslate"><span class="pre">jupyter_lab_spark(port)</span></code><a class="headerlink" href="#jupyter-lab-spark-port" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start JupyterLab with Spark integration</span>
+jupyter_lab_spark<span class="w"> </span><span class="m">8888</span>
+
+<span class="c1"># Features:</span>
+<span class="c1"># - JupyterLab interface</span>
+<span class="c1"># - Spark integration</span>
+<span class="c1"># - Current Python environment</span>
+<span class="c1"># - Extension management</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="development-tools-integration">
+<h2>Development Tools Integration<a class="headerlink" href="#development-tools-integration" title="Link to this heading"></a></h2>
+<section id="ide-integration">
+<h3>IDE Integration<a class="headerlink" href="#ide-integration" title="Link to this heading"></a></h3>
+<p>The system provides seamless integration with:</p>
+<ul class="simple">
+<li><p><strong>Cursor IDE</strong>: Automatic Python path detection</p></li>
+<li><p><strong>DataSpell</strong>: JetBrains data science IDE</p></li>
+<li><p><strong>VS Code</strong>: Python extension compatibility</p></li>
+<li><p><strong>PyCharm</strong>: Professional Python IDE</p></li>
+</ul>
+</section>
+<section id="package-management">
+<h3>Package Management<a class="headerlink" href="#package-management" title="Link to this heading"></a></h3>
+<section id="pyenv-pip">
+<h4>pyenv + pip<a class="headerlink" href="#pyenv-pip" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Traditional pip workflow</span>
+pyenv<span class="w"> </span>activate<span class="w"> </span>my_project
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w">  </span><span class="c1"># Editable installs</span>
+</pre></div>
+</div>
+</section>
+<section id="uv-modern-workflow">
+<h4>uv Modern Workflow<a class="headerlink" href="#uv-modern-workflow" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Modern uv workflow</span>
+uv<span class="w"> </span>add<span class="w"> </span>fastapi<span class="w"> </span>uvicorn
+uv<span class="w"> </span>add<span class="w"> </span>--dev<span class="w"> </span>pytest<span class="w"> </span>black<span class="w"> </span>ruff
+uv<span class="w"> </span>sync<span class="w">  </span><span class="c1"># Install all dependencies</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>main.py<span class="w">  </span><span class="c1"># Run with managed environment</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Core configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_MANAGER</span><span class="o">=</span><span class="s2">&quot;pyenv&quot;</span><span class="w">  </span><span class="c1"># or &quot;uv&quot; or &quot;auto&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_DEBUG</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="w">        </span><span class="c1"># Enable debug logging</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="w">  </span><span class="c1"># Auto-load all modules</span>
+
+<span class="c1"># Performance tuning</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_CACHE_ENABLED</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">     </span><span class="c1"># Enable caching</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_LAZY_LOADING</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">      </span><span class="c1"># Enable lazy loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_PERFORMANCE_MONITORING</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">  </span><span class="c1"># Monitor performance</span>
+
+<span class="c1"># Integration settings</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_SPARK_INTEGRATION</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">  </span><span class="c1"># Enable Spark integration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_JUPYTER_INTEGRATION</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">  </span><span class="c1"># Enable Jupyter integration</span>
+</pre></div>
+</div>
+</section>
+<section id="manager-specific-configuration">
+<h3>Manager-Specific Configuration<a class="headerlink" href="#manager-specific-configuration" title="Link to this heading"></a></h3>
+<section id="pyenv-configuration">
+<h4>pyenv Configuration<a class="headerlink" href="#pyenv-configuration" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.pyenvrc (if exists)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYENV_ROOT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.pyenv&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PYENV_ROOT</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+
+<span class="c1"># Auto-activate virtual environments</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYENV_VIRTUALENV_AUTO_ACTIVATE</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="uv-configuration">
+<h4>uv Configuration<a class="headerlink" href="#uv-configuration" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.config/uv/uv.toml</span>
+<span class="o">[</span>tool.uv<span class="o">]</span>
+python-preference<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;managed&quot;</span>
+python-downloads<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;automatic&quot;</span>
+compile-bytecode<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+link-mode<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;copy&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<section id="manager-not-found">
+<h4>Manager Not Found<a class="headerlink" href="#manager-not-found" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if manager is installed</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>pyenv
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>uv
+
+<span class="c1"># Reinstall if needed</span>
+curl<span class="w"> </span>https://pyenv.run<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash<span class="w">  </span><span class="c1"># pyenv</span>
+curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh<span class="w">  </span><span class="c1"># uv</span>
+</pre></div>
+</div>
+</section>
+<section id="virtual-environment-issues">
+<h4>Virtual Environment Issues<a class="headerlink" href="#virtual-environment-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check virtual environment status</span>
+python_status
+
+<span class="c1"># Recreate if corrupted</span>
+pyenv<span class="w"> </span>virtualenv-delete<span class="w"> </span>my_env
+pyenv<span class="w"> </span>virtualenv<span class="w"> </span><span class="m">3</span>.11.7<span class="w"> </span>my_env
+</pre></div>
+</div>
+</section>
+<section id="spark-integration-issues">
+<h4>Spark Integration Issues<a class="headerlink" href="#spark-integration-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Spark Python configuration</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PYSPARK_PYTHON: </span><span class="nv">$PYSPARK_PYTHON</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PYSPARK_DRIVER_PYTHON: </span><span class="nv">$PYSPARK_DRIVER_PYTHON</span><span class="s2">&quot;</span>
+
+<span class="c1"># Reconfigure Spark integration</span>
+setup_spark_python
+</pre></div>
+</div>
+</section>
+<section id="performance-issues">
+<h4>Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run performance diagnostics</span>
+python_benchmark
+
+<span class="c1"># Check module loading times</span>
+python_health_check
+
+<span class="c1"># Optimize configuration</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_AUTOLOAD_MODULES</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="w">  </span><span class="c1"># Disable auto-loading</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_LAZY_LOADING</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="w">      </span><span class="c1"># Enable lazy loading</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debug-mode">
+<h3>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable debug logging</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_DEBUG</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Reload Python system</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/python/init.zsh
+
+<span class="c1"># Check debug output</span>
+python_status<span class="w">  </span><span class="c1"># Will show detailed debug information</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-usage-examples">
+<h2>Advanced Usage Examples<a class="headerlink" href="#advanced-usage-examples" title="Link to this heading"></a></h2>
+<section id="data-science-workflow">
+<h3>Data Science Workflow<a class="headerlink" href="#data-science-workflow" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create data science environment</span>
+create_pyenv_environment<span class="w"> </span>data_science<span class="w"> </span><span class="m">3</span>.11.7
+pyenv<span class="w"> </span>activate<span class="w"> </span>data_science
+
+<span class="c1"># Install data science packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>pandas<span class="w"> </span>numpy<span class="w"> </span>matplotlib<span class="w"> </span>seaborn<span class="w"> </span>jupyter
+
+<span class="c1"># Start Spark-enabled Jupyter</span>
+load_big_data
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+</pre></div>
+</div>
+</section>
+<section id="modern-web-development">
+<h3>Modern Web Development<a class="headerlink" href="#modern-web-development" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create uv project</span>
+mkdir<span class="w"> </span>my_api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>my_api
+uv_init_project<span class="w"> </span><span class="m">3</span>.12
+
+<span class="c1"># Add dependencies</span>
+uv<span class="w"> </span>add<span class="w"> </span>fastapi<span class="w"> </span>uvicorn
+uv<span class="w"> </span>add<span class="w"> </span>--dev<span class="w"> </span>pytest<span class="w"> </span>black<span class="w"> </span>ruff
+
+<span class="c1"># Run development server</span>
+uv<span class="w"> </span>run<span class="w"> </span>uvicorn<span class="w"> </span>main:app<span class="w"> </span>--reload
+</pre></div>
+</div>
+</section>
+<section id="mixed-environment-project">
+<h3>Mixed Environment Project<a class="headerlink" href="#mixed-environment-project" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Project uses both pyenv and uv</span>
+<span class="nb">cd</span><span class="w"> </span>mixed_project
+
+<span class="c1"># Switch to pyenv for legacy code</span>
+switch_python_manager<span class="w"> </span>pyenv
+pyenv<span class="w"> </span>activate<span class="w"> </span>legacy_env
+
+<span class="c1"># Switch to uv for new code</span>
+switch_python_manager<span class="w"> </span>uv
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>new_code.py
+</pre></div>
+</div>
+</section>
+<section id="spark-development">
+<h3>Spark Development<a class="headerlink" href="#spark-development" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup Python environment for Spark</span>
+setup_pyenv
+pyenv<span class="w"> </span>activate<span class="w"> </span>spark_dev
+
+<span class="c1"># Configure Spark integration</span>
+setup_spark_python
+
+<span class="c1"># Start Spark-enabled Jupyter</span>
+load_big_data
+jupyter_spark<span class="w"> </span><span class="m">8889</span>
+
+<span class="c1"># In Jupyter, Spark is automatically configured</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="project-organization">
+<h3>Project Organization<a class="headerlink" href="#project-organization" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use pyenv for legacy projects</strong> with requirements.txt</p></li>
+<li><p><strong>Use uv for new projects</strong> with pyproject.toml</p></li>
+<li><p><strong>Keep environments isolated</strong> per project</p></li>
+<li><p><strong>Document Python version requirements</strong></p></li>
+</ol>
+</section>
+<section id="id1">
+<h3>Performance Optimization<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Enable lazy loading</strong> for faster startup</p></li>
+<li><p><strong>Use caching</strong> for repeated operations</p></li>
+<li><p><strong>Monitor performance</strong> with benchmarks</p></li>
+<li><p><strong>Optimize module loading</strong> order</p></li>
+</ol>
+</section>
+<section id="integration-management">
+<h3>Integration Management<a class="headerlink" href="#integration-management" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Configure Spark integration</strong> after Python setup</p></li>
+<li><p><strong>Use appropriate Jupyter variants</strong> for your needs</p></li>
+<li><p><strong>Test integration</strong> with health checks</p></li>
+<li><p><strong>Monitor system resources</strong> during heavy operations</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This Python management system provides enterprise-grade Python environment management with intelligent switching, performance optimization, and seamless integration with the big data stack.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../getting-started/troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="backup-system.html" class="btn btn-neutral float-right" title="Backup System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

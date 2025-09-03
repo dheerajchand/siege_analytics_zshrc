@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help System &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.comcore-systems/help-system.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Performance Optimization" href="performance-optimization.html" />
+    <link rel="prev" title="Backup System" href="backup-system.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backup-system.html">Backup System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Help System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-functions">Key Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#zsh-help"><code class="docutils literal notranslate"><span class="pre">zsh_help()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-help-functions">Module Help Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-system-help">Python System Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backup-system-help">Backup System Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spark-system-help">Spark System Help</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#search-functionality">Search Functionality</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#function-search">Function Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-examples">Usage Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#help-system-features">Help System Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interactive-navigation">Interactive Navigation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comprehensive-documentation">Comprehensive Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#search-capabilities">Search Capabilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-system">Integration with System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-loading">Automatic Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-integration">Environment Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-custom-help">Adding Custom Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extending-help-system">Extending Help System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-help-system">Using the Help System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation-standards">Documentation Standards</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#help-system-not-loading">Help System Not Loading</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions-not-found">Functions Not Found</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#search-not-working">Search Not Working</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#performance-issues">Performance Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#help-system-api">Help System API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-with-scripts">Integration with Scripts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Help System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/core-systems/help-system.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="help-system">
+<h1>Help System<a class="headerlink" href="#help-system" title="Link to this heading"></a></h1>
+<p>The interactive help system provides comprehensive assistance for all functions and modules in the Siege Analytics ZSH Configuration System.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The help system is designed to provide:</p>
+<ul class="simple">
+<li><p><strong>Comprehensive function documentation</strong> with examples</p></li>
+<li><p><strong>Module-specific assistance</strong> organized by functionality</p></li>
+<li><p><strong>Search capabilities</strong> to find specific functions</p></li>
+<li><p><strong>Usage examples</strong> for common operations</p></li>
+<li><p><strong>Interactive guidance</strong> for complex workflows</p></li>
+</ul>
+</section>
+<section id="key-functions">
+<h2>Key Functions<a class="headerlink" href="#key-functions" title="Link to this heading"></a></h2>
+<section id="zsh-help">
+<h3><code class="docutils literal notranslate"><span class="pre">zsh_help()</span></code><a class="headerlink" href="#zsh-help" title="Link to this heading"></a></h3>
+<p>Main help function that provides overview and navigation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show main help overview</span>
+zsh_help<span class="w"> </span>all
+
+<span class="c1"># Show module-specific help</span>
+zsh_help<span class="w"> </span>python
+zsh_help<span class="w"> </span>backup
+zsh_help<span class="w"> </span>spark
+
+<span class="c1"># Search for functions</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;jupyter&quot;</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;spark&quot;</span>
+
+<span class="c1"># Show function-specific help</span>
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>python_status
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>backup
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-help-functions">
+<h2>Module Help Functions<a class="headerlink" href="#module-help-functions" title="Link to this heading"></a></h2>
+<section id="python-system-help">
+<h3>Python System Help<a class="headerlink" href="#python-system-help" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python system overview</span>
+zsh_help<span class="w"> </span>python
+
+<span class="c1"># Specific Python functions</span>
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>setup_pyenv
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>switch_python_manager
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>python_status
+</pre></div>
+</div>
+</section>
+<section id="backup-system-help">
+<h3>Backup System Help<a class="headerlink" href="#backup-system-help" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Backup system overview</span>
+zsh_help<span class="w"> </span>backup
+
+<span class="c1"># Specific backup functions</span>
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>backup
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>sync_zsh_repositories
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>list_zsh_backups
+</pre></div>
+</div>
+</section>
+<section id="spark-system-help">
+<h3>Spark System Help<a class="headerlink" href="#spark-system-help" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spark system overview</span>
+zsh_help<span class="w"> </span>spark
+
+<span class="c1"># Specific Spark functions</span>
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>load_big_data
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>jupyter_spark
+zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span>show_spark_config
+</pre></div>
+</div>
+</section>
+</section>
+<section id="search-functionality">
+<h2>Search Functionality<a class="headerlink" href="#search-functionality" title="Link to this heading"></a></h2>
+<section id="function-search">
+<h3>Function Search<a class="headerlink" href="#function-search" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Search for functions by name</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;python&quot;</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;backup&quot;</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;spark&quot;</span>
+
+<span class="c1"># Search for specific functionality</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;jupyter&quot;</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;virtualenv&quot;</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;git&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="usage-examples">
+<h3>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show usage examples</span>
+zsh_help<span class="w"> </span>examples
+
+<span class="c1"># Show examples for specific modules</span>
+zsh_help<span class="w"> </span>examples<span class="w"> </span>python
+zsh_help<span class="w"> </span>examples<span class="w"> </span>backup
+</pre></div>
+</div>
+</section>
+</section>
+<section id="help-system-features">
+<h2>Help System Features<a class="headerlink" href="#help-system-features" title="Link to this heading"></a></h2>
+<section id="interactive-navigation">
+<h3>Interactive Navigation<a class="headerlink" href="#interactive-navigation" title="Link to this heading"></a></h3>
+<p>The help system provides interactive navigation:</p>
+<ul class="simple">
+<li><p><strong>Hierarchical organization</strong> by module and function</p></li>
+<li><p><strong>Cross-references</strong> between related functions</p></li>
+<li><p><strong>Context-sensitive help</strong> based on current environment</p></li>
+<li><p><strong>Progressive disclosure</strong> of information</p></li>
+</ul>
+</section>
+<section id="comprehensive-documentation">
+<h3>Comprehensive Documentation<a class="headerlink" href="#comprehensive-documentation" title="Link to this heading"></a></h3>
+<p>Every function includes:</p>
+<ul class="simple">
+<li><p><strong>Purpose and description</strong></p></li>
+<li><p><strong>Parameter documentation</strong></p></li>
+<li><p><strong>Return value specifications</strong></p></li>
+<li><p><strong>Usage examples</strong></p></li>
+<li><p><strong>Dependencies and requirements</strong></p></li>
+<li><p><strong>Related functions</strong></p></li>
+</ul>
+</section>
+<section id="search-capabilities">
+<h3>Search Capabilities<a class="headerlink" href="#search-capabilities" title="Link to this heading"></a></h3>
+<p>Advanced search features:</p>
+<ul class="simple">
+<li><p><strong>Fuzzy matching</strong> for function names</p></li>
+<li><p><strong>Content search</strong> within documentation</p></li>
+<li><p><strong>Tag-based search</strong> for functionality</p></li>
+<li><p><strong>Context-aware suggestions</strong></p></li>
+</ul>
+</section>
+</section>
+<section id="integration-with-system">
+<h2>Integration with System<a class="headerlink" href="#integration-with-system" title="Link to this heading"></a></h2>
+<section id="automatic-loading">
+<h3>Automatic Loading<a class="headerlink" href="#automatic-loading" title="Link to this heading"></a></h3>
+<p>The help system is automatically loaded:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if help system is loaded</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$HELP_MODULE_LOADED</span>
+
+<span class="c1"># Manually load if needed</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
+</pre></div>
+</div>
+</section>
+<section id="environment-integration">
+<h3>Environment Integration<a class="headerlink" href="#environment-integration" title="Link to this heading"></a></h3>
+<p>The help system integrates with:</p>
+<ul class="simple">
+<li><p><strong>Python management system</strong> for environment-specific help</p></li>
+<li><p><strong>Backup system</strong> for repository-specific guidance</p></li>
+<li><p><strong>Spark system</strong> for big data workflow assistance</p></li>
+<li><p><strong>Performance monitoring</strong> for optimization suggestions</p></li>
+</ul>
+</section>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Link to this heading"></a></h2>
+<section id="adding-custom-help">
+<h3>Adding Custom Help<a class="headerlink" href="#adding-custom-help" title="Link to this heading"></a></h3>
+<p>Add custom help content:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create custom help file</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/.config/zsh/custom-help.zsh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s"># Custom help content</span>
+<span class="s">custom_help() {</span>
+<span class="s">    echo &quot;Custom help content&quot;</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Help system will automatically include custom content</span>
+</pre></div>
+</div>
+</section>
+<section id="extending-help-system">
+<h3>Extending Help System<a class="headerlink" href="#extending-help-system" title="Link to this heading"></a></h3>
+<p>Extend the help system:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add new help categories</span>
+zsh_help_add_category<span class="w"> </span><span class="s2">&quot;custom&quot;</span><span class="w"> </span><span class="s2">&quot;Custom Functions&quot;</span>
+
+<span class="c1"># Add new help entries</span>
+zsh_help_add_entry<span class="w"> </span><span class="s2">&quot;custom&quot;</span><span class="w"> </span><span class="s2">&quot;my_function&quot;</span><span class="w"> </span><span class="s2">&quot;Description of my function&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="using-the-help-system">
+<h3>Using the Help System<a class="headerlink" href="#using-the-help-system" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Start with overview</strong> (<cite>zsh_help all</cite>)</p></li>
+<li><p><strong>Use module-specific help</strong> for focused assistance</p></li>
+<li><p><strong>Search for specific functionality</strong> when needed</p></li>
+<li><p><strong>Check function-specific help</strong> for detailed usage</p></li>
+<li><p><strong>Use examples</strong> for practical guidance</p></li>
+</ol>
+</section>
+<section id="documentation-standards">
+<h3>Documentation Standards<a class="headerlink" href="#documentation-standards" title="Link to this heading"></a></h3>
+<p>The help system follows these standards:</p>
+<ul class="simple">
+<li><p><strong>Consistent formatting</strong> across all help content</p></li>
+<li><p><strong>Comprehensive coverage</strong> of all functions</p></li>
+<li><p><strong>Practical examples</strong> for common use cases</p></li>
+<li><p><strong>Clear parameter documentation</strong></p></li>
+<li><p><strong>Dependency information</strong> for complex functions</p></li>
+</ul>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<section id="help-system-not-loading">
+<h4>Help System Not Loading<a class="headerlink" href="#help-system-not-loading" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if help module is loaded</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$HELP_MODULE_LOADED</span>
+
+<span class="c1"># Manually load help module</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
+
+<span class="c1"># Check help module file</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.config/zsh/help-module.zsh
+</pre></div>
+</div>
+</section>
+<section id="functions-not-found">
+<h4>Functions Not Found<a class="headerlink" href="#functions-not-found" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if function exists</span>
+<span class="nb">type</span><span class="w"> </span>zsh_help
+
+<span class="c1"># Reload help system</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
+
+<span class="c1"># Test help system</span>
+zsh_help<span class="w"> </span>all
+</pre></div>
+</div>
+</section>
+<section id="search-not-working">
+<h4>Search Not Working<a class="headerlink" href="#search-not-working" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test search functionality</span>
+zsh_help<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;python&quot;</span>
+
+<span class="c1"># Check search index</span>
+zsh_help<span class="w"> </span>rebuild_index
+
+<span class="c1"># Verify help content</span>
+zsh_help<span class="w"> </span>list
+</pre></div>
+</div>
+</section>
+<section id="performance-issues">
+<h4>Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check help system performance</span>
+<span class="nb">time</span><span class="w"> </span>zsh_help<span class="w"> </span>all
+
+<span class="c1"># Optimize help system</span>
+zsh_help<span class="w"> </span>optimize
+
+<span class="c1"># Clear help cache</span>
+zsh_help<span class="w"> </span>clear_cache
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h2>
+<section id="help-system-api">
+<h3>Help System API<a class="headerlink" href="#help-system-api" title="Link to this heading"></a></h3>
+<p>Programmatic access to help system:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get help content programmatically</span>
+<span class="nv">help_content</span><span class="o">=</span><span class="k">$(</span>zsh_help_get_content<span class="w"> </span><span class="s2">&quot;python_status&quot;</span><span class="k">)</span>
+
+<span class="c1"># Search help content</span>
+<span class="nv">search_results</span><span class="o">=</span><span class="k">$(</span>zsh_help_search<span class="w"> </span><span class="s2">&quot;jupyter&quot;</span><span class="k">)</span>
+
+<span class="c1"># Get help metadata</span>
+<span class="nv">help_metadata</span><span class="o">=</span><span class="k">$(</span>zsh_help_get_metadata<span class="w"> </span><span class="s2">&quot;backup&quot;</span><span class="k">)</span>
+</pre></div>
+</div>
+</section>
+<section id="integration-with-scripts">
+<h3>Integration with Scripts<a class="headerlink" href="#integration-with-scripts" title="Link to this heading"></a></h3>
+<p>Use help system in scripts:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if function has help</span>
+<span class="k">if</span><span class="w"> </span>zsh_help_has_help<span class="w"> </span><span class="s2">&quot;my_function&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>zsh_help<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="s2">&quot;my_function&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># Get function usage</span>
+<span class="nv">usage</span><span class="o">=</span><span class="k">$(</span>zsh_help_get_usage<span class="w"> </span><span class="s2">&quot;my_function&quot;</span><span class="k">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The help system provides comprehensive, interactive assistance for all aspects of the Siege Analytics ZSH Configuration System, making it easy to discover and use the full range of available functionality.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="backup-system.html" class="btn btn-neutral float-left" title="Backup System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="performance-optimization.html" class="btn btn-neutral float-right" title="Performance Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

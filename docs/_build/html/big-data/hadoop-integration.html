@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hadoop Integration &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=8a072f31" />
+
+  
+    <link rel="canonical" href="https://docs.siegeanalytics.combig-data/hadoop-integration.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="YARN Management" href="yarn-management.html" />
+    <link rel="prev" title="Apache Spark Integration System" href="spark-system.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hadoop Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hadoop-installation">Hadoop Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sdkman-installation">SDKMAN Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-configuration">Environment Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#hdfs-operations">HDFS Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-hdfs-commands">Basic HDFS Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hdfs-management">HDFS Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#yarn-integration">YARN Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yarn-configuration">YARN Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yarn-operations">YARN Operations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#spark-hadoop-integration">Spark-Hadoop Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spark-on-yarn">Spark on YARN</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hdfs-integration">HDFS Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-management">Cluster Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hadoop-cluster-setup">Hadoop Cluster Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#monitoring-and-management">Monitoring and Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-tuning">Performance Tuning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hdfs-performance">HDFS Performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yarn-performance">YARN Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hdfs-issues">HDFS Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yarn-issues">YARN Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#connection-issues">Connection Issues</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-environment">Development Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#production-environment">Production Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-with-spark">Integration with Spark</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Hadoop Integration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/big-data/hadoop-integration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hadoop-integration">
+<h1>Hadoop Integration<a class="headerlink" href="#hadoop-integration" title="Link to this heading"></a></h1>
+<p>This guide covers Hadoop integration with the Siege Analytics ZSH Configuration System.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The system provides comprehensive Hadoop integration:</p>
+<ul class="simple">
+<li><p><strong>HDFS (Hadoop Distributed File System)</strong> support</p></li>
+<li><p><strong>YARN (Yet Another Resource Negotiator)</strong> integration</p></li>
+<li><p><strong>Hadoop ecosystem</strong> tools and utilities</p></li>
+<li><p><strong>Cluster management</strong> and monitoring</p></li>
+<li><p><strong>Performance optimization</strong> for Hadoop workloads</p></li>
+</ul>
+</section>
+<section id="hadoop-installation">
+<h2>Hadoop Installation<a class="headerlink" href="#hadoop-installation" title="Link to this heading"></a></h2>
+<section id="sdkman-installation">
+<h3>SDKMAN Installation<a class="headerlink" href="#sdkman-installation" title="Link to this heading"></a></h3>
+<p>Install Hadoop via SDKMAN:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Hadoop</span>
+sdk<span class="w"> </span>install<span class="w"> </span>hadoop<span class="w"> </span><span class="m">3</span>.3.6
+sdk<span class="w"> </span>default<span class="w"> </span>hadoop<span class="w"> </span><span class="m">3</span>.3.6
+
+<span class="c1"># Verify installation</span>
+hadoop<span class="w"> </span>version
+
+<span class="c1"># Check Hadoop home</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$HADOOP_HOME</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-configuration">
+<h3>Environment Configuration<a class="headerlink" href="#environment-configuration" title="Link to this heading"></a></h3>
+<p>Configure Hadoop environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set Hadoop environment variables</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/candidates/hadoop/current&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">YARN_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+
+<span class="c1"># Add to PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/bin:</span><span class="nv">$HADOOP_HOME</span><span class="s2">/sbin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="hdfs-operations">
+<h2>HDFS Operations<a class="headerlink" href="#hdfs-operations" title="Link to this heading"></a></h2>
+<section id="basic-hdfs-commands">
+<h3>Basic HDFS Commands<a class="headerlink" href="#basic-hdfs-commands" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List HDFS root directory</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-ls<span class="w"> </span>/
+
+<span class="c1"># Create HDFS directory</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-mkdir<span class="w"> </span>/user/spark
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-mkdir<span class="w"> </span>-p<span class="w"> </span>/user/spark/data
+
+<span class="c1"># Copy files to HDFS</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-put<span class="w"> </span>local_file.txt<span class="w"> </span>/user/spark/data/
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-copyFromLocal<span class="w"> </span>local_file.txt<span class="w"> </span>/user/spark/data/
+
+<span class="c1"># Copy files from HDFS</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-get<span class="w"> </span>/user/spark/data/remote_file.txt<span class="w"> </span>.
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-copyToLocal<span class="w"> </span>/user/spark/data/remote_file.txt<span class="w"> </span>.
+
+<span class="c1"># View file contents</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-cat<span class="w"> </span>/user/spark/data/file.txt
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-tail<span class="w"> </span>/user/spark/data/file.txt
+
+<span class="c1"># Remove files</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-rm<span class="w"> </span>/user/spark/data/file.txt
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-rm<span class="w"> </span>-r<span class="w"> </span>/user/spark/data/
+</pre></div>
+</div>
+</section>
+<section id="hdfs-management">
+<h3>HDFS Management<a class="headerlink" href="#hdfs-management" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check HDFS status</span>
+hdfs<span class="w"> </span>dfsadmin<span class="w"> </span>-report
+
+<span class="c1"># Check HDFS health</span>
+hdfs<span class="w"> </span>fsck<span class="w"> </span>/
+
+<span class="c1"># Get HDFS usage</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-du<span class="w"> </span>-h<span class="w"> </span>/
+
+<span class="c1"># Check HDFS permissions</span>
+hdfs<span class="w"> </span>dfs<span class="w"> </span>-ls<span class="w"> </span>-la<span class="w"> </span>/user/spark
+</pre></div>
+</div>
+</section>
+</section>
+<section id="yarn-integration">
+<h2>YARN Integration<a class="headerlink" href="#yarn-integration" title="Link to this heading"></a></h2>
+<section id="yarn-configuration">
+<h3>YARN Configuration<a class="headerlink" href="#yarn-configuration" title="Link to this heading"></a></h3>
+<p>Configure YARN for resource management:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># YARN configuration files</span>
+ls<span class="w"> </span>-la<span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/yarn-*.xml
+
+<span class="c1"># Core YARN settings</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/yarn-site.xml<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="s">&lt;configuration&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;mapreduce_shuffle&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;yarn.nodemanager.aux-services.mapreduce.shuffle.class&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;org.apache.hadoop.mapred.ShuffleHandler&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;yarn.resourcemanager.hostname&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;localhost&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">&lt;/configuration&gt;</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+</section>
+<section id="yarn-operations">
+<h3>YARN Operations<a class="headerlink" href="#yarn-operations" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start YARN services</span>
+start-yarn.sh
+
+<span class="c1"># Check YARN status</span>
+yarn<span class="w"> </span>node<span class="w"> </span>-list
+yarn<span class="w"> </span>application<span class="w"> </span>-list
+
+<span class="c1"># Submit YARN application</span>
+yarn<span class="w"> </span>jar<span class="w"> </span><span class="nv">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.6.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>wordcount<span class="w"> </span>/input<span class="w"> </span>/output
+
+<span class="c1"># Monitor YARN applications</span>
+yarn<span class="w"> </span>application<span class="w"> </span>-status<span class="w"> </span>application_id
+</pre></div>
+</div>
+</section>
+</section>
+<section id="spark-hadoop-integration">
+<h2>Spark-Hadoop Integration<a class="headerlink" href="#spark-hadoop-integration" title="Link to this heading"></a></h2>
+<section id="spark-on-yarn">
+<h3>Spark on YARN<a class="headerlink" href="#spark-on-yarn" title="Link to this heading"></a></h3>
+<p>Configure Spark to run on YARN:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Submit Spark job to YARN</span>
+spark-submit<span class="w"> </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deploy-mode<span class="w"> </span>cluster<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--class<span class="w"> </span>org.apache.spark.examples.SparkPi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">$SPARK_HOME</span>/examples/jars/spark-examples_2.12-3.5.3.jar<span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># Client mode</span>
+spark-submit<span class="w"> </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deploy-mode<span class="w"> </span>client<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--class<span class="w"> </span>org.apache.spark.examples.SparkPi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">$SPARK_HOME</span>/examples/jars/spark-examples_2.12-3.5.3.jar<span class="w"> </span><span class="m">10</span>
+</pre></div>
+</div>
+</section>
+<section id="hdfs-integration">
+<h3>HDFS Integration<a class="headerlink" href="#hdfs-integration" title="Link to this heading"></a></h3>
+<p>Use HDFS with Spark:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read from HDFS</span>
+spark-shell<span class="w"> </span>--conf<span class="w"> </span>spark.hadoop.fs.defaultFS<span class="o">=</span>hdfs://localhost:9000
+
+<span class="c1"># In Spark shell:</span>
+val<span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>spark.read.textFile<span class="o">(</span><span class="s2">&quot;hdfs://localhost:9000/user/spark/data/file.txt&quot;</span><span class="o">)</span>
+
+<span class="c1"># Write to HDFS</span>
+data.write.mode<span class="o">(</span><span class="s2">&quot;overwrite&quot;</span><span class="o">)</span>.text<span class="o">(</span><span class="s2">&quot;hdfs://localhost:9000/user/spark/output/&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cluster-management">
+<h2>Cluster Management<a class="headerlink" href="#cluster-management" title="Link to this heading"></a></h2>
+<section id="hadoop-cluster-setup">
+<h3>Hadoop Cluster Setup<a class="headerlink" href="#hadoop-cluster-setup" title="Link to this heading"></a></h3>
+<p>Set up a local Hadoop cluster:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format HDFS</span>
+hdfs<span class="w"> </span>namenode<span class="w"> </span>-format
+
+<span class="c1"># Start HDFS</span>
+start-dfs.sh
+
+<span class="c1"># Start YARN</span>
+start-yarn.sh
+
+<span class="c1"># Check cluster status</span>
+jps
+
+<span class="c1"># Stop services</span>
+stop-yarn.sh
+stop-dfs.sh
+</pre></div>
+</div>
+</section>
+<section id="monitoring-and-management">
+<h3>Monitoring and Management<a class="headerlink" href="#monitoring-and-management" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># HDFS NameNode web UI</span>
+<span class="c1"># http://localhost:9870</span>
+
+<span class="c1"># YARN ResourceManager web UI</span>
+<span class="c1"># http://localhost:8088</span>
+
+<span class="c1"># Check cluster health</span>
+hdfs<span class="w"> </span>dfsadmin<span class="w"> </span>-report
+yarn<span class="w"> </span>node<span class="w"> </span>-list
+
+<span class="c1"># Monitor resource usage</span>
+yarn<span class="w"> </span>application<span class="w"> </span>-list
+yarn<span class="w"> </span>logs<span class="w"> </span>-applicationId<span class="w"> </span>application_id
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-tuning">
+<h2>Performance Tuning<a class="headerlink" href="#performance-tuning" title="Link to this heading"></a></h2>
+<section id="hdfs-performance">
+<h3>HDFS Performance<a class="headerlink" href="#hdfs-performance" title="Link to this heading"></a></h3>
+<p>Optimize HDFS performance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># HDFS configuration</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/hdfs-site.xml<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="s">&lt;configuration&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;dfs.replication&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;1&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;dfs.blocksize&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;134217728&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;dfs.namenode.handler.count&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;100&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">&lt;/configuration&gt;</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+</section>
+<section id="yarn-performance">
+<h3>YARN Performance<a class="headerlink" href="#yarn-performance" title="Link to this heading"></a></h3>
+<p>Optimize YARN performance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># YARN resource configuration</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/yarn-site.xml<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="s">&lt;configuration&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;yarn.scheduler.maximum-allocation-mb&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;8192&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;yarn.nodemanager.resource.memory-mb&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;8192&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">    &lt;property&gt;</span>
+<span class="s">        &lt;name&gt;yarn.nodemanager.resource.cpu-vcores&lt;/name&gt;</span>
+<span class="s">        &lt;value&gt;8&lt;/value&gt;</span>
+<span class="s">    &lt;/property&gt;</span>
+<span class="s">&lt;/configuration&gt;</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<section id="hdfs-issues">
+<h4>HDFS Issues<a class="headerlink" href="#hdfs-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check HDFS status</span>
+hdfs<span class="w"> </span>dfsadmin<span class="w"> </span>-report
+
+<span class="c1"># Check HDFS logs</span>
+tail<span class="w"> </span>-f<span class="w"> </span><span class="nv">$HADOOP_HOME</span>/logs/hadoop-*-namenode-*.log
+
+<span class="c1"># Restart HDFS</span>
+stop-dfs.sh
+start-dfs.sh
+</pre></div>
+</div>
+</section>
+<section id="yarn-issues">
+<h4>YARN Issues<a class="headerlink" href="#yarn-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check YARN status</span>
+yarn<span class="w"> </span>node<span class="w"> </span>-list
+
+<span class="c1"># Check YARN logs</span>
+tail<span class="w"> </span>-f<span class="w"> </span><span class="nv">$HADOOP_HOME</span>/logs/yarn-*-resourcemanager-*.log
+
+<span class="c1"># Restart YARN</span>
+stop-yarn.sh
+start-yarn.sh
+</pre></div>
+</div>
+</section>
+<section id="connection-issues">
+<h4>Connection Issues<a class="headerlink" href="#connection-issues" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check network connectivity</span>
+telnet<span class="w"> </span>localhost<span class="w"> </span><span class="m">9000</span><span class="w">  </span><span class="c1"># HDFS</span>
+telnet<span class="w"> </span>localhost<span class="w"> </span><span class="m">8088</span><span class="w">  </span><span class="c1"># YARN</span>
+
+<span class="c1"># Check firewall settings</span>
+sudo<span class="w"> </span>ufw<span class="w"> </span>status
+
+<span class="c1"># Check port usage</span>
+netstat<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>:9000
+netstat<span class="w"> </span>-tlnp<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>:8088
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="development-environment">
+<h3>Development Environment<a class="headerlink" href="#development-environment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use local mode</strong> for development</p></li>
+<li><p><strong>Configure appropriate memory settings</strong></p></li>
+<li><p><strong>Monitor resource usage</strong></p></li>
+<li><p><strong>Use HDFS for large datasets</strong></p></li>
+<li><p><strong>Test with small datasets first</strong></p></li>
+</ol>
+</section>
+<section id="production-environment">
+<h3>Production Environment<a class="headerlink" href="#production-environment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Configure proper replication</strong> for HDFS</p></li>
+<li><p><strong>Set appropriate resource limits</strong> for YARN</p></li>
+<li><p><strong>Monitor cluster health</strong> regularly</p></li>
+<li><p><strong>Use proper security configurations</strong></p></li>
+<li><p><strong>Implement backup and recovery procedures</strong></p></li>
+</ol>
+</section>
+<section id="integration-with-spark">
+<h3>Integration with Spark<a class="headerlink" href="#integration-with-spark" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use YARN as resource manager</strong> for Spark</p></li>
+<li><p><strong>Store data in HDFS</strong> for distributed processing</p></li>
+<li><p><strong>Configure Spark for Hadoop</strong> environment</p></li>
+<li><p><strong>Monitor Spark applications</strong> through YARN</p></li>
+<li><p><strong>Optimize for Hadoop</strong> cluster characteristics</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Hadoop integration provides the foundation for distributed data processing with HDFS for storage and YARN for resource management, enabling scalable big data applications.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spark-system.html" class="btn btn-neutral float-left" title="Apache Spark Integration System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="yarn-management.html" class="btn btn-neutral float-right" title="YARN Management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
