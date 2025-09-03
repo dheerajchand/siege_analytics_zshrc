@@ -1,8 +1,17 @@
 # 🚀 Quick Start Guide
 
-Get your enhanced zsh configuration up and running in minutes!
+Get your enhanced zsh configuration up and running in minutes! **Now with full bash compatibility!**
 
 ## ⚡ **Immediate Setup**
+
+### **For Bash Users (One-Line Installation)**
+```bash
+# Install for bash users
+curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics_zshrc/main/quick-install-bash.sh | bash
+
+# Or full installation
+curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics_zshrc/main/install-for-bash.sh | bash
+```
 
 ### **1. Load Your Configuration**
 ```bash
@@ -153,13 +162,20 @@ list_zsh_backups
 ### **Function Testing**
 ```bash
 # Test all functions
-zsh_test_all
+test_system
 
 # Test specific category
-zsh_test_spark
+test_backup
+test_python
+test_compatibility
+test_bash_install
+test_spark
+test_jvm
+test_jupyter
 
-# Quick health check
-zsh_health_check
+# Run comprehensive test suite
+zsh run-tests.zsh
+zsh run-tests.zsh --coverage
 ```
 
 ### **Spark Dependencies**

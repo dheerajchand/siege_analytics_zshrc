@@ -34,6 +34,10 @@ The ZSH Testing Framework provides:
 - **Python Functions**: `setup_pyenv`, `setup_uv`, `python_status`, etc.
 - **Backup System**: `deduplicate_path`, `enhanced_backup`, `sync_repositories`, etc.
 - **Bash Compatibility**: Cross-shell compatibility functions
+- **Bash Installation**: Installation scripts and setup validation
+- **Spark Functions**: Spark, Hadoop, YARN function testing
+- **JVM Functions**: Java environment and big data tools
+- **Jupyter Functions**: Notebook and Jupyter integration
 - **Environment Variables**: Configuration validation
 - **Integration Tests**: End-to-end workflow testing
 
@@ -66,6 +70,10 @@ test_system
 test_backup
 test_python
 test_compatibility
+test_bash_install
+test_spark
+test_jvm
+test_jupyter
 ```
 
 ## 📁 Test Structure
@@ -77,6 +85,11 @@ tests/
 ├── test-python-functions.zsh   # Python function tests
 ├── test-backup-functions.zsh   # Backup system tests
 ├── test-bash-compatibility.zsh # Bash compatibility tests
+├── test-bash-installation.zsh  # Bash installation tests
+├── test-bash-compatibility-detailed.zsh # Detailed bash compatibility tests
+├── test-spark-functions.zsh    # Spark and JVM function tests
+├── test-jvm-functions.zsh      # JVM, Hadoop, YARN function tests
+├── test-notebook-functions.zsh # Jupyter notebook function tests
 └── test-results/               # Test output directory
     ├── test-report.json        # Detailed test results
     └── coverage-report.html    # Coverage report (if enabled)

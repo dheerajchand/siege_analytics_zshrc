@@ -26,14 +26,14 @@ Your zsh configuration system implements a **multi-layered, modular architecture
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           MODULE MANAGEMENT LAYER                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  Core Modules  │  Feature Modules  │  System Modules  │  Custom Modules │
+│  Core Modules  │  Feature Modules  │  System Modules  │  Bash Compatibility │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           REPOSITORY LAYER                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  Config Repo  │  Backup Repo  │  Main Dotfiles  │  Wiki Docs      │
+│  Config Repo  │  Backup Repo  │  Main Dotfiles  │  Wiki Docs      │  Bash Install │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -70,6 +70,25 @@ Your zsh configuration system implements a **multi-layered, modular architecture
                         │ - Hadoop 3.3.6     │         │ - Backup    │
                         │ - Python 3.8+      │         │   system    │
                         │ - Scala 2.12/3.3   │         └─────────────┘
+                        └─────────────────────┘
+                                    │
+                                    ▼
+                        ┌─────────────────────┐
+                        │  BASH COMPATIBILITY │
+                        │                     │
+                        │  bash-              │
+                        │  compatibility.zsh  │
+                        │  install-for-       │
+                        │  bash.sh            │
+                        │  quick-install-     │
+                        │  bash.sh            │
+                        │                     │
+                        │ Dependencies        │
+                        │ - Cross-shell       │
+                        │   functions         │
+                        │ - SDKMAN            │
+                        │ - Installation      │
+                        │   scripts           │
                         └─────────────────────┘
 ```
 
@@ -505,6 +524,8 @@ graph LR
         │   definition    │ │   launching     │ │   management    │ │   settings      │ │   interaction  │
         │ - Path          │ │ - JAR           │ │ - Virtual       │ │ - Backup        │ │ - Error        │
         │   resolution    │ │   management    │ │   environments  │ │   system        │ │   handling     │
+        │ - Bash          │ │ - JVM/Hadoop    │ │ - Jupyter       │ │ - Installation  │ │ - Bash         │
+        │   compatibility │ │   functions     │ │   functions     │ │   scripts       │ │   compatibility│
         └─────────────────┘ └─────────────────┘ └─────────────────┘ └─────────────────┘ └─────────────────┘
 ```
 
@@ -513,9 +534,13 @@ graph LR
 | Test Category | Functions Tested | Coverage % | Pass Criteria | Fail Action |
 |---------------|------------------|------------|---------------|-------------|
 | **Core Tests** | 15 | 100% | All functions exist | Manual fix |
-| **Spark Tests** | 25 | 100% | Dependencies available | Auto-download |
-| **Python Tests** | 20 | 100% | Environment ready | Setup guide |
-| **Utility Tests** | 18 | 100% | System integration | Manual fix |
+| **Spark Tests** | 19 | 100% | Dependencies available | Auto-download |
+| **Python Tests** | 11 | 100% | Environment ready | Setup guide |
+| **Backup Tests** | 20 | 100% | System integration | Manual fix |
+| **Bash Compatibility** | 16 | 100% | Cross-shell work | Debug mode |
+| **Bash Installation** | 15 | 100% | Installation scripts | Manual fix |
+| **JVM Tests** | 15 | 100% | Java/Hadoop/YARN | Setup guide |
+| **Jupyter Tests** | 19 | 100% | Notebook integration | Setup guide |
 | **Integration Tests** | 12 | 100% | Cross-module work | Debug mode |
 
 ## 🔮 **Future Architecture & Roadmap**
