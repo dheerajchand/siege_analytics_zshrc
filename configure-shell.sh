@@ -232,12 +232,14 @@ confirm_action() {
     
     read -p "$prompt" -r
     if [[ "$default" == "y" ]]; then
+        # Default is yes, so return 0 (proceed) unless user explicitly says no
         [[ $REPLY =~ ^[Nn]$ ]] && return 1
+        return 0
     else
+        # Default is no, so return 0 (proceed) only if user explicitly says yes
         [[ $REPLY =~ ^[Yy]$ ]] && return 0
+        return 1
     fi
-    
-    return 1
 }
 
 # Setup zshrc

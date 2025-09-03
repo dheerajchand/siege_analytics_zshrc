@@ -171,6 +171,17 @@ ls -la configure-shell.sh
 ./configure-shell.sh --mode symlink
 ```
 
+### "The script asks for confirmation and I'm confused"
+```bash
+# When the script asks [Y/n] or [y/N]:
+# [Y/n] means: Press Enter for YES, or type 'n' for NO
+# [y/N] means: Press Enter for NO, or type 'y' for YES
+
+# Examples:
+# "Proceed with shell configuration? [Y/n]" - Press Enter to proceed
+# "Overwrite existing file? [y/N]" - Type 'y' to overwrite, Enter to skip
+```
+
 ### "Script says 'Target path does not exist'"
 ```bash
 # Create the directory first
