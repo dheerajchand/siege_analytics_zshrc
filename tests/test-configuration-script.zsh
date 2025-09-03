@@ -363,5 +363,5 @@ function test_configuration_script {
     fi
 }
 
-# Register test
-register_test "test_configuration_script" "Test the configure-shell.sh script functionality"
+# Test function is ready to use
+# Usage: source tests/test-configuration-script.zsh && test_configuration_script

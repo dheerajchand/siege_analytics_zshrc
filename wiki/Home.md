@@ -15,6 +15,14 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - First-time configuration
 - Essential commands
 
+### **🎯 [Idiot-Proof Guide](../docs/IDIOT_LEVEL_GUIDE.md)**
+- **Complete beginner-friendly setup guide**
+- **Step-by-step instructions** for all skill levels
+- **Multiple setup options** (simple, power user, bash)
+- **Troubleshooting guide** with common solutions
+- **Environment variable setup** and management
+- **Quick reference card** with essential commands
+
 ### **🏗️ [System Architecture](System-Architecture)**
 - Modular design overview
 - Configuration flow
