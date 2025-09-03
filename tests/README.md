@@ -45,6 +45,8 @@ tests/
 ├── test-spark-functions.zsh    # Spark and JVM function tests
 ├── test-jvm-functions.zsh      # JVM, Hadoop, YARN function tests
 ├── test-notebook-functions.zsh # Jupyter notebook function tests
+├── test-bash-installation.zsh  # Bash installation and setup tests
+├── test-bash-compatibility-detailed.zsh # Detailed bash compatibility tests
 └── test-results/               # Test output directory
     ├── test-report.json        # Detailed test results
     └── coverage-report.html    # Coverage report (if enabled)

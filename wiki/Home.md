@@ -4,9 +4,9 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 
 ## 📚 **Documentation Sections**
 
-### **📖 [Read the Docs Documentation](../docs/_build/html/index.html)**
-- **Professional documentation** with Sphinx and Read the Docs theme
-- **Comprehensive guides** for all system components
+### **📖 [GitHub Wiki Documentation](https://github.com/dheerajchand/siege_analytics_zshrc/wiki)**
+- **Professional documentation** with comprehensive guides
+- **Complete system documentation** for all components
 - **Interactive navigation** and search functionality
 - **Siege Analytics branding** with custom styling
 
@@ -96,6 +96,7 @@ test_spark                 # Test Spark functions
 test_jvm                   # Test JVM/Hadoop/YARN functions
 test_jupyter               # Test Jupyter functions
 test_compatibility         # Test bash compatibility
+test_bash_install          # Test bash installation
 zsh run-tests.zsh          # Run comprehensive test suite
 zsh run-tests.zsh --coverage # Run tests with coverage
 ```

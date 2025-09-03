@@ -71,8 +71,8 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 
 ### 📖 Comprehensive Documentation
 
-#### **📚 [Read the Docs Documentation](docs/_build/html/index.html)**
-- **Professional Sphinx Documentation** - Complete system documentation with Read the Docs theme
+#### **📚 [Read the Docs Documentation](https://github.com/dheerajchand/siege_analytics_zshrc/wiki)**
+- **Professional Documentation** - Complete system documentation with comprehensive guides
 - **Interactive Navigation** - Searchable, cross-referenced documentation
 - **Siege Analytics Branding** - Custom styling and professional appearance
 - **Comprehensive Guides** - Installation, configuration, troubleshooting, and advanced usage
@@ -327,8 +327,8 @@ sync_zsh_repositories "Emergency sync"
 ## 📖 Documentation Sources
 
 ### **📚 Primary Documentation**
-- **[Read the Docs](docs/_build/html/index.html)**: Professional Sphinx documentation with interactive navigation
-- **[Wiki](wiki/Home.md)**: Comprehensive guides and function references
+- **[GitHub Wiki](https://github.com/dheerajchand/siege_analytics_zshrc/wiki)**: Professional documentation with interactive navigation
+- **[Local Wiki](wiki/Home.md)**: Comprehensive guides and function references
 - **Interactive Help**: Use `zsh_help` commands for real-time assistance
 
 ### **📝 Additional Resources**

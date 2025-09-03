@@ -212,6 +212,52 @@ test_jvm_system() {
     echo "🧪 JVM system tests completed"
 }
 
+# Add test functions to bash installation
+test_bash_installation() {
+    echo "🧪 Testing bash installation and compatibility..."
+    
+    # Test bash compatibility layer
+    if [[ -f "$HOME/.config/zsh/bash-compatibility.zsh" ]]; then
+        echo "✅ Bash compatibility layer: PASSED"
+    else
+        echo "❌ Bash compatibility layer: FAILED"
+    fi
+    
+    # Test installation scripts
+    if [[ -f "$HOME/.config/zsh/install-for-bash.sh" ]]; then
+        echo "✅ Full install script: PASSED"
+    else
+        echo "❌ Full install script: FAILED"
+    fi
+    
+    if [[ -f "$HOME/.config/zsh/quick-install-bash.sh" ]]; then
+        echo "✅ Quick install script: PASSED"
+    else
+        echo "❌ Quick install script: FAILED"
+    fi
+    
+    # Test bash compatibility functions
+    if command -v detect_shell >/dev/null 2>&1; then
+        local detected_shell=$(detect_shell)
+        if [[ "$detected_shell" == "zsh" ]]; then
+            echo "✅ Shell detection: PASSED"
+        else
+            echo "❌ Shell detection: FAILED"
+        fi
+    else
+        echo "❌ Shell detection: FAILED"
+    fi
+    
+    # Test cross-shell function availability
+    if command -v setup_python_manager >/dev/null 2>&1; then
+        echo "✅ Cross-shell functions: PASSED"
+    else
+        echo "❌ Cross-shell functions: FAILED"
+    fi
+    
+    echo "🧪 Bash installation tests completed"
+}
+
 # Run all quick tests
 run_quick_tests() {
     echo "🚀 Running quick system tests..."
@@ -229,6 +275,8 @@ run_quick_tests() {
     echo ""
     test_jvm_system
     echo ""
+    test_bash_installation
+    echo ""
     
     echo "🎉 Quick tests completed!"
 }
@@ -241,3 +289,4 @@ alias test_compatibility='test_bash_compatibility'
 alias test_spark='test_spark_system'
 alias test_jupyter='test_jupyter_system'
 alias test_jvm='test_jvm_system'
+alias test_bash_install='test_bash_installation'
