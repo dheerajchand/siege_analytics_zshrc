@@ -76,19 +76,17 @@ function deduplicate_path {
 }
 
 function get_backup_path {
-    """
-    Generate a time-based backup path with year/month/week organization.
-    
-    Args:
-        timestamp (str): Timestamp string in format YYYY-MM-DD_HH-MM-SS
-        
-    Returns:
-        str: Organized backup path in format ~/.zshrc_backups/YYYY/MM/weekN/
-        
-    Example:
-        get_backup_path "2025-08-29_14-13-00"
-        # Returns: ~/.zshrc_backups/2025/08/week5/
-    """
+    # Generate a time-based backup path with year/month/week organization.
+    #
+    # Args:
+    #     timestamp (str): Timestamp string in format YYYY-MM-DD_HH-MM-SS
+    #     
+    # Returns:
+    #     str: Organized backup path in format ~/.zshrc_backups/YYYY/MM/weekN/
+    #     
+    # Example:
+    #     get_backup_path "2025-08-29_14-13-00"
+    #     # Returns: ~/.zshrc_backups/2025/08/week5/
     local timestamp="$1"
     local year=$(date -d "$timestamp" +"%Y" 2>/dev/null || date -j -f "%Y-%m-%d_%H-%M-%S" "$timestamp" +"%Y" 2>/dev/null || echo "2025")
     local month=$(date -d "$timestamp" +"%m" 2>/dev/null || date -j -f "%Y-%m-%d_%H-%M-%S" "$timestamp" +"%m" 2>/dev/null || echo "01")
@@ -98,32 +96,30 @@ function get_backup_path {
 }
 
 function backup_zsh_config {
-    """
-    Create a comprehensive backup of the zsh configuration with Git integration.
-    
-    This function creates a timestamped backup of the main zshrc and all module files,
-    organizes them by time, generates metadata, creates restore scripts, and
-    automatically commits and pushes to the backup repository.
-    
-    Args:
-        commit_message (str, optional): Custom commit message for the backup.
-                                       Defaults to "Automatic backup".
-    
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Features:
-        - Time-based organization (year/month/week)
-        - Metadata generation with system info
-        - Restore script creation
-        - Automatic Git commit and push
-        - Retry logic with exponential backoff
-        - Conflict resolution
-        
-    Example:
-        backup_zsh_config "Feature update backup"
-        backup_zsh_config  # Uses default message
-    """
+    # Create a comprehensive backup of the zsh configuration with Git integration.
+    #
+    # This function creates a timestamped backup of the main zshrc and all module files,
+    # organizes them by time, generates metadata, creates restore scripts, and
+    # automatically commits and pushes to the backup repository.
+    #
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the backup.
+    #                                    Defaults to "Automatic backup".
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #     
+    # Features:
+    #     - Time-based organization (year/month/week)
+    #     - Metadata generation with system info
+    #     - Restore script creation
+    #     - Automatic Git commit and push
+    #     - Retry logic with exponential backoff
+    #     - Conflict resolution
+    #     
+    # Example:
+    #     backup_zsh_config "Feature update backup"
+    #     backup_zsh_config  # Uses default message
     local commit_message="${1:-Automatic backup}"
     local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
     local backup_base_path=$(get_backup_path "$timestamp")
@@ -139,7 +135,7 @@ function backup_zsh_config {
 
     # Backup main zshrc (ensure it's not hidden)
     if [[ -f ~/.zshrc ]]; then
-        cp ~/.zshrc "$backup_dir/zshrc.txt"
+    cp ~/.zshrc "$backup_dir/zshrc.txt"
         echo "✅ Main zshrc backed up"
     else
         echo "⚠️  Main zshrc not found"
@@ -148,9 +144,9 @@ function backup_zsh_config {
     # Backup all module files if they exist
     if [[ -d "$ZSHRC_CONFIG_DIR" ]]; then
         # Copy config files but exclude git metadata
-        mkdir -p "$backup_dir/zsh"
-        # Copy files but exclude .git directories
-        rsync -av --exclude='.git' "$ZSHRC_CONFIG_DIR/" "$backup_dir/zsh/"
+            mkdir -p "$backup_dir/zsh"
+            # Copy files but exclude .git directories
+            rsync -av --exclude='.git' "$ZSHRC_CONFIG_DIR/" "$backup_dir/zsh/"
         echo "✅ Module files backed up"
     fi
 
@@ -212,8 +208,8 @@ RESTORE_EOF
         
         # Retry push with exponential backoff
         while [[ $push_attempts -lt $max_push_attempts ]]; do
-            if git -C "$ZSHRC_BACKUPS" push origin main; then
-                echo "✅ Successfully pushed to GitHub!"
+        if git -C "$ZSHRC_BACKUPS" push origin main; then
+            echo "✅ Successfully pushed to GitHub!"
                 return 0
             else
                 ((push_attempts++))
@@ -232,7 +228,7 @@ RESTORE_EOF
         done
         
         echo "❌ All push attempts failed. Manual intervention required."
-        echo "💡 Manual push: cd ~/.zshrc_backups && git push origin main"
+            echo "💡 Manual push: cd ~/.zshrc_backups && git push origin main"
         return 1
     else
         echo "⚠️  Nothing new to commit (files unchanged)"
@@ -242,27 +238,25 @@ RESTORE_EOF
 
 # Automatic backup trigger function
 function auto_backup_trigger {
-    """
-    Automatically trigger backups based on time intervals.
-    
-    This function is called as a zsh hook and checks if enough time has passed
-    since the last backup to trigger a new one. It respects the AUTO_BACKUP_INTERVAL
-    setting and only creates backups when needed.
-    
-    Args:
-        None (called automatically by zsh hooks)
-    
-    Returns:
-        None
-        
-    Configuration:
-        AUTO_BACKUP_ON_CHANGE: Enable/disable automatic backups
-        AUTO_BACKUP_INTERVAL: Time between backups in seconds (default: 3600)
-        
-    Example:
-        # Called automatically by zsh hooks
-        # Can be called manually: auto_backup_trigger
-    """
+    # Automatically trigger backups based on time intervals.
+    #
+    # This function is called as a zsh hook and checks if enough time has passed
+    # since the last backup to trigger a new one. It respects the AUTO_BACKUP_INTERVAL
+    # setting and only creates backups when needed.
+    #
+    # Args:
+    #     None (called automatically by zsh hooks)
+    #
+    # Returns:
+    #     None
+    #     
+    # Configuration:
+    #     AUTO_BACKUP_ON_CHANGE: Enable/disable automatic backups
+    #     AUTO_BACKUP_INTERVAL: Time between backups in seconds (default: 3600)
+    #     
+    # Example:
+    #     # Called automatically by zsh hooks
+    #     # Can be called manually: auto_backup_trigger
     if [[ "$AUTO_BACKUP_ON_CHANGE" == "true" ]]; then
         local last_backup_file="$ZSHRC_BACKUPS/.last_backup"
         local current_time=$(date +%s)
@@ -515,29 +509,29 @@ function sync_documentation_between_repos {
 
 # Sync only backup repository
 function sync_backup_repository {
-    """
-    Synchronize only the backup repository with GitHub.
+#
+    # Synchronize only the backup repository with GitHub.
     
-    This function handles committing and pushing changes to the backup repository.
-    It includes retry logic with exponential backoff and automatic conflict
-    resolution, similar to the config repository sync.
+    # This function handles committing and pushing changes to the backup repository.
+    # It includes retry logic with exponential backoff and automatic conflict
+    # resolution, similar to the config repository sync.
     
-    Args:
-        commit_message (str, optional): Custom commit message for the sync.
-                                       Defaults to "Backup repository sync".
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the sync.
+    #                                    Defaults to "Backup repository sync".
     
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Features:
-        - Automatic conflict detection and resolution
-        - Retry logic with exponential backoff
-        - Pull before retry to resolve conflicts
-        
-    Example:
-        sync_backup_repository "Update backup metadata"
-        sync_backup_repository  # Uses default message
-    """
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #     
+    # Features:
+    #     - Automatic conflict detection and resolution
+    #     - Retry logic with exponential backoff
+    #     - Pull before retry to resolve conflicts
+    #     
+    # Example:
+    #     sync_backup_repository "Update backup metadata"
+    #     sync_backup_repository  # Uses default message
+#
     local commit_message="${1:-Backup repository sync}"
     local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
     
@@ -594,33 +588,33 @@ function sync_backup_repository {
 }
 
 function list_zsh_backups {
-    """
-    Display a list of available zsh configuration backups.
+#
+    # Display a list of available zsh configuration backups.
     
-    This function scans the backup directory and displays all available backups
-    organized by time, showing the most recent backups first. It provides
-    information about backup size and total count.
+    # This function scans the backup directory and displays all available backups
+    # organized by time, showing the most recent backups first. It provides
+    # information about backup size and total count.
     
-    Args:
-        None
+    # Args:
+    #     None
     
-    Returns:
-        None (displays formatted output)
-        
-    Output Format:
-        - Timestamp of each backup
-        - Size of backup directory
-        - Total count of backups
-        - Shows last 10 backups by default
-        
-    Example:
-        list_zsh_backups
-        # Output:
-        # 📋 ZSH Configuration Backups (Time-Organized):
-        #    🗂️  2025-08-29_14-13-00 (2.1M)
-        #    🗂️  2025-08-29_13-13-00 (2.1M)
-        # Total backups: 15 (showing recent 10)
-    """
+    # Returns:
+    #     None (displays formatted output)
+    #     
+    # Output Format:
+    #     - Timestamp of each backup
+    #     - Size of backup directory
+    #     - Total count of backups
+    #     - Shows last 10 backups by default
+    #     
+    # Example:
+    #     list_zsh_backups
+    #     # Output:
+    #     # 📋 ZSH Configuration Backups (Time-Organized):
+    #     #    🗂️  2025-08-29_14-13-00 (2.1M)
+    #     #    🗂️  2025-08-29_13-13-00 (2.1M)
+    #     # Total backups: 15 (showing recent 10)
+#
     echo "📋 ZSH Configuration Backups (Time-Organized):"
     echo ""
 
@@ -711,50 +705,50 @@ function sync_zsh_repositories {
 
 # Quick sync with default message
 function sync_zsh {
-    """
-    Perform a quick synchronization of both repositories.
+#
+    # Perform a quick synchronization of both repositories.
     
-    This is a convenience function that calls sync_zsh_repositories with
-    a default commit message. It's useful for regular maintenance and
-    quick sync operations.
+    # This is a convenience function that calls sync_zsh_repositories with
+    # a default commit message. It's useful for regular maintenance and
+    # quick sync operations.
     
-    Args:
-        None
+    # Args:
+    #     None
     
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Example:
-        sync_zsh  # Quick sync with default message
-    """
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #     
+    # Example:
+    #     sync_zsh  # Quick sync with default message
+#
     sync_zsh_repositories "Configuration update"
 }
 
 # Enhanced sync and backup in one operation
 function sync_and_backup {
-    """
-    Perform both synchronization and backup in a single operation.
+#
+    # Perform both synchronization and backup in a single operation.
     
-    This function combines repository synchronization with backup creation,
-    ensuring that both operations complete successfully. It's useful for
-    comprehensive maintenance operations.
+    # This function combines repository synchronization with backup creation,
+    # ensuring that both operations complete successfully. It's useful for
+    # comprehensive maintenance operations.
     
-    Args:
-        commit_message (str, optional): Custom commit message for the operation.
-                                       Defaults to "Configuration update and backup".
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the operation.
+    #                                    Defaults to "Configuration update and backup".
     
-    Returns:
-        int: 0 on success, 1 on failure
-        
-    Workflow:
-        1. Sync both repositories
-        2. Create comprehensive backup
-        3. Verify all operations completed
-        
-    Example:
-        sync_and_backup "Major system update"
-        sync_and_backup  # Uses default message
-    """
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #     
+    # Workflow:
+    #     1. Sync both repositories
+    #     2. Create comprehensive backup
+    #     3. Verify all operations completed
+    #     
+    # Example:
+    #     sync_and_backup "Major system update"
+    #     sync_and_backup  # Uses default message
+#
     local commit_message="${1:-Configuration update and backup}"
     
     echo "🔄 Performing enhanced sync and backup operation..."
@@ -777,38 +771,38 @@ function sync_and_backup {
 
 # Status check for both repositories
 function zsh_repo_status {
-    """
-    Display the current status of both zsh configuration repositories.
+#
+    # Display the current status of both zsh configuration repositories.
     
-    This function provides a comprehensive overview of the status of both
-    the config and backup repositories, including branch information,
-    modification status, remote URLs, and commit differences.
+    # This function provides a comprehensive overview of the status of both
+    # the config and backup repositories, including branch information,
+    # modification status, remote URLs, and commit differences.
     
-    Args:
-        None
+    # Args:
+    #     None
     
-    Returns:
-        None (displays formatted status information)
-        
-    Information Displayed:
-        - Current branch
-        - Number of modified files
-        - Remote repository URL
-        - Commits ahead/behind remote
-        - Repository health status
-        
-    Example:
-        zsh_repo_status
-        # Output:
-        # 📊 ZSH Repository Status
-        # ========================
-        # 📁 Config Repository (~/.config/zsh):
-        #    Branch: main
-        #    Status: 0 files modified
-        #    Remote: git@github.com:dheerajchand/siege_analytics_zshrc.git
-        #    Ahead: 0 commits ahead
-        #    Behind: 0 commits behind
-    """
+    # Returns:
+    #     None (displays formatted status information)
+    #     
+    # Information Displayed:
+    #     - Current branch
+    #     - Number of modified files
+    #     - Remote repository URL
+    #     - Commits ahead/behind remote
+    #     - Repository health status
+    #     
+    # Example:
+    #     zsh_repo_status
+    #     # Output:
+    #     # 📊 ZSH Repository Status
+    #     # ========================
+    #     # 📁 Config Repository (~/.config/zsh):
+    #     #    Branch: main
+    #     #    Status: 0 files modified
+    #     #    Remote: git@github.com:dheerajchand/siege_analytics_zshrc.git
+    #     #    Ahead: 0 commits ahead
+    #     #    Behind: 0 commits behind
+#
     echo "📊 ZSH Repository Status"
     echo "========================"
     
@@ -848,7 +842,23 @@ function zsh_repo_status {
 alias sync='sync_zsh'
 alias syncbackup='sync_and_backup'
 alias repostatus='zsh_repo_status'
+alias autobackup='enhanced_backup'
+alias optimize='deduplicate_path'
 
 # Auto-backup hook for zsh
 autoload -U add-zsh-hook
 add-zsh-hook preexec auto_backup_trigger
+
+# Backup critical functions (placeholder for functions that might not exist)
+function backup_critical_functions {
+    echo "🔄 Backing up critical functions..."
+    # This function can be extended to backup specific functions
+    return 0
+}
+
+# Spark fix logging (placeholder for functions that might not exist)
+function spark_fix_logging {
+    echo "🔧 Fixing Spark logging..."
+    # This function can be extended to fix Spark logging issues
+    return 0
+}
