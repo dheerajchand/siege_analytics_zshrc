@@ -51,6 +51,12 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - Performance optimization
 - Troubleshooting
 
+### **🧪 [Testing Framework](Testing-Framework)**
+- Comprehensive unit testing for Zsh functions
+- pytest-like functionality for shell scripting
+- Test coverage and reporting
+- CI/CD integration
+
 ## 🎯 **What Makes This Special?**
 
 **Modular Architecture**: Fast, maintainable shell configuration split into logical modules  
@@ -81,6 +87,11 @@ smart_spark_shell          # Intelligent shell selection
 setup_pyenv                # Initialize pyenv
 setup_uv                   # Initialize uv
 python_status              # Check environment status
+
+# Testing framework
+test_system                # Run quick system tests
+zsh run-tests.zsh          # Run comprehensive test suite
+zsh run-tests.zsh --coverage # Run tests with coverage
 ```
 
 ## 🔗 **Repository Links**

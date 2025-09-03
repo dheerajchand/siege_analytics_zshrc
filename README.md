@@ -108,6 +108,13 @@ This enhanced Zsh configuration uses a sophisticated dual repository system:
 - **Usage examples** and practical demonstrations
 - **Dependencies** and requirements clearly stated
 
+### 🧪 ZSH Testing Framework
+- **pytest-like functionality** for Zsh functions
+- **Comprehensive unit testing** with assertions and mocking
+- **Test coverage reporting** and CI/CD integration
+- **Parallel test execution** for faster development cycles
+- **Integration testing** for end-to-end workflows
+
 ### 🌍 Cross-Platform Compatibility
 - **macOS**: Native support with SDKMAN for all tool management
 - **Ubuntu Linux**: Full compatibility with SDKMAN-based installation
