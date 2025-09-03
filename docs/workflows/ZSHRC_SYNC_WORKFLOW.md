@@ -43,6 +43,78 @@ This document explains the zshrc synchronization workflow that was implemented t
 2. **Repository File**: `~/.config/zsh/zshrc` (distributed version)
 3. **Sync Functions**: Automated tools to keep them in sync
 
+## Configuration Script
+
+### Quick Setup Options
+
+#### For New Users (Recommended)
+```bash
+# Simple standalone setup
+./configure-shell.sh --mode standalone
+
+# Set up once, use forever
+./configure-shell.sh --mode standalone --setup-env
+```
+
+#### For Power Users (Your Setup)
+```bash
+# Use your personal symlink setup
+./configure-shell.sh --personal
+
+# Set up environment variables for your preferences
+./configure-shell.sh --personal --setup-env
+```
+
+#### For Different Environments
+```bash
+# Development machine (symlinks)
+./configure-shell.sh --mode symlink --target ~/.dotfiles/homedir
+
+# Production machine (standalone)
+./configure-shell.sh --mode standalone
+
+# Mixed environment (copy)
+./configure-shell.sh --mode copy --backup
+```
+
+### Environment Variables
+
+After running `--setup-env`, these variables are available:
+
+```bash
+# Default configuration
+SHELL_CONFIG_MODE="standalone"
+SHELL_CONFIG_TARGET="/path/to/target"
+SHELL_CONFIG_SHELL="both"
+SHELL_CONFIG_BACKUP="true"
+SHELL_CONFIG_FORCE="false"
+
+# Personal defaults (your setup)
+SHELL_CONFIG_PERSONAL_MODE="symlink"
+SHELL_CONFIG_PERSONAL_TARGET="$HOME/.dotfiles/homedir"
+SHELL_CONFIG_PERSONAL_SHELL="both"
+```
+
+### Configuration Script Functions
+
+#### `configure-shell.sh --help`
+**Purpose**: Show comprehensive help
+```bash
+./configure-shell.sh --help
+```
+
+#### `configure-shell.sh --setup-env`
+**Purpose**: Set up environment variables for future use
+```bash
+./configure-shell.sh --mode standalone --setup-env
+```
+
+#### `configure-shell.sh --personal`
+**Purpose**: Use personal defaults (symlink setup)
+```bash
+./configure-shell.sh --personal
+```
+
 ## Available Functions
 
 ### Core Sync Functions

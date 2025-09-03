@@ -21,6 +21,56 @@
 
 This is the **main configuration repository** for the enhanced Zsh configuration system. It contains the active, working configuration files and modules that power your shell environment. This repository works in conjunction with the backup repository to provide comprehensive backup, documentation, and historical tracking.
 
+## 🚀 Quick Start
+
+### For New Users (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/dheerajchand/siege_analytics_zshrc.git
+cd siege_analytics_zshrc
+
+# Simple setup (works everywhere)
+./configure-shell.sh --mode standalone
+
+# Reload your shell
+source ~/.zshrc
+```
+
+### For Power Users (Your Setup)
+```bash
+# Clone the repository
+git clone https://github.com/dheerajchand/siege_analytics_zshrc.git
+cd siege_analytics_zshrc
+
+# Use personal symlink setup
+./configure-shell.sh --personal
+
+# Reload your shell
+source ~/.zshrc
+```
+
+### For Bash Users
+```bash
+# Clone the repository
+git clone https://github.com/dheerajchand/siege_analytics_zshrc.git
+cd siege_analytics_zshrc
+
+# Set up bash compatibility
+./configure-shell.sh --mode standalone --shell bash
+
+# Reload your shell
+source ~/.bashrc
+```
+
+### Set It and Forget It
+```bash
+# Set up once with your preferences
+./configure-shell.sh --mode standalone --setup-env
+
+# Now you can just run this anytime:
+./configure-shell.sh
+```
+
 ## 🔄 Dual Repository System
 
 This enhanced Zsh configuration uses a sophisticated dual repository system:

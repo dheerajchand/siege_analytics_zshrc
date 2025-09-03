@@ -277,6 +277,8 @@ run_quick_tests() {
     echo ""
     test_bash_installation
     echo ""
+    test_configuration_script
+    echo ""
     
     echo "🎉 Quick tests completed!"
 }
@@ -290,3 +292,4 @@ alias test_spark='test_spark_system'
 alias test_jupyter='test_jupyter_system'
 alias test_jvm='test_jvm_system'
 alias test_bash_install='test_bash_installation'
+alias test_config='test_configuration_script'
