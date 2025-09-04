@@ -239,13 +239,15 @@ function zshconfig {
 
 export PGHOST="localhost"
 export PGUSER="dheerajchand"
-export PGPASSWORD="dessert"
+# SECURITY FIX: Use credential system instead of plaintext
+# export PGPASSWORD="dessert"  # REMOVED - use get_credential function
 export PGPORT="5432"
 export PGDATABASE="gis"
 
 export GEODJANGO_TEMPLATE_SQL_DATABASE="geodjango_template_db"
 export GEODJANGO_TEMPLATE_SQL_USER="dheerajchand"
-export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"
+# SECURITY FIX: Use credential system instead of plaintext  
+# export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"  # REMOVED - use get_credential function
 export GEODJANGO_TEMPLATE_SQL_PORT="5432"
 
 # =====================================================

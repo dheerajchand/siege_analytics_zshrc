@@ -69,11 +69,22 @@ export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"
 4. Start new Claude Code session
 5. Tell Claude: "Continue the zshrc refactoring from the plan in REFACTORING_PLAN.md"
 
-## Current Status
+## Password Sync Feature (Future Enhancement)
+**User Request:** Functions to sync passwords between 1Password ↔ Mac Keychain
+
+**Implementation Notes:**
+- Technically possible but complex
+- 1Password CLI: good read access, limited write
+- Mac Keychain: security policy restrictions
+- Consider as Phase 3 after basic system is stable
+- Security implications need careful review
+
+## Current Status  
 - ✅ Issues identified
 - ✅ Branch created  
 - ✅ Plan documented
-- 🔄 Ready for implementation when you return
+- ✅ **SECURITY FIX APPLIED**: Removed plaintext passwords from zshrc
+- 🔄 Ready for credential system implementation when you return
 
 ## Key Files to Preserve Current Workflow
 - Env variables for psql: `PGHOST`, `PGUSER`, `PGPASSWORD`, etc.
