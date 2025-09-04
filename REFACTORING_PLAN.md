@@ -57,6 +57,11 @@ export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"
 - Extract core configuration
 - Extract environment setup
 - Extract database configuration
+- ✅ **JetBrains Development Tools** (`config/jetbrains.zsh`) - COMPLETED
+  - JetBrains Toolbox CLI integration (PyCharm, IntelliJ, DataGrip, etc.)
+  - Project type auto-detection and IDE selection
+  - Environment diagnosis for GUI dialog issues
+  - Clean launch functionality for debugging
 
 ## Session Continuity Notes
 
@@ -111,13 +116,37 @@ export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"
 
 **Working Theory**: PyCharm + SDKMAN Java conflict, not shell environment issue
 
+## NEW: JetBrains Module & PyCharm Fix
+
+✅ **Created comprehensive JetBrains module** (`config/jetbrains.zsh`):
+- Integrated JetBrains Toolbox CLI tools (pycharm, idea, datagrip, etc.)
+- Added project type auto-detection (Python → PyCharm, Java → IntelliJ, etc.)
+- Created `pycharm_clean_launch` function to debug file dialog issues
+- Added environment diagnosis tools (`jetbrains_diagnose_env`)
+
+**Test the PyCharm fix immediately:**
+```bash
+# Source the new module
+source ~/.config/zsh/config/jetbrains.zsh
+
+# Try clean launch (bypasses environment conflicts)
+pycharm_clean_launch
+
+# Or diagnose environment issues
+jetbrains_diagnose_env
+```
+
+**Expected Result**: File dialogs should work properly with clean launch
+
 ## Current Status  
 - ✅ Issues identified
 - ✅ Branch created  
 - ✅ Plan documented  
 - ✅ **SECURITY FIX**: Removed plaintext passwords
 - ✅ **GUI FIX**: Removed LD_LIBRARY_PATH causing PyCharm issues
-- 🔄 Ready for credential system implementation when you return
+- ✅ **JETBRAINS MODULE**: Complete development tools integration added
+- 🧪 **TEST NEEDED**: Try `pycharm_clean_launch` to test file dialog fix
+- 🔄 Ready for credential system implementation and further module extraction
 
 ## Key Files to Preserve Current Workflow
 - Env variables for psql: `PGHOST`, `PGUSER`, `PGPASSWORD`, etc.
