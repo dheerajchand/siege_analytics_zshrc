@@ -30,7 +30,8 @@ load-nvmrc
 if [[ -d "/opt/homebrew/opt/sdkman-cli/libexec/candidates/java/current" ]]; then
     export JAVA_HOME="/opt/homebrew/opt/sdkman-cli/libexec/candidates/java/current"
     export PATH="$JAVA_HOME/bin:$PATH"
-    export LD_LIBRARY_PATH="$JAVA_HOME/lib:$LD_LIBRARY_PATH"
+    # REMOVED: LD_LIBRARY_PATH can interfere with macOS GUI applications
+    # export LD_LIBRARY_PATH="$JAVA_HOME/lib:$LD_LIBRARY_PATH"
 fi
 
 # SDKMAN Setup

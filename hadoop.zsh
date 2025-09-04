@@ -7,7 +7,8 @@
 export HADOOP_CURRENT_VERSION="3.3.6"
 export HADOOP_HOME="${HADOOP_HOME:-/opt/homebrew/opt/sdkman-cli/libexec/candidates/hadoop/current}"
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
-export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"
+# REMOVED: LD_LIBRARY_PATH can interfere with macOS GUI applications
+# export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"
 export HADOOP_CONF_DIR="$HADOOP_HOME/etc/hadoop/"
 export HADOOP_LOCAL_JARS="$HADOOP_HOME/share/hadoop/common/lib/"
 export HADOOP_DATA_DIR="$HOME/hadoop-data"

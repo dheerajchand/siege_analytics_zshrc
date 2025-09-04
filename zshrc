@@ -315,7 +315,8 @@ function setup_java_version {
 export HADOOP_CURRENT_VERSION="3.3.6"
 export HADOOP_HOME="/opt/homebrew/opt/sdkman-cli/libexec/candidates/hadoop/current"
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
-export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"
+# REMOVED: LD_LIBRARY_PATH can interfere with macOS GUI applications
+# export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"
 export HADOOP_CONF_DIR="$HADOOP_HOME/etc/hadoop/"
 export PATH="$HADOOP_HOME/bin:$PATH"
 export PATH="$HADOOP_HOME/sbin:$PATH"
@@ -527,7 +528,8 @@ function setup_hadoop_version {
         export HADOOP_CURRENT_VERSION="$target_hadoop_version"
         export HADOOP_HOME=$(sdk home hadoop $target_hadoop_version)
         export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
-        export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"
+        # REMOVED: LD_LIBRARY_PATH can interfere with macOS GUI applications
+# export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH"
         export HADOOP_CONF_DIR="$HADOOP_HOME/etc/hadoop/"
         export PATH="$HADOOP_HOME/bin:$PATH"
 
