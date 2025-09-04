@@ -52,8 +52,10 @@ unsetopt correct
 # BASIC ENVIRONMENT
 # =====================================================
 
-# MacOS things
-defaults write -g ApplePressAndHoldEnabled -bool true
+# MacOS things - only set if not already configured
+if [[ "$(defaults read -g ApplePressAndHoldEnabled 2>/dev/null)" != "1" ]]; then
+    defaults write -g ApplePressAndHoldEnabled -bool true
+fi
 
 export WORKING_ON_LAPTOP="True"
 
