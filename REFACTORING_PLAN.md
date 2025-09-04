@@ -79,16 +79,37 @@ export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"
 - Consider as Phase 3 after basic system is stable
 - Security implications need careful review
 
-## CRITICAL macOS GUI Fix Applied
-**Problem**: PyCharm File Open/Save dialogs non-responsive
-**Root Cause**: `LD_LIBRARY_PATH` exports interfering with macOS system frameworks
-**Solution**: Removed problematic LD_LIBRARY_PATH exports (lines 285, 303)
+## PyCharm GUI Dialog Issue - STILL UNRESOLVED
 
-**Technical Details:**
-- `LD_LIBRARY_PATH` on macOS can override system dylibs
-- GUI apps load incorrect libraries → hangs/crashes
-- Java/Hadoop tools work fine without LD_LIBRARY_PATH on macOS
-- Uses `DYLD_LIBRARY_PATH` or framework paths instead
+**Problem**: PyCharm File Open/Save dialogs non-responsive, but Cursor works fine
+**Attempted Fixes**:
+1. ✅ Removed repetitive `defaults write` commands (conditional check added)
+2. ✅ Removed `LD_LIBRARY_PATH` exports (lines 285, 303) 
+3. ❌ **Still failing after terminal restart**
+
+**Status**: PyCharm still hangs, but Cursor is faster → suggests issue is PyCharm-specific
+
+**Next Investigation Steps** (when you return):
+1. **Check PyCharm-specific environment conflicts**:
+   - JAVA_HOME pointing to SDKMAN Java vs PyCharm's bundled JVM
+   - JetBrains toolbox PATH conflicts (line 50 in environment.zsh)
+   - PyCharm JVM options in IDE settings
+
+2. **Check system-level issues**:
+   - macOS permissions/security settings
+   - PyCharm app quarantine status: `xattr -dr com.apple.quarantine /Applications/PyCharm.app`
+   - System file dialog service issues
+
+3. **Environment isolation test**:
+   - Launch PyCharm with clean environment: `env -i /Applications/PyCharm.app/Contents/MacOS/pycharm`
+   - Compare with working apps (Cursor, others)
+
+4. **PyCharm-specific debugging**:
+   - Check PyCharm's idea.log for errors
+   - Try PyCharm safe mode (Help → Find Action → Safe Mode)
+   - Reset PyCharm file dialog cache
+
+**Working Theory**: PyCharm + SDKMAN Java conflict, not shell environment issue
 
 ## Current Status  
 - ✅ Issues identified
