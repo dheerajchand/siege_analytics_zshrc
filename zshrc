@@ -59,8 +59,13 @@ mkdir -p "$ZSH_CONFIG_FUNCTIONS"
 # MODULE LOADING SYSTEM
 # =====================================================
 
-# Track loaded modules
-typeset -gA LOADED_MODULES
+# Track loaded modules (cross-shell compatible)
+# Initialize associative array based on shell type
+if [[ -n "$ZSH_VERSION" ]]; then
+    typeset -gA LOADED_MODULES
+elif [[ -n "$BASH_VERSION" ]]; then
+    declare -gA LOADED_MODULES
+fi
 
 load_config_module() {
     # Load a configuration module with error handling
@@ -99,6 +104,9 @@ load_config_module() {
 # CORE MODULE LOADING (Required)
 # =====================================================
 
+# Load shell compatibility layer first (for cross-shell support)
+load_config_module "shell-compat"
+
 # Load core configuration (essential shell setup)
 load_config_module "core" true || {
     echo "💥 FATAL: Core module failed to load. Shell may not function properly."
@@ -118,6 +126,13 @@ load_config_module "database"
 # =====================================================
 # DEVELOPMENT TOOLS
 # =====================================================
+
+# =====================================================
+# ENVIRONMENT & PLATFORM DETECTION
+# =====================================================
+
+# Load environment detection (after core, needs path_add function)
+load_config_module "environment"
 
 # JetBrains IDE integration
 load_config_module "jetbrains"
@@ -158,6 +173,40 @@ if command -v pyenv >/dev/null 2>&1; then
     fi
 fi
 
+# UV setup (fast Python package manager) - Cross-shell compatible
+if command -v uv >/dev/null 2>&1; then
+    
+    uv_auto_activate() {
+        # Check if we're in a UV project directory
+        if [[ -f "pyproject.toml" ]] && [[ -d ".venv" ]]; then
+            # Only activate if not already in this virtual environment
+            if [[ "$VIRTUAL_ENV" != "$PWD/.venv" ]]; then
+                echo "🔄 Activating UV project: $(basename $PWD)"
+                source .venv/bin/activate
+            fi
+        fi
+    }
+    
+    # Cross-shell hook setup
+    if [[ -n "$ZSH_VERSION" ]]; then
+        # ZSH: Use add-zsh-hook
+        autoload -U add-zsh-hook
+        add-zsh-hook chpwd uv_auto_activate
+    elif [[ -n "$BASH_VERSION" ]]; then
+        # Bash: Override cd function
+        if ! declare -f cd_original >/dev/null 2>&1; then
+            cd_original() { builtin cd "$@"; }
+        fi
+        cd() {
+            cd_original "$@"
+            uv_auto_activate
+        }
+    fi
+    
+    # Check current directory on shell startup
+    uv_auto_activate
+fi
+
 # =====================================================
 # BIG DATA & ANALYTICS (Conditional Loading)
 # =====================================================
@@ -184,6 +233,9 @@ fi
 
 # Load backup system
 load_config_module "backup-system"
+
+# Load help system
+load_config_module "help"
 
 # =====================================================
 # UTILITY FUNCTIONS FROM OLD ZSHRC
@@ -221,7 +273,6 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 # Source existing modules that haven't been refactored yet
 legacy_modules=(
     "utilities.zsh"
-    "help-module.zsh"
 )
 
 for module in "${legacy_modules[@]}"; do

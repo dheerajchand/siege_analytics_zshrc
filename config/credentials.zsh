@@ -457,6 +457,237 @@ set_credential_backend() {
 }
 
 # =====================================================
+# CREDENTIAL SYNCHRONIZATION
+# =====================================================
+
+sync_credentials_1password_to_keychain() {
+    # Sync credentials from 1Password to Apple Keychain
+    #
+    # Useful for ensuring local keychain access when 1Password is primary store
+    #
+    # Args:
+    #     --dry-run: Show what would be synced without making changes
+    #     --service <name>: Sync specific service only
+    #
+    # Examples:
+    #     sync_credentials_1password_to_keychain --dry-run
+    #     sync_credentials_1password_to_keychain --service postgres
+    local dry_run=""
+    local specific_service=""
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                dry_run="true"
+                shift
+                ;;
+            --service)
+                specific_service="$2"
+                shift 2
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+    
+    if [[ "${CREDENTIAL_BACKEND_CACHE[1password]}" != "true" ]]; then
+        echo "❌ 1Password not available" >&2
+        return 1
+    fi
+    
+    if [[ "${CREDENTIAL_BACKEND_CACHE[apple]}" != "true" ]]; then
+        echo "❌ Apple Keychain not available" >&2
+        return 1
+    fi
+    
+    echo "🔄 Syncing credentials from 1Password to Apple Keychain"
+    echo ""
+    
+    # Common database services to sync
+    local services=("postgres" "mysql" "snowflake" "redis")
+    
+    if [[ -n "$specific_service" ]]; then
+        services=("$specific_service")
+    fi
+    
+    local synced=0
+    local failed=0
+    
+    for service in "${services[@]}"; do
+        echo "🔍 Checking $service..."
+        
+        # Try to get item from 1Password
+        local op_items
+        if op_items=$(op item list --format json 2>/dev/null | jq -r ".[] | select(.title | test(\"$service\"; \"i\")) | .title" 2>/dev/null); then
+            for item_title in $op_items; do
+                echo "  📦 Found 1Password item: $item_title"
+                
+                # Get username and password
+                local username password
+                username=$(op item get "$item_title" --field username 2>/dev/null)
+                password=$(op item get "$item_title" --field password 2>/dev/null)
+                
+                if [[ -n "$username" && -n "$password" ]]; then
+                    if [[ "$dry_run" == "true" ]]; then
+                        echo "  🔄 Would sync: $username@$service → Apple Keychain"
+                    else
+                        # Check if already exists in keychain
+                        if security find-generic-password -s "$service" -a "$username" >/dev/null 2>&1; then
+                            echo "  ⚠️  Already exists in keychain: $username@$service"
+                            echo "     Update? (y/n): "
+                            read update_existing
+                            if [[ "$update_existing" != "y" ]]; then
+                                continue
+                            fi
+                            # Delete existing
+                            security delete-generic-password -s "$service" -a "$username" 2>/dev/null
+                        fi
+                        
+                        # Add to keychain
+                        if security add-generic-password -s "$service" -a "$username" -w "$password" -U 2>/dev/null; then
+                            echo "  ✅ Synced: $username@$service"
+                            ((synced++))
+                        else
+                            echo "  ❌ Failed to sync: $username@$service"
+                            ((failed++))
+                        fi
+                    fi
+                else
+                    echo "  ⚠️  Incomplete credentials for: $item_title"
+                fi
+            done
+        else
+            echo "  ℹ️  No 1Password items found for: $service"
+        fi
+        echo ""
+    done
+    
+    if [[ "$dry_run" != "true" ]]; then
+        echo "📊 Sync Summary:"
+        echo "  ✅ Successfully synced: $synced"
+        echo "  ❌ Failed: $failed"
+        
+        if [[ $synced -gt 0 ]]; then
+            echo ""
+            echo "💡 Tip: You can now use 'apple-first' credential backend:"
+            echo "   set_credential_backend apple-first"
+        fi
+    else
+        echo "🔍 Dry run complete. Use without --dry-run to perform sync."
+    fi
+}
+
+sync_credentials_keychain_to_1password() {
+    # Sync credentials from Apple Keychain to 1Password
+    #
+    # Useful for backing up keychain credentials to 1Password
+    #
+    # Args:
+    #     --dry-run: Show what would be synced without making changes
+    #     --service <name>: Sync specific service only
+    local dry_run=""
+    local specific_service=""
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                dry_run="true"
+                shift
+                ;;
+            --service)
+                specific_service="$2"
+                shift 2
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+    
+    if [[ "${CREDENTIAL_BACKEND_CACHE[1password]}" != "true" ]]; then
+        echo "❌ 1Password not available" >&2
+        return 1
+    fi
+    
+    if [[ "${CREDENTIAL_BACKEND_CACHE[apple]}" != "true" ]]; then
+        echo "❌ Apple Keychain not available" >&2
+        return 1
+    fi
+    
+    echo "🔄 Syncing credentials from Apple Keychain to 1Password"
+    echo ""
+    
+    # Common database services
+    local services=("postgres" "mysql" "snowflake" "redis")
+    
+    if [[ -n "$specific_service" ]]; then
+        services=("$specific_service")
+    fi
+    
+    local synced=0
+    local failed=0
+    
+    for service in "${services[@]}"; do
+        echo "🔍 Checking keychain for $service..."
+        
+        # Search keychain for service entries
+        local keychain_entries
+        keychain_entries=$(security dump-keychain 2>/dev/null | grep -A 1 -B 1 "\"$service\"" | grep -E 'acct|svce' | paste - - 2>/dev/null)
+        
+        if [[ -n "$keychain_entries" ]]; then
+            while IFS= read -r entry; do
+                local account service_name password
+                account=$(echo "$entry" | grep -o 'acct.*="[^"]*"' | cut -d'"' -f2)
+                service_name=$(echo "$entry" | grep -o 'svce.*="[^"]*"' | cut -d'"' -f2)
+                
+                if [[ -n "$account" && "$service_name" == "$service" ]]; then
+                    password=$(security find-generic-password -s "$service" -a "$account" -w 2>/dev/null)
+                    
+                    if [[ -n "$password" ]]; then
+                        echo "  📦 Found keychain entry: $account@$service"
+                        
+                        if [[ "$dry_run" == "true" ]]; then
+                            echo "  🔄 Would sync: $account@$service → 1Password"
+                        else
+                            # Check if already exists in 1Password
+                            if op item get "$service" >/dev/null 2>&1; then
+                                echo "  ⚠️  Item already exists in 1Password: $service"
+                                continue
+                            fi
+                            
+                            # Create in 1Password
+                            if op item create --category login --title "$service" \
+                                --field "username=$account" \
+                                --field "password=$password" 2>/dev/null; then
+                                echo "  ✅ Synced: $account@$service"
+                                ((synced++))
+                            else
+                                echo "  ❌ Failed to sync: $account@$service"
+                                ((failed++))
+                            fi
+                        fi
+                    fi
+                fi
+            done <<< "$keychain_entries"
+        else
+            echo "  ℹ️  No keychain entries found for: $service"
+        fi
+        echo ""
+    done
+    
+    if [[ "$dry_run" != "true" ]]; then
+        echo "📊 Sync Summary:"
+        echo "  ✅ Successfully synced: $synced"
+        echo "  ❌ Failed: $failed"
+    else
+        echo "🔍 Dry run complete. Use without --dry-run to perform sync."
+    fi
+}
+
+# =====================================================
 # TESTING FUNCTIONS
 # =====================================================
 
@@ -492,6 +723,8 @@ test_credentials() {
 alias creds-status='credential_backend_status'
 alias creds-test='test_credentials'
 alias creds-backend='set_credential_backend'
+alias creds-sync-1p-to-keychain='sync_credentials_1password_to_keychain'
+alias creds-sync-keychain-to-1p='sync_credentials_keychain_to_1password'
 
 # =====================================================
 # INITIALIZATION

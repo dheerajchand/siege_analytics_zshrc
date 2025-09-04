@@ -28,7 +28,6 @@ install:
 # Clean build directory
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -rf _static/logo.png _static/favicon.ico
 
 # Build HTML documentation
 html: clean

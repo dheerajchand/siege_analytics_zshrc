@@ -1,279 +1,526 @@
-/* Siege Analytics Branding for Documentation */
+/* =====================================================
+   SIEGE ANALYTICS SPHINX DOCUMENTATION THEME
+   Professional Theme Based on siegeanalytics.com
+   ===================================================== */
 
 /* Import Google Fonts for professional typography */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Brand Colors - Siege Analytics Neon Green Theme */
+/* Brand Colors - Siege Analytics Professional Theme */
 :root {
-    --siege-primary: #00FF41;      /* Neon green primary */
-    --siege-secondary: #00CC33;    /* Darker neon green accent */
-    --siege-dark: #1a1a1a;         /* Dark background */
-    --siege-light: #f0f0f0;        /* Light gray */
-    --siege-success: #00FF41;      /* Neon green success */
-    --siege-warning: #FFD700;      /* Gold warning */
-    --siege-danger: #FF4444;       /* Red danger */
-    --siege-accent: #00BFFF;       /* Bright blue accent */
+    --siege-primary: #000000;      /* Pure black for text */
+    --siege-secondary: #ffffff;    /* Pure white background */
+    --siege-green: #00FF41;        /* Siege Analytics signature neon green */
+    --siege-accent-blue: #2563eb;  /* Professional blue accent */
+    --siege-accent-gray: #6b7280;  /* Medium gray for secondary text */
+    --siege-light-gray: #f8fafc;   /* Very light gray backgrounds */
+    --siege-medium-gray: #e5e7eb;  /* Border and divider gray */
+    --siege-dark-gray: #374151;    /* Dark gray for headings */
+    --siege-success: #10b981;      /* Green for success states */
+    --siege-warning: #f59e0b;      /* Amber for warnings */
+    --siege-danger: #ef4444;       /* Red for errors */
+    --siege-code-bg: #1e293b;      /* Dark background for code */
+    --siege-code-text: #e2e8f0;    /* Light text for code */
 }
 
-/* Override RTD theme colors with Siege Analytics branding */
-.wy-side-nav-search {
-    background-color: var(--siege-primary) !important;
-}
+/* =====================================================
+   GLOBAL STYLES
+   ===================================================== */
 
-.wy-side-nav-search input[type="text"] {
-    border-color: var(--siege-secondary) !important;
-}
-
-.wy-side-nav-search input[type="text"]:focus {
-    border-color: var(--siege-secondary) !important;
-    box-shadow: 0 0 5px rgba(230, 126, 34, 0.3) !important;
-}
-
-.wy-menu-vertical a {
-    color: var(--siege-dark) !important;
-}
-
-.wy-menu-vertical a:hover {
-    background-color: var(--siege-light) !important;
+/* Body and main layout */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    line-height: 1.6 !important;
     color: var(--siege-primary) !important;
-}
-
-.wy-menu-vertical li.current > a {
-    background-color: var(--siege-primary) !important;
-    color: white !important;
-}
-
-.wy-menu-vertical li.current > a:hover {
     background-color: var(--siege-secondary) !important;
 }
 
-/* Header styling */
+/* Main content wrapper */
+.wy-nav-content-wrap {
+    background: var(--siege-secondary) !important;
+}
+
+.wy-nav-content {
+    background: var(--siege-secondary) !important;
+}
+
+/* =====================================================
+   HEADER AND NAVIGATION
+   ===================================================== */
+
+/* Page header styling */
 .rst-content h1, .rst-content h2, .rst-content h3, .rst-content h4, .rst-content h5, .rst-content h6 {
-    color: var(--siege-dark) !important;
     font-family: 'Inter', sans-serif !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    color: var(--siege-primary) !important;
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.2 !important;
 }
 
 .rst-content h1 {
-    border-bottom: 3px solid var(--siege-primary) !important;
-    padding-bottom: 10px !important;
+    font-size: 2.5rem !important;
+    border-bottom: 3px solid var(--siege-accent-blue) !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 2rem !important;
 }
 
 .rst-content h2 {
-    border-bottom: 2px solid var(--siege-secondary) !important;
-    padding-bottom: 8px !important;
+    font-size: 2rem !important;
+    color: var(--siege-accent-blue) !important;
+    border-bottom: 2px solid var(--siege-medium-gray) !important;
+    padding-bottom: 0.3rem !important;
 }
+
+.rst-content h3 {
+    font-size: 1.5rem !important;
+    color: var(--siege-dark-gray) !important;
+}
+
+/* Navigation sidebar */
+.wy-nav-side {
+    background: var(--siege-light-gray) !important;
+    border-right: 2px solid var(--siege-medium-gray) !important;
+    width: 300px !important;
+}
+
+.wy-side-nav-search {
+    background: var(--siege-primary) !important;
+    color: var(--siege-secondary) !important;
+}
+
+.wy-side-nav-search input[type="text"] {
+    border: 1px solid var(--siege-medium-gray) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem !important;
+    background: var(--siege-secondary) !important;
+    color: var(--siege-primary) !important;
+}
+
+.wy-side-nav-search input[type="text"]:focus {
+    border-color: var(--siege-accent-blue) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+    outline: none !important;
+}
+
+.wy-menu-vertical {
+    background: var(--siege-light-gray) !important;
+}
+
+.wy-menu-vertical a {
+    color: var(--siege-dark-gray) !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px !important;
+    margin: 0.2rem 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.wy-menu-vertical a:hover {
+    background: var(--siege-accent-blue) !important;
+    color: var(--siege-secondary) !important;
+    transform: translateX(4px) !important;
+}
+
+.wy-menu-vertical li.current > a {
+    background: var(--siege-accent-blue) !important;
+    color: var(--siege-secondary) !important;
+    font-weight: 600 !important;
+}
+
+.wy-menu-vertical li.current > a:hover {
+    background: var(--siege-dark-gray) !important;
+}
+
+/* =====================================================
+   CONTENT STYLING
+   ===================================================== */
+
+/* Paragraphs and text */
+.rst-content p {
+    margin-bottom: 1.2rem !important;
+    color: var(--siege-primary) !important;
+    line-height: 1.7 !important;
+}
+
+/* Links */
+.rst-content a {
+    color: var(--siege-accent-blue) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+.rst-content a:hover {
+    color: var(--siege-dark-gray) !important;
+    text-decoration: underline !important;
+}
+
+/* Lists */
+.rst-content ul, .rst-content ol {
+    padding-left: 2rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.rst-content li {
+    margin-bottom: 0.5rem !important;
+    color: var(--siege-primary) !important;
+}
+
+/* =====================================================
+   CODE BLOCKS AND SYNTAX HIGHLIGHTING
+   ===================================================== */
 
 /* Code blocks */
 .rst-content .highlight {
-    background-color: #f8f9fa !important;
-    border-left: 4px solid var(--siege-primary) !important;
+    background: var(--siege-code-bg) !important;
+    border-radius: 8px !important;
+    padding: 1.5rem !important;
+    margin: 1.5rem 0 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    overflow-x: auto !important;
+    border: none !important;
 }
 
 .rst-content .highlight pre {
-    background-color: #f8f9fa !important;
+    background: transparent !important;
+    color: var(--siege-code-text) !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace !important;
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
 }
 
 /* Inline code */
 .rst-content code {
-    background-color: var(--siege-light) !important;
-    color: var(--siege-dark) !important;
-    border: 1px solid #ddd !important;
-    padding: 2px 6px !important;
-    border-radius: 3px !important;
-}
-
-/* Buttons and links */
-.rst-content a {
+    background: var(--siege-light-gray) !important;
     color: var(--siege-primary) !important;
+    padding: 0.2rem 0.4rem !important;
+    border-radius: 4px !important;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace !important;
+    font-size: 0.9em !important;
+    border: 1px solid var(--siege-medium-gray) !important;
 }
 
-.rst-content a:hover {
+/* Code block headers */
+.rst-content .code-block-caption {
+    background: var(--siege-accent-blue) !important;
     color: var(--siege-secondary) !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px 8px 0 0 !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 0 !important;
 }
 
-/* Admonitions */
+/* =====================================================
+   SPECIAL CONTENT BLOCKS
+   ===================================================== */
+
+/* Admonitions (notes, warnings, etc.) */
 .rst-content .admonition {
-    border-left: 4px solid var(--siege-primary) !important;
-}
-
-.rst-content .admonition-title {
-    background-color: var(--siege-primary) !important;
-    color: white !important;
+    border-radius: 8px !important;
+    padding: 1rem 1.5rem !important;
+    margin: 1.5rem 0 !important;
+    border-left: 4px solid !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
 }
 
 .rst-content .admonition.note {
-    border-left-color: var(--siege-primary) !important;
+    background: #eff6ff !important;
+    border-left-color: var(--siege-accent-blue) !important;
 }
 
 .rst-content .admonition.warning {
+    background: #fffbeb !important;
     border-left-color: var(--siege-warning) !important;
 }
 
-.rst-content .admonition.warning .admonition-title {
-    background-color: var(--siege-warning) !important;
-}
-
 .rst-content .admonition.danger {
+    background: #fef2f2 !important;
     border-left-color: var(--siege-danger) !important;
 }
 
-.rst-content .admonition.danger .admonition-title {
-    background-color: var(--siege-danger) !important;
-}
-
-.rst-content .admonition.tip {
-    border-left-color: var(--siege-success) !important;
-}
-
-.rst-content .admonition.tip .admonition-title {
-    background-color: var(--siege-success) !important;
+.rst-content .admonition-title {
+    font-weight: 700 !important;
+    color: var(--siege-primary) !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 1.1rem !important;
+    background: none !important;
 }
 
 /* Tables */
 .rst-content table {
-    border: 1px solid #ddd !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 1.5rem 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
 }
 
 .rst-content table th {
-    background-color: var(--siege-primary) !important;
-    color: white !important;
+    background: var(--siege-primary) !important;
+    color: var(--siege-secondary) !important;
+    padding: 1rem !important;
+    text-align: left !important;
     font-weight: 600 !important;
+    border: none !important;
 }
 
 .rst-content table td {
-    border: 1px solid #ddd !important;
+    padding: 0.8rem 1rem !important;
+    border-bottom: 1px solid var(--siege-medium-gray) !important;
+    color: var(--siege-primary) !important;
+    border-left: none !important;
+    border-right: none !important;
 }
 
 .rst-content table tr:nth-child(even) {
-    background-color: var(--siege-light) !important;
+    background: var(--siege-light-gray) !important;
 }
 
-/* Navigation breadcrumbs */
+.rst-content table tr:hover {
+    background: #f0f9ff !important;
+}
+
+/* =====================================================
+   SEARCH AND INTERACTIVE ELEMENTS
+   ===================================================== */
+
+/* Search results */
+.search li {
+    border-bottom: 1px solid var(--siege-medium-gray) !important;
+    padding: 1rem 0 !important;
+}
+
+.search li:last-child {
+    border-bottom: none !important;
+}
+
+/* Buttons and form elements */
+.btn, .rst-content .btn {
+    background: var(--siege-accent-blue) !important;
+    color: var(--siege-secondary) !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+    font-weight: 600 !important;
+}
+
+.btn:hover, .rst-content .btn:hover {
+    background: var(--siege-dark-gray) !important;
+    color: var(--siege-secondary) !important;
+    text-decoration: none !important;
+}
+
+/* =====================================================
+   BREADCRUMBS AND NAVIGATION
+   ===================================================== */
+
 .wy-breadcrumbs {
-    background-color: var(--siege-light) !important;
+    background: var(--siege-light-gray) !important;
+    padding: 1rem !important;
+    border-radius: 8px !important;
+    margin-bottom: 2rem !important;
 }
 
 .wy-breadcrumbs a {
-    color: var(--siege-primary) !important;
+    color: var(--siege-accent-blue) !important;
 }
 
-/* Footer */
+.wy-breadcrumbs a:hover {
+    color: var(--siege-dark-gray) !important;
+}
+
+/* =====================================================
+   FOOTER AND PAGINATION
+   ===================================================== */
+
 .rst-footer-buttons {
-    border-top: 1px solid #ddd !important;
+    border-top: 1px solid var(--siege-medium-gray) !important;
+    padding-top: 2rem !important;
+    margin-top: 3rem !important;
 }
 
-.rst-footer-buttons a {
-    background-color: var(--siege-primary) !important;
-    color: white !important;
-    border: 1px solid var(--siege-primary) !important;
+.rst-footer-buttons .btn {
+    background: var(--siege-accent-blue) !important;
+    color: var(--siege-secondary) !important;
+    border: 1px solid var(--siege-accent-blue) !important;
 }
 
-.rst-footer-buttons a:hover {
-    background-color: var(--siege-secondary) !important;
-    border-color: var(--siege-secondary) !important;
+.rst-footer-buttons .btn:hover {
+    background: var(--siege-dark-gray) !important;
+    border-color: var(--siege-dark-gray) !important;
 }
 
-/* Custom branding elements */
-.siege-branding {
-    background: linear-gradient(135deg, var(--siege-primary), var(--siege-secondary));
-    color: white;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    text-align: center;
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
+
+@media (max-width: 768px) {
+    .wy-nav-content {
+        padding: 1rem !important;
+    }
+    
+    .rst-content h1 {
+        font-size: 2rem !important;
+    }
+    
+    .rst-content h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .wy-nav-side {
+        width: 280px !important;
+    }
 }
 
-.siege-branding h3 {
-    color: white !important;
-    margin: 0 0 10px 0;
+/* =====================================================
+   CUSTOM SIEGE ANALYTICS ELEMENTS
+   ===================================================== */
+
+/* Logo area styling */
+.wy-side-nav-search .wy-dropdown > a img.logo,
+.wy-side-nav-search .wy-dropdown > a .logo {
+    max-width: 200px !important;
+    margin: 0 auto !important;
+    display: block !important;
 }
 
-.siege-branding p {
-    margin: 0;
-    opacity: 0.9;
+/* Siege Analytics signature accents */
+.rst-content h1 {
+    border-bottom: 3px solid var(--siege-green) !important;
 }
 
-/* Performance metrics styling */
+/* Add neon green accents to key elements */
+.wy-menu-vertical a:hover {
+    background: var(--siege-green) !important;
+    color: var(--siege-primary) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3) !important;
+}
+
+.wy-menu-vertical li.current > a {
+    background: var(--siege-green) !important;
+    color: var(--siege-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* Siege Analytics branding for buttons */
+.btn, .rst-content .btn {
+    background: var(--siege-green) !important;
+    color: var(--siege-primary) !important;
+    border: 1px solid var(--siege-green) !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+
+.btn:hover, .rst-content .btn:hover {
+    background: var(--siege-primary) !important;
+    color: var(--siege-green) !important;
+    border-color: var(--siege-green) !important;
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.4) !important;
+}
+
+/* Custom badges for modules */
+.module-badge {
+    display: inline-block !important;
+    background: var(--siege-accent-blue) !important;
+    color: var(--siege-secondary) !important;
+    padding: 0.3rem 0.8rem !important;
+    border-radius: 20px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    margin: 0.2rem !important;
+}
+
+.module-badge.core {
+    background: var(--siege-success) !important;
+}
+
+.module-badge.optional {
+    background: var(--siege-accent-gray) !important;
+}
+
+.module-badge.deprecated {
+    background: var(--siege-danger) !important;
+}
+
+/* Command examples styling */
+.command-example {
+    background: var(--siege-light-gray) !important;
+    border: 1px solid var(--siege-medium-gray) !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    position: relative !important;
+    font-family: 'SF Mono', monospace !important;
+}
+
+.command-example::before {
+    content: "$ " !important;
+    color: var(--siege-accent-blue) !important;
+    font-weight: bold !important;
+}
+
+/* Status indicators */
+.status-success::before {
+    content: "✅ " !important;
+    color: var(--siege-success) !important;
+}
+
+.status-warning::before {
+    content: "⚠️ " !important;
+    color: var(--siege-warning) !important;
+}
+
+.status-error::before {
+    content: "❌ " !important;
+    color: var(--siege-danger) !important;
+}
+
+/* Version info */
+.version-info {
+    background: var(--siege-light-gray) !important;
+    border-left: 4px solid var(--siege-accent-blue) !important;
+    padding: 0.5rem 1rem !important;
+    margin: 1rem 0 !important;
+    font-size: 0.9rem !important;
+    color: var(--siege-dark-gray) !important;
+}
+
+/* Performance metrics grid */
 .performance-metrics {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin: 20px 0;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 1rem !important;
+    margin: 2rem 0 !important;
 }
 
 .performance-metric {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: var(--siege-light-gray) !important;
+    border: 1px solid var(--siege-medium-gray) !important;
+    border-radius: 8px !important;
+    padding: 1.5rem !important;
+    text-align: center !important;
+    transition: transform 0.2s ease !important;
+}
+
+.performance-metric:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 .performance-metric h4 {
-    color: var(--siege-primary) !important;
-    margin: 0 0 10px 0;
+    color: var(--siege-accent-blue) !important;
+    margin: 0 0 0.5rem 0 !important;
+    font-size: 2rem !important;
 }
 
-.performance-metric .metric-value {
-    font-size: 2em;
-    font-weight: 700;
-    color: var(--siege-secondary) !important;
-    margin: 10px 0;
-}
-
-.performance-metric .metric-label {
-    color: var(--siege-dark) !important;
-    font-size: 0.9em;
-}
-
-/* Code copy button styling */
-.copybutton {
-    background-color: var(--siege-primary) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 3px !important;
-    padding: 5px 10px !important;
-    font-size: 0.8em !important;
-}
-
-.copybutton:hover {
-    background-color: var(--siege-secondary) !important;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .performance-metrics {
-        grid-template-columns: 1fr;
-    }
-    
-    .siege-branding {
-        padding: 15px;
-    }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --siege-primary: #3498DB;
-        --siege-secondary: #F39C12;
-        --siege-dark: #ECF0F1;
-        --siege-light: #2C3E50;
-    }
-    
-    .rst-content {
-        background-color: #1a1a1a !important;
-        color: #e0e0e0 !important;
-    }
-    
-    .rst-content .highlight {
-        background-color: #2d2d2d !important;
-    }
-    
-    .rst-content code {
-        background-color: #2d2d2d !important;
-        color: #e0e0e0 !important;
-        border-color: #444 !important;
-    }
+.performance-metric p {
+    color: var(--siege-dark-gray) !important;
+    margin: 0 !important;
+    font-size: 0.9rem !important;
 }
