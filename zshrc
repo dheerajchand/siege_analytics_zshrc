@@ -282,7 +282,8 @@ function is_online {
 
 export JAVA_HOME="/opt/homebrew/opt/sdkman-cli/libexec/candidates/java/current"
 export PATH="$JAVA_HOME/bin:$PATH"
-export LD_LIBRARY_PATH="$JAVA_HOME/lib:$LD_LIBRARY_PATH"
+# REMOVED: LD_LIBRARY_PATH can interfere with macOS GUI apps like PyCharm
+# export LD_LIBRARY_PATH="$JAVA_HOME/lib:$LD_LIBRARY_PATH"
 
 # Manual setup function (can be called when needed)
 function setup_java_version {
@@ -298,7 +299,8 @@ function setup_java_version {
         sdk default java $target_java_version
         export JAVA_HOME=$(sdk home java $target_java_version)
         export PATH=$JAVA_HOME/bin:$PATH
-        export LD_LIBRARY_PATH=$JAVA_HOME/lib:$LD_LIBRARY_PATH
+        # REMOVED: LD_LIBRARY_PATH can interfere with macOS GUI apps
+        # export LD_LIBRARY_PATH=$JAVA_HOME/lib:$LD_LIBRARY_PATH
         echo "✅ Java version set to $target_java_version"
         echo "   Supports: Spark 3.5.3 + Hadoop 3.3.6 integration"
     else

@@ -79,11 +79,23 @@ export GEODJANGO_TEMPLATE_SQL_PASSWORD="dessert"
 - Consider as Phase 3 after basic system is stable
 - Security implications need careful review
 
+## CRITICAL macOS GUI Fix Applied
+**Problem**: PyCharm File Open/Save dialogs non-responsive
+**Root Cause**: `LD_LIBRARY_PATH` exports interfering with macOS system frameworks
+**Solution**: Removed problematic LD_LIBRARY_PATH exports (lines 285, 303)
+
+**Technical Details:**
+- `LD_LIBRARY_PATH` on macOS can override system dylibs
+- GUI apps load incorrect libraries → hangs/crashes
+- Java/Hadoop tools work fine without LD_LIBRARY_PATH on macOS
+- Uses `DYLD_LIBRARY_PATH` or framework paths instead
+
 ## Current Status  
 - ✅ Issues identified
 - ✅ Branch created  
-- ✅ Plan documented
-- ✅ **SECURITY FIX APPLIED**: Removed plaintext passwords from zshrc
+- ✅ Plan documented  
+- ✅ **SECURITY FIX**: Removed plaintext passwords
+- ✅ **GUI FIX**: Removed LD_LIBRARY_PATH causing PyCharm issues
 - 🔄 Ready for credential system implementation when you return
 
 ## Key Files to Preserve Current Workflow
