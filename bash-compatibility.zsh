@@ -138,8 +138,7 @@ python_status() {
     
     echo "PYSPARK_PYTHON: $PYSPARK_PYTHON"
     echo "PYSPARK_DRIVER_PYTHON: $PYSPARK_DRIVER_PYTHON"
-    echo "================================"
-}
+    echo "============================re
 
 # Cross-shell backup function
 backup() {
