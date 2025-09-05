@@ -234,6 +234,9 @@ fi
 # Load backup system (optional module)
 # load_config_module "backup-system"
 
+# Load backup toggle system (for controlling auto-backup)
+load_config_module "backup-toggle"
+
 # Load help system
 load_config_module "help"
 
