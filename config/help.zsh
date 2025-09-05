@@ -79,6 +79,9 @@ zsh_help() {
         "hadoop"|"hdfs"|"yarn")
             show_hadoop_help "$subcommand"
             ;;
+        "backup"|"backup-toggle")
+            show_backup_help "$subcommand"
+            ;;
         "status")
             show_status_help
             ;;
@@ -115,7 +118,7 @@ show_main_help() {
     echo ""
     echo -e "${HELP_COLOR_MODULE}📊 System Achievements:${HELP_COLOR_RESET}"
     echo "  • 86% size reduction (2,435 → 350 lines main config)"
-    echo "  • 9 focused modules replacing monolithic file"
+    echo "  • 10 focused modules replacing monolithic file"
     echo "  • Full cross-platform support (macOS, Linux, Docker, WSL)"
     echo "  • <2 second startup time with dynamic loading"
     echo "  • Enterprise-grade security with multi-backend credentials"
@@ -141,6 +144,7 @@ show_main_help() {
     echo -e "  ${HELP_COLOR_FUNCTION}docker${HELP_COLOR_RESET}      • Container management and development"
     echo -e "  ${HELP_COLOR_FUNCTION}spark${HELP_COLOR_RESET}       • Apache Spark (all execution modes)"
     echo -e "  ${HELP_COLOR_FUNCTION}hadoop${HELP_COLOR_RESET}      • Hadoop ecosystem (HDFS, YARN, MapReduce)"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup${HELP_COLOR_RESET}      • Auto-backup control system (toggle on/off)"
     echo ""
     echo -e "${HELP_COLOR_MODULE}🛠️ System Management:${HELP_COLOR_RESET}"
     echo -e "  ${HELP_COLOR_FUNCTION}status${HELP_COLOR_RESET}      • System status and diagnostics"
@@ -156,7 +160,7 @@ show_modules_list() {
     echo -e "${HELP_COLOR_HEADER}📦 Modular System Architecture${HELP_COLOR_RESET}"
     echo -e "${HELP_COLOR_HEADER}==============================${HELP_COLOR_RESET}"
     echo ""
-    echo -e "${HELP_COLOR_MODULE}9 Core Modules:${HELP_COLOR_RESET}"
+    echo -e "${HELP_COLOR_MODULE}10 Core Modules:${HELP_COLOR_RESET}"
     echo ""
     
     # Show module status dynamically
@@ -169,6 +173,7 @@ show_modules_list() {
         "spark:Apache Spark (all execution modes)"
         "hadoop:HDFS, YARN, MapReduce management"
         "docker:Container management & development"
+        "backup-toggle:Auto-backup control system (prevents unwanted commits)"
         "help:Interactive documentation system"
     )
     
@@ -457,6 +462,42 @@ show_hadoop_help() {
     echo "  • DataNode: http://localhost:9864"
 }
 
+show_backup_help() {
+    echo -e "${HELP_COLOR_HEADER}📦 Backup Toggle Module Help${HELP_COLOR_RESET}"
+    echo -e "${HELP_COLOR_HEADER}=============================${HELP_COLOR_RESET}"
+    echo ""
+    echo "Auto-backup control system to prevent unwanted commits."
+    echo "Provides safe toggle functionality for backup automation."
+    echo ""
+    echo -e "${HELP_COLOR_MODULE}📊 Status & Control:${HELP_COLOR_RESET}"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup_status${HELP_COLOR_RESET}          # Show current auto-backup status and settings"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup-status${HELP_COLOR_RESET}          # Alias for backup_status"
+    echo ""
+    echo -e "${HELP_COLOR_MODULE}🔄 Toggle Controls:${HELP_COLOR_RESET}"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_on${HELP_COLOR_RESET}         # Enable auto-backup system"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup-on${HELP_COLOR_RESET}              # Alias for backup_auto_on"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_off${HELP_COLOR_RESET}        # Disable auto-backup system"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup-off${HELP_COLOR_RESET}             # Alias for backup_auto_off"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_toggle${HELP_COLOR_RESET}     # Toggle auto-backup on/off"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup-toggle${HELP_COLOR_RESET}          # Alias for backup_auto_toggle"
+    echo ""
+    echo -e "${HELP_COLOR_MODULE}⚙️ Configuration Management:${HELP_COLOR_RESET}"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_disable_permanent${HELP_COLOR_RESET} # Permanently disable in config file"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup-disable${HELP_COLOR_RESET}         # Alias for permanent disable"
+    echo ""
+    echo -e "${HELP_COLOR_MODULE}🛡️ What Auto-Backup Provides:${HELP_COLOR_RESET}"
+    echo "  • Automatic configuration backups when files change"
+    echo "  • Time-based backup intervals (default: 1 hour)"
+    echo "  • Safe toggle system to prevent unwanted commits"
+    echo "  • Status monitoring and diagnostics"
+    echo "  • Hook management (preexec_functions control)"
+    echo ""
+    echo -e "${HELP_COLOR_MODULE}💡 Usage Examples:${HELP_COLOR_RESET}"
+    echo -e "  ${HELP_COLOR_EXAMPLE}backup-status${HELP_COLOR_RESET}          # Check if auto-backup is active"
+    echo -e "  ${HELP_COLOR_EXAMPLE}backup-off${HELP_COLOR_RESET}             # Disable to prevent unwanted commits"
+    echo -e "  ${HELP_COLOR_EXAMPLE}backup-toggle${HELP_COLOR_RESET}          # Switch auto-backup on or off"
+}
+
 # =====================================================
 # SYSTEM HELP
 # =====================================================
@@ -481,6 +522,7 @@ show_status_help() {
     echo -e "  ${HELP_COLOR_FUNCTION}spark_status${HELP_COLOR_RESET}           # Spark cluster status (if available)"
     echo -e "  ${HELP_COLOR_FUNCTION}hadoop_status${HELP_COLOR_RESET}          # Hadoop cluster status (if available)"
     echo -e "  ${HELP_COLOR_FUNCTION}jetbrains_status${HELP_COLOR_RESET}       # JetBrains tools status (if available)"
+    echo -e "  ${HELP_COLOR_FUNCTION}backup_status${HELP_COLOR_RESET}          # Auto-backup system status"
     echo ""
     echo -e "${HELP_COLOR_MODULE}🔄 Configuration Management:${HELP_COLOR_RESET}"
     echo -e "  ${HELP_COLOR_FUNCTION}zsh-reload${HELP_COLOR_RESET}             # Reload entire configuration"
@@ -654,6 +696,14 @@ search_help() {
             echo -e "  ${HELP_COLOR_FUNCTION}platform_copy${HELP_COLOR_RESET} - Cross-platform clipboard"
             echo "  Use: zsh_help environment"
             ;;
+        *backup*|*commit*|*auto-backup*)
+            echo -e "${HELP_COLOR_MODULE}📦 Backup Functions:${HELP_COLOR_RESET}"
+            echo -e "  ${HELP_COLOR_FUNCTION}backup_status${HELP_COLOR_RESET} - Show auto-backup status"
+            echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_on${HELP_COLOR_RESET} - Enable auto-backup"
+            echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_off${HELP_COLOR_RESET} - Disable auto-backup"
+            echo -e "  ${HELP_COLOR_FUNCTION}backup_auto_toggle${HELP_COLOR_RESET} - Toggle auto-backup"
+            echo "  Use: zsh_help backup"
+            ;;
         *)
             echo "No specific matches found for '$search_term'"
             echo ""
@@ -664,6 +714,7 @@ search_help() {
             echo "  database, postgres, mysql"
             echo "  ide, pycharm, jetbrains"
             echo "  status, environment, platform"
+            echo "  backup, commit, auto-backup"
             ;;
     esac
 }
@@ -687,6 +738,7 @@ alias help-database='zsh_help database'
 alias help-docker='zsh_help docker'
 alias help-spark='zsh_help spark'
 alias help-hadoop='zsh_help hadoop'
+alias help-backup='zsh_help backup'
 
 # Show help system is loaded
 if [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]]; then

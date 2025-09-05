@@ -577,6 +577,22 @@ creds-sync-1p-to-keychain      # Sync from 1Password to keychain
 set_credential_backend apple-first  # Set credential backend preference
 ```
 
+### **Backup Control System**
+```bash
+# Backup system status and control
+backup-status                   # Show current auto-backup status
+backup-on                      # Enable auto-backup system
+backup-off                     # Disable auto-backup system
+backup-toggle                  # Toggle auto-backup on/off
+backup-disable                 # Permanently disable in configuration
+
+# Auto-backup provides:
+# - Automatic configuration backups when files change
+# - Time-based backup intervals (default: 1 hour)
+# - Safe toggle system to prevent unwanted commits
+# - Status monitoring and diagnostics
+```
+
 ### **Configuration Files**
 ```bash
 # Main configuration

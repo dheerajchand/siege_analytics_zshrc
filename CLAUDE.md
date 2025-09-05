@@ -13,6 +13,7 @@ modular_zsh_status              # Show all module loading status
 environment_info               # Platform detection and system info
 credential_backend_status      # Security system status
 python_info                    # Python/UV environment status
+backup_status                  # Auto-backup system status and control
 ```
 
 ### System Overview
@@ -42,9 +43,8 @@ python_info                    # Python/UV environment status
 ⚡ spark.zsh          # Apache Spark (cross-shell compatible)
 🐘 hadoop.zsh         # HDFS, YARN, MapReduce management
 🐳 docker.zsh         # Container management & development
+📦 backup-toggle.zsh  # Auto-backup control system (prevents unwanted commits)
 ❓ help.zsh           # Interactive documentation system
-
-Note: backup-system.zsh is optional and currently disabled
 ```
 
 ### **Dynamic Loading Status Commands**
@@ -182,6 +182,32 @@ container_host_info       # Show container environment details
 d, dc, dps, di           # Docker shortcuts
 dcup, dcdown, dcrestart  # Docker Compose shortcuts
 ddev, drun               # Development utilities
+```
+
+### **Backup Toggle Module** (Auto-Backup Control)
+```bash
+# Status and control
+backup_status                  # Show current auto-backup status and settings
+backup-status                  # Alias for backup_status
+
+# Toggle controls
+backup_auto_on                 # Enable auto-backup system
+backup-on                      # Alias for backup_auto_on
+backup_auto_off                # Disable auto-backup system  
+backup-off                     # Alias for backup_auto_off
+backup_auto_toggle             # Toggle auto-backup on/off
+backup-toggle                  # Alias for backup_auto_toggle
+
+# Configuration management
+backup_auto_disable_permanent  # Permanently disable in configuration file
+backup-disable                 # Alias for backup_auto_disable_permanent
+
+# Auto-backup provides:
+# - Automatic configuration backups when files change
+# - Time-based backup intervals (default: 1 hour)
+# - Safe toggle system to prevent unwanted commits
+# - Status monitoring and diagnostics
+# - Hook management (preexec_functions control)
 ```
 
 ### **Spark Module** (Apache Spark)
@@ -653,7 +679,7 @@ hadoop_status                   # If Hadoop installed
 The modular system is complete and fully tested. All objectives achieved:
 
 - ✅ **86% size reduction** (2,435 → 350 lines main config)
-- ✅ **9 focused modules** replacing monolithic design
+- ✅ **10 focused modules** replacing monolithic design
 - ✅ **Full cross-platform support** (macOS, Linux, Docker, WSL)
 - ✅ **<2 second startup time** with dynamic loading
 - ✅ **Enterprise security** with multi-backend credentials

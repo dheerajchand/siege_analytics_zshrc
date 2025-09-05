@@ -90,7 +90,7 @@ exec zsh
 
 ---
 
-## 🎯 **What You Get (9 Modules)**
+## 🎯 **What You Get (10 Modules)**
 
 ### **Always Available (Core Modules):**
 ```bash
@@ -106,6 +106,7 @@ exec zsh
 ⚡ Apache Spark: All execution modes (if SDKMAN + Spark found)
 🐘 Hadoop/HDFS: Big data tools (if SDKMAN + Hadoop found)
 🐳 Docker Tools: Container management (if Docker available)
+📦 Backup Control: Auto-backup toggle system (always available)
 ```
 
 ---
@@ -130,6 +131,18 @@ zsh-reload
 
 # Reload with detailed output (for debugging)
 zsh-verbose
+```
+
+### **Backup Control System**
+```bash
+# Check auto-backup status
+backup-status              # Show current backup state
+
+# Toggle auto-backup on/off
+backup-on                  # Enable auto-backup
+backup-off                 # Disable auto-backup
+backup-toggle              # Toggle current state
+backup-disable             # Permanently disable
 ```
 
 ### **Get Help**
@@ -485,6 +498,7 @@ After (New Cross-Shell System):
 - 🔐 **Secure by Default**: No more passwords in config files
 - ⚡ **Performance**: Only loads modules for tools you have installed
 - 🧪 **Self-Testing**: Built-in tests verify everything works
+- 📦 **Backup Control**: Toggle auto-backup system to prevent unwanted commits
 
 ---
 
