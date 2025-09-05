@@ -31,7 +31,7 @@ python_info                    # Python/UV environment status
 
 ## 📦 **Module System Architecture**
 
-### **Complete Module List (10 modules)**
+### **Complete Module List (10 active modules)**
 ```bash
 🔄 shell-compat.zsh   # Cross-shell compatibility (bash+zsh) - LOADS FIRST
 🔧 core.zsh           # Essential shell configuration (always loads)
@@ -43,6 +43,8 @@ python_info                    # Python/UV environment status
 🐘 hadoop.zsh         # HDFS, YARN, MapReduce management
 🐳 docker.zsh         # Container management & development
 ❓ help.zsh           # Interactive documentation system
+
+Note: backup-system.zsh is optional and currently disabled
 ```
 
 ### **Dynamic Loading Status Commands**
@@ -275,12 +277,22 @@ spark_yarn_submit script.py         # Enterprise YARN integration
 
 ## 🧪 **Testing & Validation**
 
-### **Cross-Shell Test Suite** (Enhanced)
+### **Test Suite Options**
 ```bash
-# Run comprehensive compatibility tests (bash + zsh)
-./test-cross-platform-enhanced.sh
+# Quick validation test (recommended for daily use)
+./test-modular-quick.sh         # Fast 5-second test of core functionality
 
-# Test results include:
+# Comprehensive compatibility tests (for full validation)
+./test-cross-platform-enhanced.sh   # Complete test suite (may take longer)
+
+# Quick test results include:
+✅ Configuration loads without hanging
+✅ All core modules load successfully  
+✅ Essential functions are available
+✅ Status commands work
+✅ Startup performance under 3 seconds
+
+# Full test results include:
 ✅ Cross-shell compatibility (bash + zsh)
 ✅ Platform detection (macOS, Linux, Docker, WSL)
 ✅ All 10 modules load successfully
@@ -289,7 +301,6 @@ spark_yarn_submit script.py         # Enterprise YARN integration
 ✅ Spark JAR management functional
 ✅ Cross-platform utilities functional
 ✅ Credential system working
-✅ Startup performance <2 seconds
 ```
 
 ### **Module Testing Commands**

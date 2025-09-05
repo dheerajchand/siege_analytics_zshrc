@@ -24,7 +24,6 @@ The Siege Analytics ZSH Configuration System is an enterprise-grade, modular she
    :caption: Core Systems
 
    core-systems/python-management
-   core-systems/backup-system
    core-systems/help-system
    core-systems/performance-optimization
 

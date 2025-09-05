@@ -23,7 +23,7 @@
 - **86% size reduction**: 2,435 lines → 350 lines in main config
 - **Cross-shell compatibility**: Works in both **bash** and **zsh**
 - **Cross-platform support**: macOS, Linux, Docker, WSL
-- **9 focused modules** replacing monolithic configuration
+- **10 focused modules** replacing monolithic configuration
 - **<2 second startup time** with dynamic loading
 - **Enterprise-grade data science stack**: Spark, Hadoop, Python/UV integration
 - **Comprehensive credential management**: 1Password, Apple Keychain, environment variables
@@ -64,15 +64,16 @@ zsh_help system
 ~/.config/zsh/
 ├── zshrc                           # Main configuration (350 lines)
 ├── config/                         # Modular components
-│   ├── core.zsh                   # Essential utilities & Python/UV management
-│   ├── shell-compat.zsh           # Cross-shell & cross-platform compatibility
-│   ├── spark.zsh                  # Apache Spark cluster management
-│   ├── hadoop.zsh                 # Hadoop ecosystem (HDFS/YARN/MapReduce)
-│   ├── docker.zsh                 # Container development workflows
-│   ├── database.zsh               # Secure database connection management
-│   ├── credentials.zsh            # Multi-backend credential system
-│   ├── environment.zsh            # Environment & package management
-│   └── help.zsh                   # Integrated help system
+│   ├── shell-compat.zsh           # Cross-shell compatibility (bash+zsh) - LOADS FIRST
+│   ├── core.zsh                   # Essential shell configuration (always loads)
+│   ├── credentials.zsh            # Multi-backend security system
+│   ├── database.zsh               # PostgreSQL, MySQL, Snowflake integration
+│   ├── environment.zsh            # Cross-platform detection & optimization
+│   ├── jetbrains.zsh              # IDE integration with project detection
+│   ├── spark.zsh                  # Apache Spark (cross-shell compatible)
+│   ├── hadoop.zsh                 # HDFS, YARN, MapReduce management
+│   ├── docker.zsh                 # Container management & development
+│   └── help.zsh                   # Interactive documentation system
 ├── docs/                          # Professional Sphinx documentation
 │   ├── api-reference/             # Complete function reference
 │   ├── development/               # Development workflows
@@ -471,6 +472,9 @@ export ZSH_IS_DOCKER="true"
 ### **Running Tests**
 
 ```bash
+# Quick validation test (recommended for daily use)
+./test-modular-quick.sh
+
 # Complete cross-platform test suite
 ./test-cross-platform-enhanced.sh
 

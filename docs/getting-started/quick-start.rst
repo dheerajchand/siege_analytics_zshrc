@@ -347,7 +347,7 @@ If functions aren't available:
    echo $HELP_MODULE_LOADED
 
    # Reload specific modules
-   source ~/.config/zsh/backup-system.zsh
+   # Backup system is optional and disabled by default
 
 Python Issues
 ^^^^^^^^^^^^^
@@ -417,7 +417,6 @@ Learn More
 ~~~~~~~~~~
 
 - :doc:`../core-systems/python-management` - Advanced Python management
-- :doc:`../core-systems/backup-system` - Comprehensive backup system
 - :doc:`../big-data/spark-system` - Big data integration
 - :doc:`../development/workflows` - Development workflows
 
