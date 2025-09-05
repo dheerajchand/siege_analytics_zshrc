@@ -11,7 +11,7 @@ export ZSHRC_WORKING_FILE="$HOME/.dotfiles/homedir/.zshrc"
 export ZSHRC_REPO_FILE="$ZSHRC_CONFIG_DIR/zshrc"
 
 # Automatic backup triggers
-export AUTO_BACKUP_ON_CHANGE=true
+export AUTO_BACKUP_ON_CHANGE=false
 export AUTO_BACKUP_INTERVAL=3600  # 1 hour in seconds
 
 # Performance optimization: PATH deduplication
@@ -849,9 +849,9 @@ alias repostatus='zsh_repo_status'
 alias autobackup='enhanced_backup'
 alias optimize='deduplicate_path'
 
-# Auto-backup hook for zsh
-autoload -U add-zsh-hook
-add-zsh-hook preexec auto_backup_trigger
+# Auto-backup hook for zsh (DISABLED - was causing unwanted auto-commits)
+# autoload -U add-zsh-hook
+# add-zsh-hook preexec auto_backup_trigger
 
 # Backup critical functions (placeholder for functions that might not exist)
 function backup_critical_functions {

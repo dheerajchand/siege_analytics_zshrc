@@ -2,12 +2,12 @@
 
 ## 🎯 **What This Is (In Simple Terms)**
 
-This is a **cross-shell configuration system** that makes your terminal way more powerful and smart. It works in **both bash and zsh**, and uses **9 focused modules** that work together.
+This is a **cross-shell configuration system** that makes your terminal way more powerful and smart. It works in **both bash and zsh**, and uses **10 focused modules** that work together.
 
 ### **Before vs After:**
 ```
 🚫 OLD: One giant 2,400+ line file (impossible to maintain)
-✅ NEW: 9 focused modules that work in bash AND zsh
+✅ NEW: 10 focused modules that work in bash AND zsh
 ```
 
 ### **Key Benefits:**
@@ -90,7 +90,7 @@ exec zsh
 
 ---
 
-## 🎯 **What You Get (9 Modules)**
+## 🎯 **What You Get (10 Modules)**
 
 ### **Always Available (Core Modules):**
 ```bash
@@ -106,6 +106,7 @@ exec zsh
 ⚡ Apache Spark: All execution modes (if SDKMAN + Spark found)
 🐘 Hadoop/HDFS: Big data tools (if SDKMAN + Hadoop found)
 🐳 Docker Tools: Container management (if Docker available)
+📦 Backup Control: Auto-backup toggle system (always available)
 ```
 
 ---
@@ -130,6 +131,18 @@ zsh-reload
 
 # Reload with detailed output (for debugging)
 zsh-verbose
+```
+
+### **Backup Control System**
+```bash
+# Check auto-backup status
+backup-status              # Show current backup state
+
+# Toggle auto-backup on/off
+backup-on                  # Enable auto-backup
+backup-off                 # Disable auto-backup
+backup-toggle              # Toggle current state
+backup-disable             # Permanently disable
 ```
 
 ### **Get Help**
@@ -295,8 +308,11 @@ start_hadoop             # Start HDFS and YARN services
 
 ### **Quick Test**
 ```bash
-# Run the built-in test suite
-./test-cross-platform.sh
+# Run the quick test (recommended first)
+./test-modular-quick.sh
+
+# Run the comprehensive test suite
+./test-cross-platform-enhanced.sh
 
 # Should show:
 ✅ Platform detection working
@@ -482,6 +498,7 @@ After (New Cross-Shell System):
 - 🔐 **Secure by Default**: No more passwords in config files
 - ⚡ **Performance**: Only loads modules for tools you have installed
 - 🧪 **Self-Testing**: Built-in tests verify everything works
+- 📦 **Backup Control**: Toggle auto-backup system to prevent unwanted commits
 
 ---
 
@@ -507,7 +524,7 @@ echo "source ~/.config/zsh/zshrc" >> ~/.zshrc
 ### **Need Help?**
 1. **Check Status**: Run `modular_zsh_status` to see what's loaded
 2. **Get Help**: Run `zsh_help` to see available functions  
-3. **Test System**: Run `./test-cross-platform.sh` to verify everything works
+3. **Test System**: Run `./test-modular-quick.sh` to verify everything works
 4. **Read Docs**: Check `README.md` for complete documentation
 
 ### **Emergency Reset**

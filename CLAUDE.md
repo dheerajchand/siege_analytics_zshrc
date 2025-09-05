@@ -13,6 +13,7 @@ modular_zsh_status              # Show all module loading status
 environment_info               # Platform detection and system info
 credential_backend_status      # Security system status
 python_info                    # Python/UV environment status
+backup_status                  # Auto-backup system status and control
 ```
 
 ### System Overview
@@ -31,7 +32,7 @@ python_info                    # Python/UV environment status
 
 ## 📦 **Module System Architecture**
 
-### **Complete Module List (10 modules)**
+### **Complete Module List (10 active modules)**
 ```bash
 🔄 shell-compat.zsh   # Cross-shell compatibility (bash+zsh) - LOADS FIRST
 🔧 core.zsh           # Essential shell configuration (always loads)
@@ -42,6 +43,7 @@ python_info                    # Python/UV environment status
 ⚡ spark.zsh          # Apache Spark (cross-shell compatible)
 🐘 hadoop.zsh         # HDFS, YARN, MapReduce management
 🐳 docker.zsh         # Container management & development
+📦 backup-toggle.zsh  # Auto-backup control system (prevents unwanted commits)
 ❓ help.zsh           # Interactive documentation system
 ```
 
@@ -182,6 +184,32 @@ dcup, dcdown, dcrestart  # Docker Compose shortcuts
 ddev, drun               # Development utilities
 ```
 
+### **Backup Toggle Module** (Auto-Backup Control)
+```bash
+# Status and control
+backup_status                  # Show current auto-backup status and settings
+backup-status                  # Alias for backup_status
+
+# Toggle controls
+backup_auto_on                 # Enable auto-backup system
+backup-on                      # Alias for backup_auto_on
+backup_auto_off                # Disable auto-backup system  
+backup-off                     # Alias for backup_auto_off
+backup_auto_toggle             # Toggle auto-backup on/off
+backup-toggle                  # Alias for backup_auto_toggle
+
+# Configuration management
+backup_auto_disable_permanent  # Permanently disable in configuration file
+backup-disable                 # Alias for backup_auto_disable_permanent
+
+# Auto-backup provides:
+# - Automatic configuration backups when files change
+# - Time-based backup intervals (default: 1 hour)
+# - Safe toggle system to prevent unwanted commits
+# - Status monitoring and diagnostics
+# - Hook management (preexec_functions control)
+```
+
 ### **Spark Module** (Apache Spark)
 ```bash
 # Cluster management
@@ -275,12 +303,22 @@ spark_yarn_submit script.py         # Enterprise YARN integration
 
 ## 🧪 **Testing & Validation**
 
-### **Cross-Shell Test Suite** (Enhanced)
+### **Test Suite Options**
 ```bash
-# Run comprehensive compatibility tests (bash + zsh)
-./test-cross-platform-enhanced.sh
+# Quick validation test (recommended for daily use)
+./test-modular-quick.sh         # Fast 5-second test of core functionality
 
-# Test results include:
+# Comprehensive compatibility tests (for full validation)
+./test-cross-platform-enhanced.sh   # Complete test suite (may take longer)
+
+# Quick test results include:
+✅ Configuration loads without hanging
+✅ All core modules load successfully  
+✅ Essential functions are available
+✅ Status commands work
+✅ Startup performance under 3 seconds
+
+# Full test results include:
 ✅ Cross-shell compatibility (bash + zsh)
 ✅ Platform detection (macOS, Linux, Docker, WSL)
 ✅ All 10 modules load successfully
@@ -289,7 +327,6 @@ spark_yarn_submit script.py         # Enterprise YARN integration
 ✅ Spark JAR management functional
 ✅ Cross-platform utilities functional
 ✅ Credential system working
-✅ Startup performance <2 seconds
 ```
 
 ### **Module Testing Commands**
@@ -642,7 +679,7 @@ hadoop_status                   # If Hadoop installed
 The modular system is complete and fully tested. All objectives achieved:
 
 - ✅ **86% size reduction** (2,435 → 350 lines main config)
-- ✅ **9 focused modules** replacing monolithic design
+- ✅ **10 focused modules** replacing monolithic design
 - ✅ **Full cross-platform support** (macOS, Linux, Docker, WSL)
 - ✅ **<2 second startup time** with dynamic loading
 - ✅ **Enterprise security** with multi-backend credentials

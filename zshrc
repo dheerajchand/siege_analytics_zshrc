@@ -231,8 +231,11 @@ if command -v docker >/dev/null 2>&1; then
     load_config_module "docker"
 fi
 
-# Load backup system
-load_config_module "backup-system"
+# Load backup system (optional module)
+# load_config_module "backup-system"
+
+# Load backup toggle system (for controlling auto-backup)
+load_config_module "backup-toggle"
 
 # Load help system
 load_config_module "help"
