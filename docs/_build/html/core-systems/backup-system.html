@@ -32,9 +32,7 @@ window.addEventListener("load", () => mermaid.run());
 </script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Help System" href="help-system.html" />
-    <link rel="prev" title="Python Management System" href="python-management.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -65,93 +63,8 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="python-management.html">Python Management System</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Backup System</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#system-overview">System Overview</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#core-features">Core Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#architecture">Architecture</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#core-configuration">Core Configuration</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#key-functions">Key Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#backup-message"><code class="docutils literal notranslate"><span class="pre">backup(message)</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#enhanced-backup-message"><code class="docutils literal notranslate"><span class="pre">enhanced_backup(message)</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#sync-zsh-repositories-message"><code class="docutils literal notranslate"><span class="pre">sync_zsh_repositories(message)</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#sync-documentation-between-repos"><code class="docutils literal notranslate"><span class="pre">sync_documentation_between_repos()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#list-zsh-backups"><code class="docutils literal notranslate"><span class="pre">list_zsh_backups()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zsh-repo-status"><code class="docutils literal notranslate"><span class="pre">zsh_repo_status()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#performance-optimization">Performance Optimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#path-deduplication">PATH Deduplication</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#deduplicate-path"><code class="docutils literal notranslate"><span class="pre">deduplicate_path()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#automatic-optimization">Automatic Optimization</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#time-based-organization">Time-Based Organization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#directory-structure">Directory Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#metadata-generation">Metadata Generation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#dual-repository-system">Dual Repository System</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#repository-relationships">Repository Relationships</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#main-repository">Main Repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#backup-repository">Backup Repository</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#synchronization-process">Synchronization Process</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#automatic-operations">Automatic Operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#manual-operations">Manual Operations</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#conflict-resolution">Conflict Resolution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#automatic-resolution">Automatic Resolution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#manual-resolution">Manual Resolution</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#health-monitoring">Health Monitoring</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#status-checking">Status Checking</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#repostatus"><code class="docutils literal notranslate"><span class="pre">repostatus()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">zsh_repo_status()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#performance-monitoring">Performance Monitoring</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#repository-out-of-sync">Repository Out of Sync</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#backup-creation-issues">Backup Creation Issues</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#git-issues">Git Issues</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#performance-issues">Performance Issues</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#custom-backup-scripts">Custom Backup Scripts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#automated-backups">Automated Backups</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#integration-with-other-systems">Integration with Other Systems</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#python-system-integration">Python System Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#spark-system-integration">Spark System Integration</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#backup-strategy">Backup Strategy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#repository-management">Repository Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Performance Optimization</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="help-system.html">Help System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performance-optimization.html">Performance Optimization</a></li>
 </ul>
@@ -725,10 +638,7 @@ backup<span class="w"> </span><span class="s2">&quot;Spark configuration update&
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="python-management.html" class="btn btn-neutral float-left" title="Python Management System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="help-system.html" class="btn btn-neutral float-right" title="Help System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

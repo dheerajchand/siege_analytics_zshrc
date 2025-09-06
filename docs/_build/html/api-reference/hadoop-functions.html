@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hadoop Functions API Reference &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a274b600" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://docs.siegeanalytics.comapi-reference/hadoop-functions.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Hadoop Functions API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api-reference/hadoop-functions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hadoop-functions-api-reference">
+<h1>Hadoop Functions API Reference<a class="headerlink" href="#hadoop-functions-api-reference" title="Link to this heading"></a></h1>
+<p>This module provides comprehensive Apache Hadoop ecosystem management including HDFS, YARN, and MapReduce with seamless integration to Apache Spark for big data processing workflows.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All functions support cross-platform operation (macOS/Linux/Docker) and automatically configure Java 17+ compatibility for modern environments.</p>
+</div>
+<section id="environment-setup-functions">
+<h2>Environment Setup Functions<a class="headerlink" href="#environment-setup-functions" title="Link to this heading"></a></h2>
+<section id="setup-hadoop-environment">
+<h3>setup_hadoop_environment()<a class="headerlink" href="#setup-hadoop-environment" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Automatically detects and configures Apache Hadoop installation across different platforms, setting up all necessary environment variables and paths.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_hadoop_environment<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>This function is automatically called when the Hadoop module loads:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manual environment setup (usually automatic)</span>
+setup_hadoop_environment
+
+<span class="c1"># Check if setup was successful</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$HADOOP_HOME</span>
+<span class="c1"># Output: /opt/homebrew/opt/hadoop/libexec</span>
+
+<span class="c1"># Verify Hadoop is in PATH</span>
+which<span class="w"> </span>hadoop
+<span class="c1"># Output: /opt/homebrew/opt/hadoop/libexec/bin/hadoop</span>
+
+<span class="c1"># Check Spark integration</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$SPARK_DIST_CLASSPATH</span>
+<span class="c1"># Output: [Long classpath with all Hadoop JARs]</span>
+</pre></div>
+</div>
+<p>The function searches for Hadoop in platform-specific locations:</p>
+<ul class="simple">
+<li><p><strong>macOS</strong>: <cite>/opt/homebrew/opt/hadoop/libexec</cite>, <cite>/usr/local/opt/hadoop/libexec</cite></p></li>
+<li><p><strong>Linux</strong>: <cite>/opt/hadoop</cite>, <cite>/usr/local/hadoop</cite>, <cite>/opt/apache-hadoop</cite></p></li>
+<li><p><strong>SDKMAN</strong>: <cite>$SDKMAN_DIR/candidates/hadoop/current</cite> (checked first)</p></li>
+<li><p><strong>Custom</strong>: <cite>$HOME/hadoop</cite>, <cite>$HOME/apache-hadoop</cite></p></li>
+</ul>
+<p>Environment variables configured:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_HOME</span><span class="o">=</span><span class="s2">&quot;/path/to/hadoop&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/etc/hadoop&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_DATA_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/hadoop-data&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_PID_DIR</span><span class="o">=</span><span class="s2">&quot;/tmp/hadoop-</span><span class="nv">$USER</span><span class="s2">&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HADOOP_CLASSPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/share/hadoop/tools/lib/*&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DIST_CLASSPATH</span><span class="o">=</span><span class="s2">&quot;[Hadoop classpath for Spark integration]&quot;</span>
+</pre></div>
+</div>
+<p>Container optimizations:</p>
+<ul class="simple">
+<li><p><strong>Docker</strong>: Uses 512MB heap sizes for NameNode/ResourceManager</p></li>
+<li><p><strong>Host Systems</strong>: Uses 1GB+ heap sizes for better performance</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Environment setup success</span>
+test_hadoop_environment_setup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_hadoop_environment
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_HOME</span><span class="s2">/bin/hadoop&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: PATH configuration</span>
+test_hadoop_path_setup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_hadoop_environment
+<span class="w">    </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>hadoop<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Spark integration</span>
+test_spark_hadoop_integration<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_hadoop_environment
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SPARK_DIST_CLASSPATH</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="init-hadoop-dirs">
+<h3>init_hadoop_dirs()<a class="headerlink" href="#init-hadoop-dirs" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Initialize all necessary Hadoop directories for NameNode, DataNode, temporary files, and logging.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>init_hadoop_dirs<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize Hadoop directories</span>
+init_hadoop_dirs
+<span class="c1"># Output:</span>
+<span class="c1"># 📁 Initializing Hadoop directories...</span>
+<span class="c1"># ✅ Hadoop directories initialized</span>
+<span class="c1">#    Data: /Users/username/hadoop-data</span>
+<span class="c1">#    PIDs: /tmp/hadoop-username</span>
+
+<span class="c1"># Check created structure</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/hadoop-data/
+<span class="c1"># Output:</span>
+<span class="c1"># drwxr-xr-x namenode/</span>
+<span class="c1"># drwxr-xr-x datanode/</span>
+<span class="c1"># drwxr-xr-x tmp/</span>
+<span class="c1"># drwxr-xr-x logs/</span>
+</pre></div>
+</div>
+<p>Directory structure created:</p>
+<ul class="simple">
+<li><p><cite>$HADOOP_DATA_DIR/namenode/</cite> - NameNode metadata storage</p></li>
+<li><p><cite>$HADOOP_DATA_DIR/datanode/</cite> - DataNode block storage</p></li>
+<li><p><cite>$HADOOP_DATA_DIR/tmp/</cite> - Temporary files</p></li>
+<li><p><cite>$HADOOP_DATA_DIR/logs/</cite> - Application logs</p></li>
+<li><p><cite>$HADOOP_PID_DIR/</cite> - Process ID files</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Directory creation</span>
+test_hadoop_dirs_creation<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>init_hadoop_dirs
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_DATA_DIR</span><span class="s2">/namenode&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_DATA_DIR</span><span class="s2">/datanode&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_PID_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="java-compatibility-functions">
+<h2>Java Compatibility Functions<a class="headerlink" href="#java-compatibility-functions" title="Link to this heading"></a></h2>
+<section id="setup-java17-hadoop-compatibility">
+<h3>setup_java17_hadoop_compatibility()<a class="headerlink" href="#setup-java17-hadoop-compatibility" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Configure Hadoop for Java 17+ compatibility by adding necessary JVM flags and optimizations to hadoop-env.sh.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_java17_hadoop_compatibility<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>Modern Java versions require additional configuration for Hadoop:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup Java 17 compatibility (run once)</span>
+setup_java17_hadoop_compatibility
+<span class="c1"># Output:</span>
+<span class="c1"># ☕ Setting up Java 17+ compatibility for Hadoop...</span>
+<span class="c1">#    ✅ Java 17 compatibility applied to hadoop-env.sh</span>
+
+<span class="c1"># Check applied configuration</span>
+grep<span class="w"> </span><span class="s2">&quot;add-opens&quot;</span><span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/hadoop-env.sh
+<span class="c1"># Output:</span>
+<span class="c1"># export HADOOP_OPTS=&quot;$HADOOP_OPTS --add-opens java.base/java.lang=ALL-UNNAMED&quot;</span>
+<span class="c1"># export HADOOP_OPTS=&quot;$HADOOP_OPTS --add-opens java.base/java.util=ALL-UNNAMED&quot;</span>
+<span class="c1"># [additional JVM flags...]</span>
+</pre></div>
+</div>
+<p>Applied JVM configurations:</p>
+<p><strong>Access Control Flags:</strong>
+- <cite>–add-opens java.base/java.lang=ALL-UNNAMED</cite>
+- <cite>–add-opens java.base/java.util=ALL-UNNAMED</cite>
+- <cite>–add-opens java.base/java.lang.reflect=ALL-UNNAMED</cite>
+- <cite>–add-opens java.base/java.text=ALL-UNNAMED</cite>
+- <cite>–add-opens java.desktop/java.awt.font=ALL-UNNAMED</cite></p>
+<p><strong>Memory Optimization:</strong>
+- NameNode: 1GB heap (512MB in containers)
+- DataNode: 512MB heap (256MB in containers)
+- ResourceManager: 1GB heap (512MB in containers)
+- NodeManager: 512MB heap (256MB in containers)</p>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Java compatibility setup</span>
+test_java17_compatibility<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_java17_hadoop_compatibility
+<span class="w">    </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;add-opens java.base/java.lang=ALL-UNNAMED&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/hadoop-env.sh&quot;</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Idempotent execution</span>
+test_java17_compatibility_idempotent<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_java17_hadoop_compatibility
+<span class="w">    </span>setup_java17_hadoop_compatibility<span class="w">  </span><span class="c1"># Run twice</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="k">$(</span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;add-opens java.base/java.lang=ALL-UNNAMED&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/hadoop-env.sh&quot;</span><span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$count</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]]</span><span class="w">  </span><span class="c1"># Should only appear once</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-functions">
+<h2>Configuration Functions<a class="headerlink" href="#configuration-functions" title="Link to this heading"></a></h2>
+<section id="setup-yarn-config">
+<h3>setup_yarn_config()<a class="headerlink" href="#setup-yarn-config" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Create and configure YARN (Yet Another Resource Negotiator) configuration files for distributed resource management.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_yarn_config<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup YARN configuration</span>
+setup_yarn_config
+<span class="c1"># Output:</span>
+<span class="c1"># ⚙️  Configuring YARN...</span>
+<span class="c1"># 📁 Initializing Hadoop directories...</span>
+<span class="c1"># ✅ Hadoop directories initialized</span>
+<span class="c1">#    Data: /Users/username/hadoop-data</span>
+<span class="c1">#    PIDs: /tmp/hadoop-username</span>
+<span class="c1"># 📝 Creating yarn-site.xml...</span>
+<span class="c1"># ✅ YARN configuration complete</span>
+
+<span class="c1"># Verify configuration file</span>
+cat<span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/yarn-site.xml
+<span class="c1"># Output: [XML configuration with resource management settings]</span>
+</pre></div>
+</div>
+<p>YARN configuration includes:</p>
+<p><strong>Core Services:</strong>
+- <cite>yarn.nodemanager.aux-services=mapreduce_shuffle</cite>
+- <cite>yarn.nodemanager.aux-services.mapreduce_shuffle.class=org.apache.hadoop.mapred.ShuffleHandler</cite></p>
+<p><strong>Resource Management:</strong>
+- <cite>yarn.resourcemanager.hostname=localhost</cite>
+- <cite>yarn.nodemanager.resource.memory-mb=[Memory allocation based on system/container]</cite>
+- <cite>yarn.scheduler.maximum-allocation-mb=[Maximum memory per container]</cite></p>
+<p><strong>Container Settings:</strong>
+- <cite>yarn.nodemanager.vmem-check-enabled=false</cite> (Disables virtual memory checking)
+- Container executor configurations for different platforms</p>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: YARN config file creation</span>
+test_yarn_config_creation<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_yarn_config
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/yarn-site.xml&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;mapreduce_shuffle&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/yarn-site.xml&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="setup-hdfs-config">
+<h3>setup_hdfs_config()<a class="headerlink" href="#setup-hdfs-config" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Configure HDFS (Hadoop Distributed File System) with appropriate replication, block sizes, and storage locations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_hdfs_config<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup HDFS configuration</span>
+setup_hdfs_config
+<span class="c1"># Output:</span>
+<span class="c1"># 💾 Configuring HDFS...</span>
+<span class="c1"># 📝 Creating core-site.xml...</span>
+<span class="c1"># 📝 Creating hdfs-site.xml...</span>
+<span class="c1"># ✅ HDFS configuration complete</span>
+
+<span class="c1"># Check NameNode configuration</span>
+grep<span class="w"> </span>-A2<span class="w"> </span>-B2<span class="w"> </span><span class="s2">&quot;dfs.namenode.name.dir&quot;</span><span class="w"> </span><span class="nv">$HADOOP_CONF_DIR</span>/hdfs-site.xml
+<span class="c1"># Output:</span>
+<span class="c1"># &lt;property&gt;</span>
+<span class="c1">#     &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;</span>
+<span class="c1">#     &lt;value&gt;file:///Users/username/hadoop-data/namenode&lt;/value&gt;</span>
+<span class="c1"># &lt;/property&gt;</span>
+</pre></div>
+</div>
+<p>HDFS configuration includes:</p>
+<p><strong>Core Settings (core-site.xml):</strong>
+- <cite>fs.defaultFS=hdfs://localhost:9000</cite> (Default file system)
+- <cite>hadoop.tmp.dir=[Temporary directory path]</cite></p>
+<p><strong>HDFS Settings (hdfs-site.xml):</strong>
+- <cite>dfs.replication=1</cite> (Single node replication)
+- <cite>dfs.namenode.name.dir=[NameNode storage directory]</cite>
+- <cite>dfs.datanode.data.dir=[DataNode storage directory]</cite>
+- <cite>dfs.permissions.enabled=false</cite> (Simplified permissions for development)</p>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: HDFS config files creation</span>
+test_hdfs_config_creation<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_hdfs_config
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/core-site.xml&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/hdfs-site.xml&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;hdfs://localhost:9000&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HADOOP_CONF_DIR</span><span class="s2">/core-site.xml&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cluster-management-functions">
+<h2>Cluster Management Functions<a class="headerlink" href="#cluster-management-functions" title="Link to this heading"></a></h2>
+<section id="start-hadoop">
+<h3>start_hadoop()<a class="headerlink" href="#start-hadoop" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Start the complete Hadoop ecosystem including HDFS services (NameNode, DataNode) and YARN services (ResourceManager, NodeManager).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>start_hadoop<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start complete Hadoop cluster</span>
+start_hadoop
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Starting Hadoop ecosystem...</span>
+<span class="c1"># 📋 Checking configuration...</span>
+<span class="c1"># ✅ Configuration ready</span>
+<span class="c1"># 🗃️  Formatting NameNode (if needed)...</span>
+<span class="c1"># 🌐 Starting HDFS services...</span>
+<span class="c1">#    Starting NameNode...</span>
+<span class="c1">#    Starting DataNode...</span>
+<span class="c1"># ⚙️  Starting YARN services...</span>
+<span class="c1">#    Starting ResourceManager...</span>
+<span class="c1">#    Starting NodeManager...</span>
+<span class="c1"># ✅ Hadoop cluster started successfully!</span>
+<span class="c1">#    HDFS Web UI: http://localhost:9870</span>
+<span class="c1">#    YARN Web UI: http://localhost:8088</span>
+
+<span class="c1"># Check cluster status after startup</span>
+hadoop_status
+</pre></div>
+</div>
+<p>Startup process:</p>
+<ol class="arabic simple">
+<li><p><strong>Validation</strong>: Checks for Hadoop installation and configuration</p></li>
+<li><p><strong>NameNode Formatting</strong>: Formats NameNode if not already done</p></li>
+<li><p><strong>HDFS Services</strong>: Starts NameNode (port 9000) and DataNode</p></li>
+<li><p><strong>YARN Services</strong>: Starts ResourceManager (port 8032) and NodeManager</p></li>
+<li><p><strong>Health Check</strong>: Verifies all services are running</p></li>
+</ol>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Hadoop startup</span>
+test_hadoop_startup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>start_hadoop
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">10</span><span class="w">  </span><span class="c1"># Allow services to start</span>
+<span class="w">    </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;NameNode&quot;</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;DataNode&quot;</span><span class="w"> </span>&gt;/dev/null
+<span class="o">}</span>
+
+<span class="c1"># Test: HDFS accessibility</span>
+test_hdfs_accessibility<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>start_hadoop
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">10</span>
+<span class="w">    </span>hadoop<span class="w"> </span>fs<span class="w"> </span>-ls<span class="w"> </span>/<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="stop-hadoop">
+<h3>stop_hadoop()<a class="headerlink" href="#stop-hadoop" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Gracefully stop all Hadoop services in the correct order (YARN services first, then HDFS services).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>stop_hadoop<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stop Hadoop cluster</span>
+stop_hadoop
+<span class="c1"># Output:</span>
+<span class="c1"># 🛑 Stopping Hadoop ecosystem...</span>
+<span class="c1"># ⚙️  Stopping YARN services...</span>
+<span class="c1">#    Stopping NodeManager...</span>
+<span class="c1">#    Stopping ResourceManager...</span>
+<span class="c1"># 🗃️  Stopping HDFS services...</span>
+<span class="c1">#    Stopping DataNode...</span>
+<span class="c1">#    Stopping NameNode...</span>
+<span class="c1"># ✅ Hadoop cluster stopped</span>
+
+<span class="c1"># Verify services are stopped</span>
+hadoop_status
+<span class="c1"># Output shows all services as &quot;Not running&quot;</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Hadoop shutdown</span>
+test_hadoop_shutdown<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>start_hadoop
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">10</span>
+<span class="w">    </span>stop_hadoop
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
+<span class="w">    </span>!<span class="w"> </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;NameNode&quot;</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>!<span class="w"> </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;DataNode&quot;</span><span class="w"> </span>&gt;/dev/null
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="hadoop-status">
+<h3>hadoop_status()<a class="headerlink" href="#hadoop-status" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Display comprehensive status information about all Hadoop services, web interfaces, and connectivity.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop_status<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop_status
+<span class="c1"># Output:</span>
+<span class="c1"># 🐘 Apache Hadoop Status</span>
+<span class="c1"># =======================</span>
+<span class="c1">#</span>
+<span class="c1"># Configuration:</span>
+<span class="c1">#   HADOOP_HOME: /opt/homebrew/opt/hadoop/libexec</span>
+<span class="c1">#   HADOOP_CONF_DIR: /opt/homebrew/opt/hadoop/libexec/etc/hadoop</span>
+<span class="c1">#   Data Directory: /Users/username/hadoop-data</span>
+<span class="c1">#</span>
+<span class="c1"># HDFS Services:</span>
+<span class="c1">#   ✅ NameNode: Running (PID: 12345)</span>
+<span class="c1">#      Web UI: http://localhost:9870</span>
+<span class="c1">#      RPC: hdfs://localhost:9000</span>
+<span class="c1">#   ✅ DataNode: Running (PID: 12346)</span>
+<span class="c1">#      Web UI: http://localhost:9864</span>
+<span class="c1">#</span>
+<span class="c1"># YARN Services:</span>
+<span class="c1">#   ✅ ResourceManager: Running (PID: 12347)</span>
+<span class="c1">#      Web UI: http://localhost:8088</span>
+<span class="c1">#      Scheduler: http://localhost:8030</span>
+<span class="c1">#   ✅ NodeManager: Running (PID: 12348)</span>
+<span class="c1">#      Web UI: http://localhost:8042</span>
+<span class="c1">#</span>
+<span class="c1"># Connectivity:</span>
+<span class="c1">#   ✅ HDFS (9000): Accessible</span>
+<span class="c1">#   ✅ NameNode Web (9870): Accessible</span>
+<span class="c1">#   ✅ YARN Web (8088): Accessible</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Status command execution</span>
+test_hadoop_status_execution<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>hadoop_status<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="hdfs-utility-functions">
+<h2>HDFS Utility Functions<a class="headerlink" href="#hdfs-utility-functions" title="Link to this heading"></a></h2>
+<section id="hdfs-format">
+<h3>hdfs_format()<a class="headerlink" href="#hdfs-format" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Format the HDFS NameNode filesystem, required for initial setup or clean restart.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hdfs_format<span class="w"> </span><span class="o">[</span>force<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format NameNode (first time setup)</span>
+hdfs_format
+<span class="c1"># Output:</span>
+<span class="c1"># 🗃️  Formatting HDFS NameNode...</span>
+<span class="c1">#    WARNING: This will erase all data in HDFS</span>
+<span class="c1">#    Continue? (y/n): y</span>
+<span class="c1"># ✅ NameNode formatted successfully</span>
+
+<span class="c1"># Force format without confirmation</span>
+hdfs_format<span class="w"> </span>force
+<span class="c1"># Output:</span>
+<span class="c1"># 🗃️  Force formatting HDFS NameNode...</span>
+<span class="c1"># ✅ NameNode formatted successfully</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: NameNode formatting</span>
+test_hdfs_format<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>hdfs_format<span class="w"> </span>force<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="hdfs-safe-mode">
+<h3>hdfs_safe_mode()<a class="headerlink" href="#hdfs-safe-mode" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Control HDFS safe mode for maintenance operations and cluster health checks.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hdfs_safe_mode<span class="w"> </span><span class="o">[</span>enter<span class="p">|</span>leave<span class="p">|</span>get<span class="p">|</span>wait<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check safe mode status</span>
+hdfs_safe_mode<span class="w"> </span>get
+<span class="c1"># Output: Safe mode is OFF</span>
+
+<span class="c1"># Enter safe mode for maintenance</span>
+hdfs_safe_mode<span class="w"> </span>enter
+<span class="c1"># Output: Safe mode is ON</span>
+
+<span class="c1"># Leave safe mode</span>
+hdfs_safe_mode<span class="w"> </span>leave
+<span class="c1"># Output: Safe mode is OFF</span>
+
+<span class="c1"># Wait for safe mode to turn off automatically</span>
+hdfs_safe_mode<span class="w"> </span><span class="nb">wait</span>
+<span class="c1"># Output: Safe mode is OFF (or waits until it&#39;s off)</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Safe mode control</span>
+test_hdfs_safe_mode<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>start_hadoop
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">10</span>
+<span class="w">    </span>hdfs_safe_mode<span class="w"> </span>enter
+<span class="w">    </span><span class="nv">status</span><span class="o">=</span><span class="k">$(</span>hdfs_safe_mode<span class="w"> </span>get<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$status</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;ON&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-functions">
+<h2>Integration Functions<a class="headerlink" href="#integration-functions" title="Link to this heading"></a></h2>
+<section id="hadoop-spark-integration">
+<h3>hadoop_spark_integration()<a class="headerlink" href="#hadoop-spark-integration" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Verify and configure Hadoop-Spark integration, ensuring Spark can access HDFS and YARN resources.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hadoop_spark_integration<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test Hadoop-Spark integration</span>
+hadoop_spark_integration
+<span class="c1"># Output:</span>
+<span class="c1"># 🔗 Testing Hadoop-Spark Integration</span>
+<span class="c1"># ================================</span>
+<span class="c1"># ✅ HADOOP_HOME: /opt/homebrew/opt/hadoop/libexec</span>
+<span class="c1"># ✅ SPARK_HOME: /opt/homebrew/opt/apache-spark/libexec</span>
+<span class="c1"># ✅ SPARK_DIST_CLASSPATH: [Long classpath]</span>
+<span class="c1"># ✅ HDFS accessible from Spark</span>
+<span class="c1"># ✅ YARN accessible from Spark</span>
+<span class="c1">#</span>
+<span class="c1"># 🎯 Integration Summary:</span>
+<span class="c1">#    • Spark can read/write HDFS</span>
+<span class="c1">#    • Spark can submit to YARN</span>
+<span class="c1">#    • All necessary JARs in classpath</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Hadoop-Spark integration</span>
+test_hadoop_spark_integration<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>hadoop_spark_integration<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="aliases-and-shortcuts">
+<h2>Aliases and Shortcuts<a class="headerlink" href="#aliases-and-shortcuts" title="Link to this heading"></a></h2>
+<p>The module provides convenient aliases for all major functions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cluster management</span>
+hadoop-start<span class="w">         </span><span class="c1"># start_hadoop</span>
+hadoop-stop<span class="w">          </span><span class="c1"># stop_hadoop</span>
+hadoop-status<span class="w">        </span><span class="c1"># hadoop_status</span>
+hadoop-restart<span class="w">       </span><span class="c1"># stop_hadoop &amp;&amp; start_hadoop</span>
+
+<span class="c1"># HDFS operations</span>
+hdfs-format<span class="w">          </span><span class="c1"># hdfs_format</span>
+hdfs-safe-mode<span class="w">       </span><span class="c1"># hdfs_safe_mode</span>
+hdfs-ls<span class="w">              </span><span class="c1"># hadoop fs -ls</span>
+hdfs-mkdir<span class="w">           </span><span class="c1"># hadoop fs -mkdir</span>
+hdfs-put<span class="w">             </span><span class="c1"># hadoop fs -put</span>
+hdfs-get<span class="w">             </span><span class="c1"># hadoop fs -get</span>
+
+<span class="c1"># Configuration</span>
+hadoop-config<span class="w">        </span><span class="c1"># setup_yarn_config &amp;&amp; setup_hdfs_config</span>
+hadoop-java17<span class="w">        </span><span class="c1"># setup_java17_hadoop_compatibility</span>
+
+<span class="c1"># Web interfaces</span>
+hadoop-web-hdfs<span class="w">      </span><span class="c1"># Open HDFS web UI</span>
+hadoop-web-yarn<span class="w">      </span><span class="c1"># Open YARN web UI</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-usage-examples">
+<h2>Complete Usage Examples<a class="headerlink" href="#complete-usage-examples" title="Link to this heading"></a></h2>
+<p><strong>Example 1: Complete Hadoop setup from scratch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup environment (automatic on module load)</span>
+setup_hadoop_environment
+
+<span class="c1"># Configure Java 17 compatibility</span>
+setup_java17_hadoop_compatibility
+
+<span class="c1"># Initialize directories and configuration</span>
+init_hadoop_dirs
+setup_hdfs_config
+setup_yarn_config
+
+<span class="c1"># Format NameNode (first time only)</span>
+hdfs_format
+
+<span class="c1"># Start the cluster</span>
+start_hadoop
+
+<span class="c1"># Check status</span>
+hadoop_status
+</pre></div>
+</div>
+<p><strong>Example 2: Data science workflow with Hadoop and Spark</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Hadoop cluster</span>
+start_hadoop
+
+<span class="c1"># Verify Hadoop-Spark integration</span>
+hadoop_spark_integration
+
+<span class="c1"># Create HDFS directory for data</span>
+hadoop<span class="w"> </span>fs<span class="w"> </span>-mkdir<span class="w"> </span>/data
+hadoop<span class="w"> </span>fs<span class="w"> </span>-mkdir<span class="w"> </span>/data/input
+hadoop<span class="w"> </span>fs<span class="w"> </span>-mkdir<span class="w"> </span>/data/output
+
+<span class="c1"># Upload local data to HDFS</span>
+hadoop<span class="w"> </span>fs<span class="w"> </span>-put<span class="w"> </span>local_data.csv<span class="w"> </span>/data/input/
+
+<span class="c1"># Run Spark job with YARN</span>
+spark-submit<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--master<span class="w"> </span>yarn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deploy-mode<span class="w"> </span>client<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num-executors<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--executor-memory<span class="w"> </span>1g<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data_analysis.py
+
+<span class="c1"># Download results from HDFS</span>
+hadoop<span class="w"> </span>fs<span class="w"> </span>-get<span class="w"> </span>/data/output/results.parquet<span class="w"> </span>./
+</pre></div>
+</div>
+<p><strong>Example 3: Container-based Hadoop development</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Container environment automatically detected</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Container mode: </span><span class="nv">$ZSH_IS_DOCKER</span><span class="s2">&quot;</span>
+<span class="c1"># Output: Container mode: true</span>
+
+<span class="c1"># Setup uses optimized memory settings</span>
+setup_hadoop_environment
+setup_java17_hadoop_compatibility
+
+<span class="c1"># Start with container-optimized settings</span>
+start_hadoop
+
+<span class="c1"># Status shows reduced memory usage</span>
+hadoop_status
+</pre></div>
+</div>
+<p><strong>Example 4: Maintenance operations</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enter safe mode for maintenance</span>
+hdfs_safe_mode<span class="w"> </span>enter
+
+<span class="c1"># Perform maintenance operations</span>
+hadoop<span class="w"> </span>fs<span class="w"> </span>-fsck<span class="w"> </span>/
+
+<span class="c1"># Leave safe mode</span>
+hdfs_safe_mode<span class="w"> </span>leave
+
+<span class="c1"># Restart cluster for configuration changes</span>
+hadoop-restart
+</pre></div>
+</div>
+</section>
+<section id="integration-with-other-modules">
+<h2>Integration with Other Modules<a class="headerlink" href="#integration-with-other-modules" title="Link to this heading"></a></h2>
+<p><strong>With Spark Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start both Hadoop and Spark</span>
+start_hadoop
+spark_start
+
+<span class="c1"># Submit Spark job to YARN</span>
+spark_yarn_submit<span class="w"> </span>my_analysis.py
+
+<span class="c1"># Monitor via web interfaces</span>
+platform_open<span class="w"> </span><span class="s2">&quot;http://localhost:8088&quot;</span><span class="w">  </span><span class="c1"># YARN</span>
+platform_open<span class="w"> </span><span class="s2">&quot;http://localhost:4040&quot;</span><span class="w">  </span><span class="c1"># Spark</span>
+</pre></div>
+</div>
+<p><strong>With Python Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup Python environment for big data</span>
+ds_project_init<span class="w"> </span>hadoop_analysis<span class="w"> </span>spark
+<span class="nb">cd</span><span class="w"> </span>hadoop_analysis
+py_env_switch<span class="w"> </span>uv
+
+<span class="c1"># Add Hadoop Python libraries</span>
+uv<span class="w"> </span>add<span class="w"> </span>hdfs3<span class="w"> </span>pydoop<span class="w"> </span>snakebite
+
+<span class="c1"># Start Hadoop cluster</span>
+start_hadoop
+</pre></div>
+</div>
+<p><strong>With Docker Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hadoop in containers gets optimized settings</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ZSH_IS_DOCKER</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Using container-optimized Hadoop configuration&quot;</span>
+<span class="w">    </span><span class="c1"># Reduced memory settings automatically applied</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p>This comprehensive Hadoop module provides everything needed for big data processing workflows, from single-node development to distributed cluster operations, with seamless integration to Apache Spark and modern Java environments.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

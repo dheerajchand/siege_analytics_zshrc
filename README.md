@@ -27,7 +27,9 @@
 - **<2 second startup time** with dynamic loading
 - **Enterprise-grade data science stack**: Spark, Hadoop, Python/UV integration
 - **Comprehensive credential management**: 1Password, Apple Keychain, environment variables
+- **Auto-backup control system**: Prevents unwanted commits with toggle functionality
 - **Professional Sphinx documentation** with function definitions, examples, and unit tests
+- **Comprehensive test suite**: Cross-platform compatibility testing
 
 ---
 
@@ -586,11 +588,15 @@ backup-off                     # Disable auto-backup system
 backup-toggle                  # Toggle auto-backup on/off
 backup-disable                 # Permanently disable in configuration
 
+# Repository synchronization
+./sync-repos.sh                # Sync changes between development and archive repos
+
 # Auto-backup provides:
 # - Automatic configuration backups when files change
-# - Time-based backup intervals (default: 1 hour)
+# - Time-based backup intervals (default: 1 hour)  
 # - Safe toggle system to prevent unwanted commits
 # - Status monitoring and diagnostics
+# - Cross-repository synchronization
 ```
 
 ### **Configuration Files**

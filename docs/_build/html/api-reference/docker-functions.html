@@ -1,0 +1,880 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker Functions API Reference &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a274b600" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://docs.siegeanalytics.comapi-reference/docker-functions.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Docker Functions API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api-reference/docker-functions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="docker-functions-api-reference">
+<h1>Docker Functions API Reference<a class="headerlink" href="#docker-functions-api-reference" title="Link to this heading"></a></h1>
+<p>This module provides comprehensive Docker and container management utilities with cross-platform support, development-focused shortcuts, and integration with data science workflows.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All functions support Docker Desktop (macOS/Windows) and Docker Engine (Linux) with automatic environment detection and BuildKit optimization.</p>
+</div>
+<section id="environment-setup-functions">
+<h2>Environment Setup Functions<a class="headerlink" href="#environment-setup-functions" title="Link to this heading"></a></h2>
+<section id="setup-docker-environment">
+<h3>setup_docker_environment()<a class="headerlink" href="#setup-docker-environment" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Configure Docker environment variables, detect Docker installation, and set up development-optimized settings.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_docker_environment<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>This function is automatically called when the Docker module loads:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manual environment setup (usually automatic)</span>
+setup_docker_environment
+
+<span class="c1"># Check Docker configuration</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Docker Config: </span><span class="nv">$DOCKER_CONFIG</span><span class="s2">&quot;</span>
+<span class="c1"># Output: Docker Config: /Users/username/.docker</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;BuildKit enabled: </span><span class="nv">$DOCKER_BUILDKIT</span><span class="s2">&quot;</span>
+<span class="c1"># Output: BuildKit enabled: 1</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Compose CLI Build: </span><span class="nv">$COMPOSE_DOCKER_CLI_BUILD</span><span class="s2">&quot;</span>
+<span class="c1"># Output: Compose CLI Build: 1</span>
+</pre></div>
+</div>
+<p>Platform-specific configurations:</p>
+<p><strong>macOS (Docker Desktop):</strong>
+- Sets <cite>DOCKER_CONFIG</cite> to <cite>$HOME/.docker</cite>
+- Detects Docker Desktop at <cite>/Applications/Docker.app</cite>
+- Exports <cite>DOCKER_DESKTOP_PATH</cite> for desktop operations</p>
+<p><strong>Linux (Docker Engine):</strong>
+- Sets <cite>DOCKER_CONFIG</cite> to <cite>$HOME/.docker</cite>
+- Checks Docker service status via systemctl or service command
+- Sets <cite>DOCKER_SERVICE_ACTIVE=true</cite> if running</p>
+<p><strong>Docker Compose Detection:</strong>
+- <cite>DOCKER_COMPOSE_AVAILABLE=true</cite> for standalone docker-compose
+- <cite>DOCKER_COMPOSE_AVAILABLE=v2</cite> for built-in <cite>docker compose</cite></p>
+<p>Development optimizations enabled:
+- <cite>DOCKER_BUILDKIT=1</cite> - Modern build system
+- <cite>COMPOSE_DOCKER_CLI_BUILD=1</cite> - Use Docker CLI for Compose builds</p>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Docker environment setup</span>
+test_docker_environment_setup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_docker_environment
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DOCKER_CONFIG</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DOCKER_BUILDKIT</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Docker availability check</span>
+test_docker_availability<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_docker_environment
+<span class="w">    </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>docker<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="status-and-information-functions">
+<h2>Status and Information Functions<a class="headerlink" href="#status-and-information-functions" title="Link to this heading"></a></h2>
+<section id="docker-status">
+<h3>docker_status()<a class="headerlink" href="#docker-status" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Display comprehensive Docker status including daemon health, version information, and system resources.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_status<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_status
+<span class="c1"># Output:</span>
+<span class="c1"># 🐳 Docker Status</span>
+<span class="c1"># ===============</span>
+<span class="c1">#</span>
+<span class="c1"># Configuration:</span>
+<span class="c1">#   Docker Version: 24.0.6</span>
+<span class="c1">#   Docker Config: /Users/username/.docker</span>
+<span class="c1">#   BuildKit: 1</span>
+<span class="c1">#   Compose Version: 2.21.0</span>
+<span class="c1">#</span>
+<span class="c1"># System Resources:</span>
+<span class="c1">#   CPUs: 8</span>
+<span class="c1">#   Memory: 7.67 GiB</span>
+<span class="c1">#   Disk: 59.6 GB</span>
+<span class="c1">#</span>
+<span class="c1"># Container Status:</span>
+<span class="c1">#   Running: 3</span>
+<span class="c1">#   Stopped: 7</span>
+<span class="c1">#   Total: 10</span>
+<span class="c1">#</span>
+<span class="c1"># Image Status:</span>
+<span class="c1">#   Images: 15</span>
+<span class="c1">#   Size: 4.2 GB</span>
+<span class="c1">#</span>
+<span class="c1"># Network Status:</span>
+<span class="c1">#   Networks: 4</span>
+<span class="c1">#   Volumes: 8</span>
+</pre></div>
+</div>
+<p>When Docker is not available:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_status
+<span class="c1"># Output:</span>
+<span class="c1"># 🐳 Docker Status</span>
+<span class="c1"># ===============</span>
+<span class="c1">#</span>
+<span class="c1"># ❌ Docker daemon not running</span>
+<span class="c1">#    Start Docker daemon or Docker Desktop</span>
+</pre></div>
+</div>
+<p>Information displayed:</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration</strong>: Version, config paths, BuildKit status</p></li>
+<li><p><strong>System Resources</strong>: Available CPUs, memory, disk space</p></li>
+<li><p><strong>Container Status</strong>: Running, stopped, and total containers</p></li>
+<li><p><strong>Image Status</strong>: Number of images and total size</p></li>
+<li><p><strong>Network Status</strong>: Networks and volumes count</p></li>
+</ol>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Status command execution</span>
+test_docker_status_execution<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>docker_status<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Status shows version info</span>
+test_docker_status_version<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>docker<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>docker_status<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;Docker Version&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="c1"># Skip if Docker not available</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="container-management-functions">
+<h2>Container Management Functions<a class="headerlink" href="#container-management-functions" title="Link to this heading"></a></h2>
+<section id="docker-cleanup">
+<h3>docker_cleanup()<a class="headerlink" href="#docker-cleanup" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Comprehensive Docker cleanup including stopped containers, unused images, networks, volumes, and build cache.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_cleanup<span class="w"> </span><span class="o">[</span>--aggressive<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard cleanup (safe)</span>
+docker_cleanup
+<span class="c1"># Output:</span>
+<span class="c1"># 🧹 Docker Cleanup</span>
+<span class="c1"># =================</span>
+<span class="c1">#</span>
+<span class="c1"># 🗑️  Removing stopped containers...</span>
+<span class="c1"># Deleted Containers:</span>
+<span class="c1"># abc123def456</span>
+<span class="c1"># 789ghi012jkl</span>
+<span class="c1">#</span>
+<span class="c1"># 🗑️  Removing unused images...</span>
+<span class="c1"># Deleted Images:</span>
+<span class="c1"># untagged: old-image:latest</span>
+<span class="c1"># deleted: sha256:1234567890abcdef...</span>
+<span class="c1">#</span>
+<span class="c1"># 🗑️  Removing unused networks...</span>
+<span class="c1"># 🗑️  Removing unused volumes...</span>
+<span class="c1"># 🗑️  Removing build cache...</span>
+<span class="c1">#</span>
+<span class="c1"># ✅ Cleanup complete!</span>
+<span class="c1"># 💾 Space reclaimed: 2.3 GB</span>
+
+<span class="c1"># Aggressive cleanup (removes all unused data)</span>
+docker_cleanup<span class="w"> </span>--aggressive
+<span class="c1"># Output:</span>
+<span class="c1"># 🧹 Docker Aggressive Cleanup</span>
+<span class="c1"># ============================</span>
+<span class="c1"># ⚠️  This will remove ALL unused data!</span>
+<span class="c1"># Continue? (y/n): y</span>
+<span class="c1">#</span>
+<span class="c1"># [More comprehensive cleanup output]</span>
+<span class="c1"># ✅ Aggressive cleanup complete!</span>
+<span class="c1"># 💾 Space reclaimed: 5.7 GB</span>
+</pre></div>
+</div>
+<p>Cleanup operations performed:</p>
+<p><strong>Standard Cleanup:</strong>
+- Stopped containers
+- Unused images (dangling)
+- Unused networks
+- Unused volumes (anonymous)
+- Build cache (older than 24h)</p>
+<p><strong>Aggressive Cleanup:</strong>
+- All unused containers (not just stopped)
+- All unused images (including tagged but unused)
+- All unused networks and volumes
+- All build cache
+- System prune with <cite>–all</cite> flag</p>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Cleanup execution</span>
+test_docker_cleanup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>docker<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker<span class="w"> </span>info<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>docker_cleanup<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">        </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="c1"># Skip if Docker not available</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-logs-tail">
+<h3>docker_logs_tail()<a class="headerlink" href="#docker-logs-tail" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Advanced container log viewing with filtering, following, and multi-container support.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_logs_tail<span class="w"> </span><span class="o">[</span>container<span class="o">]</span><span class="w"> </span><span class="o">[</span>lines<span class="o">]</span><span class="w"> </span><span class="o">[</span>follow<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View last 50 lines of container logs</span>
+docker_logs_tail<span class="w"> </span>my-app
+<span class="c1"># Output: [Last 50 log lines from my-app container]</span>
+
+<span class="c1"># View specific number of lines</span>
+docker_logs_tail<span class="w"> </span>my-app<span class="w"> </span><span class="m">100</span>
+<span class="c1"># Output: [Last 100 log lines]</span>
+
+<span class="c1"># Follow logs in real-time</span>
+docker_logs_tail<span class="w"> </span>my-app<span class="w"> </span><span class="m">20</span><span class="w"> </span>follow
+<span class="c1"># Output: [Last 20 lines, then continues streaming new logs]</span>
+
+<span class="c1"># Interactive container selection</span>
+docker_logs_tail
+<span class="c1"># Output:</span>
+<span class="c1"># 📋 Available containers:</span>
+<span class="c1"># 1) my-app (running)</span>
+<span class="c1"># 2) database (running)</span>
+<span class="c1"># 3) redis (running)</span>
+<span class="c1"># Select container (1-3): 1</span>
+<span class="c1"># [Shows logs from selected container]</span>
+</pre></div>
+</div>
+<p>Features:</p>
+<ul class="simple">
+<li><p><strong>Auto-completion</strong>: Lists running containers for selection</p></li>
+<li><p><strong>Smart defaults</strong>: 50 lines by default, can be customized</p></li>
+<li><p><strong>Real-time following</strong>: Streams new log entries</p></li>
+<li><p><strong>Color preservation</strong>: Maintains container log formatting</p></li>
+<li><p><strong>Error handling</strong>: Gracefully handles non-existent containers</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Log viewing function exists</span>
+test_docker_logs_function<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">type</span><span class="w"> </span>docker_logs_tail<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Container selection works</span>
+test_docker_logs_container_selection<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Would need running containers to test properly</span>
+<span class="w">    </span>docker_logs_tail<span class="w"> </span>nonexistent<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;not found\|No such container&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="development-workflow-functions">
+<h2>Development Workflow Functions<a class="headerlink" href="#development-workflow-functions" title="Link to this heading"></a></h2>
+<section id="docker-dev-setup">
+<h3>docker_dev_setup()<a class="headerlink" href="#docker-dev-setup" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Create a complete Docker development environment with common services (database, cache, monitoring).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_dev_setup<span class="w"> </span><span class="o">[</span>project-name<span class="o">]</span><span class="w"> </span><span class="o">[</span>--with-spark<span class="o">]</span><span class="w"> </span><span class="o">[</span>--with-monitoring<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic development setup</span>
+docker_dev_setup<span class="w"> </span>my-project
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Setting up Docker development environment: my-project</span>
+<span class="c1"># 📁 Creating project structure...</span>
+<span class="c1"># 📝 Generating docker-compose.yml...</span>
+<span class="c1"># 📝 Creating Dockerfile...</span>
+<span class="c1"># 🌐 Creating development services:</span>
+<span class="c1">#    ✅ PostgreSQL database</span>
+<span class="c1">#    ✅ Redis cache</span>
+<span class="c1">#    ✅ Application container</span>
+<span class="c1">#</span>
+<span class="c1"># 🎯 Next steps:</span>
+<span class="c1">#    cd my-project</span>
+<span class="c1">#    docker-compose up -d</span>
+
+<span class="c1"># Setup with Apache Spark</span>
+docker_dev_setup<span class="w"> </span>data-project<span class="w"> </span>--with-spark
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Setting up Docker development environment: data-project</span>
+<span class="c1"># [Standard setup...]</span>
+<span class="c1"># ⚡ Adding Apache Spark services:</span>
+<span class="c1">#    ✅ Spark Master</span>
+<span class="c1">#    ✅ Spark Worker</span>
+<span class="c1">#    ✅ Jupyter Notebook with Spark</span>
+
+<span class="c1"># Setup with monitoring stack</span>
+docker_dev_setup<span class="w"> </span>api-project<span class="w"> </span>--with-monitoring
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Setting up Docker development environment: api-project</span>
+<span class="c1"># [Standard setup...]</span>
+<span class="c1"># 📊 Adding monitoring services:</span>
+<span class="c1">#    ✅ Prometheus metrics</span>
+<span class="c1">#    ✅ Grafana dashboards</span>
+<span class="c1">#    ✅ Redis Exporter</span>
+</pre></div>
+</div>
+<p>Generated project structure:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>my-project/
+├── docker-compose.yml         # Service definitions
+├── Dockerfile                # Application container
+├── .dockerignore             # Docker ignore patterns
+├── .env.example              # Environment template
+├── scripts/
+│   ├── wait-for-it.sh       # Service dependency script
+│   └── init-db.sql          # Database initialization
+└── config/
+    ├── nginx.conf           # Web server config
+    └── postgres.conf        # Database config
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Development setup creation</span>
+test_docker_dev_setup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">test_project</span><span class="o">=</span><span class="s2">&quot;test-docker-project&quot;</span>
+<span class="w">    </span>docker_dev_setup<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$test_project</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$test_project</span><span class="s2">/docker-compose.yml&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$test_project</span><span class="s2">/Dockerfile&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$test_project</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-build-optimized">
+<h3>docker_build_optimized()<a class="headerlink" href="#docker-build-optimized" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Build Docker images with BuildKit optimizations, multi-stage caching, and development best practices.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_build_optimized<span class="w"> </span><span class="o">[</span>image-name<span class="o">]</span><span class="w"> </span><span class="o">[</span>--target<span class="w"> </span>stage<span class="o">]</span><span class="w"> </span><span class="o">[</span>--push<span class="o">]</span><span class="w"> </span><span class="o">[</span>--cache-from<span class="w"> </span>image<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optimized build with BuildKit</span>
+docker_build_optimized<span class="w"> </span>my-app
+<span class="c1"># Output:</span>
+<span class="c1"># 🔨 Optimized Docker Build: my-app</span>
+<span class="c1"># =====================================</span>
+<span class="c1">#</span>
+<span class="c1"># Build Configuration:</span>
+<span class="c1">#   BuildKit: ✅ Enabled</span>
+<span class="c1">#   Multi-stage: ✅ Detected</span>
+<span class="c1">#   Cache: ✅ Inline cache enabled</span>
+<span class="c1">#</span>
+<span class="c1"># [Build progress with enhanced output]</span>
+<span class="c1"># ✅ Build complete: my-app:latest</span>
+
+<span class="c1"># Build specific stage</span>
+docker_build_optimized<span class="w"> </span>my-app<span class="w"> </span>--target<span class="w"> </span>development
+<span class="c1"># Output:</span>
+<span class="c1"># 🔨 Building stage: development</span>
+<span class="c1"># [Build output for development stage only]</span>
+
+<span class="c1"># Build and push to registry</span>
+docker_build_optimized<span class="w"> </span>my-app<span class="w"> </span>--push
+<span class="c1"># Output:</span>
+<span class="c1"># 🔨 Building and pushing: my-app</span>
+<span class="c1"># [Build output]</span>
+<span class="c1"># 🚀 Pushing to registry...</span>
+<span class="c1"># ✅ Push complete</span>
+</pre></div>
+</div>
+<p>Build optimizations applied:</p>
+<ul class="simple">
+<li><p><strong>BuildKit</strong>: Modern build system with parallel layers</p></li>
+<li><p><strong>Inline Cache</strong>: <cite>–cache-from type=inline</cite> for better caching</p></li>
+<li><p><strong>Multi-stage Support</strong>: Builds only required stages</p></li>
+<li><p><strong>Progress Output</strong>: Enhanced build progress display</p></li>
+<li><p><strong>Security</strong>: Runs builds with security scanning if available</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Build function execution</span>
+test_docker_build_optimized<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Create minimal Dockerfile for testing</span>
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span>test-build
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;FROM alpine:latest&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>test-build/Dockerfile
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>test-build
+<span class="w">    </span>docker_build_optimized<span class="w"> </span>test-image<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>..<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>test-build
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-compose-dev">
+<h3>docker_compose_dev()<a class="headerlink" href="#docker-compose-dev" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Enhanced docker-compose operations with development-focused profiles, health checks, and log management.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_compose_dev<span class="w"> </span><span class="o">[</span>command<span class="o">]</span><span class="w"> </span><span class="o">[</span>--profile<span class="w"> </span>profile-name<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start development environment</span>
+docker_compose_dev<span class="w"> </span>up
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Starting development environment...</span>
+<span class="c1"># 📋 Services: app, database, redis, nginx</span>
+<span class="c1"># 🔍 Health checks enabled</span>
+<span class="c1">#</span>
+<span class="c1"># [Container startup logs]</span>
+<span class="c1"># ✅ All services healthy!</span>
+
+<span class="c1"># Start with specific profile</span>
+docker_compose_dev<span class="w"> </span>up<span class="w"> </span>--profile<span class="w"> </span>monitoring
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Starting with profile: monitoring</span>
+<span class="c1"># 📋 Services: app, database, redis, prometheus, grafana</span>
+<span class="c1"># [Startup output]</span>
+
+<span class="c1"># View aggregated logs</span>
+docker_compose_dev<span class="w"> </span>logs
+<span class="c1"># Output: [Colored logs from all services]</span>
+
+<span class="c1"># Scale services</span>
+docker_compose_dev<span class="w"> </span>scale<span class="w"> </span><span class="nv">app</span><span class="o">=</span><span class="m">3</span>
+<span class="c1"># Output:</span>
+<span class="c1"># ⚡ Scaling app to 3 instances...</span>
+<span class="c1"># ✅ Scaling complete</span>
+</pre></div>
+</div>
+<p>Enhanced features:</p>
+<ul class="simple">
+<li><p><strong>Health Checks</strong>: Monitors service health and dependencies</p></li>
+<li><p><strong>Development Profiles</strong>: Different service combinations (dev, test, prod)</p></li>
+<li><p><strong>Log Aggregation</strong>: Colored, timestamped logs from all services</p></li>
+<li><p><strong>Auto-reload</strong>: File watching for development</p></li>
+<li><p><strong>Service Dependencies</strong>: Proper startup ordering</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Compose dev function exists</span>
+test_docker_compose_dev_function<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">type</span><span class="w"> </span>docker_compose_dev<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="data-science-integration-functions">
+<h2>Data Science Integration Functions<a class="headerlink" href="#data-science-integration-functions" title="Link to this heading"></a></h2>
+<section id="docker-jupyter-spark">
+<h3>docker_jupyter_spark()<a class="headerlink" href="#docker-jupyter-spark" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Launch Jupyter Lab with Apache Spark in a Docker container, pre-configured for data science workflows.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_jupyter_spark<span class="w"> </span><span class="o">[</span>port<span class="o">]</span><span class="w"> </span><span class="o">[</span>--spark-master<span class="w"> </span>url<span class="o">]</span><span class="w"> </span><span class="o">[</span>--mount-data<span class="w"> </span>path<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Jupyter with Spark (default port 8888)</span>
+docker_jupyter_spark
+<span class="c1"># Output:</span>
+<span class="c1"># 🔬 Starting Jupyter Lab with Apache Spark</span>
+<span class="c1"># ==========================================</span>
+<span class="c1">#</span>
+<span class="c1"># Container Configuration:</span>
+<span class="c1">#   Jupyter Port: 8888</span>
+<span class="c1">#   Spark UI Port: 4040</span>
+<span class="c1">#   Data Mount: ./data -&gt; /home/jovyan/work/data</span>
+<span class="c1">#</span>
+<span class="c1"># 🚀 Starting container...</span>
+<span class="c1"># ✅ Jupyter Lab ready at: http://localhost:8888</span>
+<span class="c1"># 🔗 Access token: abc123def456...</span>
+
+<span class="c1"># Custom port and data directory</span>
+docker_jupyter_spark<span class="w"> </span><span class="m">9999</span><span class="w"> </span>--mount-data<span class="w"> </span>~/datasets
+<span class="c1"># Output:</span>
+<span class="c1"># 🔬 Starting Jupyter Lab with Apache Spark</span>
+<span class="c1"># Container Configuration:</span>
+<span class="c1">#   Jupyter Port: 9999</span>
+<span class="c1">#   Data Mount: /Users/user/datasets -&gt; /home/jovyan/work/data</span>
+<span class="c1"># ✅ Jupyter Lab ready at: http://localhost:9999</span>
+
+<span class="c1"># Connect to external Spark cluster</span>
+docker_jupyter_spark<span class="w"> </span><span class="m">8888</span><span class="w"> </span>--spark-master<span class="w"> </span>spark://cluster:7077
+<span class="c1"># Output:</span>
+<span class="c1"># 🔬 Connecting to external Spark cluster</span>
+<span class="c1"># Spark Master: spark://cluster:7077</span>
+<span class="c1"># [Container startup...]</span>
+</pre></div>
+</div>
+<p>Features:</p>
+<ul class="simple">
+<li><p><strong>Pre-installed Libraries</strong>: pandas, numpy, matplotlib, seaborn, pyspark</p></li>
+<li><p><strong>Data Mounting</strong>: Automatic mounting of data directories</p></li>
+<li><p><strong>Spark Integration</strong>: Pre-configured Spark session</p></li>
+<li><p><strong>Port Management</strong>: Automatic port conflict resolution</p></li>
+<li><p><strong>Token Display</strong>: Shows access token for easy connection</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Jupyter Spark function</span>
+test_docker_jupyter_spark_function<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">type</span><span class="w"> </span>docker_jupyter_spark<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-database">
+<h3>docker_database()<a class="headerlink" href="#docker-database" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Quick database container deployment with initialization scripts and data persistence.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_database<span class="w"> </span><span class="o">[</span>type<span class="o">]</span><span class="w"> </span><span class="o">[</span>--name<span class="w"> </span>container-name<span class="o">]</span><span class="w"> </span><span class="o">[</span>--port<span class="w"> </span>port<span class="o">]</span><span class="w"> </span><span class="o">[</span>--init-sql<span class="w"> </span>file<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start PostgreSQL database</span>
+docker_database<span class="w"> </span>postgres
+<span class="c1"># Output:</span>
+<span class="c1"># 🗄️  Starting PostgreSQL database</span>
+<span class="c1"># ===============================</span>
+<span class="c1">#</span>
+<span class="c1"># Configuration:</span>
+<span class="c1">#   Type: PostgreSQL 15</span>
+<span class="c1">#   Port: 5432</span>
+<span class="c1">#   Database: dev_db</span>
+<span class="c1">#   Username: postgres</span>
+<span class="c1">#   Password: postgres</span>
+<span class="c1">#</span>
+<span class="c1"># 🚀 Starting container: postgres-dev</span>
+<span class="c1"># ✅ Database ready!</span>
+<span class="c1">#</span>
+<span class="c1"># Connection:</span>
+<span class="c1">#   Host: localhost:5432</span>
+<span class="c1">#   Database: dev_db</span>
+<span class="c1">#   URL: postgresql://postgres:postgres@localhost:5432/dev_db</span>
+
+<span class="c1"># Start MySQL with custom settings</span>
+docker_database<span class="w"> </span>mysql<span class="w"> </span>--name<span class="w"> </span>my-mysql<span class="w"> </span>--port<span class="w"> </span><span class="m">3307</span>
+<span class="c1"># Output:</span>
+<span class="c1"># 🗄️  Starting MySQL database</span>
+<span class="c1"># Container: my-mysql</span>
+<span class="c1"># Port: 3307</span>
+<span class="c1"># ✅ MySQL ready at localhost:3307</span>
+
+<span class="c1"># Start with initialization script</span>
+docker_database<span class="w"> </span>postgres<span class="w"> </span>--init-sql<span class="w"> </span>schema.sql
+<span class="c1"># Output:</span>
+<span class="c1"># 🗄️  Starting PostgreSQL with initialization</span>
+<span class="c1"># 📜 Loading schema.sql...</span>
+<span class="c1"># ✅ Database initialized and ready!</span>
+</pre></div>
+</div>
+<p>Supported database types:</p>
+<ul class="simple">
+<li><p><strong>PostgreSQL</strong>: Latest stable with common extensions</p></li>
+<li><p><strong>MySQL</strong>: Latest stable with development configuration</p></li>
+<li><p><strong>MongoDB</strong>: Latest with authentication disabled for development</p></li>
+<li><p><strong>Redis</strong>: Latest with persistence enabled</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Database function execution</span>
+test_docker_database_function<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">type</span><span class="w"> </span>docker_database<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="monitoring-and-debugging-functions">
+<h2>Monitoring and Debugging Functions<a class="headerlink" href="#monitoring-and-debugging-functions" title="Link to this heading"></a></h2>
+<section id="docker-health-check">
+<h3>docker_health_check()<a class="headerlink" href="#docker-health-check" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Comprehensive health monitoring for Docker containers with detailed diagnostics and remediation suggestions.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker_health_check<span class="w"> </span><span class="o">[</span>container-name<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check all containers</span>
+docker_health_check
+<span class="c1"># Output:</span>
+<span class="c1"># 🏥 Docker Health Check</span>
+<span class="c1"># =====================</span>
+<span class="c1">#</span>
+<span class="c1"># Container Health Status:</span>
+<span class="c1">#   ✅ my-app: healthy (up 2 hours)</span>
+<span class="c1">#   ⚠️  database: unhealthy (failing health check)</span>
+<span class="c1">#   ❌ redis: exited (code 1, 5 minutes ago)</span>
+<span class="c1">#</span>
+<span class="c1"># System Resources:</span>
+<span class="c1">#   CPU Usage: 45%</span>
+<span class="c1">#   Memory Usage: 3.2GB / 8GB (40%)</span>
+<span class="c1">#   Disk Usage: 12GB / 60GB (20%)</span>
+<span class="c1">#</span>
+<span class="c1"># Recommendations:</span>
+<span class="c1">#   • database: Check connection string configuration</span>
+<span class="c1">#   • redis: Review logs for startup errors</span>
+
+<span class="c1"># Check specific container</span>
+docker_health_check<span class="w"> </span>my-app
+<span class="c1"># Output:</span>
+<span class="c1"># 🏥 Health Check: my-app</span>
+<span class="c1"># ======================</span>
+<span class="c1">#</span>
+<span class="c1"># Container Status:</span>
+<span class="c1">#   State: running</span>
+<span class="c1">#   Health: healthy</span>
+<span class="c1">#   Uptime: 2h 15m</span>
+<span class="c1">#   Restarts: 0</span>
+<span class="c1">#</span>
+<span class="c1"># Resource Usage:</span>
+<span class="c1">#   CPU: 2.3%</span>
+<span class="c1">#   Memory: 234MB / 512MB (45%)</span>
+<span class="c1">#</span>
+<span class="c1"># Port Mappings:</span>
+<span class="c1">#   8080:80 (accessible)</span>
+<span class="c1">#   5432:5432 (accessible)</span>
+<span class="c1">#</span>
+<span class="c1"># ✅ All checks passed!</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Health check execution</span>
+test_docker_health_check<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>docker_health_check<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="aliases-and-shortcuts">
+<h2>Aliases and Shortcuts<a class="headerlink" href="#aliases-and-shortcuts" title="Link to this heading"></a></h2>
+<p>The module provides convenient aliases for all major Docker operations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Container management</span>
+dps<span class="w">              </span><span class="c1"># docker ps</span>
+dpsa<span class="w">             </span><span class="c1"># docker ps -a</span>
+dimg<span class="w">             </span><span class="c1"># docker images</span>
+drm<span class="w">              </span><span class="c1"># docker rm</span>
+drmi<span class="w">             </span><span class="c1"># docker rmi</span>
+
+<span class="c1"># Docker Compose shortcuts</span>
+dcup<span class="w">             </span><span class="c1"># docker-compose up -d</span>
+dcdown<span class="w">           </span><span class="c1"># docker-compose down</span>
+dcbuild<span class="w">          </span><span class="c1"># docker-compose build</span>
+dclogs<span class="w">           </span><span class="c1"># docker-compose logs -f</span>
+dcrestart<span class="w">        </span><span class="c1"># docker-compose restart</span>
+
+<span class="c1"># Development shortcuts</span>
+ddev<span class="w">             </span><span class="c1"># docker_dev_setup</span>
+djupyter<span class="w">         </span><span class="c1"># docker_jupyter_spark</span>
+ddb<span class="w">              </span><span class="c1"># docker_database</span>
+dcleanup<span class="w">         </span><span class="c1"># docker_cleanup</span>
+
+<span class="c1"># Monitoring</span>
+dstatus<span class="w">          </span><span class="c1"># docker_status</span>
+dhealthcheck<span class="w">     </span><span class="c1"># docker_health_check</span>
+dlogs<span class="w">            </span><span class="c1"># docker_logs_tail</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-usage-examples">
+<h2>Complete Usage Examples<a class="headerlink" href="#complete-usage-examples" title="Link to this heading"></a></h2>
+<p><strong>Example 1: Complete development environment setup</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create new project with full stack</span>
+docker_dev_setup<span class="w"> </span>my-api<span class="w"> </span>--with-monitoring
+<span class="nb">cd</span><span class="w"> </span>my-api
+
+<span class="c1"># Start all services</span>
+docker_compose_dev<span class="w"> </span>up
+
+<span class="c1"># Check health status</span>
+docker_health_check
+
+<span class="c1"># View aggregated logs</span>
+docker_compose_dev<span class="w"> </span>logs
+</pre></div>
+</div>
+<p><strong>Example 2: Data science workflow</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Jupyter with Spark</span>
+docker_jupyter_spark<span class="w"> </span><span class="m">8888</span><span class="w"> </span>--mount-data<span class="w"> </span>~/datasets
+
+<span class="c1"># Start supporting databases</span>
+docker_database<span class="w"> </span>postgres<span class="w"> </span>--name<span class="w"> </span>analytics-db
+docker_database<span class="w"> </span>redis<span class="w"> </span>--name<span class="w"> </span>cache
+
+<span class="c1"># Check all services are healthy</span>
+docker_health_check
+</pre></div>
+</div>
+<p><strong>Example 3: Container maintenance</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check overall system status</span>
+docker_status
+
+<span class="c1"># Clean up unused resources</span>
+docker_cleanup
+
+<span class="c1"># Monitor specific container</span>
+docker_logs_tail<span class="w"> </span>my-app<span class="w"> </span><span class="m">100</span><span class="w"> </span>follow
+</pre></div>
+</div>
+<p><strong>Example 4: Production deployment preparation</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build optimized production image</span>
+docker_build_optimized<span class="w"> </span>my-app<span class="w"> </span>--target<span class="w"> </span>production<span class="w"> </span>--push
+
+<span class="c1"># Test with production profile</span>
+docker_compose_dev<span class="w"> </span>up<span class="w"> </span>--profile<span class="w"> </span>production
+
+<span class="c1"># Health check before deployment</span>
+docker_health_check
+
+<span class="c1"># Final cleanup</span>
+docker_cleanup<span class="w"> </span>--aggressive
+</pre></div>
+</div>
+</section>
+<section id="integration-with-other-modules">
+<h2>Integration with Other Modules<a class="headerlink" href="#integration-with-other-modules" title="Link to this heading"></a></h2>
+<p><strong>With Spark Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Container-aware Spark configuration</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ZSH_IS_DOCKER</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span><span class="w">    </span><span class="c1"># Container optimized</span>
+<span class="k">fi</span>
+
+<span class="c1"># Start Spark in container</span>
+docker_jupyter_spark
+
+<span class="c1"># Connect to external Spark cluster</span>
+spark_start
+docker_jupyter_spark<span class="w"> </span><span class="m">8888</span><span class="w"> </span>--spark-master<span class="w"> </span><span class="nv">$SPARK_MASTER_URL</span>
+</pre></div>
+</div>
+<p><strong>With Python Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Container-based data science project</span>
+ds_project_init<span class="w"> </span>analytics_project
+<span class="nb">cd</span><span class="w"> </span>analytics_project
+
+<span class="c1"># Create Docker environment</span>
+docker_dev_setup<span class="w"> </span>.<span class="w"> </span>--with-spark
+
+<span class="c1"># Start development environment</span>
+docker_compose_dev<span class="w"> </span>up
+</pre></div>
+</div>
+<p><strong>With Database Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quick database for development</span>
+docker_database<span class="w"> </span>postgres<span class="w"> </span>--init-sql<span class="w"> </span>schema.sql
+
+<span class="c1"># Connect from host applications</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://postgres:postgres@localhost:5432/dev_db&quot;</span>
+</pre></div>
+</div>
+<p>This comprehensive Docker module provides everything needed for modern containerized development workflows, from simple container management to complex multi-service environments with monitoring and optimization.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

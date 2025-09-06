@@ -1,0 +1,580 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a274b600" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://docs.siegeanalytics.comapi-reference/index.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api-reference/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<p>This section provides comprehensive documentation for all functions and modules in the Siege Analytics ZSH Configuration System. Each module is documented with function definitions, usage examples, and unit tests.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All functions support cross-shell compatibility (bash/zsh) and cross-platform operation (macOS/Linux/Docker/WSL) unless otherwise specified.</p>
+</div>
+<section id="core-modules">
+<h2>Core Modules<a class="headerlink" href="#core-modules" title="Link to this heading"></a></h2>
+<p>These modules provide the foundation for all other functionality:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="core-functions.html">Core Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core-functions.html#essential-shell-utilities">Essential Shell Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core-functions.html#python-environment-management">Python Environment Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core-functions.html#cross-platform-utilities">Cross-Platform Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core-functions.html#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="platform-functions.html">Platform Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#shell-detection-functions">Shell Detection Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#platform-detection-functions">Platform Detection Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#cross-shell-compatibility-functions">Cross-Shell Compatibility Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#array-handling-functions">Array Handling Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#cross-platform-utilities">Cross-Platform Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#path-management-functions">Path Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#package-manager-detection">Package Manager Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#environment-variables-and-status">Environment Variables and Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#complete-usage-examples">Complete Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="platform-functions.html#integration-with-other-modules">Integration with Other Modules</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>The <strong>Core Functions</strong> module provides essential shell utilities, Python environment management, and data science workflow helpers. The <strong>Platform Functions</strong> module ensures consistent behavior across different shells and operating systems.</p>
+</section>
+<section id="data-processing-and-analytics">
+<h2>Data Processing and Analytics<a class="headerlink" href="#data-processing-and-analytics" title="Link to this heading"></a></h2>
+<p>Modules for big data processing, distributed computing, and analytics workflows:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spark-functions.html">Spark Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#environment-setup-functions">Environment Setup Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#dependency-management-functions">Dependency Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#cluster-management-functions">Cluster Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#job-submission-functions">Job Submission Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#utility-functions">Utility Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#aliases-and-shortcuts">Aliases and Shortcuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#complete-usage-examples">Complete Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spark-functions.html#module-integration">Module Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hadoop-functions.html">Hadoop Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#environment-setup-functions">Environment Setup Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#java-compatibility-functions">Java Compatibility Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#configuration-functions">Configuration Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#cluster-management-functions">Cluster Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#hdfs-utility-functions">HDFS Utility Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#integration-functions">Integration Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#aliases-and-shortcuts">Aliases and Shortcuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#complete-usage-examples">Complete Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hadoop-functions.html#integration-with-other-modules">Integration with Other Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="python-functions.html">Python Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="python-functions.html#environment-management-functions">Environment Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-functions.html#core-utility-functions">Core Utility Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-functions.html#module-management-functions">Module Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-functions.html#aliases-and-shortcuts">Aliases and Shortcuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-functions.html#complete-usage-examples">Complete Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-functions.html#integration-with-other-modules">Integration with Other Modules</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>The <strong>Spark Functions</strong> module provides Apache Spark cluster management and job submission with intelligent optimization. The <strong>Hadoop Functions</strong> module manages the complete Hadoop ecosystem including HDFS, YARN, and MapReduce. The <strong>Python Functions</strong> module handles Python environment switching, UV project management, and data science project initialization.</p>
+</section>
+<section id="development-infrastructure">
+<h2>Development Infrastructure<a class="headerlink" href="#development-infrastructure" title="Link to this heading"></a></h2>
+<p>Modules for development environments, containerization, and data storage:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="docker-functions.html">Docker Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#environment-setup-functions">Environment Setup Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#status-and-information-functions">Status and Information Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#container-management-functions">Container Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#development-workflow-functions">Development Workflow Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#data-science-integration-functions">Data Science Integration Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#monitoring-and-debugging-functions">Monitoring and Debugging Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#aliases-and-shortcuts">Aliases and Shortcuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#complete-usage-examples">Complete Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker-functions.html#integration-with-other-modules">Integration with Other Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database-functions.html">Database Functions API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#postgresql-functions">PostgreSQL Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#mysql-functions">MySQL Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#snowflake-functions">Snowflake Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#general-database-functions">General Database Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#backup-and-maintenance-functions">Backup and Maintenance Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#aliases-and-shortcuts">Aliases and Shortcuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#complete-usage-examples">Complete Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#integration-with-credential-system">Integration with Credential System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database-functions.html#integration-with-other-modules">Integration with Other Modules</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>The <strong>Docker Functions</strong> module provides comprehensive container management with development-focused workflows. The <strong>Database Functions</strong> module offers secure connection management for PostgreSQL, MySQL, Snowflake, and other database systems.</p>
+</section>
+<section id="quick-start-guide">
+<h2>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading"></a></h2>
+<p><strong>1. Basic Environment Setup</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check system compatibility</span>
+detect_platform
+<span class="c1"># Output: macos, linux, docker, etc.</span>
+
+<span class="c1"># Setup Python environment</span>
+py_env_switch<span class="w"> </span>list<span class="w">        </span><span class="c1"># See available environments</span>
+py_env_switch<span class="w"> </span>uv<span class="w">          </span><span class="c1"># Activate UV project</span>
+
+<span class="c1"># Check system status</span>
+system_info
+</pre></div>
+</div>
+<p><strong>2. Data Science Workflow</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create new data science project</span>
+ds_project_init<span class="w"> </span>my_analysis<span class="w"> </span>spark
+<span class="nb">cd</span><span class="w"> </span>my_analysis
+
+<span class="c1"># Activate environment</span>
+py_env_switch<span class="w"> </span>uv
+
+<span class="c1"># Start big data stack</span>
+start_hadoop<span class="w">              </span><span class="c1"># Start Hadoop cluster</span>
+spark_start<span class="w">              </span><span class="c1"># Start Spark cluster</span>
+
+<span class="c1"># Submit Spark job</span>
+smart_spark_submit<span class="w"> </span>analysis.py
+</pre></div>
+</div>
+<p><strong>3. Container Development</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup development environment</span>
+docker_dev_setup<span class="w"> </span>my_app<span class="w"> </span>--with-monitoring
+<span class="nb">cd</span><span class="w"> </span>my_app
+
+<span class="c1"># Start services</span>
+docker_compose_dev<span class="w"> </span>up
+
+<span class="c1"># Check health</span>
+docker_health_check
+</pre></div>
+</div>
+<p><strong>4. Database Integration</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup database credentials</span>
+setup_postgres_credentials<span class="w"> </span>--interactive
+
+<span class="c1"># Test connections</span>
+db_test_all
+
+<span class="c1"># Connect to database</span>
+pg_connect
+</pre></div>
+</div>
+</section>
+<section id="function-reference-by-category">
+<h2>Function Reference by Category<a class="headerlink" href="#function-reference-by-category" title="Link to this heading"></a></h2>
+<section id="core-system-functions">
+<h3>Core System Functions<a class="headerlink" href="#core-system-functions" title="Link to this heading"></a></h3>
+<p><strong>Shell and Platform:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">detect_shell()</span></code> - Identify current shell (bash/zsh)
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">detect_platform()</span></code> - Identify operating system and distribution
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">is_container()</span></code> - Check if running in Docker container
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">command_exists()</span></code> - Verify command availability
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">is_online()</span></code> - Check internet connectivity</p>
+<p><strong>File and Directory Operations:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">mkcd()</span></code> - Create directory and change into it
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">extract()</span></code> - Universal archive extraction
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">findtext()</span></code> - Search text in files with multiple backends
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">path_add()</span></code> - Add directories to PATH safely
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">lib_path_add()</span></code> - Add library paths (platform-aware)</p>
+<p><strong>System Utilities:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">system_info()</span></code> - Display comprehensive system information
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">shell_startup_time()</span></code> - Measure shell initialization performance
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">reload_shell()</span></code> - Reload configuration with feedback</p>
+</section>
+<section id="python-and-data-science-functions">
+<h3>Python and Data Science Functions<a class="headerlink" href="#python-and-data-science-functions" title="Link to this heading"></a></h3>
+<p><strong>Environment Management:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">py_env_switch()</span></code> - Switch between Python environments (PyEnv/UV)
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">python_info()</span></code> - Display Python environment status
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">ds_project_init()</span></code> - Initialize data science projects with dependencies</p>
+<p><strong>Project Types:</strong>
+- Basic: pandas, numpy, matplotlib, seaborn, jupyter
+- Spark: + pyspark, findspark
+- Geo: + geopandas, folium, contextily</p>
+<p><strong>Integration:</strong>
+- Automatic environment detection on directory change
+- UV project auto-activation
+- PyEnv version file support</p>
+</section>
+<section id="big-data-processing-functions">
+<h3>Big Data Processing Functions<a class="headerlink" href="#big-data-processing-functions" title="Link to this heading"></a></h3>
+<p><strong>Apache Spark:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">spark_start()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">spark_stop()</span></code> - Local cluster management
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">spark_status()</span></code> - Comprehensive cluster status
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">default_spark_submit()</span></code> - Local job submission
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">distributed_spark_submit()</span></code> - Cluster job submission
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">smart_spark_submit()</span></code> - Intelligent environment detection
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">heavy_api_submit()</span></code> - API-intensive workload optimization</p>
+<p><strong>Apache Hadoop:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">start_hadoop()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">stop_hadoop()</span></code> - Full ecosystem management
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">hadoop_status()</span></code> - HDFS and YARN status monitoring
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_hdfs_config()</span></code> - HDFS configuration generation
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_yarn_config()</span></code> - YARN resource management setup
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_java17_hadoop_compatibility()</span></code> - Modern Java support</p>
+<p><strong>Integration:</strong>
+- Automatic Hadoop-Spark classpath configuration
+- Cross-platform service management
+- Container-optimized resource allocation</p>
+</section>
+<section id="container-and-development-functions">
+<h3>Container and Development Functions<a class="headerlink" href="#container-and-development-functions" title="Link to this heading"></a></h3>
+<p><strong>Docker Management:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_status()</span></code> - Comprehensive Docker system status
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_cleanup()</span></code> - System cleanup (standard/aggressive modes)
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_dev_setup()</span></code> - Complete development environment creation
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_build_optimized()</span></code> - BuildKit-optimized image building</p>
+<p><strong>Development Workflows:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_jupyter_spark()</span></code> - Spark-enabled Jupyter in containers
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_database()</span></code> - Quick database container deployment
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_compose_dev()</span></code> - Enhanced Compose operations
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">docker_health_check()</span></code> - Service health monitoring</p>
+<p><strong>Features:</strong>
+- Automatic port management and conflict resolution
+- Health checks and dependency management
+- Development-optimized configurations</p>
+</section>
+<section id="database-functions">
+<h3>Database Functions<a class="headerlink" href="#database-functions" title="Link to this heading"></a></h3>
+<p><strong>Connection Management:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_postgres_credentials()</span></code> - Secure PostgreSQL credential setup
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_mysql_credentials()</span></code> - MySQL connection configuration
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_snowflake_credentials()</span></code> - Snowflake data warehouse setup
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">pg_connect()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">mysql_connect()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">snowflake_connect()</span></code> - Database connections</p>
+<p><strong>Operations:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">db_test_all()</span></code> - Test all configured database connections
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">db_list_connections()</span></code> - List available database connections
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">pg_backup()</span></code> - PostgreSQL backup with compression
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">pg_status()</span></code> - PostgreSQL server status and diagnostics</p>
+<p><strong>Security:</strong>
+- Integrated credential management system
+- Secure password storage (system keychain)
+- No plain-text credential storage</p>
+</section>
+<section id="cross-platform-compatibility-functions">
+<h3>Cross-Platform Compatibility Functions<a class="headerlink" href="#cross-platform-compatibility-functions" title="Link to this heading"></a></h3>
+<p><strong>Platform Operations:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">platform_open()</span></code> - Open files/URLs with system default
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">platform_copy()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">platform_paste()</span></code> - Clipboard operations
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">platform_browser()</span></code> - Launch URLs in default browser</p>
+<p><strong>Shell Compatibility:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">add_chdir_hook()</span></code> - Directory change hooks (bash/zsh)
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">array_expand()</span></code> - Cross-shell array expansion
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">assoc_array_set()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">assoc_array_get()</span></code> - Associative arrays
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">word_split()</span></code> - Handle word splitting differences</p>
+<p><strong>Package Management:</strong>
+- <code class="xref py py-func docutils literal notranslate"><span class="pre">detect_package_managers()</span></code> - Find available package managers
+- Supports: apt, yum, dnf, pacman, brew, npm, pip, uv</p>
+</section>
+</section>
+<section id="module-integration-examples">
+<h2>Module Integration Examples<a class="headerlink" href="#module-integration-examples" title="Link to this heading"></a></h2>
+<p><strong>Complete Data Science Stack:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Platform detection and setup</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Platform: </span><span class="k">$(</span>detect_platform<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Shell: </span><span class="k">$(</span>detect_shell<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># 2. Python environment</span>
+ds_project_init<span class="w"> </span>big_data_analysis<span class="w"> </span>spark
+<span class="nb">cd</span><span class="w"> </span>big_data_analysis
+py_env_switch<span class="w"> </span>uv
+
+<span class="c1"># 3. Big data infrastructure</span>
+start_hadoop
+spark_start
+
+<span class="c1"># 4. Database setup</span>
+setup_postgres_credentials<span class="w"> </span>--interactive
+docker_database<span class="w"> </span>postgres<span class="w"> </span>--init-sql<span class="w"> </span>schema.sql
+
+<span class="c1"># 5. Run analysis</span>
+smart_spark_submit<span class="w"> </span>data_pipeline.py
+</pre></div>
+</div>
+<p><strong>Container-Based Development:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Development environment</span>
+docker_dev_setup<span class="w"> </span>microservice_api<span class="w"> </span>--with-monitoring
+<span class="nb">cd</span><span class="w"> </span>microservice_api
+
+<span class="c1"># 2. Start all services</span>
+docker_compose_dev<span class="w"> </span>up
+
+<span class="c1"># 3. Monitor health</span>
+docker_health_check
+
+<span class="c1"># 4. Database integration</span>
+docker_database<span class="w"> </span>postgres<span class="w"> </span>--name<span class="w"> </span>api-db
+
+<span class="c1"># 5. Check system status</span>
+docker_status
+db_test_all
+</pre></div>
+</div>
+<p><strong>Cross-Platform Deployment:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Platform-aware setup</span>
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>detect_platform<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span><span class="s2">&quot;macos&quot;</span><span class="o">)</span>
+<span class="w">        </span>path_add<span class="w"> </span><span class="s2">&quot;/opt/homebrew/bin&quot;</span><span class="w"> </span>before
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span><span class="s2">&quot;linux-ubuntu&quot;</span><span class="o">)</span>
+<span class="w">        </span>sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3-venv
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span><span class="s2">&quot;docker&quot;</span><span class="o">)</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span><span class="w">  </span><span class="c1"># Container optimization</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="k">esac</span>
+
+<span class="c1"># 2. Universal operations</span>
+py_env_switch<span class="w"> </span>uv
+<span class="k">if</span><span class="w"> </span>is_online<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>uv<span class="w"> </span>sync<span class="w"> </span>--upgrade
+<span class="k">else</span>
+<span class="w">    </span>uv<span class="w"> </span>sync<span class="w"> </span>--offline
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<p>The system exports numerous environment variables for integration:</p>
+<p><strong>Platform Detection:</strong>
+- <code class="docutils literal notranslate"><span class="pre">CURRENT_SHELL</span></code> - Current shell (zsh, bash, unknown)
+- <code class="docutils literal notranslate"><span class="pre">ZSH_PLATFORM</span></code> - Platform (macos, linux, docker, wsl)
+- <code class="docutils literal notranslate"><span class="pre">ZSH_IS_DOCKER</span></code> - Container status (true/false)
+- <code class="docutils literal notranslate"><span class="pre">AVAILABLE_PACKAGE_MANAGERS</span></code> - Available package managers</p>
+<p><strong>Module Status:</strong>
+- <code class="docutils literal notranslate"><span class="pre">CORE_MODULE_LOADED</span></code> - Core module loaded
+- <code class="docutils literal notranslate"><span class="pre">SPARK_MODULE_LOADED</span></code> - Spark module loaded
+- <code class="docutils literal notranslate"><span class="pre">HADOOP_MODULE_LOADED</span></code> - Hadoop module loaded
+- <code class="docutils literal notranslate"><span class="pre">DOCKER_MODULE_LOADED</span></code> - Docker module loaded</p>
+<p><strong>Application Paths:</strong>
+- <code class="docutils literal notranslate"><span class="pre">SPARK_HOME</span></code> - Apache Spark installation
+- <code class="docutils literal notranslate"><span class="pre">HADOOP_HOME</span></code> - Hadoop installation
+- <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> - Java installation (via SDKMAN)</p>
+<p><strong>Development Configuration:</strong>
+- <code class="docutils literal notranslate"><span class="pre">DOCKER_BUILDKIT</span></code> - BuildKit enabled (1)
+- <code class="docutils literal notranslate"><span class="pre">COMPOSE_DOCKER_CLI_BUILD</span></code> - Compose CLI build (1)</p>
+</section>
+<section id="testing-framework">
+<h2>Testing Framework<a class="headerlink" href="#testing-framework" title="Link to this heading"></a></h2>
+<p>All modules include comprehensive unit tests. Run tests with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test core functions</span>
+test_command_exists
+test_mkcd_basic
+test_py_env_list
+
+<span class="c1"># Test platform functions</span>
+test_platform_detection
+test_shell_detection
+test_container_detection
+
+<span class="c1"># Test data processing</span>
+test_spark_environment_setup
+test_hadoop_environment_setup
+
+<span class="c1"># Test integration</span>
+test_hadoop_spark_integration
+</pre></div>
+</div>
+<p><strong>Test Categories:</strong></p>
+<ul class="simple">
+<li><p><strong>Unit Tests</strong>: Individual function testing</p></li>
+<li><p><strong>Integration Tests</strong>: Module interaction testing</p></li>
+<li><p><strong>Platform Tests</strong>: Cross-platform compatibility</p></li>
+<li><p><strong>Container Tests</strong>: Docker environment testing</p></li>
+<li><p><strong>Security Tests</strong>: Credential management testing</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h2>
+<p><strong>Startup Optimization:</strong>
+- Lazy loading of heavy modules (Spark, Hadoop)
+- Conditional path additions
+- Cached environment detection
+- Minimal shell hooks</p>
+<p><strong>Resource Management:</strong>
+- Container-aware memory settings
+- Platform-specific optimizations
+- Automatic cleanup functions
+- Health monitoring</p>
+<p><strong>Security Best Practices:</strong>
+- Encrypted credential storage
+- No plain-text secrets in configuration
+- Secure environment variable handling
+- Audit trail for credential access</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p><strong>Common Issues:</strong></p>
+<ol class="arabic">
+<li><p><strong>Module Not Loading:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check module status</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$SPARK_MODULE_LOADED</span>
+
+<span class="c1"># Manual reload</span>
+<span class="nb">source</span><span class="w"> </span>~/.config/zsh/config/spark.zsh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Path Issues:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check PATH</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$PATH</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;:&#39;</span><span class="w"> </span><span class="s1">&#39;\n&#39;</span>
+
+<span class="c1"># Add missing paths</span>
+path_add<span class="w"> </span><span class="s2">&quot;/usr/local/bin&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Container Detection:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify container detection</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Container: </span><span class="nv">$ZSH_IS_DOCKER</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Platform: </span><span class="nv">$ZSH_PLATFORM</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Database Connection Issues:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test connections</span>
+db_test_all
+
+<span class="c1"># Check credentials</span>
+setup_postgres_credentials<span class="w"> </span>--interactive
+</pre></div>
+</div>
+</li>
+</ol>
+<p><strong>Debug Mode:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable verbose output</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MODULAR_ZSHRC_VERBOSE</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+
+<span class="c1"># Reload configuration</span>
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+<p>This comprehensive API reference provides everything needed to use and extend the Siege Analytics ZSH Configuration System for data science, development, and system administration workflows.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

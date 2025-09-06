@@ -1,0 +1,886 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark Functions API Reference &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a274b600" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://docs.siegeanalytics.comapi-reference/spark-functions.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Spark Functions API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api-reference/spark-functions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spark-functions-api-reference">
+<h1>Spark Functions API Reference<a class="headerlink" href="#spark-functions-api-reference" title="Link to this heading"></a></h1>
+<p>This module provides comprehensive Apache Spark cluster management, job submission, and optimization utilities for data science workflows.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All functions in this module support cross-shell compatibility (bash/zsh) and cross-platform operation (macOS/Linux/Docker).</p>
+</div>
+<section id="environment-setup-functions">
+<h2>Environment Setup Functions<a class="headerlink" href="#environment-setup-functions" title="Link to this heading"></a></h2>
+<section id="setup-spark-environment">
+<h3>setup_spark_environment()<a class="headerlink" href="#setup-spark-environment" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Automatically detects and configures Apache Spark installation across different platforms and installation methods (Homebrew, SDKMAN, manual installations).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setup_spark_environment<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>This function is automatically called when the spark module loads, but can be manually invoked to reconfigure the environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manual environment setup (usually automatic)</span>
+setup_spark_environment
+
+<span class="c1"># Check if setup was successful</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$SPARK_HOME</span>
+<span class="c1"># Output: /opt/homebrew/opt/apache-spark/libexec</span>
+
+<span class="c1"># Verify Spark is in PATH</span>
+which<span class="w"> </span>spark-submit
+<span class="c1"># Output: /opt/homebrew/opt/apache-spark/libexec/bin/spark-submit</span>
+</pre></div>
+</div>
+<p>The function searches for Spark in platform-specific locations:</p>
+<ul class="simple">
+<li><p><strong>macOS</strong>: <cite>/opt/homebrew/opt/apache-spark/libexec</cite>, <cite>/usr/local/opt/apache-spark/libexec</cite></p></li>
+<li><p><strong>Linux</strong>: <cite>/opt/spark</cite>, <cite>/usr/local/spark</cite>, <cite>/opt/apache-spark</cite></p></li>
+<li><p><strong>SDKMAN</strong>: <cite>$SDKMAN_DIR/candidates/spark/current</cite></p></li>
+<li><p><strong>Custom</strong>: <cite>$HOME/spark</cite>, <cite>$HOME/apache-spark</cite></p></li>
+</ul>
+<p>Environment variables set by this function:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_HOME</span><span class="o">=</span><span class="s2">&quot;/path/to/spark&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_CONF_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">/conf&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_PYTHON</span><span class="o">=</span>python3
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYSPARK_DRIVER_PYTHON</span><span class="o">=</span>python3
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_DRIVER_MEMORY</span><span class="o">=</span><span class="s2">&quot;2g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_EXECUTOR_MEMORY</span><span class="o">=</span><span class="s2">&quot;1g&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER_URL</span><span class="o">=</span><span class="s2">&quot;spark://localhost:7077&quot;</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Environment setup success</span>
+test_spark_environment_setup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_spark_environment
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SPARK_HOME</span><span class="s2">/bin/spark-submit&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: PATH configuration</span>
+test_spark_path_setup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>setup_spark_environment
+<span class="w">    </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>spark-submit<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Container memory optimization</span>
+test_container_memory_optimization<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_IS_DOCKER</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="w">    </span>setup_spark_environment
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SPARK_DRIVER_MEMORY</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;1g&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SPARK_EXECUTOR_MEMORY</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;512m&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dependency-management-functions">
+<h2>Dependency Management Functions<a class="headerlink" href="#dependency-management-functions" title="Link to this heading"></a></h2>
+<section id="get-spark-dependencies">
+<h3>get_spark_dependencies()<a class="headerlink" href="#get-spark-dependencies" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Generates a dependency string for Spark jobs including JARs and common packages, with cross-shell compatibility.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>get_spark_dependencies<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>This function automatically discovers and includes JAR files and common Spark packages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get dependency string for spark-submit</span>
+<span class="nv">deps</span><span class="o">=</span><span class="k">$(</span>get_spark_dependencies<span class="k">)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$deps</span>
+<span class="c1"># Output: --jars /home/user/spark-jars/kafka.jar,/home/user/spark-jars/delta.jar --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0</span>
+
+<span class="c1"># Use in spark-submit command</span>
+spark-submit<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--master<span class="w"> </span>local<span class="o">[</span>*<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">$(</span>get_spark_dependencies<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>my_script.py
+</pre></div>
+</div>
+<p>JAR search locations (in order of priority):</p>
+<ol class="arabic simple">
+<li><p><cite>$HOME/spark-jars</cite></p></li>
+<li><p><cite>$HOME/.spark/jars</cite></p></li>
+<li><p><cite>$SPARK_HOME/jars</cite></p></li>
+<li><p><cite>$HOME/local-jars</cite></p></li>
+</ol>
+<p>Common packages included (when not in Docker):</p>
+<ul class="simple">
+<li><p>Apache Kafka integration: <cite>org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0</cite></p></li>
+<li><p>Streaming Kafka: <cite>org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.0</cite></p></li>
+<li><p>CSV support: <cite>com.databricks:spark-csv_2.12:1.5.0</cite></p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: JAR discovery</span>
+test_jar_discovery<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/spark-jars&quot;</span>
+<span class="w">    </span>touch<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/spark-jars/test.jar&quot;</span>
+<span class="w">    </span><span class="nv">deps</span><span class="o">=</span><span class="k">$(</span>get_spark_dependencies<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$deps</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;--jars&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$deps</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;test.jar&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/spark-jars&quot;</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Package inclusion (non-container)</span>
+test_package_inclusion<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">unset</span><span class="w"> </span>ZSH_IS_DOCKER
+<span class="w">    </span><span class="nv">deps</span><span class="o">=</span><span class="k">$(</span>get_spark_dependencies<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$deps</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;--packages&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$deps</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;spark-sql-kafka&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Container optimization (no packages)</span>
+test_container_optimization<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_IS_DOCKER</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="w">    </span><span class="nv">deps</span><span class="o">=</span><span class="k">$(</span>get_spark_dependencies<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$deps</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span>*<span class="s2">&quot;--packages&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cluster-management-functions">
+<h2>Cluster Management Functions<a class="headerlink" href="#cluster-management-functions" title="Link to this heading"></a></h2>
+<section id="spark-start">
+<h3>spark_start()<a class="headerlink" href="#spark-start" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Starts a local Spark cluster with master and worker processes, including health checks and connection verification.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark_start<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>Starts a complete local Spark cluster for distributed processing:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start local Spark cluster</span>
+spark_start
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Starting Spark cluster...</span>
+<span class="c1">#    Starting Spark master...</span>
+<span class="c1">#    ✅ Master started at spark://localhost:7077</span>
+<span class="c1">#    Starting Spark worker...</span>
+<span class="c1">#    ✅ Worker started</span>
+<span class="c1"># 🎯 Spark cluster ready!</span>
+<span class="c1">#    Master URL: spark://localhost:7077</span>
+<span class="c1">#    Web UI: http://localhost:8080</span>
+
+<span class="c1"># Verify cluster is running</span>
+spark_status
+</pre></div>
+</div>
+<p>The function:</p>
+<ol class="arabic simple">
+<li><p>Checks if master process is already running</p></li>
+<li><p>Starts master on port 7077 with web UI on 8080</p></li>
+<li><p>Waits up to 30 seconds for master to become available</p></li>
+<li><p>Starts worker and registers with master</p></li>
+<li><p>Exports <cite>SPARK_MASTER_URL</cite> environment variable</p></li>
+</ol>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Cluster startup success</span>
+test_spark_cluster_startup<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>spark_start
+<span class="w">    </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;spark.deploy.master.Master&quot;</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;spark.deploy.worker.Worker&quot;</span><span class="w"> </span>&gt;/dev/null
+<span class="o">}</span>
+
+<span class="c1"># Test: Master connectivity</span>
+test_master_connectivity<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>spark_start
+<span class="w">    </span>nc<span class="w"> </span>-z<span class="w"> </span>localhost<span class="w"> </span><span class="m">7077</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="o">}</span>
+
+<span class="c1"># Test: Web UI availability</span>
+test_web_ui_availability<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>spark_start
+<span class="w">    </span>nc<span class="w"> </span>-z<span class="w"> </span>localhost<span class="w"> </span><span class="m">8080</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="spark-stop">
+<h3>spark_stop()<a class="headerlink" href="#spark-stop" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Gracefully stops all local Spark cluster processes (worker then master).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark_stop<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stop local Spark cluster</span>
+spark_stop
+<span class="c1"># Output:</span>
+<span class="c1"># 🛑 Stopping Spark cluster...</span>
+<span class="c1">#    Stopping worker...</span>
+<span class="c1">#    ✅ Worker stopped</span>
+<span class="c1">#    Stopping master...</span>
+<span class="c1">#    ✅ Master stopped</span>
+<span class="c1"># ✅ Spark cluster stopped</span>
+
+<span class="c1"># Verify cluster is stopped</span>
+spark_status
+<span class="c1"># Output shows all processes as &quot;Not running&quot;</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Cluster shutdown</span>
+test_spark_cluster_shutdown<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>spark_start
+<span class="w">    </span>spark_stop
+<span class="w">    </span>!<span class="w"> </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;spark.deploy.master.Master&quot;</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span>!<span class="w"> </span>pgrep<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;spark.deploy.worker.Worker&quot;</span><span class="w"> </span>&gt;/dev/null
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="spark-status">
+<h3>spark_status()<a class="headerlink" href="#spark-status" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Displays comprehensive status information about the Spark cluster including configuration, running processes, and connectivity.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark_status<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark_status
+<span class="c1"># Output:</span>
+<span class="c1"># ⚡ Apache Spark Status</span>
+<span class="c1"># ====================</span>
+<span class="c1">#</span>
+<span class="c1"># Configuration:</span>
+<span class="c1">#   SPARK_HOME: /opt/homebrew/opt/apache-spark/libexec</span>
+<span class="c1">#   Driver Memory: 2g</span>
+<span class="c1">#   Executor Memory: 1g</span>
+<span class="c1">#   Master URL: spark://localhost:7077</span>
+<span class="c1">#</span>
+<span class="c1"># Cluster Status:</span>
+<span class="c1">#   ✅ Master: Running (PID: 12345)</span>
+<span class="c1">#      Web UI: http://localhost:8080</span>
+<span class="c1">#   ✅ Worker: Running (PID: 12346)</span>
+<span class="c1">#      Web UI: http://localhost:8081</span>
+<span class="c1">#</span>
+<span class="c1"># Connectivity:</span>
+<span class="c1">#   ✅ Master port (7077): Accessible</span>
+<span class="c1">#   ✅ Master Web UI (8080): Accessible</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Status command execution</span>
+test_spark_status_execution<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>spark_status<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Status shows configuration</span>
+test_status_shows_config<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>spark_status<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;SPARK_HOME&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;Driver Memory&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="job-submission-functions">
+<h2>Job Submission Functions<a class="headerlink" href="#job-submission-functions" title="Link to this heading"></a></h2>
+<section id="default-spark-submit">
+<h3>default_spark_submit()<a class="headerlink" href="#default-spark-submit" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Standard local Spark job submission with performance optimizations and dependency injection.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>default_spark_submit<span class="w"> </span>&lt;python_file&gt;
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>Optimized for local development and testing:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Submit Python job locally</span>
+default_spark_submit<span class="w"> </span>my_analysis.py
+<span class="c1"># Output:</span>
+<span class="c1"># 🏠 Local Spark submit with enhanced dependencies...</span>
+<span class="c1"># [Spark execution logs...]</span>
+
+<span class="c1"># Example Python file structure for Spark jobs:</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>data_analysis.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">from pyspark.sql import SparkSession</span>
+
+<span class="s">spark = SparkSession.builder.appName(&quot;DataAnalysis&quot;).getOrCreate()</span>
+
+<span class="s"># Read data</span>
+<span class="s">df = spark.read.csv(&quot;data.csv&quot;, header=True, inferSchema=True)</span>
+
+<span class="s"># Perform analysis</span>
+<span class="s">result = df.groupBy(&quot;category&quot;).count()</span>
+<span class="s">result.show()</span>
+
+<span class="s">spark.stop()</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Submit the job</span>
+default_spark_submit<span class="w"> </span>data_analysis.py
+</pre></div>
+</div>
+<p>Configuration used:</p>
+<ul class="simple">
+<li><p>Master: <cite>local[*]</cite> (uses all available CPU cores)</p></li>
+<li><p>Adaptive Query Execution enabled</p></li>
+<li><p>Kryo serialization for performance</p></li>
+<li><p>Dynamic dependency loading</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Valid file submission</span>
+test_default_spark_submit_valid<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;Hello Spark&quot;)&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test_spark.py
+<span class="w">    </span>default_spark_submit<span class="w"> </span>test_spark.py<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>test_spark.py
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Invalid file handling</span>
+test_default_spark_submit_invalid<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>default_spark_submit<span class="w"> </span>nonexistent.py<span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="distributed-spark-submit">
+<h3>distributed_spark_submit()<a class="headerlink" href="#distributed-spark-submit" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Submit jobs to a distributed Spark cluster with configurable master URL and optimized for cluster execution.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>distributed_spark_submit<span class="w"> </span>&lt;python_file&gt;<span class="w"> </span><span class="o">[</span>master_url<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Submit to local cluster (must be started first)</span>
+spark_start
+distributed_spark_submit<span class="w"> </span>my_job.py
+<span class="c1"># Uses default: spark://localhost:7077</span>
+
+<span class="c1"># Submit to remote cluster</span>
+distributed_spark_submit<span class="w"> </span>my_job.py<span class="w"> </span>spark://remote-master:7077
+
+<span class="c1"># Submit large data processing job</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>large_data_job.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">from pyspark.sql import SparkSession</span>
+
+<span class="s">spark = SparkSession.builder.appName(&quot;LargeDataJob&quot;).getOrCreate()</span>
+
+<span class="s"># Process large dataset</span>
+<span class="s">df = spark.read.parquet(&quot;hdfs://data/large_dataset.parquet&quot;)</span>
+
+<span class="s"># Complex transformations</span>
+<span class="s">result = df.filter(df.status == &quot;active&quot;) \</span>
+<span class="s">          .groupBy(&quot;region&quot;, &quot;category&quot;) \</span>
+<span class="s">          .agg({&quot;revenue&quot;: &quot;sum&quot;, &quot;count&quot;: &quot;count&quot;}) \</span>
+<span class="s">          .orderBy(&quot;sum(revenue)&quot;, ascending=False)</span>
+
+<span class="s"># Save results</span>
+<span class="s">result.write.mode(&quot;overwrite&quot;).parquet(&quot;hdfs://output/results&quot;)</span>
+
+<span class="s">spark.stop()</span>
+<span class="s">EOF</span>
+
+distributed_spark_submit<span class="w"> </span>large_data_job.py
+</pre></div>
+</div>
+<p>Cluster configuration:</p>
+<ul class="simple">
+<li><p>Deploy mode: client (driver runs locally)</p></li>
+<li><p>4 executors with 1 core each</p></li>
+<li><p>Network timeout: 300s for reliability</p></li>
+<li><p>Adaptive query execution enabled</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Cluster connectivity check</span>
+test_distributed_submit_cluster_check<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Mock a running cluster</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER_URL</span><span class="o">=</span><span class="s2">&quot;spark://localhost:7077&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;test&quot;)&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test.py
+
+<span class="w">    </span><span class="c1"># Function should check for cluster availability</span>
+<span class="w">    </span>distributed_spark_submit<span class="w"> </span>test.py<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;No master URL&quot;</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>test.py
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="c1"># Should NOT find &quot;No master URL&quot; if cluster available</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="smart-spark-submit">
+<h3>smart_spark_submit()<a class="headerlink" href="#smart-spark-submit" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Intelligent job submission that automatically detects the best execution environment and optimizes configuration accordingly.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>smart_spark_submit<span class="w"> </span>&lt;python_file&gt;
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>The smart submission function follows this decision tree:</p>
+<ol class="arabic simple">
+<li><p><strong>Cluster Available</strong>: Uses distributed mode if Spark cluster is running</p></li>
+<li><p><strong>Can Start Cluster</strong>: Offers to start local cluster for better performance</p></li>
+<li><p><strong>Fallback</strong>: Uses local mode with all CPU cores</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Smart submission with cluster detection</span>
+smart_spark_submit<span class="w"> </span>analysis.py
+<span class="c1"># Output:</span>
+<span class="c1"># 🤖 Smart environment detection...</span>
+<span class="c1"># ✅ Local Spark cluster detected - using distributed mode</span>
+<span class="c1"># [Execution continues with distributed_spark_submit]</span>
+
+<span class="c1"># Smart submission without cluster (interactive)</span>
+smart_spark_submit<span class="w"> </span>analysis.py
+<span class="c1"># Output:</span>
+<span class="c1"># 🤖 Smart environment detection...</span>
+<span class="c1"># ℹ️  No running cluster found - would you like to start one? (y/n)</span>
+<span class="c1"># y</span>
+<span class="c1"># [Starts cluster and uses distributed mode]</span>
+
+<span class="c1"># Smart submission in container (automatic local mode)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_IS_DOCKER</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+smart_spark_submit<span class="w"> </span>analysis.py
+<span class="c1"># Output:</span>
+<span class="c1"># 🤖 Smart environment detection...</span>
+<span class="c1"># ℹ️  Using local mode</span>
+<span class="c1"># [Uses default_spark_submit]</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Smart detection with running cluster</span>
+test_smart_submit_with_cluster<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Mock running cluster processes</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;test&quot;)&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test.py
+
+<span class="w">    </span><span class="c1"># Set up mock environment</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">SPARK_MASTER_URL</span><span class="o">=</span><span class="s2">&quot;spark://localhost:7077&quot;</span>
+
+<span class="w">    </span><span class="c1"># Test that it detects cluster (would need actual cluster for full test)</span>
+<span class="w">    </span>smart_spark_submit<span class="w"> </span>test.py<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>test.py
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Container mode detection</span>
+test_smart_submit_container_mode<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_IS_DOCKER</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;test&quot;)&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test.py
+
+<span class="w">    </span>smart_spark_submit<span class="w"> </span>test.py<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;local mode&quot;</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>test.py
+<span class="w">    </span><span class="nb">unset</span><span class="w"> </span>ZSH_IS_DOCKER
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="heavy-api-submit">
+<h3>heavy_api_submit()<a class="headerlink" href="#heavy-api-submit" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Optimized job submission for API-intensive workloads with specialized configuration for external service calls, timeouts, and memory management.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>heavy_api_submit<span class="w"> </span>&lt;python_file&gt;<span class="w"> </span><span class="o">[</span>mode<span class="o">]</span>
+<span class="c1"># Modes: auto (default), local, distributed, yarn</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>Perfect for jobs that make many HTTP requests, database calls, or external API interactions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Auto-mode (recommended)</span>
+heavy_api_submit<span class="w"> </span>api_data_pipeline.py
+<span class="c1"># Output:</span>
+<span class="c1"># 🚀 Heavy API Workload Submit - Optimized for API-intensive processing...</span>
+<span class="c1">#    🤖 Auto-detecting best execution environment...</span>
+<span class="c1">#    ✅ YARN available - using YARN mode</span>
+
+<span class="c1"># Force local mode for development</span>
+heavy_api_submit<span class="w"> </span>api_test.py<span class="w"> </span><span class="nb">local</span>
+
+<span class="c1"># Example API-heavy job</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>api_pipeline.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">from pyspark.sql import SparkSession</span>
+<span class="s">import requests</span>
+
+<span class="s">def fetch_api_data(row):</span>
+<span class="s">    &quot;&quot;&quot;Fetch data from external API&quot;&quot;&quot;</span>
+<span class="s">    response = requests.get(f&quot;https://api.example.com/data/{row.id}&quot;)</span>
+<span class="s">    return response.json()</span>
+
+<span class="s">spark = SparkSession.builder.appName(&quot;APIDataPipeline&quot;).getOrCreate()</span>
+
+<span class="s"># Read IDs to process</span>
+<span class="s">ids_df = spark.read.csv(&quot;ids.csv&quot;, header=True)</span>
+
+<span class="s"># Apply API calls with optimized settings</span>
+<span class="s">results = ids_df.rdd.map(fetch_api_data).collect()</span>
+
+<span class="s">spark.stop()</span>
+<span class="s">EOF</span>
+
+heavy_api_submit<span class="w"> </span>api_pipeline.py
+</pre></div>
+</div>
+<p>API-specific optimizations:</p>
+<ul class="simple">
+<li><p>Extended network timeout: 600s</p></li>
+<li><p>Increased heartbeat interval: 60s</p></li>
+<li><p>Arrow-based transfers enabled</p></li>
+<li><p>Python worker reuse enabled</p></li>
+<li><p>Dynamic allocation disabled for stability</p></li>
+<li><p>Increased driver memory: 4g</p></li>
+<li><p>Max result size: 2g</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Mode detection</span>
+test_heavy_api_mode_detection<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;test&quot;)&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test.py
+
+<span class="w">    </span><span class="c1"># Test auto mode</span>
+<span class="w">    </span>heavy_api_submit<span class="w"> </span>test.py<span class="w"> </span>auto<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>test.py
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Configuration application</span>
+test_heavy_api_config<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;print(&quot;test&quot;)&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test.py
+
+<span class="w">    </span><span class="c1"># Verify API-specific configs are mentioned</span>
+<span class="w">    </span>heavy_api_submit<span class="w"> </span>test.py<span class="w"> </span><span class="nb">local</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;API-heavy optimizations&quot;</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>test.py
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="utility-functions">
+<h2>Utility Functions<a class="headerlink" href="#utility-functions" title="Link to this heading"></a></h2>
+<section id="spark-shell">
+<h3>spark_shell()<a class="headerlink" href="#spark-shell" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Starts an interactive Spark shell (Scala) with optimized configuration and dependency loading.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>spark_shell<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start interactive Spark shell</span>
+spark_shell
+<span class="c1"># Output:</span>
+<span class="c1"># 🐚 Starting Spark shell...</span>
+<span class="c1"># [Spark shell starts with optimized config]</span>
+
+<span class="c1"># In the shell, you can run Scala/Spark code:</span>
+<span class="c1"># scala&gt; val df = spark.read.csv(&quot;data.csv&quot;)</span>
+<span class="c1"># scala&gt; df.show()</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Shell startup command</span>
+test_spark_shell_command<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Mock spark-shell command availability</span>
+<span class="w">    </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>spark-shell<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="pyspark-shell">
+<h3>pyspark_shell()<a class="headerlink" href="#pyspark-shell" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Starts an interactive PySpark shell (Python) with optimized configuration and dependency loading.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyspark_shell<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start interactive PySpark shell</span>
+pyspark_shell
+<span class="c1"># Output:</span>
+<span class="c1"># 🐍 Starting PySpark shell...</span>
+<span class="c1"># [PySpark shell starts]</span>
+
+<span class="c1"># In the shell:</span>
+<span class="c1"># &gt;&gt;&gt; df = spark.read.csv(&quot;data.csv&quot;, header=True)</span>
+<span class="c1"># &gt;&gt;&gt; df.show()</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: PySpark shell startup</span>
+test_pyspark_shell_command<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>pyspark<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="aliases-and-shortcuts">
+<h2>Aliases and Shortcuts<a class="headerlink" href="#aliases-and-shortcuts" title="Link to this heading"></a></h2>
+<p>The module provides convenient aliases for all major functions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cluster management</span>
+spark-start<span class="w">          </span><span class="c1"># spark_start</span>
+spark-stop<span class="w">           </span><span class="c1"># spark_stop</span>
+spark-status<span class="w">         </span><span class="c1"># spark_status</span>
+spark-restart<span class="w">        </span><span class="c1"># spark_stop &amp;&amp; spark_start</span>
+
+<span class="c1"># Job submission</span>
+spark-submit-local<span class="w">       </span><span class="c1"># default_spark_submit</span>
+spark-submit-distributed<span class="w"> </span><span class="c1"># distributed_spark_submit</span>
+spark-submit-smart<span class="w">       </span><span class="c1"># smart_spark_submit</span>
+spark-submit-yarn<span class="w">        </span><span class="c1"># spark_yarn_submit</span>
+spark-submit-heavy<span class="w">       </span><span class="c1"># heavy_api_submit</span>
+
+<span class="c1"># Interactive shells</span>
+spark-shell-start<span class="w">    </span><span class="c1"># spark_shell</span>
+pyspark-start<span class="w">        </span><span class="c1"># pyspark_shell</span>
+
+<span class="c1"># Utilities</span>
+spark-history<span class="w">        </span><span class="c1"># spark_history_server</span>
+spark-logs<span class="w">           </span><span class="c1"># ls -la $SPARK_HOME/logs/</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-usage-examples">
+<h2>Complete Usage Examples<a class="headerlink" href="#complete-usage-examples" title="Link to this heading"></a></h2>
+<p><strong>Example 1: Data Science Pipeline</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup environment</span>
+setup_spark_environment
+spark_start
+
+<span class="c1"># Create and run analysis</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>customer_analysis.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">from pyspark.sql import SparkSession</span>
+<span class="s">from pyspark.sql.functions import *</span>
+
+<span class="s">spark = SparkSession.builder.appName(&quot;CustomerAnalysis&quot;).getOrCreate()</span>
+
+<span class="s"># Load customer data</span>
+<span class="s">customers = spark.read.parquet(&quot;customers.parquet&quot;)</span>
+<span class="s">orders = spark.read.parquet(&quot;orders.parquet&quot;)</span>
+
+<span class="s"># Join and analyze</span>
+<span class="s">analysis = customers.join(orders, &quot;customer_id&quot;) \</span>
+<span class="s">                   .groupBy(&quot;region&quot;) \</span>
+<span class="s">                   .agg(sum(&quot;order_total&quot;).alias(&quot;total_revenue&quot;),</span>
+<span class="s">                        count(&quot;order_id&quot;).alias(&quot;order_count&quot;)) \</span>
+<span class="s">                   .orderBy(desc(&quot;total_revenue&quot;))</span>
+
+<span class="s">analysis.show()</span>
+<span class="s">analysis.write.mode(&quot;overwrite&quot;).parquet(&quot;output/customer_analysis&quot;)</span>
+
+<span class="s">spark.stop()</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Submit with smart detection</span>
+smart_spark_submit<span class="w"> </span>customer_analysis.py
+</pre></div>
+</div>
+<p><strong>Example 2: API Data Collection</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># API-intensive job with external calls</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>api_collector.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">from pyspark.sql import SparkSession</span>
+<span class="s">import requests</span>
+<span class="s">from concurrent.futures import ThreadPoolExecutor</span>
+
+<span class="s">def fetch_user_data(user_id):</span>
+<span class="s">    try:</span>
+<span class="s">        response = requests.get(f&quot;https://api.company.com/users/{user_id}&quot;,</span>
+<span class="s">                              timeout=30)</span>
+<span class="s">        return response.json()</span>
+<span class="s">    except Exception as e:</span>
+<span class="s">        return {&quot;user_id&quot;: user_id, &quot;error&quot;: str(e)}</span>
+
+<span class="s">spark = SparkSession.builder.appName(&quot;APIDataCollector&quot;).getOrCreate()</span>
+
+<span class="s"># Load user IDs</span>
+<span class="s">user_ids = spark.read.csv(&quot;user_ids.csv&quot;, header=True).collect()</span>
+
+<span class="s"># Fetch API data with optimization</span>
+<span class="s">with ThreadPoolExecutor(max_workers=10) as executor:</span>
+<span class="s">    results = list(executor.map(fetch_user_data,</span>
+<span class="s">                              [row.user_id for row in user_ids]))</span>
+
+<span class="s"># Convert back to DataFrame and save</span>
+<span class="s">results_df = spark.createDataFrame(results)</span>
+<span class="s">results_df.write.mode(&quot;overwrite&quot;).json(&quot;output/user_data&quot;)</span>
+
+<span class="s">spark.stop()</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Use API-optimized submission</span>
+heavy_api_submit<span class="w"> </span>api_collector.py
+</pre></div>
+</div>
+<p><strong>Example 3: Production YARN Deployment</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Production job on YARN cluster</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>production_etl.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">from pyspark.sql import SparkSession</span>
+<span class="s">from pyspark.sql.functions import *</span>
+
+<span class="s">spark = SparkSession.builder \</span>
+<span class="s">        .appName(&quot;ProductionETL&quot;) \</span>
+<span class="s">        .config(&quot;spark.sql.adaptive.enabled&quot;, &quot;true&quot;) \</span>
+<span class="s">        .getOrCreate()</span>
+
+<span class="s"># ETL pipeline</span>
+<span class="s">raw_data = spark.read.json(&quot;hdfs://data/raw/*&quot;)</span>
+
+<span class="s">cleaned_data = raw_data.filter(col(&quot;status&quot;).isNotNull()) \</span>
+<span class="s">                       .withColumn(&quot;processed_date&quot;, current_timestamp()) \</span>
+<span class="s">                       .dropDuplicates([&quot;id&quot;])</span>
+
+<span class="s"># Partition and save</span>
+<span class="s">cleaned_data.write \</span>
+<span class="s">            .mode(&quot;overwrite&quot;) \</span>
+<span class="s">            .partitionBy(&quot;date_partition&quot;) \</span>
+<span class="s">            .parquet(&quot;hdfs://data/processed/&quot;)</span>
+
+<span class="s">spark.stop()</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Submit to YARN cluster</span>
+spark_yarn_submit<span class="w"> </span>production_etl.py<span class="w"> </span>cluster
+</pre></div>
+</div>
+</section>
+<section id="module-integration">
+<h2>Module Integration<a class="headerlink" href="#module-integration" title="Link to this heading"></a></h2>
+<p>The Spark module integrates seamlessly with other system modules:</p>
+<p><strong>With Python Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup Python environment for Spark</span>
+setup_pyenv
+pyenv<span class="w"> </span>activate<span class="w"> </span>spark_env
+pip<span class="w"> </span>install<span class="w"> </span>pyspark<span class="w"> </span>pandas<span class="w"> </span>numpy
+
+<span class="c1"># Run Spark job with proper Python environment</span>
+smart_spark_submit<span class="w"> </span>analysis.py
+</pre></div>
+</div>
+<p><strong>With Docker Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spark jobs in containers automatically optimize for limited resources</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_IS_DOCKER</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+smart_spark_submit<span class="w"> </span>container_job.py
+<span class="c1"># Uses reduced memory settings automatically</span>
+</pre></div>
+</div>
+<p><strong>With Hadoop Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start Hadoop services first</span>
+start_hadoop
+
+<span class="c1"># Submit to YARN</span>
+spark_yarn_submit<span class="w"> </span>distributed_job.py
+</pre></div>
+</div>
+<p>This comprehensive API provides everything needed for Apache Spark development, from local testing to production deployment, with intelligent optimization and cross-platform compatibility.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
