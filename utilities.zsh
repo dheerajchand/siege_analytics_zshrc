@@ -23,19 +23,8 @@ if command -v geos-config &>/dev/null; then
 fi
 
 
-# Utility functions
-function is_online {
-    ping -c 1 google.com &> /dev/null && echo "online" || echo "offline"
-}
-
-function cleanvenv {
-    pip freeze | grep -v "^-e" | xargs pip uninstall -y
-}
-
-function remove_python_cruft {
-    find . -name "*.pyc" -delete
-    find . -name "__pycache__" -exec rm -r {} + 2>/dev/null || true
-}
+# Legacy utility functions - these are now handled by the modular system
+# is_online, cleanvenv, remove_python_cruft are now in config/core.zsh
 
 function delpycache() {
     local target_dir="${1:-.}" # Use current directory if no argument is provided
@@ -124,9 +113,7 @@ fi
 # =====================================================
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
-function update_local_repo {
-    for remote in `git branch -r`; do git branch --track ${remote#origin/} $remote; done
-}
+# update_local_repo is now in the main zshrc file
 
 function clone_repos_from_github_organisation {
     local organisation="${1:-dheerajchand}"

@@ -55,7 +55,7 @@ The system uses intelligent lazy loading:
 
    # Core modules (always loaded)
    # - init.zsh
-   # - backup-system.zsh
+   # (backup-system.zsh is optional and disabled)
    # - help-module.zsh
 
    # Optional modules (loaded on demand)
@@ -231,7 +231,7 @@ Run comprehensive benchmarks:
    time zsh -i -c 'exit'
    
    # Module loading benchmarks
-   time source ~/.config/zsh/backup-system.zsh
+   # backup-system.zsh is optional and disabled by default
 
 Target Performance Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

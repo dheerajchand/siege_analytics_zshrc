@@ -234,7 +234,7 @@ Common Issues & Fixes
    export PYTHON_AUTOLOAD_MODULES="0"   # Disable auto-loading
 
    # Missing functions
-   source ~/.config/zsh/backup-system.zsh # Reload backup system
+   # Backup system module is optional and disabled by default
 
    # Spark not working  
    load_big_data                        # Manual loading required

@@ -130,7 +130,6 @@
 <p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../core-systems/backup-system.html">Backup System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
 </ul>
@@ -218,7 +217,7 @@ zsh<span class="w"> </span>-f
 <span class="nb">echo</span><span class="w"> </span><span class="nv">$PYTHON_MODULE_LOADED</span>
 
 <span class="c1"># Manually load modules</span>
-<span class="nb">source</span><span class="w"> </span>~/.config/zsh/backup-system.zsh
+<span class="c1"># backup-system.zsh is optional and disabled by default</span>
 <span class="nb">source</span><span class="w"> </span>~/.config/zsh/help-module.zsh
 
 <span class="c1"># Check module paths</span>
@@ -477,7 +476,8 @@ dmesg<span class="w"> </span><span class="p">|</span><span class="w"> </span>tai
 <section id="module-testing">
 <h3>Module Testing<a class="headerlink" href="#module-testing" title="Link to this heading"></a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test individual modules</span>
-zsh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/backup-system.zsh; backup &#39;test&#39;&quot;</span>
+<span class="c1"># Test core functionality instead:</span>
+./test-modular-quick.sh
 
 <span class="c1"># Test Python system</span>
 zsh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/python/init.zsh; python_status&quot;</span>

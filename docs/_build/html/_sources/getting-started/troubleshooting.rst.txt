@@ -57,7 +57,7 @@ Solutions
    echo $PYTHON_MODULE_LOADED
    
    # Manually load modules
-   source ~/.config/zsh/backup-system.zsh
+   # backup-system.zsh is optional and disabled by default
    source ~/.config/zsh/help-module.zsh
    
    # Check module paths
@@ -324,7 +324,8 @@ Module Testing
 .. code-block:: bash
 
    # Test individual modules
-   zsh -c "source ~/.config/zsh/backup-system.zsh; backup 'test'"
+   # Test core functionality instead:
+   ./test-modular-quick.sh
    
    # Test Python system
    zsh -c "source ~/.config/zsh/python/init.zsh; python_status"

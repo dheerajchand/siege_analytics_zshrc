@@ -1,0 +1,609 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zshrc Sync Workflow Guide &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a274b600" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://docs.siegeanalytics.comworkflows/ZSHRC_SYNC_WORKFLOW.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Zshrc Sync Workflow Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/workflows/ZSHRC_SYNC_WORKFLOW.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="zshrc-sync-workflow-guide">
+<h1>Zshrc Sync Workflow Guide<a class="headerlink" href="#zshrc-sync-workflow-guide" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This document explains the zshrc synchronization workflow that was implemented to solve the symlink issue in the repository. The system allows you to maintain a working zshrc file while keeping the repository version in sync for distribution.</p>
+</section>
+<section id="the-problem">
+<h2>The Problem<a class="headerlink" href="#the-problem" title="Link to this heading"></a></h2>
+<section id="original-issue">
+<h3>Original Issue<a class="headerlink" href="#original-issue" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>The repository contained a <strong>symlink</strong> pointing to <code class="docutils literal notranslate"><span class="pre">/Users/dheerajchand/.dotfiles/homedir/.zshrc</span></code></p></li>
+<li><p>When users cloned the repository, they got a <strong>broken symlink</strong> pointing to a non-existent path</p></li>
+<li><p>This caused errors and prevented others from using the configuration</p></li>
+</ul>
+</section>
+<section id="why-this-happened">
+<h3>Why This Happened<a class="headerlink" href="#why-this-happened" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Personal development setup uses symlinks for convenience</p></li>
+<li><p>Repository needs actual file content for portability</p></li>
+<li><p>No automated process existed to sync between working file and repository</p></li>
+</ul>
+</section>
+</section>
+<section id="the-solution">
+<h2>The Solution<a class="headerlink" href="#the-solution" title="Link to this heading"></a></h2>
+<section id="architecture">
+<h3>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────────────┐
+│                    Zshrc Sync Architecture                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Working Environment          Repository Environment        │
+│  ┌─────────────────────┐     ┌─────────────────────────┐   │
+│  │ ~/.zshrc            │     │ ~/.config/zsh/zshrc     │   │
+│  │ (symlink)           │     │ (actual file)           │   │
+│  │        │            │     │        │                │   │
+│  │        ▼            │     │        ▼                │   │
+│  │ ~/.dotfiles/        │◄────┤ Repository              │   │
+│  │ homedir/.zshrc      │     │ (Git tracked)           │   │
+│  │ (actual file)       │     │                         │   │
+│  └─────────────────────┘     └─────────────────────────┘   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="key-components">
+<h3>Key Components<a class="headerlink" href="#key-components" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Working File</strong>: <code class="docutils literal notranslate"><span class="pre">~/.dotfiles/homedir/.zshrc</span></code> (your actual configuration)</p></li>
+<li><p><strong>Repository File</strong>: <code class="docutils literal notranslate"><span class="pre">~/.config/zsh/zshrc</span></code> (distributed version)</p></li>
+<li><p><strong>Sync Functions</strong>: Automated tools to keep them in sync</p></li>
+</ol>
+</section>
+</section>
+<section id="configuration-script">
+<h2>Configuration Script<a class="headerlink" href="#configuration-script" title="Link to this heading"></a></h2>
+<section id="quick-setup-options">
+<h3>Quick Setup Options<a class="headerlink" href="#quick-setup-options" title="Link to this heading"></a></h3>
+<section id="for-new-users-recommended">
+<h4>For New Users (Recommended)<a class="headerlink" href="#for-new-users-recommended" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simple standalone setup</span>
+./configure-shell.sh<span class="w"> </span>--mode<span class="w"> </span>standalone
+
+<span class="c1"># Set up once, use forever</span>
+./configure-shell.sh<span class="w"> </span>--mode<span class="w"> </span>standalone<span class="w"> </span>--setup-env
+</pre></div>
+</div>
+</section>
+<section id="for-power-users-your-setup">
+<h4>For Power Users (Your Setup)<a class="headerlink" href="#for-power-users-your-setup" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use your personal symlink setup</span>
+./configure-shell.sh<span class="w"> </span>--personal
+
+<span class="c1"># Set up environment variables for your preferences</span>
+./configure-shell.sh<span class="w"> </span>--personal<span class="w"> </span>--setup-env
+</pre></div>
+</div>
+</section>
+<section id="for-different-environments">
+<h4>For Different Environments<a class="headerlink" href="#for-different-environments" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Development machine (symlinks)</span>
+./configure-shell.sh<span class="w"> </span>--mode<span class="w"> </span>symlink<span class="w"> </span>--target<span class="w"> </span>~/.dotfiles/homedir
+
+<span class="c1"># Production machine (standalone)</span>
+./configure-shell.sh<span class="w"> </span>--mode<span class="w"> </span>standalone
+
+<span class="c1"># Mixed environment (copy)</span>
+./configure-shell.sh<span class="w"> </span>--mode<span class="w"> </span>copy<span class="w"> </span>--backup
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h3>
+<p>After running <code class="docutils literal notranslate"><span class="pre">--setup-env</span></code>, these variables are available:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default configuration</span>
+<span class="nv">SHELL_CONFIG_MODE</span><span class="o">=</span><span class="s2">&quot;standalone&quot;</span>
+<span class="nv">SHELL_CONFIG_TARGET</span><span class="o">=</span><span class="s2">&quot;/path/to/target&quot;</span>
+<span class="nv">SHELL_CONFIG_SHELL</span><span class="o">=</span><span class="s2">&quot;both&quot;</span>
+<span class="nv">SHELL_CONFIG_BACKUP</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="nv">SHELL_CONFIG_FORCE</span><span class="o">=</span><span class="s2">&quot;false&quot;</span>
+
+<span class="c1"># Personal defaults (your setup)</span>
+<span class="nv">SHELL_CONFIG_PERSONAL_MODE</span><span class="o">=</span><span class="s2">&quot;symlink&quot;</span>
+<span class="nv">SHELL_CONFIG_PERSONAL_TARGET</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.dotfiles/homedir&quot;</span>
+<span class="nv">SHELL_CONFIG_PERSONAL_SHELL</span><span class="o">=</span><span class="s2">&quot;both&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="configuration-script-functions">
+<h3>Configuration Script Functions<a class="headerlink" href="#configuration-script-functions" title="Link to this heading"></a></h3>
+<section id="configure-shell-sh-help">
+<h4><code class="docutils literal notranslate"><span class="pre">configure-shell.sh</span> <span class="pre">--help</span></code><a class="headerlink" href="#configure-shell-sh-help" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Show comprehensive help</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure-shell.sh<span class="w"> </span>--help
+</pre></div>
+</div>
+</section>
+<section id="configure-shell-sh-setup-env">
+<h4><code class="docutils literal notranslate"><span class="pre">configure-shell.sh</span> <span class="pre">--setup-env</span></code><a class="headerlink" href="#configure-shell-sh-setup-env" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Set up environment variables for future use</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure-shell.sh<span class="w"> </span>--mode<span class="w"> </span>standalone<span class="w"> </span>--setup-env
+</pre></div>
+</div>
+</section>
+<section id="configure-shell-sh-personal">
+<h4><code class="docutils literal notranslate"><span class="pre">configure-shell.sh</span> <span class="pre">--personal</span></code><a class="headerlink" href="#configure-shell-sh-personal" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Use personal defaults (symlink setup)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./configure-shell.sh<span class="w"> </span>--personal
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="available-functions">
+<h2>Available Functions<a class="headerlink" href="#available-functions" title="Link to this heading"></a></h2>
+<section id="core-sync-functions">
+<h3>Core Sync Functions<a class="headerlink" href="#core-sync-functions" title="Link to this heading"></a></h3>
+<section id="sync-zshrc-to-repo">
+<h4><code class="docutils literal notranslate"><span class="pre">sync_zshrc_to_repo</span></code><a class="headerlink" href="#sync-zshrc-to-repo" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Copy working zshrc to repository</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sync_zshrc_to_repo
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Copies <code class="docutils literal notranslate"><span class="pre">~/.dotfiles/homedir/.zshrc</span></code> → <code class="docutils literal notranslate"><span class="pre">~/.config/zsh/zshrc</span></code></p></li>
+<li><p>Creates backup of existing repository file</p></li>
+<li><p>Shows file size comparison</p></li>
+<li><p><strong>Use when</strong>: You’ve made changes to your working zshrc</p></li>
+</ul>
+</section>
+<section id="sync-zshrc-from-repo">
+<h4><code class="docutils literal notranslate"><span class="pre">sync_zshrc_from_repo</span></code><a class="headerlink" href="#sync-zshrc-from-repo" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Copy repository zshrc to working file</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sync_zshrc_from_repo
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Copies <code class="docutils literal notranslate"><span class="pre">~/.config/zsh/zshrc</span></code> → <code class="docutils literal notranslate"><span class="pre">~/.dotfiles/homedir/.zshrc</span></code></p></li>
+<li><p>Creates backup of existing working file</p></li>
+<li><p>Shows file size comparison</p></li>
+<li><p><strong>Use when</strong>: You want to restore from repository version</p></li>
+</ul>
+</section>
+<section id="compare-zshrc-files">
+<h4><code class="docutils literal notranslate"><span class="pre">compare_zshrc_files</span></code><a class="headerlink" href="#compare-zshrc-files" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Show differences between files</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>compare_zshrc_files
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Displays file information (size, lines, modification time)</p></li>
+<li><p>Shows diff output if files differ</p></li>
+<li><p>Indicates if files are identical</p></li>
+<li><p><strong>Use when</strong>: You want to see what changes need syncing</p></li>
+</ul>
+</section>
+<section id="sync-zshrc-workflow">
+<h4><code class="docutils literal notranslate"><span class="pre">sync_zshrc_workflow</span></code><a class="headerlink" href="#sync-zshrc-workflow" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Complete sync and push workflow</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sync_zshrc_workflow
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Compares files</p></li>
+<li><p>Syncs working file to repository</p></li>
+<li><p>Commits changes to git</p></li>
+<li><p>Pushes to remote repository</p></li>
+<li><p><strong>Use when</strong>: You want to publish your changes</p></li>
+</ul>
+</section>
+<section id="zshrc-sync-status">
+<h4><code class="docutils literal notranslate"><span class="pre">zshrc_sync_status</span></code><a class="headerlink" href="#zshrc-sync-status" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Show current sync status</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zshrc_sync_status
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Displays information about both files</p></li>
+<li><p>Shows modification times and sizes</p></li>
+<li><p>Indicates sync status</p></li>
+<li><p>Shows git status</p></li>
+<li><p><strong>Use when</strong>: You want to check current state</p></li>
+</ul>
+</section>
+</section>
+<section id="convenience-aliases">
+<h3>Convenience Aliases<a class="headerlink" href="#convenience-aliases" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zshrc-sync<span class="w">      </span><span class="c1"># sync_zshrc_to_repo</span>
+zshrc-restore<span class="w">   </span><span class="c1"># sync_zshrc_from_repo</span>
+zshrc-compare<span class="w">   </span><span class="c1"># compare_zshrc_files</span>
+zshrc-workflow<span class="w">  </span><span class="c1"># sync_zshrc_workflow</span>
+zshrc-status<span class="w">    </span><span class="c1"># zshrc_sync_status</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="workflow-examples">
+<h2>Workflow Examples<a class="headerlink" href="#workflow-examples" title="Link to this heading"></a></h2>
+<section id="daily-development-workflow">
+<h3>Daily Development Workflow<a class="headerlink" href="#daily-development-workflow" title="Link to this heading"></a></h3>
+<section id="make-changes-to-your-zshrc">
+<h4>1. Make Changes to Your Zshrc<a class="headerlink" href="#make-changes-to-your-zshrc" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edit your working zshrc file</span>
+zed<span class="w"> </span>~/.dotfiles/homedir/.zshrc
+<span class="c1"># or</span>
+zshconfig<span class="w">  </span><span class="c1"># if you have this alias</span>
+</pre></div>
+</div>
+</section>
+<section id="check-what-changed">
+<h4>2. Check What Changed<a class="headerlink" href="#check-what-changed" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zshrc-compare
+</pre></div>
+</div>
+</section>
+<section id="sync-to-repository">
+<h4>3. Sync to Repository<a class="headerlink" href="#sync-to-repository" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zshrc-sync
+</pre></div>
+</div>
+</section>
+<section id="commit-and-push-if-needed">
+<h4>4. Commit and Push (if needed)<a class="headerlink" href="#commit-and-push-if-needed" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/.config/zsh
+git<span class="w"> </span>add<span class="w"> </span>zshrc
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Update zshrc: [describe your changes]&quot;</span>
+git<span class="w"> </span>push
+</pre></div>
+</div>
+</section>
+</section>
+<section id="complete-automated-workflow">
+<h3>Complete Automated Workflow<a class="headerlink" href="#complete-automated-workflow" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># One command to do everything</span>
+zshrc-workflow
+</pre></div>
+</div>
+</section>
+<section id="restore-from-repository">
+<h3>Restore from Repository<a class="headerlink" href="#restore-from-repository" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># If you want to restore your working file from repository</span>
+zshrc-restore
+<span class="nb">source</span><span class="w"> </span>~/.zshrc<span class="w">  </span><span class="c1"># Reload your shell</span>
+</pre></div>
+</div>
+</section>
+<section id="check-status">
+<h3>Check Status<a class="headerlink" href="#check-status" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># See current sync status</span>
+zshrc-status
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Environment Variables<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The sync system uses these environment variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">ZSHRC_WORKING_FILE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.dotfiles/homedir/.zshrc&quot;</span>
+<span class="nv">ZSHRC_REPO_FILE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$ZSHRC_CONFIG_DIR</span><span class="s2">/zshrc&quot;</span>
+<span class="nv">ZSHRC_CONFIG_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.config/zsh&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="customizing-paths">
+<h3>Customizing Paths<a class="headerlink" href="#customizing-paths" title="Link to this heading"></a></h3>
+<p>If your setup is different, you can modify these variables in <code class="docutils literal notranslate"><span class="pre">backup-system.zsh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: Different working file location</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSHRC_WORKING_FILE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.config/zsh/my-zshrc&quot;</span>
+
+<span class="c1"># Example: Different repository location</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSHRC_REPO_FILE</span><span class="o">=</span><span class="s2">&quot;/path/to/your/repo/zshrc&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="regular-syncing">
+<h3>1. Regular Syncing<a class="headerlink" href="#regular-syncing" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Sync your changes regularly to keep repository up-to-date</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">zshrc-workflow</span></code> for complete automation</p></li>
+<li><p>Check status with <code class="docutils literal notranslate"><span class="pre">zshrc-status</span></code> before making changes</p></li>
+</ul>
+</section>
+<section id="backup-strategy">
+<h3>2. Backup Strategy<a class="headerlink" href="#backup-strategy" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All sync functions create automatic backups</p></li>
+<li><p>Backups are timestamped: <code class="docutils literal notranslate"><span class="pre">zshrc.backup.YYYYMMDD_HHMMSS</span></code></p></li>
+<li><p>Keep backups for a reasonable time before cleaning up</p></li>
+</ul>
+</section>
+<section id="testing-changes">
+<h3>3. Testing Changes<a class="headerlink" href="#testing-changes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Test your zshrc changes before syncing to repository</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">zshrc-compare</span></code> to review changes</p></li>
+<li><p>Consider the impact on other users</p></li>
+</ul>
+</section>
+<section id="commit-messages">
+<h3>4. Commit Messages<a class="headerlink" href="#commit-messages" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use descriptive commit messages when pushing changes</p></li>
+<li><p>Include context about what changed and why</p></li>
+<li><p>Reference issues or feature requests if applicable</p></li>
+</ul>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<section id="working-zshrc-file-not-found">
+<h4>“Working zshrc file not found”<a class="headerlink" href="#working-zshrc-file-not-found" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if your symlink is correct</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.zshrc
+
+<span class="c1"># If broken, recreate it</span>
+ln<span class="w"> </span>-sf<span class="w"> </span>~/.dotfiles/homedir/.zshrc<span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+</section>
+<section id="repository-directory-not-found">
+<h4>“Repository directory not found”<a class="headerlink" href="#repository-directory-not-found" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make sure you&#39;re in the right directory</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config/zsh
+
+<span class="c1"># Check if it&#39;s a git repository</span>
+git<span class="w"> </span>status
+</pre></div>
+</div>
+</section>
+<section id="files-are-out-of-sync">
+<h4>“Files are out of sync”<a class="headerlink" href="#files-are-out-of-sync" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check what&#39;s different</span>
+zshrc-compare
+
+<span class="c1"># Sync the direction you want</span>
+zshrc-sync<span class="w">      </span><span class="c1"># Working → Repository</span>
+zshrc-restore<span class="w">   </span><span class="c1"># Repository → Working</span>
+</pre></div>
+</div>
+</section>
+<section id="git-push-failed">
+<h4>“Git push failed”<a class="headerlink" href="#git-push-failed" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check git status</span>
+git<span class="w"> </span>status
+
+<span class="c1"># Make sure you&#39;re authenticated</span>
+git<span class="w"> </span>remote<span class="w"> </span>-v
+
+<span class="c1"># Try pulling first</span>
+git<span class="w"> </span>pull
+git<span class="w"> </span>push
+</pre></div>
+</div>
+</section>
+</section>
+<section id="recovery-procedures">
+<h3>Recovery Procedures<a class="headerlink" href="#recovery-procedures" title="Link to this heading"></a></h3>
+<section id="restore-from-backup">
+<h4>Restore from Backup<a class="headerlink" href="#restore-from-backup" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find available backups</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.config/zsh/zshrc.backup.*
+
+<span class="c1"># Restore from specific backup</span>
+cp<span class="w"> </span>~/.config/zsh/zshrc.backup.20240903_134500<span class="w"> </span>~/.config/zsh/zshrc
+</pre></div>
+</div>
+</section>
+<section id="reset-to-repository-version">
+<h4>Reset to Repository Version<a class="headerlink" href="#reset-to-repository-version" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Discard local changes and reset to repository version</span>
+<span class="nb">cd</span><span class="w"> </span>~/.config/zsh
+git<span class="w"> </span>checkout<span class="w"> </span>--<span class="w"> </span>zshrc
+</pre></div>
+</div>
+</section>
+<section id="emergency-restore">
+<h4>Emergency Restore<a class="headerlink" href="#emergency-restore" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># If everything is broken, restore from repository</span>
+zshrc-restore
+<span class="nb">source</span><span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="integration-with-existing-systems">
+<h2>Integration with Existing Systems<a class="headerlink" href="#integration-with-existing-systems" title="Link to this heading"></a></h2>
+<section id="backup-system-integration">
+<h3>Backup System Integration<a class="headerlink" href="#backup-system-integration" title="Link to this heading"></a></h3>
+<p>The zshrc sync functions are integrated with the existing backup system:</p>
+<ul class="simple">
+<li><p>Uses same configuration variables</p></li>
+<li><p>Follows same backup patterns</p></li>
+<li><p>Integrates with git workflows</p></li>
+</ul>
+</section>
+<section id="help-system-integration">
+<h3>Help System Integration<a class="headerlink" href="#help-system-integration" title="Link to this heading"></a></h3>
+<p>All functions are documented and available through:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pyhelp</span></code> - Shows available functions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zsh_help</span></code> - Shows zsh-specific help</p></li>
+<li><p>Function docstrings for detailed information</p></li>
+</ul>
+</section>
+<section id="testing-integration">
+<h3>Testing Integration<a class="headerlink" href="#testing-integration" title="Link to this heading"></a></h3>
+<p>The sync functions can be tested with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test sync functionality</span>
+test_system
+
+<span class="c1"># Test specific sync functions</span>
+zshrc-status
+zshrc-compare
+</pre></div>
+</div>
+</section>
+</section>
+<section id="future-enhancements">
+<h2>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading"></a></h2>
+<section id="potential-improvements">
+<h3>Potential Improvements<a class="headerlink" href="#potential-improvements" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Automatic Sync</strong>: Hook into file modification events</p></li>
+<li><p><strong>Conflict Resolution</strong>: Handle merge conflicts automatically</p></li>
+<li><p><strong>Multi-Environment</strong>: Support multiple working environments</p></li>
+<li><p><strong>Validation</strong>: Check zshrc syntax before syncing</p></li>
+<li><p><strong>Rollback</strong>: Easy rollback to previous versions</p></li>
+</ol>
+</section>
+<section id="contributing">
+<h3>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h3>
+<p>To contribute improvements to the sync system:</p>
+<ol class="arabic simple">
+<li><p>Test your changes thoroughly</p></li>
+<li><p>Update documentation</p></li>
+<li><p>Add appropriate error handling</p></li>
+<li><p>Follow existing code patterns</p></li>
+<li><p>Update help functions</p></li>
+</ol>
+</section>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>The zshrc sync workflow solves the symlink issue while maintaining a smooth development experience. It provides:</p>
+<ul class="simple">
+<li><p>✅ <strong>Portable Repository</strong>: No more broken symlinks</p></li>
+<li><p>✅ <strong>Easy Development</strong>: Simple commands for syncing</p></li>
+<li><p>✅ <strong>Automatic Backups</strong>: Safety net for all operations</p></li>
+<li><p>✅ <strong>Git Integration</strong>: Seamless version control</p></li>
+<li><p>✅ <strong>Comprehensive Documentation</strong>: Clear usage instructions</p></li>
+</ul>
+<p>This system ensures that your repository is always ready for others to use while maintaining your personal development workflow.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -48,9 +48,18 @@ else
     echo -e "${RED}❌ FAILED${NC}"
 fi
 
-# Test 5: Startup Performance
+# Test 5: Backup System
+echo -n "Testing backup system... "
+backup_test=$(timeout 10 zsh -c 'source ~/.config/zsh/zshrc >/dev/null 2>&1 && backup_status >/dev/null 2>&1 && echo "OK"' 2>/dev/null)
+if [[ "$backup_test" == "OK" ]]; then
+    echo -e "${GREEN}✅ OK${NC}"
+else
+    echo -e "${RED}❌ FAILED${NC}"
+fi
+
+# Test 6: Startup Performance
 echo -n "Testing startup performance... "
-startup_time=$(timeout 15 bash -c 'time zsh -c "source ~/.config/zsh/zshrc >/dev/null 2>&1" 2>&1' | grep real | awk '{print $2}' | sed 's/[^0-9.]//g')
+startup_time=$(timeout 15 bash -c 'time zsh -c "source ~/.config/zsh/zshrc >/dev/null 2>&1" 2>&1' | grep real | awk '{print $2}' | sed 's/[^0-9.]//g' | head -1)
 if [[ -n "$startup_time" ]] && (( $(echo "$startup_time < 3.0" | bc -l) )); then
     echo -e "${GREEN}✅ OK (${startup_time}s)${NC}"
 else
@@ -64,6 +73,7 @@ echo "• Configuration loads without hanging"
 echo "• All core modules load successfully"
 echo "• Essential functions are available"
 echo "• Status commands work"
+echo "• Backup system is functional"
 echo "• Startup time is reasonable"
 echo ""
 echo -e "${GREEN}✅ Modular ZSH system is functional${NC}"

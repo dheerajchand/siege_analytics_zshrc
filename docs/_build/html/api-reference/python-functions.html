@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Functions API Reference &mdash; Siege Analytics ZSH Configuration System 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=a274b600" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="canonical" href="https://docs.siegeanalytics.comapi-reference/python-functions.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=d3ce34c2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #00FF41" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Siege Analytics ZSH Configuration System
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/quick-start.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/configuration.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started/troubleshooting.html">Troubleshooting Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Systems</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/python-management.html">Python Management System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/help-system.html">Help System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core-systems/performance-optimization.html">Performance Optimization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Big Data Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/spark-system.html">Apache Spark Integration System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/hadoop-integration.html">Hadoop Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-data/yarn-management.html">YARN Management</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #00FF41" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Siege Analytics ZSH Configuration System</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python Functions API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api-reference/python-functions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="python-functions-api-reference">
+<h1>Python Functions API Reference<a class="headerlink" href="#python-functions-api-reference" title="Link to this heading"></a></h1>
+<p>This module provides comprehensive Python environment management, UV project handling, and data science workflow utilities integrated into the shell configuration system.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All functions support both PyEnv and UV workflows, with automatic detection and cross-shell compatibility (bash/zsh).</p>
+</div>
+<section id="environment-management-functions">
+<h2>Environment Management Functions<a class="headerlink" href="#environment-management-functions" title="Link to this heading"></a></h2>
+<section id="py-env-switch">
+<h3>py_env_switch()<a class="headerlink" href="#py-env-switch" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Intelligently switch between Python environments, supporting both PyEnv virtual environments and UV projects with automatic detection and activation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>py_env_switch<span class="w"> </span><span class="o">[</span>target<span class="o">]</span>
+<span class="c1"># target: list, uv, or environment_name</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>This function serves as the central hub for Python environment management:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List all available environments</span>
+py_env_switch<span class="w"> </span>list
+<span class="c1"># Output:</span>
+<span class="c1"># 🐍 Available Python Environments:</span>
+<span class="c1">#</span>
+<span class="c1"># 📦 Pyenv Environments:</span>
+<span class="c1">#   * system</span>
+<span class="c1">#     3.11.7</span>
+<span class="c1">#     3.12.1</span>
+<span class="c1">#     ml_env</span>
+<span class="c1">#     data_science</span>
+<span class="c1">#</span>
+<span class="c1"># ⚡ UV Projects:</span>
+<span class="c1">#   ✅ Current directory has UV project</span>
+<span class="c1">#</span>
+<span class="c1"># Usage:</span>
+<span class="c1">#   py_env_switch &lt;env_name&gt;    # Switch to pyenv environment</span>
+<span class="c1">#   py_env_switch uv            # Activate UV project here</span>
+
+<span class="c1"># Switch to a PyEnv environment</span>
+py_env_switch<span class="w"> </span>data_science
+<span class="c1"># Output:</span>
+<span class="c1"># 🐍 Switching to pyenv environment: data_science</span>
+<span class="c1"># (data_science) $</span>
+
+<span class="c1"># Activate UV project in current directory</span>
+py_env_switch<span class="w"> </span>uv
+<span class="c1"># Output:</span>
+<span class="c1"># ⚡ Activating UV project: my_analysis</span>
+<span class="c1"># (.venv) $</span>
+
+<span class="c1"># Auto-setup UV project if .venv doesn&#39;t exist</span>
+<span class="nb">cd</span><span class="w"> </span>new_uv_project
+py_env_switch<span class="w"> </span>uv
+<span class="c1"># Output:</span>
+<span class="c1"># 🔨 Setting up UV project...</span>
+<span class="c1"># [UV sync output...]</span>
+<span class="c1"># ⚡ Activating UV project: new_uv_project</span>
+<span class="c1"># (.venv) $</span>
+</pre></div>
+</div>
+<p>Environment Detection Logic:</p>
+<ol class="arabic simple">
+<li><p><strong>List Mode</strong>: Shows all PyEnv environments and UV project status</p></li>
+<li><p><strong>UV Mode</strong>: Activates UV project in current directory, runs <cite>uv sync</cite> if needed</p></li>
+<li><p><strong>Environment Name</strong>: Switches to specified PyEnv environment with error handling</p></li>
+</ol>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: List functionality</span>
+test_py_env_list<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>py_env_switch<span class="w"> </span>list<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;Available Python Environments&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: UV project detection</span>
+test_uv_project_detection<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>mkdir<span class="w"> </span>test_project<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>test_project
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;[project]&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>pyproject.toml
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;name = &quot;test&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>pyproject.toml
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>py_env_switch<span class="w"> </span>list<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;UV project in current directory&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>..<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>test_project
+<span class="o">}</span>
+
+<span class="c1"># Test: PyEnv environment switching</span>
+test_pyenv_switch_invalid<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>py_env_switch<span class="w"> </span>nonexistent_env<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;not found&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="ds-project-init">
+<h3>ds_project_init()<a class="headerlink" href="#ds-project-init" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Initialize complete data science projects with UV, including directory structure, dependencies, and project type-specific packages.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ds_project_init<span class="w"> </span>&lt;project_name&gt;<span class="w"> </span><span class="o">[</span>project_type<span class="o">]</span>
+<span class="c1"># project_types: basic (default), spark, geo</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<p>Creates production-ready data science project structures:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic data science project</span>
+ds_project_init<span class="w"> </span>customer_analysis
+<span class="c1"># Output:</span>
+<span class="c1"># 🔬 Creating data science project: customer_analysis</span>
+<span class="c1"># 📦 Adding data science dependencies...</span>
+<span class="c1"># ✅ Data science project &#39;customer_analysis&#39; created!</span>
+<span class="c1"># 🚀 Next steps:</span>
+<span class="c1">#   source .venv/bin/activate</span>
+<span class="c1">#   jupyter lab</span>
+
+<span class="c1"># Project with Spark dependencies</span>
+ds_project_init<span class="w"> </span>big_data_analysis<span class="w"> </span>spark
+<span class="c1"># Output:</span>
+<span class="c1"># 🔬 Creating data science project: big_data_analysis</span>
+<span class="c1"># 📦 Adding data science dependencies...</span>
+<span class="c1"># ⚡ Adding Spark dependencies...</span>
+<span class="c1"># ✅ Data science project &#39;big_data_analysis&#39; created!</span>
+
+<span class="c1"># Geospatial analysis project</span>
+ds_project_init<span class="w"> </span>geo_analysis<span class="w"> </span>geo
+<span class="c1"># Output:</span>
+<span class="c1"># 🔬 Creating data science project: geo_analysis</span>
+<span class="c1"># 📦 Adding data science dependencies...</span>
+<span class="c1"># 🌍 Adding geospatial dependencies...</span>
+<span class="c1"># ✅ Data science project &#39;geo_analysis&#39; created!</span>
+</pre></div>
+</div>
+<p>Project structure created:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>project_name/
+├── pyproject.toml          # UV project configuration
+├── .venv/                  # Virtual environment
+├── notebooks/              # Jupyter notebooks
+├── data/
+│   ├── raw/               # Raw data files
+│   └── processed/         # Cleaned/processed data
+├── src/                   # Source code modules
+└── tests/                 # Unit tests
+</pre></div>
+</div>
+<p>Dependencies by project type:</p>
+<ul class="simple">
+<li><p><strong>Basic</strong>: pandas, numpy, matplotlib, seaborn, jupyter, ipykernel</p></li>
+<li><p><strong>Spark</strong>: + pyspark, findspark</p></li>
+<li><p><strong>Geo</strong>: + geopandas, folium, contextily</p></li>
+</ul>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Basic project creation</span>
+test_ds_project_basic<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>ds_project_init<span class="w"> </span>test_project<span class="w"> </span>basic
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;test_project/pyproject.toml&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;test_project/notebooks&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>test_project
+<span class="o">}</span>
+
+<span class="c1"># Test: Spark project dependencies</span>
+test_ds_project_spark<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>ds_project_init<span class="w"> </span>test_spark<span class="w"> </span>spark
+<span class="w">    </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;pyspark&quot;</span><span class="w"> </span>test_spark/pyproject.toml
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>test_spark
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Directory structure</span>
+test_ds_project_structure<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>ds_project_init<span class="w"> </span>test_structure
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;test_structure/data/raw&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;test_structure/data/processed&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;test_structure/src&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;test_structure/tests&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">result</span><span class="o">=</span><span class="nv">$?</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>test_structure
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$result</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="python-info">
+<h3>python_info()<a class="headerlink" href="#python-info" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Display comprehensive information about the current Python environment, including version, location, virtual environments, and project status.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python_info<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># System Python environment</span>
+python_info
+<span class="c1"># Output:</span>
+<span class="c1"># 🐍 Python Environment Status</span>
+<span class="c1"># ============================</span>
+<span class="c1">#</span>
+<span class="c1"># Current Python:</span>
+<span class="c1">#   Version: Python 3.11.7</span>
+<span class="c1">#   Location: /usr/local/bin/python</span>
+<span class="c1">#   Virtual Env: None</span>
+<span class="c1">#   Pyenv: system</span>
+<span class="c1">#   UV: 0.2.18</span>
+<span class="c1">#</span>
+<span class="c1"># 📦 No UV project in current directory</span>
+
+<span class="c1"># Inside UV project</span>
+<span class="nb">cd</span><span class="w"> </span>my_uv_project
+python_info
+<span class="c1"># Output:</span>
+<span class="c1"># 🐍 Python Environment Status</span>
+<span class="c1"># ============================</span>
+<span class="c1">#</span>
+<span class="c1"># Current Python:</span>
+<span class="c1">#   Version: Python 3.11.7</span>
+<span class="c1">#   Location: /path/to/project/.venv/bin/python</span>
+<span class="c1">#   Virtual Env: /path/to/project/.venv</span>
+<span class="c1">#   Pyenv: 3.11.7</span>
+<span class="c1">#   UV: 0.2.18</span>
+<span class="c1">#</span>
+<span class="c1"># 📦 Current Project:</span>
+<span class="c1">#   UV Project: ✅ my_uv_project</span>
+<span class="c1">#   Virtual Env: ✅ Ready</span>
+
+<span class="c1"># UV project needs setup</span>
+<span class="nb">cd</span><span class="w"> </span>unsynced_project
+python_info
+<span class="c1"># Output:</span>
+<span class="c1"># [Previous sections...]</span>
+<span class="c1"># 📦 Current Project:</span>
+<span class="c1">#   UV Project: ✅ unsynced_project</span>
+<span class="c1">#   Virtual Env: ❌ Run &#39;uv sync&#39;</span>
+</pre></div>
+</div>
+<p>Information displayed:</p>
+<ol class="arabic simple">
+<li><p><strong>Current Python</strong>: Version, binary location, active virtual environment</p></li>
+<li><p><strong>Tools</strong>: PyEnv version, UV version (if available)</p></li>
+<li><p><strong>Project Status</strong>: UV project detection, virtual environment status</p></li>
+</ol>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Basic info display</span>
+test_python_info_basic<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>python_info<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;Python Environment Status&quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;Current Python&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: UV project detection</span>
+test_python_info_uv_project<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>mkdir<span class="w"> </span>test_project<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>test_project
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;[project]&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>pyproject.toml
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;name = &quot;test&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>pyproject.toml
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>python_info<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;UV Project: ✅&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>..<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>test_project
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="core-utility-functions">
+<h2>Core Utility Functions<a class="headerlink" href="#core-utility-functions" title="Link to this heading"></a></h2>
+<section id="command-exists">
+<h3>command_exists()<a class="headerlink" href="#command-exists" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Check if a command or executable is available in the system PATH, providing a reliable cross-shell method for dependency verification.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>command_exists<span class="w"> </span>&lt;command_name&gt;
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check for Python tools</span>
+<span class="k">if</span><span class="w"> </span>command_exists<span class="w"> </span>python3<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Python 3 is available: </span><span class="k">$(</span>python3<span class="w"> </span>--version<span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Python 3 not found&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># Conditional tool usage</span>
+<span class="k">if</span><span class="w"> </span>command_exists<span class="w"> </span>uv<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Using UV for package management&quot;</span>
+<span class="w">    </span>uv<span class="w"> </span>--version
+<span class="k">elif</span><span class="w"> </span>command_exists<span class="w"> </span>pip<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Falling back to pip&quot;</span>
+<span class="w">    </span>pip<span class="w"> </span>--version
+<span class="k">fi</span>
+
+<span class="c1"># Multiple command check</span>
+<span class="k">for</span><span class="w"> </span>cmd<span class="w"> </span><span class="k">in</span><span class="w"> </span>python3<span class="w"> </span>pip<span class="w"> </span>uv<span class="w"> </span>pyenv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>command_exists<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$cmd</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ </span><span class="nv">$cmd</span><span class="s2">: Available&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ </span><span class="nv">$cmd</span><span class="s2">: Not found&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+<span class="c1"># Output:</span>
+<span class="c1"># ✅ python3: Available</span>
+<span class="c1"># ✅ pip: Available</span>
+<span class="c1"># ✅ uv: Available</span>
+<span class="c1"># ❌ pyenv: Not found</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Existing command detection</span>
+test_command_exists_positive<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>command_exists<span class="w"> </span>ls<span class="w">  </span><span class="c1"># Should exist on all systems</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Non-existing command detection</span>
+test_command_exists_negative<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>!<span class="w"> </span>command_exists<span class="w"> </span>nonexistent_command_12345
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="is-online">
+<h3>is_online()<a class="headerlink" href="#is-online" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Check internet connectivity by attempting to ping a reliable external host, useful for conditional operations that require network access.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>is_online<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic connectivity check</span>
+<span class="k">if</span><span class="w"> </span>is_online<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Internet connection available&quot;</span>
+<span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Offline mode - using cached packages&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># Status string helper</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Network status: </span><span class="k">$(</span>is_online_status<span class="k">)</span><span class="s2">&quot;</span>
+<span class="c1"># Output: Network status: online</span>
+
+<span class="c1"># Conditional UV operations</span>
+<span class="k">if</span><span class="w"> </span>is_online<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📡 Online - updating dependencies&quot;</span>
+<span class="w">    </span>uv<span class="w"> </span>sync<span class="w"> </span>--upgrade
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📴 Offline - using existing environment&quot;</span>
+<span class="w">    </span>uv<span class="w"> </span>sync<span class="w"> </span>--offline
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Online status (requires connectivity)</span>
+test_is_online<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># This test may fail in isolated environments</span>
+<span class="w">    </span>is_online<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Warning: No internet connectivity for testing&quot;</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Status string function</span>
+test_is_online_status<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">status</span><span class="o">=</span><span class="k">$(</span>is_online_status<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$status</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;online&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$status</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;offline&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="mkcd">
+<h3>mkcd()<a class="headerlink" href="#mkcd" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Create a directory and immediately change into it, combining <cite>mkdir -p</cite> and <cite>cd</cite> into a single convenient operation.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkcd<span class="w"> </span>&lt;directory_path&gt;
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create and enter single directory</span>
+mkcd<span class="w"> </span>new_project
+<span class="nb">pwd</span><span class="w">  </span><span class="c1"># /current/path/new_project</span>
+
+<span class="c1"># Create nested directory structure</span>
+mkcd<span class="w"> </span>~/projects/data_analysis/notebooks
+<span class="nb">pwd</span><span class="w">  </span><span class="c1"># /home/user/projects/data_analysis/notebooks</span>
+
+<span class="c1"># Data science workflow</span>
+mkcd<span class="w"> </span>~/ds_projects/customer_segmentation
+ds_project_init<span class="w"> </span>.<span class="w"> </span>basic<span class="w">  </span><span class="c1"># Initialize in current directory</span>
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+jupyter<span class="w"> </span>lab
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Directory creation and navigation</span>
+test_mkcd_basic<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">original_dir</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+<span class="w">    </span>mkcd<span class="w"> </span>test_mkcd_dir
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>basename<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">))</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;test_mkcd_dir&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$original_dir</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rmdir<span class="w"> </span>test_mkcd_dir
+<span class="o">}</span>
+
+<span class="c1"># Test: Nested directory creation</span>
+test_mkcd_nested<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">original_dir</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+<span class="w">    </span>mkcd<span class="w"> </span>deep/nested/directory
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$original_dir</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>deep
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-management-functions">
+<h2>Module Management Functions<a class="headerlink" href="#module-management-functions" title="Link to this heading"></a></h2>
+<section id="load-module">
+<h3>load_module()<a class="headerlink" href="#load-module" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Dynamically load configuration modules from the modular shell system, with error handling and status reporting.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>load_module<span class="w"> </span>&lt;module_name&gt;
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load specific modules</span>
+load_module<span class="w"> </span>spark
+<span class="c1"># Output: ✅ Loaded module: spark</span>
+
+load_module<span class="w"> </span>database
+<span class="c1"># Output: ✅ Loaded module: database</span>
+
+<span class="c1"># Handle missing modules gracefully</span>
+load_module<span class="w"> </span>nonexistent
+<span class="c1"># Output: ⚠️  Module not found: nonexistent (/path/to/config/nonexistent.zsh)</span>
+
+<span class="c1"># Conditional module loading</span>
+<span class="k">if</span><span class="w"> </span>command_exists<span class="w"> </span>docker<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>load_module<span class="w"> </span>docker
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Valid module loading</span>
+test_load_module_valid<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Assume core module exists</span>
+<span class="w">    </span>load_module<span class="w"> </span>core<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+
+<span class="c1"># Test: Invalid module handling</span>
+test_load_module_invalid<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>load_module<span class="w"> </span>nonexistent_module<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="list-modules">
+<h3>list_modules()<a class="headerlink" href="#list-modules" title="Link to this heading"></a></h3>
+<p><strong>Function Definition:</strong></p>
+<p>Display all available configuration modules with descriptions extracted from module files.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>list_modules<span class="o">()</span>
+</pre></div>
+</div>
+<p><strong>Examples and Elaboration:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>list_modules
+<span class="c1"># Output:</span>
+<span class="c1"># 📦 Available Configuration Modules:</span>
+<span class="c1">#</span>
+<span class="c1">#   📄 core</span>
+<span class="c1">#      💡 Essential shell settings, aliases, and basic functionality</span>
+<span class="c1">#   📄 spark</span>
+<span class="c1">#      💡 Cross-platform Apache Spark configuration and utilities</span>
+<span class="c1">#   📄 docker</span>
+<span class="c1">#      💡 Docker and container management utilities</span>
+<span class="c1">#   📄 database</span>
+<span class="c1">#      💡 Database connection and management tools</span>
+</pre></div>
+</div>
+<p><strong>Unit Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test: Module listing</span>
+test_list_modules<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">output</span><span class="o">=</span><span class="k">$(</span>list_modules<span class="k">)</span>
+<span class="w">    </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$output</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot;Available Configuration Modules&quot;</span>*<span class="w"> </span><span class="o">]]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="aliases-and-shortcuts">
+<h2>Aliases and Shortcuts<a class="headerlink" href="#aliases-and-shortcuts" title="Link to this heading"></a></h2>
+<p>The module provides convenient aliases for all major Python workflow functions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python environment management</span>
+py-switch<span class="w">           </span><span class="c1"># py_env_switch</span>
+py-list<span class="w">             </span><span class="c1"># py_env_switch list</span>
+py-info<span class="w">             </span><span class="c1"># python_info</span>
+py-uv<span class="w">               </span><span class="c1"># py_env_switch uv</span>
+
+<span class="c1"># Data science project management</span>
+ds-init<span class="w">             </span><span class="c1"># ds_project_init</span>
+ds-basic<span class="w">            </span><span class="c1"># ds_project_init (basic type)</span>
+ds-spark<span class="w">            </span><span class="c1"># ds_project_init (spark type)</span>
+ds-geo<span class="w">              </span><span class="c1"># ds_project_init (geo type)</span>
+
+<span class="c1"># UV package management</span>
+uv-init<span class="w">             </span><span class="c1"># uv init</span>
+uv-add<span class="w">              </span><span class="c1"># uv add</span>
+uv-sync<span class="w">             </span><span class="c1"># uv sync</span>
+uv-run<span class="w">              </span><span class="c1"># uv run</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-usage-examples">
+<h2>Complete Usage Examples<a class="headerlink" href="#complete-usage-examples" title="Link to this heading"></a></h2>
+<p><strong>Example 1: Setting up a new data science project</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create and initialize project</span>
+ds_project_init<span class="w"> </span>market_analysis<span class="w"> </span>spark
+<span class="nb">cd</span><span class="w"> </span>market_analysis
+
+<span class="c1"># Verify environment</span>
+py_info
+
+<span class="c1"># Start Jupyter Lab</span>
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+jupyter<span class="w"> </span>lab
+</pre></div>
+</div>
+<p><strong>Example 2: Environment switching workflow</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># List available environments</span>
+py-list
+
+<span class="c1"># Switch to existing PyEnv environment for ML work</span>
+py-switch<span class="w"> </span>ml_production
+
+<span class="c1"># Work on a UV project</span>
+<span class="nb">cd</span><span class="w"> </span>~/projects/data_pipeline
+py-switch<span class="w"> </span>uv<span class="w">  </span><span class="c1"># Activates UV project</span>
+
+<span class="c1"># Check current environment status</span>
+py-info
+</pre></div>
+</div>
+<p><strong>Example 3: Cross-platform Python setup</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check what&#39;s available</span>
+<span class="k">for</span><span class="w"> </span>tool<span class="w"> </span><span class="k">in</span><span class="w"> </span>python3<span class="w"> </span>pip<span class="w"> </span>uv<span class="w"> </span>pyenv<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>command_exists<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$tool</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ </span><span class="nv">$tool</span><span class="s2">: </span><span class="k">$(</span>which<span class="w"> </span><span class="nv">$tool</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ </span><span class="nv">$tool</span><span class="s2">: Not installed&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Initialize appropriate project type</span>
+<span class="k">if</span><span class="w"> </span>command_exists<span class="w"> </span>uv<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>ds-init<span class="w"> </span>new_project
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Install UV for modern Python dependency management&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p><strong>Example 4: Automated environment detection</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Function to auto-activate environments</span>
+auto_activate_python<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;pyproject.toml&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔍 UV project detected&quot;</span>
+<span class="w">        </span>py-switch<span class="w"> </span>uv
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;.python-version&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">local</span><span class="w"> </span><span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>.python-version<span class="k">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔍 PyEnv version detected: </span><span class="nv">$version</span><span class="s2">&quot;</span>
+<span class="w">        </span>py-switch<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$version</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ℹ️  No Python project configuration found&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="c1"># Use in directory navigation</span>
+<span class="nb">cd</span><span class="w"> </span>~/projects/my_analysis
+auto_activate_python
+</pre></div>
+</div>
+</section>
+<section id="integration-with-other-modules">
+<h2>Integration with Other Modules<a class="headerlink" href="#integration-with-other-modules" title="Link to this heading"></a></h2>
+<p><strong>With Spark Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup Spark-enabled data science environment</span>
+ds-init<span class="w"> </span>spark_analysis<span class="w"> </span>spark
+<span class="nb">cd</span><span class="w"> </span>spark_analysis
+py-switch<span class="w"> </span>uv
+
+<span class="c1"># Load Spark module and start cluster</span>
+load_module<span class="w"> </span>spark
+spark-start
+
+<span class="c1"># Run Spark job with proper Python environment</span>
+smart_spark_submit<span class="w"> </span>analysis.py
+</pre></div>
+</div>
+<p><strong>With Docker Module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python development in containers</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ZSH_IS_DOCKER</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;true&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🐳 Container environment detected&quot;</span>
+<span class="w">    </span><span class="c1"># Use system Python in containers</span>
+<span class="w">    </span>py-info
+<span class="k">else</span>
+<span class="w">    </span><span class="c1"># Full environment switching on host</span>
+<span class="w">    </span>py-switch<span class="w"> </span>production_env
+<span class="k">fi</span>
+</pre></div>
+</div>
+<p><strong>Cross-Shell Compatibility:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Functions work in both bash and zsh</span>
+<span class="c1"># Bash usage:</span>
+bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/config/core.zsh; py_info&quot;</span>
+
+<span class="c1"># ZSH usage:</span>
+zsh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;source ~/.config/zsh/config/core.zsh; py_info&quot;</span>
+</pre></div>
+</div>
+<p>This comprehensive Python environment management system provides everything needed for modern Python development workflows, from simple script execution to complex data science projects with automatic environment detection and cross-platform compatibility.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Siege Analytics.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

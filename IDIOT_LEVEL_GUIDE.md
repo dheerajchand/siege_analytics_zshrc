@@ -525,7 +525,8 @@ echo "source ~/.config/zsh/zshrc" >> ~/.zshrc
 1. **Check Status**: Run `modular_zsh_status` to see what's loaded
 2. **Get Help**: Run `zsh_help` to see available functions  
 3. **Test System**: Run `./test-modular-quick.sh` to verify everything works
-4. **Read Docs**: Check `README.md` for complete documentation
+4. **Check Backup**: Run `backup_status` to see auto-backup status
+5. **Read Docs**: Check `README.md` for complete documentation
 
 ### **Emergency Reset**
 ```bash
@@ -548,6 +549,7 @@ After setup, you should be able to do all of these:
 - [ ] `environment_info` shows your platform details
 - [ ] `mkcd /tmp/test` creates directory and enters it
 - [ ] `zsh_help` shows help system
+- [ ] `backup_status` shows backup system status
 
 ### **Platform Features:**
 - [ ] `echo $ZSH_PLATFORM` shows your platform (macos/linux)
