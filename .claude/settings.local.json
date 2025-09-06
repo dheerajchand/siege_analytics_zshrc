@@ -74,7 +74,14 @@
       "Bash(gh pr create:*)",
       "Bash(MODULAR_ZSHRC_VERBOSE=true source /Users/dheerajchand/.config/zsh/utilities.zsh)",
       "Bash(backup-status)",
-      "Bash(command -v:*)"
+      "Bash(command -v:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git stash:*)",
+      "Bash(exec zsh)",
+      "Bash(backup_auto_on)",
+      "Bash(mkcd:*)",
+      "Bash(is_online)",
+      "Bash(command_exists git)"
     ],
     "deny": [],
     "ask": []
