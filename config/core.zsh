@@ -55,7 +55,12 @@ fi
 
 # Shell management
 alias zshreboot='source ~/.zshrc'
-alias zshconfig='$EDITOR ~/.config/zsh/zshrc'
+# Enhanced zshconfig function - opens entire config directory
+function zshconfig() {
+    local editor="${VISUAL:-${EDITOR:-zed}}"
+    echo "Opening ZSH configuration directory with $editor..."
+    "$editor" ~/.config/zsh
+}
 
 # Directory navigation shortcuts
 alias ..='cd ..'

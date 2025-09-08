@@ -76,7 +76,7 @@ load_config_module() {
     local module_name="$1"
     local required="${2:-false}"
     local module_path="$ZSH_CONFIG_MODULES/${module_name}.zsh"
-    
+
     if [[ -f "$module_path" ]]; then
         if source "$module_path" 2>/dev/null; then
             LOADED_MODULES[$module_name]="success"
@@ -96,7 +96,7 @@ load_config_module() {
             [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "⏭️  Module not found: $module_name"
         fi
     fi
-    
+
     return 0
 }
 
@@ -162,11 +162,19 @@ if command -v nvm >/dev/null 2>&1 || [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; th
 fi
 
 # Python setup (pyenv)
+
+# Advanced Python Management System (v2.1.0-optimized)
+if [[ -f "$ZSH_CONFIG_DIR/python/init.zsh" ]]; then
+    source "$ZSH_CONFIG_DIR/python/init.zsh"
+fi
+
+
+# pyenv setup
 if command -v pyenv >/dev/null 2>&1; then
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
     eval "$(pyenv init --path)"
-    
+
     # Auto-activate preferred environment
     if [[ -n "$PREFERRED_VENV" ]]; then
         pyenv activate "$PREFERRED_VENV" 2>/dev/null || true
@@ -175,7 +183,7 @@ fi
 
 # UV setup (fast Python package manager) - Cross-shell compatible
 if command -v uv >/dev/null 2>&1; then
-    
+
     uv_auto_activate() {
         # Check if we're in a UV project directory
         if [[ -f "pyproject.toml" ]] && [[ -d ".venv" ]]; then
@@ -186,7 +194,7 @@ if command -v uv >/dev/null 2>&1; then
             fi
         fi
     }
-    
+
     # Cross-shell hook setup
     if [[ -n "$ZSH_VERSION" ]]; then
         # ZSH: Use add-zsh-hook
@@ -202,7 +210,7 @@ if command -v uv >/dev/null 2>&1; then
             uv_auto_activate
         }
     fi
-    
+
     # Check current directory on shell startup
     uv_auto_activate
 fi
@@ -216,7 +224,7 @@ if [[ -s "${SDKMAN_DIR:-$HOME/.sdkman}/bin/sdkman-init.sh" ]]; then
     # SDKMAN initialization
     export SDKMAN_DIR=$(brew --prefix sdkman-cli)/libexec 2>/dev/null || export SDKMAN_DIR="$HOME/.sdkman"
     source "${SDKMAN_DIR}/bin/sdkman-init.sh"
-    
+
     # Load big data modules if tools are available
     load_config_module "spark"
     load_config_module "hadoop"
@@ -261,7 +269,7 @@ remove_python_cruft() {
 # Git utility
 update_local_repo() {
     # Track all remote branches locally
-    for remote in $(git branch -r); do 
+    for remote in $(git branch -r); do
         git branch --track ${remote#origin/} $remote 2>/dev/null
     done
 }
@@ -312,11 +320,11 @@ modular_zsh_status() {
     echo "📦 Modular ZSH Configuration Status"
     echo "==================================="
     echo ""
-    
+
     echo "Configuration Directory: $ZSH_CONFIG_DIR"
     echo "Modules Directory: $ZSH_CONFIG_MODULES"
     echo ""
-    
+
     echo "Module Status:"
     for module module_status in ${(kv)LOADED_MODULES}; do
         case "$module_status" in
@@ -334,9 +342,9 @@ modular_zsh_status() {
                 ;;
         esac
     done
-    
+
     echo ""
-    
+
     # Show available but not loaded modules
     echo "Available Modules:"
     if [[ -d "$ZSH_CONFIG_MODULES" ]]; then
@@ -354,13 +362,13 @@ modular_zsh_status() {
 reload_modular_zsh() {
     # Reload the modular zsh configuration
     echo "🔄 Reloading modular ZSH configuration..."
-    
+
     # Clear loaded modules tracking
     LOADED_MODULES=()
-    
+
     # Source this file again
     source ~/.zshrc
-    
+
     echo "✅ Configuration reloaded"
     echo "💡 Run 'modular_zsh_status' to see module status"
 }
