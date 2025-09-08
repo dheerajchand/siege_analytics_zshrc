@@ -770,80 +770,80 @@ function sync_all_passwords_to_1password() {
     # Get all internet passwords from keychain
     echo "🔍 Scanning Apple Passwords keychain..."
     
-    # NEW APPROACH: Comprehensive keychain discovery
+    # COMPREHENSIVE APPROACH: Multiple discovery methods for maximum coverage
     echo "🔐 Discovering ALL keychain entries (may require authentication)..."
-    echo "   Found 127 total entries in keychain - enumerating all..."
+    echo "   Target: All 127+ entries in keychain - using multiple discovery methods..."
     
     local entries=()
-    local temp_file="/tmp/keychain_dump_$$"
     
-    # Get complete keychain dump
-    security dump-keychain ~/Library/Keychains/login.keychain-db > "$temp_file" 2>/dev/null
+    # Method 1: Direct password queries (most reliable)
+    echo "   📋 Method 1: Direct internet password enumeration..."
+    local inet_services=()
+    local service_list=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+                        LC_ALL=C grep -o '"srvr"<blob>="[^"]*"' | \
+                        cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sort -u)
     
-    if [[ ! -s "$temp_file" ]]; then
-        echo "⚠️  Keychain access denied, trying with sudo..."
-        sudo security dump-keychain ~/Library/Keychains/login.keychain-db > "$temp_file" 2>/dev/null
+    while IFS= read -r service; do
+        if [[ -n "$service" && "$service" != "<NULL>" ]]; then
+            inet_services+=("$service")
+            entries+=("inet:$service:")
+            echo "     🌐 Internet service: $service"
+        fi
+    done <<< "$service_list"
+    
+    # Method 2: Generic password enumeration
+    echo "   📋 Method 2: Generic password enumeration..."
+    local genp_services=()
+    local generic_list=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+                        LC_ALL=C grep -o '"svce"<blob>="[^"]*"' | \
+                        cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sort -u)
+    
+    while IFS= read -r service; do
+        if [[ -n "$service" && "$service" != "<NULL>" ]]; then
+            genp_services+=("$service")
+            entries+=("genp:$service:")
+            echo "     🔑 Generic service: $service"
+        fi
+    done <<< "$generic_list"
+    
+    # Method 3: WiFi network passwords
+    echo "   📋 Method 3: WiFi network discovery..."
+    local wifi_networks=()
+    local wifi_list=$(security find-generic-password -D "AirPort network password" -g 2>&1 | \
+                     LC_ALL=C grep '"acct"<blob>=' | cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sort -u)
+    
+    while IFS= read -r network; do
+        if [[ -n "$network" && "$network" != "<NULL>" ]]; then
+            wifi_networks+=("$network")
+            entries+=("wifi:$network:")
+            echo "     📶 WiFi network: $network"
+        fi
+    done <<< "$wifi_list"
+    
+    # Method 4: Certificate and key discovery
+    echo "   📋 Method 4: Certificate and key discovery..."
+    local cert_count=$(security find-certificate -a ~/Library/Keychains/login.keychain-db 2>/dev/null | LC_ALL=C grep -c "keychain:")
+    if [[ $cert_count -gt 0 ]]; then
+        entries+=("cert:$cert_count certificates:")
+        echo "     📜 Found $cert_count certificates"
     fi
     
-    # Parse all entries from the dump
-    local entry_count=0
-    while IFS= read -r line; do
-        if [[ "$line" == keychain:* ]]; then
-            ((entry_count++))
-            
-            # Read the complete entry
-            local entry_data=""
-            local next_line
-            while IFS= read -r next_line; do
-                if [[ "$next_line" == keychain:* ]]; then
-                    # Start of next entry - put it back
-                    echo "$next_line" >> "${temp_file}_remaining"
-                    break
-                fi
-                entry_data+="$next_line\n"
-            done
-            
-            # Extract key information from this entry
-            local class=$(echo -e "$entry_data" | grep '^class:' | cut -d'"' -f2)
-            local service=""
-            local account=""
-            
-            case "$class" in
-                "inet")
-                    # Internet password
-                    service=$(echo -e "$entry_data" | grep '0x00000007.*<blob>=' | cut -d'"' -f2)
-                    account=$(echo -e "$entry_data" | grep '"acct".*<blob>=' | cut -d'"' -f2)
-                    if [[ -n "$service" && "$service" != "<NULL>" ]]; then
-                        entries+=("inet:$service:$account")
-                        echo "  🌐 Found internet: $service ($account)"
-                    fi
-                    ;;
-                "genp")
-                    # Generic password
-                    service=$(echo -e "$entry_data" | grep '"svce".*<blob>=' | cut -d'"' -f2)
-                    account=$(echo -e "$entry_data" | grep '"acct".*<blob>=' | cut -d'"' -f2)
-                    if [[ -n "$service" && "$service" != "<NULL>" ]]; then
-                        entries+=("genp:$service:$account")
-                        echo "  🔑 Found generic: $service ($account)"
-                    fi
-                    ;;
-                *)
-                    # Other types (certificates, keys, etc.)
-                    local desc=$(echo -e "$entry_data" | grep '"desc".*<blob>=' | cut -d'"' -f2)
-                    if [[ -n "$desc" && "$desc" != "<NULL>" ]]; then
-                        entries+=("other:$desc:")
-                        echo "  📜 Found other: $desc"
-                    fi
-                    ;;
-            esac
-        fi
-    done < "$temp_file"
-    
-    rm -f "$temp_file" "${temp_file}_remaining"
     
     echo "📊 Discovery complete: Found ${#entries[@]} credential entries to sync"
     
-    echo "Found ${#services[@]} services to sync"
+    # Bridge discovery results to processing - build services array from entries
+    local services=()
+    for entry in "${entries[@]}"; do
+        local entry_type="${entry%%:*}"
+        local service_name="${entry#*:}"
+        service_name="${service_name%:*}"  # Remove account part
+        
+        if [[ -n "$service_name" && "$service_name" != "<NULL>" ]]; then
+            services+=("$service_name")
+        fi
+    done
+    
+    echo "📋 Bridged to processing: Found ${#services[@]} services to sync"
     echo ""
     
     for service in "${services[@]}"; do
@@ -856,16 +856,16 @@ function sync_all_passwords_to_1password() {
         password_data=$(security find-internet-password -s "$service" -g 2>&1)
         
         # If access denied, try with sudo
-        if [[ $? -ne 0 ]] && echo "$password_data" | grep -q "access denied\|not found"; then
+        if [[ $? -ne 0 ]] && echo "$password_data" | LC_ALL=C grep -q "access denied\|not found"; then
             password_data=$(sudo security find-internet-password -s "$service" -g 2>&1)
         fi
         
         if [[ $? -eq 0 ]]; then
             local username server password
-            # Extract fields with better parsing
-            username=$(echo "$password_data" | grep "\"acct\"<blob>=" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]')
-            server=$(echo "$password_data" | grep "\"srvr\"<blob>=" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]')  
-            password=$(echo "$password_data" | grep "^password:" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]')
+            # Extract fields with binary-safe parsing
+            username=$(echo "$password_data" | LC_ALL=C grep "\"acct\"<blob>=" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]')
+            server=$(echo "$password_data" | LC_ALL=C grep "\"srvr\"<blob>=" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]')  
+            password=$(echo "$password_data" | LC_ALL=C grep "^password:" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]')
             
             # If server is empty, use the service we searched for
             if [[ -z "$server" ]]; then
