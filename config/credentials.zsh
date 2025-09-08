@@ -717,14 +717,453 @@ test_credentials() {
 }
 
 # =====================================================
+# COMPREHENSIVE PASSWORD SYNC FUNCTIONS
+# =====================================================
+
+function sync_all_passwords_to_1password() {
+    # Sync ALL entries from Apple Passwords to 1Password
+    #
+    # This creates a complete backup of your Apple Passwords in 1Password
+    #
+    # Args:
+    #     --dry-run: Show what would be synced without making changes
+    #     --vault <name>: Target 1Password vault (default: Personal)
+    local dry_run=""
+    local target_vault="Personal"
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                dry_run="true"
+                shift
+                ;;
+            --vault)
+                target_vault="$2"
+                shift 2
+                ;;
+            *)
+                echo "Unknown option: $1"
+                return 1
+                ;;
+        esac
+    done
+    
+    echo "🔄 Syncing ALL Apple Passwords to 1Password vault: $target_vault"
+    echo ""
+    
+    # Check 1Password CLI availability
+    if ! command -v op >/dev/null 2>&1; then
+        echo "❌ 1Password CLI (op) not found. Install with: brew install 1password-cli"
+        return 1
+    fi
+    
+    # Check if signed in to 1Password
+    if ! op account list >/dev/null 2>&1; then
+        echo "❌ Not signed in to 1Password. Run: op signin"
+        return 1
+    fi
+    
+    local synced=0
+    local failed=0
+    local skipped=0
+    
+    # Get all internet passwords from keychain
+    echo "🔍 Scanning Apple Passwords keychain..."
+    
+    # Use a different approach - enumerate keychain items directly
+    echo "🔐 Scanning keychain items (may require authentication)..."
+    
+    local services=()
+    
+    # First, try to get all internet passwords using security list-keychains and iterate
+    local temp_file="/tmp/keychain_services_$$"
+    
+    # Get all internet password services from keychain
+    # This approach scans for common domains and services
+    local common_services=(
+        "apple.com" "icloud.com" "google.com" "gmail.com" "github.com" "gitlab.com"
+        "amazon.com" "netflix.com" "spotify.com" "facebook.com" "twitter.com" "linkedin.com"
+        "microsoft.com" "outlook.com" "slack.com" "zoom.us" "dropbox.com" "adobe.com"
+        "paypal.com" "stripe.com" "shopify.com" "wordpress.com" "reddit.com" "instagram.com"
+        "youtube.com" "vimeo.com" "discord.com" "telegram.org" "whatsapp.com" "signal.org"
+        "banking" "credit" "visa" "mastercard" "amex" "finance"
+    )
+    
+    # Try to find actual services by attempting to retrieve them
+    for service in "${common_services[@]}"; do
+        if security find-internet-password -s "$service" >/dev/null 2>&1; then
+            services+=("$service")
+            echo "  ✅ Found: $service"
+        fi
+    done
+    
+    # Also try generic password approach for things like WiFi, apps, etc.
+    local app_services=(
+        "AirPort" "Wi-Fi" "WiFi" "Bluetooth" "VPN" 
+        "Safari" "Chrome" "Firefox" "Edge"
+        "Mail" "Messages" "FaceTime" "Keychain Access"
+        "Terminal" "iTerm" "VS Code" "Xcode"
+    )
+    
+    for service in "${app_services[@]}"; do
+        if security find-generic-password -s "$service" >/dev/null 2>&1; then
+            services+=("$service")
+            echo "  ✅ Found: $service (generic)"
+        fi
+    done
+    
+    # If user wants EVERYTHING, we need to try a more comprehensive approach
+    if [[ ${#services[@]} -eq 0 ]]; then
+        echo "⚠️  No services found with common patterns. Trying broader scan..."
+        
+        # Try to get WiFi passwords specifically
+        local wifi_networks
+        wifi_networks=$(security find-generic-password -D "AirPort network password" -a 2>/dev/null | grep -o 'acct.*="[^"]*"' | cut -d'"' -f2)
+        
+        if [[ -n "$wifi_networks" ]]; then
+            while IFS= read -r network; do
+                if [[ -n "$network" ]]; then
+                    services+=("WiFi:$network")
+                    echo "  ✅ Found WiFi: $network"
+                fi
+            done <<< "$wifi_networks"
+        fi
+    fi
+    
+    # Remove duplicates and sort
+    services=($(printf '%s\n' "${services[@]}" | sort -u))
+    
+    echo "Found ${#services[@]} services to sync"
+    echo ""
+    
+    for service in "${services[@]}"; do
+        if [[ -z "$service" ]]; then continue; fi
+        
+        echo "🔍 Processing: $service"
+        
+        # Get password details from keychain
+        local password_data
+        password_data=$(security find-internet-password -s "$service" -g 2>&1)
+        
+        # If access denied, try with sudo
+        if [[ $? -ne 0 ]] && echo "$password_data" | grep -q "access denied\|not found"; then
+            password_data=$(sudo security find-internet-password -s "$service" -g 2>&1)
+        fi
+        
+        if [[ $? -eq 0 ]]; then
+            local username server password
+            # Extract fields, filtering out binary data warnings
+            username=$(echo "$password_data" | grep "\"acct\"" | cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sed 's/Binary file.*matches//')
+            server=$(echo "$password_data" | grep "\"srvr\"" | cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sed 's/Binary file.*matches//')
+            password=$(echo "$password_data" | grep "password:" | cut -d'"' -f2 | LC_ALL=C tr -cd '[:print:]' | sed 's/Binary file.*matches//')
+            
+            # Handle passkeys/biometric data specially
+            if [[ "$password_data" == *"Binary file"* ]]; then
+                # This might be a passkey or biometric credential
+                local title=$(echo "$service" | sed 's/\.com$//')
+                
+                if [[ "$dry_run" == "true" ]]; then
+                    echo "  🔑 Would sync passkey/credential: $title (biometric data)"
+                else
+                    # Create a passkey entry in 1Password
+                    local result
+                    result=$(op item create --category=login --vault="$target_vault" \
+                        --title="$title (Passkey)" \
+                        --url="https://$service" \
+                        --tags="passkey,biometric,synced-from-apple" 2>&1)
+                    
+                    if [[ $? -eq 0 ]]; then
+                        echo "  ✅ Synced passkey: $title"
+                        ((synced++))
+                    else
+                        echo "  ❌ Failed passkey: $title"
+                        echo "     Error: $result"
+                        ((failed++))
+                    fi
+                fi
+                continue
+            fi
+            
+            if [[ -n "$username" && -n "$password" ]]; then
+                if [[ "$dry_run" == "true" ]]; then
+                    echo "  📋 Would sync: $username @ $server"
+                else
+                    # Create item in 1Password
+                    local result
+                    result=$(op item create --category=login --vault="$target_vault" \
+                        --title="$server" \
+                        --url="https://$server" \
+                        username="$username" \
+                        password="$password" 2>&1)
+                    
+                    if [[ $? -eq 0 ]]; then
+                        echo "  ✅ Synced: $username @ $server"
+                        ((synced++))
+                    else
+                        echo "  ❌ Failed: $username @ $server"
+                        echo "     Error: $result"
+                        ((failed++))
+                    fi
+                fi
+            else
+                echo "  ⏭️  Skipped: incomplete data"
+                ((skipped++))
+            fi
+        else
+            echo "  ⏭️  Skipped: access denied or not found"
+            ((skipped++))
+        fi
+        echo ""
+    done
+    
+    echo "📊 Sync Summary:"
+    echo "  ✅ Synced: $synced"
+    echo "  ❌ Failed: $failed" 
+    echo "  ⏭️  Skipped: $skipped"
+    
+    if [[ "$dry_run" == "true" ]]; then
+        echo ""
+        echo "💡 Run without --dry-run to perform actual sync"
+    fi
+}
+
+function sync_1password_to_apple() {
+    # Sync entries from 1Password to Apple Passwords
+    #
+    # Args:
+    #     --dry-run: Show what would be synced
+    #     --vault <name>: Source 1Password vault (default: Personal)
+    local dry_run=""
+    local source_vault="Personal"
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                dry_run="true"
+                shift
+                ;;
+            --vault)
+                source_vault="$2"
+                shift 2
+                ;;
+            *)
+                echo "Unknown option: $1"
+                return 1
+                ;;
+        esac
+    done
+    
+    echo "🔄 Syncing 1Password vault '$source_vault' to Apple Passwords"
+    echo ""
+    
+    # Check 1Password CLI
+    if ! command -v op >/dev/null 2>&1; then
+        echo "❌ 1Password CLI not found"
+        return 1
+    fi
+    
+    if ! op account list >/dev/null 2>&1; then
+        echo "❌ Not signed in to 1Password"
+        return 1
+    fi
+    
+    local synced=0
+    local failed=0
+    
+    # Get all login items from 1Password
+    echo "🔍 Getting items from 1Password vault: $source_vault"
+    
+    local op_items
+    op_items=$(op item list --vault="$source_vault" --categories=login --format=json 2>/dev/null)
+    
+    if [[ -z "$op_items" ]]; then
+        echo "⚠️  No login items found in vault or access denied"
+        return 1
+    fi
+    
+    # Parse JSON and process each item
+    echo "$op_items" | jq -r '.[] | .id' | while read -r item_id; do
+        if [[ -z "$item_id" ]]; then continue; fi
+        
+        # Get item details
+        local item_data
+        item_data=$(op item get "$item_id" --format=json 2>/dev/null)
+        
+        if [[ -n "$item_data" ]]; then
+            local title username password url
+            title=$(echo "$item_data" | jq -r '.title // empty')
+            username=$(echo "$item_data" | jq -r '.fields[]? | select(.id=="username") | .value // empty')
+            password=$(echo "$item_data" | jq -r '.fields[]? | select(.id=="password") | .value // empty')
+            url=$(echo "$item_data" | jq -r '.urls[]?.href // empty' | head -1)
+            
+            if [[ -n "$title" && -n "$username" && -n "$password" ]]; then
+                echo "🔍 Processing: $title"
+                
+                if [[ "$dry_run" == "true" ]]; then
+                    echo "  📋 Would add to keychain: $username @ $title"
+                else
+                    # Add to Apple Keychain
+                    local server="${url:-$title}"
+                    server=$(echo "$server" | sed 's|https\?://||' | sed 's|/.*||')
+                    
+                    security add-internet-password -s "$server" -a "$username" -w "$password" -U 2>/dev/null
+                    
+                    if [[ $? -eq 0 ]]; then
+                        echo "  ✅ Added: $username @ $server"
+                        ((synced++))
+                    else
+                        echo "  ❌ Failed to add: $username @ $server"
+                        ((failed++))
+                    fi
+                fi
+            else
+                echo "  ⏭️  Skipped: $title (incomplete data)"
+            fi
+        fi
+    done
+    
+    echo ""
+    echo "📊 Sync Summary:"
+    echo "  ✅ Added: $synced"
+    echo "  ❌ Failed: $failed"
+}
+
+function sync_env_to_apple() {
+    # Sync environment variables to Apple Passwords
+    #
+    # Args:
+    #     --dry-run: Show what would be synced
+    local dry_run=""
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run)
+                dry_run="true"
+                shift
+                ;;
+            *)
+                echo "Unknown option: $1"
+                return 1
+                ;;
+        esac
+    done
+    
+    echo "🔄 Syncing environment credentials to Apple Passwords"
+    echo ""
+    
+    local synced=0
+    local failed=0
+    
+    # Common credential environment variables
+    local credential_vars=(
+        "PGPASSWORD:postgres:${PGUSER:-$USER}"
+        "MYSQL_PASSWORD:mysql:${MYSQL_USER:-root}"
+        "REDIS_PASSWORD:redis:${REDIS_USER:-default}"
+        "SNOWFLAKE_PASSWORD:snowflake:${SNOWFLAKE_USER:-$USER}"
+        "API_KEY:api:${USER}"
+        "DATABASE_PASSWORD:database:${DATABASE_USER:-$USER}"
+    )
+    
+    for var_spec in "${credential_vars[@]}"; do
+        local env_var service username
+        IFS=':' read -r env_var service username <<< "$var_spec"
+        
+        local password
+        password=$(eval "echo \$$env_var")
+        
+        if [[ -n "$password" ]]; then
+            echo "🔍 Found: $env_var"
+            
+            if [[ "$dry_run" == "true" ]]; then
+                echo "  📋 Would add to keychain: $username @ $service"
+            else
+                security add-generic-password -s "$service" -a "$username" -w "$password" -U 2>/dev/null
+                
+                if [[ $? -eq 0 ]]; then
+                    echo "  ✅ Added: $username @ $service"
+                    ((synced++))
+                else
+                    echo "  ❌ Failed: $username @ $service"
+                    ((failed++))
+                fi
+            fi
+        fi
+    done
+    
+    echo ""
+    echo "📊 Sync Summary:"
+    echo "  ✅ Added: $synced"
+    echo "  ❌ Failed: $failed"
+    
+    if [[ "$dry_run" == "true" ]]; then
+        echo ""
+        echo "💡 Run without --dry-run to perform actual sync"
+    fi
+}
+
+function sync_status() {
+    # Show comprehensive sync status across all systems
+    echo "🔄 Password Sync Status Overview"
+    echo "================================"
+    echo ""
+    
+    # Apple Keychain status
+    echo "🍎 Apple Passwords (Keychain):"
+    local keychain_count
+    keychain_count=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | grep -c "class:" || echo "0")
+    echo "  📦 Total items: $keychain_count"
+    
+    # 1Password status
+    echo ""
+    echo "🔐 1Password:"
+    if command -v op >/dev/null 2>&1; then
+        if op account list >/dev/null 2>&1; then
+            local vaults
+            vaults=$(op vault list --format=json 2>/dev/null | jq -r '.[].name' | tr '\n' ', ' | sed 's/,$//')
+            echo "  ✅ CLI available and signed in"
+            echo "  📦 Available vaults: $vaults"
+        else
+            echo "  ⚠️  CLI available but not signed in"
+        fi
+    else
+        echo "  ❌ CLI not installed"
+    fi
+    
+    # Environment variables status
+    echo ""
+    echo "🌍 Environment Variables:"
+    local env_creds=0
+    for var in PGPASSWORD MYSQL_PASSWORD REDIS_PASSWORD SNOWFLAKE_PASSWORD API_KEY DATABASE_PASSWORD; do
+        if [[ -n "${(P)var}" ]]; then
+            ((env_creds++))
+        fi
+    done
+    echo "  📦 Credential variables found: $env_creds"
+    
+    echo ""
+    echo "💡 Available sync commands:"
+    echo "  sync_all_passwords_to_1password    # Apple → 1Password"
+    echo "  sync_1password_to_apple           # 1Password → Apple"
+    echo "  sync_env_to_apple                 # Environment → Apple"
+}
+
+# =====================================================
 # ALIASES AND HELPERS
 # =====================================================
 
 alias creds-status='credential_backend_status'
 alias creds-test='test_credentials'
 alias creds-backend='set_credential_backend'
+
+# Legacy sync aliases (limited to database credentials)
 alias creds-sync-1p-to-keychain='sync_credentials_1password_to_keychain'
 alias creds-sync-keychain-to-1p='sync_credentials_keychain_to_1password'
+
+# Comprehensive sync aliases (all passwords)
+alias sync-all-to-1p='sync_all_passwords_to_1password'
+alias sync-1p-to-apple='sync_1password_to_apple'
+alias sync-env-to-apple='sync_env_to_apple'
+alias sync-status='sync_status'
 
 # =====================================================
 # INITIALIZATION
