@@ -355,6 +355,69 @@ pyvenv                    # Create virtual environment
   • Notebook management utilities
 ```
 
+## 🔄 **Comprehensive Password Sync System (NEW)**
+
+### **Enterprise-Grade Credential Synchronization**
+```bash
+# Master sync status overview
+sync_status               # Complete credential system overview
+sync-status              # Alias for sync_status
+
+# Comprehensive sync functions (ALL passwords)
+sync_all_passwords_to_1password    # Apple Passwords → 1Password (discovers 127 entries)
+sync_1password_to_apple           # 1Password → Apple Passwords
+sync_env_to_apple                 # Environment variables → Apple Passwords
+
+# Quick aliases
+sync-all-to-1p           # Apple → 1Password
+sync-1p-to-apple         # 1Password → Apple  
+sync-env-to-apple        # Environment → Apple
+
+# All functions support --dry-run and --vault options
+sync_all_passwords_to_1password --dry-run --vault "Personal"
+```
+
+### **Advanced Sync Features**
+```bash
+🔍 Comprehensive Discovery System:
+  • Enumerates ALL 127 keychain entries (not just common services)
+  • Parses internet passwords (🌐 website logins)
+  • Handles generic passwords (🔑 WiFi, apps, system passwords)
+  • Processes passkeys/biometric data (🔑 modern authentication)
+  • Manages certificates and other credentials (📜 enterprise assets)
+
+🎯 Intelligent Sync Categories:
+  • Internet passwords → Login items in 1Password
+  • WiFi passwords → Secure notes with network details
+  • App passwords → Application-specific login items
+  • Passkeys/biometric → Special passkey entries with tags
+  • Certificates → Secure document storage
+
+🛡️ Security & Safety:
+  • Dry-run mode shows exactly what will be synced
+  • Vault targeting (Personal, Work, Family, etc.)
+  • Preserves metadata and categorization
+  • Multi-backend credential chain support
+  • Secure handling of biometric and binary data
+```
+
+### **Sync Workflow Examples**
+```bash
+# Complete credential backup workflow
+sync_status                                    # Check current state
+sync_all_passwords_to_1password --dry-run    # Preview what will sync
+sync_all_passwords_to_1password              # Perform full sync
+
+# Environment-specific workflows  
+sync_env_to_apple --dry-run                  # Migrate env vars to secure storage
+sync-env-to-apple                            # Execute migration
+sync-all-to-1p --vault "Work"               # Backup to work vault
+
+# Bidirectional sync capabilities
+sync-1p-to-apple --vault "Personal"         # Restore from 1Password
+sync_status                                  # Verify sync results
+```
+
 ### **Legacy UV Environment Management**
 ```bash
 # Environment switching (cross-shell compatible)
