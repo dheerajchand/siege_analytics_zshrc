@@ -632,7 +632,8 @@ search_help() {
     echo ""
     
     # Search through different categories based on search term
-    case "${search_term,,}" in
+    local search_lower=$(echo "$search_term" | tr '[:upper:]' '[:lower:]')
+    case "$search_lower" in
         *password*|*credential*|*auth*|*security*)
             echo -e "${HELP_COLOR_MODULE}🔐 Credential Functions:${HELP_COLOR_RESET}"
             echo -e "  ${HELP_COLOR_FUNCTION}get_credential${HELP_COLOR_RESET} - Get credential from any backend"
