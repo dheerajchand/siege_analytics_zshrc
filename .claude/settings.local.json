@@ -107,7 +107,11 @@
       "Bash(declare:*)",
       "Bash(unset:*)",
       "Bash(git reset:*)",
-      "Bash(sync-enhanced:*)"
+      "Bash(sync-enhanced:*)",
+      "Bash(enhanced_sync_status)",
+      "Bash(comprehensive_1password_to_apple_sync)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== Testing $file ===\")"
     ],
     "deny": [],
     "ask": []

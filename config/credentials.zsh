@@ -21,6 +21,29 @@ export CREDENTIAL_BACKEND="${CREDENTIAL_BACKEND:-env-first}"
 # =====================================================
 
 credential_backend_status() {
+    #
+    # Show comprehensive status of all credential backends
+    #
+    # Description:
+    #   Displays the availability and status of all credential storage backends
+    #   including environment variables, 1Password CLI, Apple Keychain, and 
+    #   interactive prompt fallback. Shows installation status, authentication
+    #   state, and provides helpful setup instructions.
+    #
+    # Usage:
+    #   credential_backend_status
+    #
+    # Output:
+    #   Formatted status report showing:
+    #   - ✅ Available and ready backends
+    #   - ⚠️  Available but not configured backends  
+    #   - ❌ Missing or unavailable backends
+    #   - 💡 Setup instructions for each backend
+    #
+    # Examples:
+    #   credential_backend_status
+    #   creds-status  # alias
+    #
     echo "🔐 Credential Backend Status"
     echo ""
     

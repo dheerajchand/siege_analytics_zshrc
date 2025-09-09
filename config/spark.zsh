@@ -238,8 +238,36 @@ get_spark_dependencies() {
 # =====================================================
 
 spark_start() {
-    # Start local Spark cluster with smart dependency management
-    # This function will auto-install and configure Spark if needed
+    #
+    # Start local Spark cluster with intelligent dependency management
+    #
+    # Description:
+    #   Starts a complete Apache Spark cluster (master + worker) with automatic
+    #   dependency resolution. Will auto-install Spark via SDKMAN if not available,
+    #   configure environment variables, and start both master and worker processes.
+    #   Includes smart dependency management that handles missing installations.
+    #
+    # Dependencies:
+    #   - Automatically installs Spark via SDKMAN or Homebrew
+    #   - Requires Java (auto-configured via SDKMAN)
+    #   - Uses netcat for port checking (falls back to process checking)
+    #
+    # Usage:
+    #   spark_start
+    #
+    # Environment Variables Set:
+    #   SPARK_HOME - Path to Spark installation
+    #   SPARK_MASTER_URL - URL of started master (spark://localhost:7077)
+    #
+    # Returns:
+    #   0 on success, 1 on failure
+    #
+    # Examples:
+    #   spark_start                    # Start cluster with auto-install
+    #   spark-start                    # Alias version
+    #
+    # See Also:
+    #   spark_stop, spark_status, ensure_spark_available
     
     # Use smart dependency management
     echo "🔄 Ensuring Spark is available..."
