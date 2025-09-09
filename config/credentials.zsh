@@ -1242,35 +1242,39 @@ function sync_all_passwords_to_1password() {
     echo "🔍 Enhanced Discovery System - Scanning keychain..."
     local entries=()
     
-    # Method 1: Internet passwords  
+    # Method 1: Internet passwords - Process individually  
     echo "   📋 Method 1: Internet password enumeration..."
-    local service_list=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
-                        LC_ALL=C grep -o '"srvr"<blob>="[^"]*"' | \
-                        cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sort -u)
-    
     local inet_count=0
-    while IFS= read -r service; do
+    
+    # Process more entries to get better coverage
+    security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+    LC_ALL=C grep -o '"srvr"<blob>="[^"]*"' | head -50 | while IFS= read -r line; do
+        local service=$(echo "$line" | cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]')
         if [[ -n "$service" && "$service" != "<NULL>" ]]; then
             entries+=("inet:$service:")
             ((inet_count++))
+            echo "     🌐 Internet: $service"
         fi
-    done <<< "$service_list"
-    echo "     Found $inet_count internet services"
+    done
     
-    # Method 2: Generic passwords
+    echo "     Found $inet_count internet services (limited to 50 for testing)"
+    
+    # Method 2: Generic passwords - Process individually
     echo "   📋 Method 2: Generic password enumeration..."
-    local generic_list=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
-                        LC_ALL=C grep -o '"svce"<blob>="[^"]*"' | \
-                        cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]' | sort -u)
-    
     local genp_count=0
-    while IFS= read -r service; do
+    
+    # Process generic passwords one by one  
+    security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+    LC_ALL=C grep -o '"svce"<blob>="[^"]*"' | head -80 | while IFS= read -r line; do
+        local service=$(echo "$line" | cut -d'"' -f4 | LC_ALL=C tr -cd '[:print:]')
         if [[ -n "$service" && "$service" != "<NULL>" ]]; then
             entries+=("genp:$service:")
             ((genp_count++))
+            echo "     🔑 Generic: $service"
         fi
-    done <<< "$generic_list"
-    echo "     Found $genp_count generic services"
+    done
+    
+    echo "     Found $genp_count generic services (limited to 80 for testing)"
     
     # Method 3: WiFi networks
     echo "   📋 Method 3: WiFi network discovery..."

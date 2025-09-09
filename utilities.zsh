@@ -153,3 +153,4 @@ function clone_repos_from_github_organisation {
 
     echo "Cloning complete."
 }
+alias test-enhanced-sync="source /tmp/sync_functions_fixed.zsh && sync_all_passwords_to_1password"
