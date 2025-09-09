@@ -53,11 +53,15 @@ spark_status
 
 # Test Spark management (if SDKMAN installed)
 command -v spark_start && echo "Spark management available"
+
+# Test Spark functionality
+spark_test_simple
 ```
 **Expected Result**:
 - ✅ Shows Spark configuration details
 - ✅ Displays SPARK_HOME path
 - ✅ Shows cluster status
+- ✅ PySpark test passes with RDD and DataFrame operations
 
 ### Test 4: Docker Integration  
 ```bash

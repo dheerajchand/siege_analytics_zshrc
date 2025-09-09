@@ -24,6 +24,7 @@
 ✅ WORKING IMMEDIATELY:
   - modular_zsh_status: Complete module status
   - spark_status: Apache Spark cluster status
+  - spark_test_simple: Quick PySpark functionality test
   - docker_status: Container system status
   - environment_info: Platform and system details
   - jetbrains_status: IDE tool availability
@@ -107,6 +108,7 @@ backup_status              # Auto-backup system control
 
 # Development Tools
 spark_start                # Start Spark cluster
+spark_test_simple          # Quick PySpark functionality test
 docker_cleanup             # Clean Docker resources
 open_project               # Smart IDE project opening
 mkcd                       # Create and enter directory

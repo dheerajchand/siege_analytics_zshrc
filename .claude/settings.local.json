@@ -114,7 +114,9 @@
       "Bash(do echo \"=== Testing $file ===\")",
       "Bash(spark_start:*)",
       "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Testing enhanced function availability ===\"\" && command -v sync_all_passwords_to_1password && echo \"\"✅ sync_all_passwords_to_1password available\"\" || echo \"\"❌ sync_all_passwords_to_1password not available\"\"')",
-      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== MODULE LOADING TEST ===\"\" && modular_zsh_status')"
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== MODULE LOADING TEST ===\"\" && modular_zsh_status')",
+      "Bash(spark_test_simple:*)",
+      "Bash(test_spark_comprehensive)"
     ],
     "deny": [],
     "ask": []

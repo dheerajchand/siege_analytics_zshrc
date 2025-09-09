@@ -635,6 +635,113 @@ spark_history_server() {
 }
 
 # =====================================================
+# SPARK TESTING FUNCTIONS
+# =====================================================
+
+spark_test_simple() {
+    #
+    # Quick Spark functionality test using PySpark
+    #
+    # Description:
+    #   Performs a simple Spark functionality test by creating a SparkSession,
+    #   running basic operations, and verifying the cluster is working.
+    #   This is a lightweight test suitable for development validation.
+    #
+    # Usage:
+    #   spark_test_simple
+    #
+    # Returns:
+    #   0 if test passes, 1 if test fails
+    #
+    echo "🧪 Quick Spark functionality test..."
+    
+    # Check if Spark is available
+    if ! command -v spark-submit >/dev/null 2>&1; then
+        echo "❌ Spark not found. Run spark_start or ensure_spark_available first."
+        return 1
+    fi
+    
+    # Check if Python is available
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "❌ Python3 not found. Install Python to run Spark tests."
+        return 1
+    fi
+    
+    # Run simple PySpark test
+    python3 -c "
+import sys
+try:
+    from pyspark.sql import SparkSession
+    
+    # Create SparkSession
+    spark = SparkSession.builder \
+        .appName('QuickSparkTest') \
+        .master('local[2]') \
+        .config('spark.sql.execution.arrow.pyspark.enabled', 'false') \
+        .getOrCreate()
+    
+    # Simple test operations
+    data = [1, 2, 3, 4, 5]
+    rdd = spark.sparkContext.parallelize(data)
+    result = rdd.map(lambda x: x * 2).collect()
+    
+    # Verify results
+    expected = [2, 4, 6, 8, 10]
+    if result == expected:
+        print('✅ Basic RDD operations: PASSED')
+    else:
+        print(f'❌ Basic RDD operations: FAILED (got {result}, expected {expected})')
+        sys.exit(1)
+    
+    # Test DataFrame operations  
+    df = spark.createDataFrame([(1, 'Alice'), (2, 'Bob')], ['id', 'name'])
+    count = df.count()
+    
+    if count == 2:
+        print('✅ DataFrame operations: PASSED')
+    else:
+        print(f'❌ DataFrame operations: FAILED (got count {count}, expected 2)')
+        sys.exit(1)
+    
+    # Cleanup
+    spark.stop()
+    print('🎉 Quick Spark test completed successfully!')
+    
+except ImportError as e:
+    print(f'❌ PySpark not available: {e}')
+    print('💡 Install with: pip install pyspark')
+    sys.exit(1)
+except Exception as e:
+    print(f'❌ Test failed: {e}')
+    sys.exit(1)
+" 2>/dev/null
+    
+    if [[ $? -eq 0 ]]; then
+        echo "✅ Spark functionality test PASSED"
+        return 0
+    else
+        echo "❌ Spark functionality test FAILED"
+        echo "💡 Try running: spark_start && spark_test_simple"
+        return 1
+    fi
+}
+
+test_spark_comprehensive() {
+    #
+    # Comprehensive Spark functionality test (placeholder for advanced testing)
+    #
+    echo "🧪 Comprehensive Spark functionality test..."
+    echo "🔄 This would test advanced features like:"
+    echo "   - Sedona geospatial processing"
+    echo "   - GraphFrames graph processing"  
+    echo "   - MLlib machine learning"
+    echo "   - Structured Streaming"
+    echo ""
+    echo "💡 Use spark_test_simple for basic validation"
+    echo "🚀 Advanced tests coming in future updates"
+}
+
+# =====================================================
 # SPARK ALIASES
 # =====================================================
 

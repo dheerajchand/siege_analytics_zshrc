@@ -245,6 +245,10 @@ heavy_api_submit script.py            # Optimized for API-heavy workloads
 spark_shell               # Scala Spark shell with dependencies
 pyspark_shell            # Python Spark shell with dependencies
 
+# Testing functions
+spark_test_simple         # Quick PySpark functionality test
+test_spark_comprehensive  # Advanced Spark feature testing (placeholder)
+
 # Aliases
 spark-start, spark-stop, spark-status
 spark-submit-local, spark-submit-smart
