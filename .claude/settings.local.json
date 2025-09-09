@@ -106,7 +106,8 @@
       "Bash(hadoop_status:*)",
       "Bash(declare:*)",
       "Bash(unset:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(sync-enhanced:*)"
     ],
     "deny": [],
     "ask": []

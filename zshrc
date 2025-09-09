@@ -219,31 +219,31 @@ fi
 # BIG DATA & ANALYTICS (Conditional Loading)
 # =====================================================
 
-# Load big data tools if SDKMAN is available
+# SDKMAN initialization (if available)
 if [[ -s "${SDKMAN_DIR:-$HOME/.sdkman}/bin/sdkman-init.sh" ]]; then
-    # SDKMAN initialization
     export SDKMAN_DIR=$(brew --prefix sdkman-cli)/libexec 2>/dev/null || export SDKMAN_DIR="$HOME/.sdkman"
     source "${SDKMAN_DIR}/bin/sdkman-init.sh"
-
-    # Load big data modules if tools are available
-    load_config_module "spark"
-    load_config_module "hadoop"
 fi
+
+# Load big data modules (functions always available)
+load_config_module "spark"
+load_config_module "hadoop"
 
 # =====================================================
 # SYSTEM-SPECIFIC MODULES
 # =====================================================
 
-# Docker integration
-if command -v docker >/dev/null 2>&1; then
-    load_config_module "docker"
-fi
+# Docker integration (functions always available)
+load_config_module "docker"
 
 # Load backup system (optional module)
 # load_config_module "backup-system"
 
 # Load backup toggle system (for controlling auto-backup)
 load_config_module "backup-toggle"
+
+# Load status system (master_status and other status functions)
+load_config_module "status"
 
 # Load help system
 load_config_module "help"

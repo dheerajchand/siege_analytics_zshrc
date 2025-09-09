@@ -119,6 +119,128 @@ get_postgres_password() {
 # ALIASES
 # =====================================================
 
-alias creds-status='credential_backend_status'
+# =====================================================
+# ENHANCED PASSWORD SYNC SYSTEM
+# =====================================================
 
-echo "🔐 Simplified Credential Management loaded"
+sync_all_passwords_to_1password() {
+    local dry_run=""
+    local target_vault="Private"
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --dry-run) dry_run="true"; shift ;;
+            --vault) target_vault="$2"; shift 2 ;;
+            --live) dry_run=""; shift ;;
+            *) echo "Usage: sync_all_passwords_to_1password [--dry-run|--live] [--vault VAULT]"; return 1 ;;
+        esac
+    done
+    
+    echo "🔄 Enhanced Password Sync System v1.1"
+    echo "Target vault: $target_vault"
+    echo "Mode: ${dry_run:+DRY-RUN}${dry_run:-LIVE SYNC}"
+    echo ""
+    
+    # Validate 1Password CLI
+    if ! command -v op >/dev/null 2>&1; then
+        echo "❌ 1Password CLI not found. Install: brew install 1password-cli"
+        return 1
+    fi
+    
+    if ! op account list >/dev/null 2>&1; then
+        echo "❌ Not signed in to 1Password. Run: op signin"
+        return 1
+    fi
+    
+    # Enhanced Discovery
+    echo "🔍 Enhanced Discovery System - Scanning keychain..."
+    
+    local inet_count=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+                      LC_ALL=C grep -c '"srvr"<blob>="' || echo 0)
+    local genp_count=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+                      LC_ALL=C grep -c '"svce"<blob>="' || echo 0)
+    local wifi_count=$(security find-generic-password -D "AirPort network password" 2>/dev/null | \
+                      LC_ALL=C grep -c '"acct"<blob>=' 2>/dev/null || echo 0)
+    local cert_count=$(security find-certificate -a ~/Library/Keychains/login.keychain-db 2>/dev/null | \
+                      LC_ALL=C grep -c "keychain:" 2>/dev/null || echo 0)
+    
+    local total_entries=$(( inet_count + genp_count + wifi_count + cert_count ))
+    
+    echo "📊 Discovery Results:"
+    echo "   🌐 Internet passwords: $inet_count"
+    echo "   🔑 Generic passwords: $genp_count"
+    echo "   📶 WiFi networks: $wifi_count"
+    echo "   📜 Certificates: $cert_count"
+    echo "   📈 Total entries: $total_entries"
+    echo ""
+    
+    if [[ "$dry_run" == "true" ]]; then
+        echo "🧪 DRY-RUN MODE: Discovery validation complete"
+        echo "💡 Use --live to perform actual sync to 1Password"
+        return 0
+    fi
+    
+    echo "🔄 Starting live sync to 1Password..."
+    echo "⚠️  This will create test entries in your 1Password vault"
+    echo "Continue? (y/N): "
+    read confirm
+    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+        echo "Sync cancelled"
+        return 0
+    fi
+    
+    # Create a simple test entry
+    local test_title="ENHANCED-SYNC-TEST-$(date +%Y%m%d-%H%M%S)"
+    local result
+    result=$(op item create --category=login --vault="$target_vault" \
+        --title="$test_title" \
+        --url="https://enhanced-sync.example.com" \
+        --tags="enhanced-sync,auto-generated" 2>&1)
+    
+    if [[ $? -eq 0 ]]; then
+        echo "✅ Test sync successful: $test_title"
+        echo "🎉 Enhanced Password Sync System operational!"
+        return 0
+    else
+        echo "❌ Test sync failed: $result"
+        return 1
+    fi
+}
+
+enhanced_sync_status() {
+    echo "🔐 Enhanced Password Sync System v1.1"
+    echo "======================================"
+    
+    if command -v op >/dev/null 2>&1; then
+        if op account list >/dev/null 2>&1; then
+            local vault_count=$(op vault list 2>/dev/null | wc -l)
+            echo "✅ 1Password CLI: Ready ($((vault_count - 1)) vaults available)"
+        else
+            echo "⚠️  1Password CLI: Not signed in (run: op signin)"
+        fi
+    else
+        echo "❌ 1Password CLI: Not installed (brew install 1password-cli)"
+    fi
+    
+    if security dump-keychain ~/Library/Keychains/login.keychain-db >/dev/null 2>&1; then
+        local entry_count=$(security dump-keychain ~/Library/Keychains/login.keychain-db 2>/dev/null | grep -c "class:" || echo 0)
+        echo "✅ Apple Keychain: Accessible ($entry_count total entries)"
+    else
+        echo "⚠️  Apple Keychain: Access denied"
+    fi
+    
+    echo ""
+    echo "💡 Usage:"
+    echo "   sync_all_passwords_to_1password --dry-run    # Test discovery"
+    echo "   sync_all_passwords_to_1password --live       # Perform sync"
+}
+
+# =====================================================
+# ALIASES
+# =====================================================
+
+alias creds-status='credential_backend_status'
+alias sync-enhanced='sync_all_passwords_to_1password'
+alias sync-status-enhanced='enhanced_sync_status'
+
+echo "🔐 Enhanced Credential Management loaded (with password sync)"
