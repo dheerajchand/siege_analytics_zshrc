@@ -111,7 +111,10 @@
       "Bash(enhanced_sync_status)",
       "Bash(comprehensive_1password_to_apple_sync)",
       "Bash(for:*)",
-      "Bash(do echo \"=== Testing $file ===\")"
+      "Bash(do echo \"=== Testing $file ===\")",
+      "Bash(spark_start:*)",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Testing enhanced function availability ===\"\" && command -v sync_all_passwords_to_1password && echo \"\"✅ sync_all_passwords_to_1password available\"\" || echo \"\"❌ sync_all_passwords_to_1password not available\"\"')",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== MODULE LOADING TEST ===\"\" && modular_zsh_status')"
     ],
     "deny": [],
     "ask": []

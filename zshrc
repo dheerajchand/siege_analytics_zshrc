@@ -78,13 +78,16 @@ load_config_module() {
     local module_path="$ZSH_CONFIG_MODULES/${module_name}.zsh"
 
     if [[ -f "$module_path" ]]; then
-        if source "$module_path" 2>/dev/null; then
+        # Load module and capture any errors
+        local load_output
+        if load_output=$(source "$module_path" 2>&1); then
             LOADED_MODULES[$module_name]="success"
             [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "✅ Loaded: $module_name"
             return 0
         else
             LOADED_MODULES[$module_name]="error"
             echo "❌ Error loading module: $module_name"
+            [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "   Error details: $load_output"
             [[ "$required" == "true" ]] && return 1
         fi
     else
