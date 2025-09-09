@@ -290,9 +290,9 @@ legacy_modules=(
 )
 
 for module in "${legacy_modules[@]}"; do
-    module_path="$ZSH_CONFIG_DIR/$module"
-    if [[ -f "$module_path" ]]; then
-        if source "$module_path" 2>/dev/null; then
+    local legacy_module_path="$ZSH_CONFIG_DIR/$module"
+    if [[ -f "$legacy_module_path" ]]; then
+        if source "$legacy_module_path" 2>/dev/null; then
             [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "✅ Legacy: $module"
         else
             echo "⚠️  Error in legacy module: $module"

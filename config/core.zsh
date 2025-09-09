@@ -54,6 +54,8 @@ fi
 # =====================================================
 
 # Shell management
+# Unset any existing alias before defining function
+unalias zshreboot 2>/dev/null
 zshreboot() {
     # Restart zsh shell completely (clears cached functions and reloads config)
     echo "🔄 Restarting zsh shell..."
