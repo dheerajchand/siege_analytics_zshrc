@@ -13,7 +13,126 @@
 export SPARK_MODULE_LOADED="true"
 
 # =====================================================
-# SPARK CONFIGURATION & DETECTION
+# SPARK HELPER FUNCTIONS
+# =====================================================
+
+spark_master_running() {
+    # Check if Spark master is running
+    if command -v nc >/dev/null 2>&1; then
+        nc -z localhost 7077 2>/dev/null
+    else
+        pgrep -f "spark.deploy.master.Master" >/dev/null 2>&1
+    fi
+}
+
+spark_worker_running() {
+    # Check if Spark worker is running
+    pgrep -f "spark.deploy.worker.Worker" >/dev/null 2>&1
+}
+
+# =====================================================
+# SMART SPARK DEPENDENCY MANAGEMENT
+# =====================================================
+
+ensure_spark_available() {
+    # Smart function to ensure Spark is available
+    # Default: Use SDKMAN for installation (preferred method)
+    
+    # Check if Spark is available via SDKMAN
+    if [[ -n "$SDKMAN_DIR" ]] && [[ -f "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+        if ! sdk list spark 2>/dev/null | grep -q "installed"; then
+            echo "🔄 Installing Spark via SDKMAN (default method)..."
+            sdk install spark
+            if [[ $? -eq 0 ]]; then
+                echo "✅ Spark installed via SDKMAN"
+                # Reinitialize SDKMAN to pick up new installation
+                source "$SDKMAN_DIR/bin/sdkman-init.sh"
+                return 0
+            else
+                echo "❌ Spark installation failed"
+            fi
+        fi
+    else
+        # Fallback: Try Homebrew on macOS
+        if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
+            if ! brew list apache-spark >/dev/null 2>&1; then
+                echo "🔄 Installing Spark via Homebrew..."
+                brew install apache-spark
+                if [[ $? -eq 0 ]]; then
+                    echo "✅ Spark installed via Homebrew"
+                    export SPARK_HOME="$(brew --prefix apache-spark)/libexec"
+                    return 0
+                fi
+            fi
+        fi
+    fi
+    
+    return 0
+}
+
+start_spark_cluster() {
+    # Smart function to start Spark cluster
+    # Ensures Spark is available first
+    
+    if ! ensure_spark_available; then
+        echo "❌ Cannot start Spark - installation failed"
+        return 1
+    fi
+    
+    if [[ -z "$SPARK_HOME" ]]; then
+        echo "❌ SPARK_HOME not set"
+        return 1
+    fi
+    
+    # Check if master is already running
+    if spark_master_running; then
+        echo "✅ Spark master already running"
+    else
+        echo "🔄 Starting Spark master..."
+        "$SPARK_HOME/sbin/start-master.sh"
+        
+        # Wait for master to start
+        local timeout=10
+        while ! spark_master_running && [[ $timeout -gt 0 ]]; do
+            sleep 1
+            ((timeout--))
+        done
+        
+        if spark_master_running; then
+            echo "✅ Spark master started"
+        else
+            echo "❌ Spark master failed to start"
+            return 1
+        fi
+    fi
+    
+    # Check if worker is running
+    if spark_worker_running; then
+        echo "✅ Spark worker already running"
+    else
+        echo "🔄 Starting Spark worker..."
+        "$SPARK_HOME/sbin/start-worker.sh" "spark://localhost:7077"
+        
+        # Wait for worker to start
+        local timeout=10
+        while ! spark_worker_running && [[ $timeout -gt 0 ]]; do
+            sleep 1
+            ((timeout--))
+        done
+        
+        if spark_worker_running; then
+            echo "✅ Spark worker started"
+        else
+            echo "❌ Spark worker failed to start"
+            return 1
+        fi
+    fi
+    
+    return 0
+}
+
+# =====================================================
+# SPARK CONFIGURATION & DETECTION  
 # =====================================================
 
 setup_spark_environment() {
@@ -119,56 +238,21 @@ get_spark_dependencies() {
 # =====================================================
 
 spark_start() {
-    # Start local Spark cluster
-    if [[ -z "$SPARK_HOME" ]]; then
-        echo "❌ SPARK_HOME not set. Run setup first."
+    # Start local Spark cluster with smart dependency management
+    # This function will auto-install and configure Spark if needed
+    
+    # Use smart dependency management
+    echo "🔄 Ensuring Spark is available..."
+    if ! ensure_spark_available; then
+        echo "❌ Failed to ensure Spark availability"
         return 1
     fi
     
-    echo "🚀 Starting Spark cluster..."
-    
-    # Start master
-    if ! pgrep -f "spark.deploy.master.Master" >/dev/null; then
-        echo "   Starting Spark master..."
-        "$SPARK_HOME/sbin/start-master.sh"
-        
-        # Wait for master to start
-        local max_wait=30
-        local wait_count=0
-        while ! nc -z localhost 7077 2>/dev/null && [[ $wait_count -lt $max_wait ]]; do
-            sleep 1
-            ((wait_count++))
-        done
-        
-        if [[ $wait_count -ge $max_wait ]]; then
-            echo "❌ Master failed to start within ${max_wait}s"
-            return 1
-        fi
-        
-        echo "   ✅ Master started at $SPARK_MASTER_URL"
-    else
-        echo "   ✅ Master already running"
-    fi
-    
-    # Start worker
-    if ! pgrep -f "spark.deploy.worker.Worker" >/dev/null; then
-        echo "   Starting Spark worker..."
-        "$SPARK_HOME/sbin/start-worker.sh" "$SPARK_MASTER_URL"
-        
-        # Wait a bit for worker to register
-        sleep 3
-        echo "   ✅ Worker started"
-    else
-        echo "   ✅ Worker already running"
-    fi
-    
-    echo "🎯 Spark cluster ready!"
-    echo "   Master URL: $SPARK_MASTER_URL"
-    echo "   Web UI: http://localhost:8080"
-    
-    # Export updated URL
-    export SPARK_MASTER_URL="spark://localhost:7077"
+    # Delegate to smart cluster startup
+    return start_spark_cluster
 }
+
+# Cleaned up orphaned code from spark_start refactor
 
 spark_stop() {
     # Stop local Spark cluster

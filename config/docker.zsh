@@ -13,15 +13,99 @@
 export DOCKER_MODULE_LOADED="true"
 
 # =====================================================
+# SMART DEPENDENCY MANAGEMENT
+# =====================================================
+
+ensure_docker_available() {
+    # Smart function to ensure Docker is available and running
+    # Tries to start Docker if it's installed but not running
+    
+    # Check if Docker command exists
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "❌ Docker not installed. Installing via Homebrew..."
+        if command -v brew >/dev/null 2>&1; then
+            brew install docker
+            # Default: Install Docker Desktop (preferred on macOS)
+            brew install --cask docker
+            echo "✅ Docker installed. Please start Docker Desktop manually."
+            return 1
+        else
+            echo "❌ Homebrew not found. Please install Docker manually."
+            return 1
+        fi
+    fi
+    
+    # Check if Docker daemon is running
+    if ! docker info >/dev/null 2>&1; then
+        echo "🔄 Docker daemon not running. Attempting to start..."
+        
+        case "$OSTYPE" in
+            darwin*)
+                # macOS: Try to start Docker Desktop
+                if [[ -d "/Applications/Docker.app" ]]; then
+                    echo "Starting Docker Desktop..."
+                    open -a Docker
+                    echo "⏳ Waiting for Docker to start..."
+                    local timeout=30
+                    while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
+                        sleep 2
+                        ((timeout--))
+                    done
+                    
+                    if docker info >/dev/null 2>&1; then
+                        echo "✅ Docker started successfully"
+                        return 0
+                    else
+                        echo "❌ Docker failed to start within timeout"
+                        return 1
+                    fi
+                else
+                    echo "❌ Docker Desktop not found at /Applications/Docker.app"
+                    return 1
+                fi
+                ;;
+            linux*)
+                # Linux: Try to start Docker service
+                if command -v systemctl >/dev/null 2>&1; then
+                    sudo systemctl start docker
+                elif command -v service >/dev/null 2>&1; then
+                    sudo service docker start
+                else
+                    echo "❌ Cannot start Docker service - no systemctl or service command"
+                    return 1
+                fi
+                
+                # Wait for Docker to be ready
+                local timeout=15
+                while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
+                    sleep 1
+                    ((timeout--))
+                done
+                
+                if docker info >/dev/null 2>&1; then
+                    echo "✅ Docker service started"
+                    return 0
+                else
+                    echo "❌ Docker service failed to start"
+                    return 1
+                fi
+                ;;
+        esac
+    fi
+    
+    return 0
+}
+
+# =====================================================
 # DOCKER DETECTION & SETUP
 # =====================================================
 
 setup_docker_environment() {
     # Configure Docker environment
     
-    # Check if Docker is available
-    if ! command -v docker >/dev/null 2>&1; then
-        [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "⚠️  Docker not found - functions will be limited"
+    # Use smart dependency management
+    if ! ensure_docker_available; then
+        [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "⚠️  Docker not available - functions will be limited"
         return 1
     fi
     
