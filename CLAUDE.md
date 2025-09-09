@@ -97,7 +97,7 @@ path_remove /old/path       # Remove from PATH
 # Enhanced aliases
 ll, la, l                   # Enhanced ls with colors
 gs, gp, gc                  # Git shortcuts
-zshreboot                   # Restart zsh
+zshreboot                   # Restart zsh shell (clears cached functions)
 ```
 
 ### **Environment Module** (Cross-Platform)

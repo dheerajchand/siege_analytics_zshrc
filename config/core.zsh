@@ -54,7 +54,11 @@ fi
 # =====================================================
 
 # Shell management
-alias zshreboot='source ~/.zshrc'
+zshreboot() {
+    # Restart zsh shell completely (clears cached functions and reloads config)
+    echo "🔄 Restarting zsh shell..."
+    exec zsh
+}
 # Enhanced zshconfig function - opens entire config directory
 function zshconfig() {
     local editor="${VISUAL:-${EDITOR:-zed}}"
