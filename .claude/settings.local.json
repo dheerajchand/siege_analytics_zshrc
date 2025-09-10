@@ -116,7 +116,17 @@
       "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Testing enhanced function availability ===\"\" && command -v sync_all_passwords_to_1password && echo \"\"✅ sync_all_passwords_to_1password available\"\" || echo \"\"❌ sync_all_passwords_to_1password not available\"\"')",
       "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== MODULE LOADING TEST ===\"\" && modular_zsh_status')",
       "Bash(spark_test_simple:*)",
-      "Bash(test_spark_comprehensive)"
+      "Bash(test_spark_comprehensive)",
+      "Bash(unalias:*)",
+      "Read(//usr/lib/zsh/5.9/**)",
+      "Bash(zmodload:*)",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Function definition check ===\"\" && type spark_test_simple')",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/config/spark.zsh && echo \"\"=== Direct spark module load ===\"\" && type spark_test_simple')",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc >/dev/null 2>&1 && whence -v spark_test_simple')",
+      "Bash(head:*)",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc 2>&1 | grep -E \"\"(spark|Loaded)\"\" && echo \"\"=== Testing function ===\"\" && type spark_test_simple')",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'ZSH_CONFIG_MODULES=\"\"$HOME/.config/zsh/config\"\"; source \"\"$ZSH_CONFIG_MODULES/spark.zsh\"\" && echo \"\"=== Direct load successful ===\"\" && type spark_test_simple')",
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Testing function ===\"\" && spark_test_simple')"
     ],
     "deny": [],
     "ask": []
