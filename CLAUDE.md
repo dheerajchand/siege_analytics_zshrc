@@ -592,27 +592,102 @@ db-migrate                  # Migrate plaintext to secure storage (when availabl
 
 ## 🔧 **Configuration & Customization**
 
-### **User Customization Files**
+### **🌟 NEW: Centralized Variable Management System**
+
+**All system configuration is now centralized** in one location within the main `zshrc` file for easy customization:
+
 ```bash
-# User-specific customizations (gitignored)
+# Location: ~/.config/zsh/zshrc (lines 65-217)
+# =====================================================
+# CENTRALIZED SYSTEM VARIABLES
+# =====================================================
+```
+
+#### **Variable Categories**
+
+**👤 User Preferences:**
+```bash
+export EDITOR="${EDITOR:-zed}"                        # Default text editor
+export VISUAL="${VISUAL:-zed}"                        # Visual editor
+export WORKING_ON_LAPTOP="${WORKING_ON_LAPTOP:-True}" # Laptop optimization
+
+# Project paths - customize for your workflow
+export SIEGE="${SIEGE:-$HOME/Documents/Professional/Siege_Analytics}"
+export GEOCODE="${GEOCODE:-$HOME/path/to/your/geocoding/project}"
+```
+
+**🐍 Python Environment:**
+```bash
+export PYTHON_MANAGER="${PYTHON_MANAGER:-auto}"       # pyenv, uv, or auto
+export PREFERRED_VENV="${PREFERRED_VENV:-geo31111}"   # Default virtual environment
+export PYTHON_DEFAULT_VERSION="${PYTHON_DEFAULT_VERSION:-3.11}"
+```
+
+**☕ Java & JVM Configuration:**
+```bash
+export TARGET_JAVA_VERSION="${TARGET_JAVA_VERSION:-17.0.12-tem}"
+export HADOOP_HEAPSIZE="${HADOOP_HEAPSIZE:-1024}"     # Hadoop JVM heap size (MB)
+export YARN_HEAPSIZE="${YARN_HEAPSIZE:-1024}"         # YARN JVM heap size (MB)
+```
+
+**⚡ Big Data Tools:**
+```bash
+# Spark Configuration
+export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
+export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}"
+export SPARK_MASTER_URL="${SPARK_MASTER_URL:-spark://localhost:7077}"
+
+# Tool Versions
+export TARGET_SPARK_VERSION="${TARGET_SPARK_VERSION:-3.5.3}"
+export TARGET_HADOOP_VERSION="${TARGET_HADOOP_VERSION:-3.3.6}"
+```
+
+**🗄️ Database Configuration:**
+```bash
+# PostgreSQL
+export PGHOST="${PGHOST:-localhost}"
+export PGUSER="${PGUSER:-dheerajchand}"
+export PGDATABASE="${PGDATABASE:-gis}"
+
+# MySQL, Snowflake, GeoDjango - all centrally configured
+```
+
+**🐳 Docker & Container Settings:**
+```bash
+export CURRENT_DOCKER_PROVIDER="${CURRENT_DOCKER_PROVIDER:-rancher}"
+export DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
+export COMPOSE_DOCKER_CLI_BUILD="${COMPOSE_DOCKER_CLI_BUILD:-1}"
+```
+
+**🎛️ System Behavior Control:**
+```bash
+export MODULAR_ZSHRC_VERBOSE="${MODULAR_ZSHRC_VERBOSE:-false}"  # Debug mode
+export ZSH_STARTUP_TIMING="${ZSH_STARTUP_TIMING:-false}"        # Performance timing
+export AUTO_SETUP_ON_STARTUP="${AUTO_SETUP_ON_STARTUP:-false}"  # Auto tool setup
+```
+
+#### **Key Benefits of Centralized Variables**
+
+✅ **Single source of truth** - All configuration in one place  
+✅ **Easy customization** - Modify any setting from central location  
+✅ **Clear documentation** - Each variable shows which modules use it  
+✅ **Consistent defaults** - No conflicting settings across modules  
+✅ **Safer updates** - Changes won't be overwritten by module updates  
+
+#### **How to Customize**
+
+1. **Edit the centralized section** in `~/.config/zsh/zshrc` (lines 65-217)
+2. **Modify any variable** using the `${VARIABLE:-default}` pattern
+3. **Restart your shell** or run `zsh-reload` to apply changes
+
+### **User-Specific Customizations**
+```bash
+# Optional: Additional customizations (gitignored)
 ~/.config/zsh/user.zsh     # Personal customizations
 ~/.config/zsh/local.zsh    # Machine-specific settings
-
-# Example user.zsh:
-export PREFERRED_VENV="myproject"        # Auto-activate Python venv
-export SPARK_DRIVER_MEMORY="4g"         # Custom Spark settings  
-alias myalias="my custom command"       # Personal aliases
 ```
 
-### **Environment Variables for Control**
-```bash
-# Module behavior control
-export MODULAR_ZSHRC_VERBOSE="true"     # Show module loading messages
-export ZSH_STARTUP_TIMING="true"        # Display startup performance
-export SPARK_DRIVER_MEMORY="4g"         # Spark configuration
-export HADOOP_HEAPSIZE="1024"           # Hadoop JVM settings
-export DOCKER_BUILDKIT="1"              # Docker BuildKit support
-```
+**Note:** With the new centralized system, most customization should be done in the centralized variables section rather than separate files.
 
 ---
 

@@ -162,15 +162,77 @@ zsh_help database         # Database tools
 
 ## 🔧 **Customization Made Easy**
 
-### **Add Your Own Settings**
+### **🌟 NEW: Super Simple Configuration**
+
+**Everything is now in ONE place!** No more hunting around for config files.
+
+#### **Step 1: Open the Main Config**
 ```bash
-# Create your personal config (ignored by git)
+# Open the main configuration file
+zed ~/.config/zsh/zshrc
+
+# Or use any editor you like:
+nano ~/.config/zsh/zshrc
+```
+
+#### **Step 2: Find the Centralized Variables Section**
+Look for this big section (around line 65):
+```bash
+# =====================================================
+# CENTRALIZED SYSTEM VARIABLES  
+# =====================================================
+```
+
+#### **Step 3: Customize What You Want**
+
+**🎨 Change Your Editor:**
+```bash
+export EDITOR="${EDITOR:-zed}"        # Change "zed" to "nano" or "vim"
+```
+
+**🐍 Set Your Python Environment:**
+```bash
+export PREFERRED_VENV="${PREFERRED_VENV:-geo31111}"    # Your favorite Python env
+export PYTHON_MANAGER="${PYTHON_MANAGER:-auto}"       # "pyenv" or "uv" or "auto"
+```
+
+**⚡ Boost Spark Performance:**
+```bash
+export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"    # More memory = faster
+export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}" # Adjust for your machine
+```
+
+**🗄️ Database Settings:**
+```bash
+export PGUSER="${PGUSER:-dheerajchand}"        # Your PostgreSQL username
+export PGDATABASE="${PGDATABASE:-gis}"         # Your default database
+```
+
+**🐳 Docker Provider:**
+```bash
+export CURRENT_DOCKER_PROVIDER="${CURRENT_DOCKER_PROVIDER:-rancher}"  # or "docker-desktop"
+```
+
+#### **Step 4: Apply Changes**
+```bash
+# Restart your shell or run:
+zsh-reload
+```
+
+### **Why This is Awesome:**
+✅ **Everything in one place** - no more scattered config files  
+✅ **Safe changes** - your settings won't break anything  
+✅ **Easy to remember** - just edit one file  
+✅ **Update-proof** - your changes survive system updates  
+
+### **Advanced: Personal Config Files**
+```bash
+# Optional: Create additional personal configs (ignored by git)
 nano ~/.config/zsh/user.zsh
 
-# Example content:
+# Example advanced content:
 export MY_CUSTOM_VAR="value"
 alias ll="ls -la"
-export SPARK_DRIVER_MEMORY="4g"
 
 # Reload to apply changes
 zsh-reload

@@ -21,6 +21,7 @@
 
 ### 📊 **System Achievements:**
 - **86% size reduction**: 2,435 lines → 350 lines in main config
+- **🌟 Centralized variable management**: All 60+ system variables in one organized location
 - **Cross-shell compatibility**: Works in both **bash** and **zsh** with full feature parity
 - **Cross-platform support**: macOS, Linux, Docker, WSL with automatic adaptation
 - **12 focused modules** replacing monolithic configuration
@@ -32,6 +33,7 @@
 - **Dual repository backup**: Development and archive repositories for redundancy
 - **Professional Sphinx documentation** with function definitions, examples, and unit tests
 - **Comprehensive test suite**: Cross-platform and cross-shell compatibility testing
+- **Single-source configuration**: No more scattered config files or conflicting settings
 
 ---
 
@@ -147,54 +149,78 @@ open _build/html/index.html
 
 ## 🔧 Configuration Guide
 
-### **Environment Variables**
+### **🌟 NEW: Centralized Variable Management System**
 
-**System Configuration:**
+**All system configuration is now centralized** in one location for easy customization:
+
+**📍 Location:** `~/.config/zsh/zshrc` (lines 65-217)
+
+#### **Quick Configuration**
 ```bash
-# Enable verbose output during startup
-export MODULAR_ZSHRC_VERBOSE="true"
+# Edit the centralized configuration section
+zed ~/.config/zsh/zshrc
 
-# Auto-setup credentials from secure backends
-export CREDENTIAL_AUTO_SETUP="true"
-
-# Set credential backend preference
-export CREDENTIAL_BACKEND="1password-first"  # Options: env-first, 1password-first, apple-first, env-only
+# Look for the "CENTRALIZED SYSTEM VARIABLES" section
+# Modify any variable using the ${VARIABLE:-default} pattern
+# Restart shell or run: zsh-reload
 ```
 
-**Data Science Configuration:**
+#### **Key Variable Categories**
+
+**👤 User Preferences:**
 ```bash
-# Spark settings (auto-detected, can override)
-export SPARK_HOME="/path/to/spark"
-export SPARK_DRIVER_MEMORY="4g"
-export SPARK_EXECUTOR_MEMORY="2g"
-
-# Hadoop settings (auto-detected, can override)
-export HADOOP_HOME="/path/to/hadoop"
-export HADOOP_DATA_DIR="$HOME/hadoop-data"
-
-# Python settings
-export PYTHON_DEFAULT_VERSION="3.11"
-export UV_DEFAULT_PYTHON="3.11"
+export EDITOR="${EDITOR:-zed}"                        # Default editor
+export PREFERRED_VENV="${PREFERRED_VENV:-geo31111}"   # Python environment
+export WORKING_ON_LAPTOP="${WORKING_ON_LAPTOP:-True}" # Laptop optimizations
 ```
 
-**Database Configuration:**
+**⚡ Big Data & Spark:**
 ```bash
-# PostgreSQL (maintains compatibility)
-export PGHOST="localhost"
-export PGUSER="username"
-export PGDATABASE="database_name"
-# PGPASSWORD is managed by credential system
+export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"      # Spark driver memory
+export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}"  # Spark executor memory
+export TARGET_JAVA_VERSION="${TARGET_JAVA_VERSION:-17.0.12-tem}" # Java version
+export HADOOP_HEAPSIZE="${HADOOP_HEAPSIZE:-1024}"            # Hadoop JVM heap (MB)
+```
+
+**🗄️ Database Configuration:**
+```bash
+# PostgreSQL (maintains full compatibility)
+export PGHOST="${PGHOST:-localhost}"
+export PGUSER="${PGUSER:-dheerajchand}"
+export PGDATABASE="${PGDATABASE:-gis}"
 
 # MySQL
-export MYSQL_HOST="localhost"
-export MYSQL_USER="root"
-# MYSQL_PWD is managed by credential system
+export MYSQL_HOST="${MYSQL_HOST:-localhost}"
+export MYSQL_USER="${MYSQL_USER:-$USER}"
 
 # Snowflake
-export SNOWFLAKE_ACCOUNT="company.region"
-export SNOWFLAKE_WAREHOUSE="COMPUTE_WH"
-export SNOWFLAKE_DATABASE="ANALYTICS_DB"
-# Password managed by credential system
+export SNOWFLAKE_ACCOUNT="${SNOWFLAKE_ACCOUNT:-}"
+export SNOWFLAKE_USER="${SNOWFLAKE_USER:-dheerajchand}"
+```
+
+**🐳 Docker & Development:**
+```bash
+export CURRENT_DOCKER_PROVIDER="${CURRENT_DOCKER_PROVIDER:-rancher}"
+export DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"               # Enable BuildKit
+```
+
+**🎛️ System Behavior:**
+```bash
+export MODULAR_ZSHRC_VERBOSE="${MODULAR_ZSHRC_VERBOSE:-false}" # Debug output
+export AUTO_SETUP_ON_STARTUP="${AUTO_SETUP_ON_STARTUP:-false}" # Auto-install tools
+export CREDENTIAL_BACKEND="${CREDENTIAL_BACKEND:-env-first}"    # Credential priority
+```
+
+#### **Benefits of Centralized Configuration**
+✅ **Single source of truth** - All settings in one place  
+✅ **Easy customization** - No hunting for scattered config files  
+✅ **Safe defaults** - Uses `${VAR:-default}` pattern preserving existing values  
+✅ **Clear documentation** - Each variable shows which modules use it  
+✅ **Update-safe** - Your changes won't be overwritten by system updates  
+
+### **Legacy Environment Variables**
+```bash
+# Still supported for backward compatibility, but centralized variables take precedence
 ```
 
 ### **Credential Management**
