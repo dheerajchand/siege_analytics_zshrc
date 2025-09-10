@@ -88,6 +88,8 @@ export SIEGE="${SIEGE:-$HOME/Documents/Professional/Siege_Analytics}"
 export GEOCODE="${GEOCODE:-$HOME/Documents/Professional/Siege_Analytics/Clients/TAN/Projects/tan_geocoding_test}"
 export MASAI="${MASAI:-$HOME/Documents/Professional/Siege_Analytics/Clients/MI}"
 export RESUME_GENERATOR="${RESUME_GENERATOR:-$HOME/Documents/Professional/resume_generator}"
+export SIEGE_UTILITIES_TEST="${SIEGE_UTILITIES_TEST:-$HOME/projects/test-remote-branch/siege_utilities}"
+export SIEGE_UTILITIES="${SIEGE_UTILITIES:-$HOME/Documents/Professional/Siege_Analytics/Code/siege_utilities}"
 
 # -----------------------------------------------------
 # PYTHON ENVIRONMENT CONFIGURATION
