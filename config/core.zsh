@@ -50,6 +50,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # =====================================================
+# ZSH COMPLETION SYSTEM SETUP
+# =====================================================
+
+# Load required completion modules early (before oh-my-zsh compinit)
+zmodload -i zsh/computil 2>/dev/null
+zmodload -i zsh/complete 2>/dev/null
+zmodload -i zsh/complist 2>/dev/null
+
+# =====================================================
 # CORE ALIASES
 # =====================================================
 
