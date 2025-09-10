@@ -2,17 +2,9 @@
 # AUTO-SETUP & VERSION MANAGEMENT MODULE
 # =====================================================
 
-# Control flags
-export AUTO_SETUP_ON_STARTUP="${AUTO_SETUP_ON_STARTUP:-false}"
-export AUTO_SETUP_CHECK_ONLINE="${AUTO_SETUP_CHECK_ONLINE:-true}"
-export AUTO_SETUP_VERBOSE="${AUTO_SETUP_VERBOSE:-false}"
-
-# Version strategy - pinned known-good versions
-export TARGET_JAVA_VERSION="17.0.12-tem"
-export TARGET_SCALA_VERSION="2.12.18"
-export TARGET_SPARK_VERSION="3.5.3"
-export TARGET_HADOOP_VERSION="3.3.6"
-export TARGET_MAVEN_VERSION="3.9.6"
+# Note: Auto-setup control flags and target versions are now defined in main zshrc centralized section:
+# - AUTO_SETUP_ON_STARTUP, AUTO_SETUP_CHECK_ONLINE, AUTO_SETUP_VERBOSE
+# - TARGET_JAVA_VERSION, TARGET_SCALA_VERSION, TARGET_SPARK_VERSION, TARGET_HADOOP_VERSION, TARGET_MAVEN_VERSION
 
 function setup_java_version {
     if [[ "$(is_online)" == "online" ]]; then

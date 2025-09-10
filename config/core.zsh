@@ -16,23 +16,27 @@
 # Disable auto-correction (can be annoying with technical terms)
 unsetopt correct
 
-# Case sensitive completion (important for technical work)
-export CASE_SENSITIVE="true"
-
-# Disable automatic title setting (let theme handle it)
-export DISABLE_AUTO_TITLE="true"
+# Apply centralized shell configuration
+# Note: CASE_SENSITIVE, DISABLE_AUTO_TITLE are defined in main zshrc
+if [[ "$CASE_SENSITIVE" == "true" ]]; then
+    # Apply case-sensitive completion settings
+    zstyle ':completion:*' matcher-list 'r:|=*' 'l:|=* r:|=*'
+fi
 
 # =====================================================
 # EDITOR CONFIGURATION
 # =====================================================
-
-# Default editor (Zed for GUI, nvim for terminal)
-export EDITOR="zed"
-export VISUAL="zed"
+# Note: EDITOR and VISUAL are defined in main zshrc centralized section
 
 # Terminal editor aliases (nvim as fallback)
 alias vim="nvim"
 alias edit="nvim"
+
+# Open config directory shortcut using centralized EDITOR
+edit-config() {
+    local editor="${VISUAL:-${EDITOR:-zed}}"
+    $editor "$ZSH_CONFIG_DIR"
+}
 
 # =====================================================
 # BASIC SYSTEM CONFIGURATION
@@ -45,8 +49,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         defaults write -g ApplePressAndHoldEnabled -bool true
     fi
     
-    # Laptop environment indicator
-    export WORKING_ON_LAPTOP="True"
+    # Note: WORKING_ON_LAPTOP is now defined in main zshrc centralized section
 fi
 
 # =====================================================

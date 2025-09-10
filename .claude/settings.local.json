@@ -132,7 +132,8 @@
       "Bash(repo_paths)",
       "Bash(repo_status)",
       "Bash(repo_paths active)",
-      "Bash(./sync-repos.sh:*)"
+      "Bash(./sync-repos.sh:*)",
+      "Bash(MODULAR_ZSHRC_VERBOSE=false source ~/.config/zsh/zshrc)"
     ],
     "deny": [],
     "ask": []

@@ -141,9 +141,8 @@ setup_docker_environment() {
         export DOCKER_COMPOSE_AVAILABLE="v2"
     fi
     
-    # Set default Docker configurations for development
-    export DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
-    export COMPOSE_DOCKER_CLI_BUILD="${COMPOSE_DOCKER_CLI_BUILD:-1}"
+    # Note: Docker build configuration variables are defined in main zshrc centralized section:
+    # - DOCKER_BUILDKIT, COMPOSE_DOCKER_CLI_BUILD
 }
 
 # =====================================================

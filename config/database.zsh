@@ -18,11 +18,9 @@ fi
 # POSTGRESQL CONFIGURATION
 # =====================================================
 
-# PostgreSQL connection settings (maintain existing workflow)
-export PGHOST="${PGHOST:-localhost}"
-export PGUSER="${PGUSER:-dheerajchand}"
-export PGPORT="${PGPORT:-5432}"
-export PGDATABASE="${PGDATABASE:-gis}"
+# Note: PostgreSQL connection settings are now defined in main zshrc centralized section:
+# - PGHOST, PGUSER, PGPORT, PGDATABASE
+# This ensures consistency across all modules and easier configuration management.
 
 # Secure password management for PostgreSQL
 setup_postgres_credentials() {
@@ -139,9 +137,8 @@ psql_quick() {
 # =====================================================
 
 # GeoDjango template database settings
-export GEODJANGO_TEMPLATE_SQL_DATABASE="${GEODJANGO_TEMPLATE_SQL_DATABASE:-geodjango_template_db}"
-export GEODJANGO_TEMPLATE_SQL_USER="${GEODJANGO_TEMPLATE_SQL_USER:-dheerajchand}"
-export GEODJANGO_TEMPLATE_SQL_PORT="${GEODJANGO_TEMPLATE_SQL_PORT:-5432}"
+# Note: GeoDjango Template Database settings are defined in main zshrc centralized section:
+# - GEODJANGO_TEMPLATE_SQL_DATABASE, GEODJANGO_TEMPLATE_SQL_USER, GEODJANGO_TEMPLATE_SQL_PORT
 
 setup_geodjango_credentials() {
     # Set up GeoDjango template database credentials
@@ -164,11 +161,8 @@ setup_geodjango_credentials() {
 # =====================================================
 
 # Snowflake connection helpers
-export SNOWFLAKE_ACCOUNT="${SNOWFLAKE_ACCOUNT:-}"
-export SNOWFLAKE_USER="${SNOWFLAKE_USER:-dheerajchand}"
-export SNOWFLAKE_WAREHOUSE="${SNOWFLAKE_WAREHOUSE:-}"
-export SNOWFLAKE_DATABASE="${SNOWFLAKE_DATABASE:-}"
-export SNOWFLAKE_SCHEMA="${SNOWFLAKE_SCHEMA:-PUBLIC}"
+# Note: Snowflake configuration variables are defined in main zshrc centralized section:
+# - SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_WAREHOUSE, SNOWFLAKE_DATABASE, SNOWFLAKE_SCHEMA
 
 setup_snowflake_credentials() {
     # Set up Snowflake credentials
@@ -234,10 +228,8 @@ setup_snowflake_credentials() {
 # =====================================================
 
 # MySQL connection helpers
-export MYSQL_HOST="${MYSQL_HOST:-localhost}"
-export MYSQL_USER="${MYSQL_USER:-$USER}"
-export MYSQL_PORT="${MYSQL_PORT:-3306}"
-export MYSQL_DATABASE="${MYSQL_DATABASE:-}"
+# Note: MySQL configuration variables are defined in main zshrc centralized section:
+# - MYSQL_HOST, MYSQL_USER, MYSQL_PORT, MYSQL_DATABASE
 
 setup_mysql_credentials() {
     # Set up MySQL credentials

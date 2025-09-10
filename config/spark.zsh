@@ -159,9 +159,9 @@ setup_spark_environment() {
     fi
     
     # Default configurations
-    export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
-    export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}"
-    export SPARK_MASTER_URL="${SPARK_MASTER_URL:-spark://localhost:7077}"
+    # Note: Spark configuration variables are defined in main zshrc centralized section:
+    # - SPARK_DRIVER_MEMORY, SPARK_EXECUTOR_MEMORY, SPARK_MASTER_URL
+    # - SPARK_NUM_EXECUTORS, SPARK_EXECUTOR_CORES, SPARK_DRIVER_MAX_RESULT_SIZE
     
     # Container-specific adjustments
     if [[ "$ZSH_IS_DOCKER" == "true" ]]; then

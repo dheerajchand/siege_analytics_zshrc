@@ -63,6 +63,160 @@ mkdir -p "$ZSH_CONFIG_MODULES"
 mkdir -p "$ZSH_CONFIG_FUNCTIONS"
 
 # =====================================================
+# CENTRALIZED SYSTEM VARIABLES
+# =====================================================
+# 
+# This section contains ALL system-wide configuration variables.
+# Variables are organized by category with clear documentation
+# showing which modules/functions use each variable.
+#
+# IMPORTANT: All modules should reference these centralized variables
+# rather than defining their own. This ensures consistency and makes
+# the system easier to configure and maintain.
+# =====================================================
+
+# -----------------------------------------------------
+# USER PREFERENCES (Personal Settings)
+# -----------------------------------------------------
+# Used by: config/core.zsh, various scripts
+export EDITOR="${EDITOR:-zed}"                        # Default text editor
+export VISUAL="${VISUAL:-zed}"                        # Visual editor
+export WORKING_ON_LAPTOP="${WORKING_ON_LAPTOP:-True}" # Laptop optimization flag
+
+# User project paths (used by: environment.zsh, various navigation functions)
+export SIEGE="${SIEGE:-$HOME/Documents/Professional/Siege_Analytics}"
+export GEOCODE="${GEOCODE:-$HOME/Documents/Professional/Siege_Analytics/Clients/TAN/Projects/tan_geocoding_test}"
+export MASAI="${MASAI:-$HOME/Documents/Professional/Siege_Analytics/Clients/MI}"
+export RESUME_GENERATOR="${RESUME_GENERATOR:-$HOME/Documents/Professional/resume_generator}"
+
+# -----------------------------------------------------
+# PYTHON ENVIRONMENT CONFIGURATION
+# -----------------------------------------------------
+# Used by: python/init.zsh, python/core.zsh, config/spark.zsh
+export PYTHON_MANAGER="${PYTHON_MANAGER:-auto}"       # pyenv, uv, or auto
+export PREFERRED_VENV="${PREFERRED_VENV:-geo31111}"   # Default Python virtual environment
+export PYTHON_DEFAULT_VERSION="${PYTHON_DEFAULT_VERSION:-3.11}"
+export UV_DEFAULT_PYTHON="${UV_DEFAULT_PYTHON:-3.11}"
+
+# UV Configuration (used by: bash-compatibility.zsh, python modules)
+export UV_PYTHON_PREFERENCE="${UV_PYTHON_PREFERENCE:-managed}"
+export UV_PYTHON_DOWNLOADS="${UV_PYTHON_DOWNLOADS:-automatic}"
+export UV_COMPILE_BYTECODE="${UV_COMPILE_BYTECODE:-1}"
+export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
+
+# -----------------------------------------------------
+# JAVA & JVM CONFIGURATION
+# -----------------------------------------------------
+# Used by: auto-setup.zsh, config/spark.zsh, config/hadoop.zsh
+export TARGET_JAVA_VERSION="${TARGET_JAVA_VERSION:-17.0.12-tem}"
+export TARGET_SCALA_VERSION="${TARGET_SCALA_VERSION:-2.12.18}"
+
+# JVM Memory Settings (used by: config/hadoop.zsh, config/spark.zsh)
+export HADOOP_HEAPSIZE="${HADOOP_HEAPSIZE:-1024}"     # Hadoop JVM heap size (MB)
+export YARN_HEAPSIZE="${YARN_HEAPSIZE:-1024}"         # YARN JVM heap size (MB)
+
+# -----------------------------------------------------
+# BIG DATA TOOL CONFIGURATION
+# -----------------------------------------------------
+# Used by: auto-setup.zsh, config/spark.zsh, config/hadoop.zsh
+export TARGET_SPARK_VERSION="${TARGET_SPARK_VERSION:-3.5.3}"
+export TARGET_HADOOP_VERSION="${TARGET_HADOOP_VERSION:-3.3.6}"
+export TARGET_MAVEN_VERSION="${TARGET_MAVEN_VERSION:-3.9.6}"
+
+# Spark Configuration (used by: config/spark.zsh, python/integrations/spark.zsh)
+export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
+export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}"
+export SPARK_MASTER_URL="${SPARK_MASTER_URL:-spark://localhost:7077}"
+export SPARK_NUM_EXECUTORS="${SPARK_NUM_EXECUTORS:-4}"
+export SPARK_EXECUTOR_CORES="${SPARK_EXECUTOR_CORES:-1}"
+export SPARK_DRIVER_MAX_RESULT_SIZE="${SPARK_DRIVER_MAX_RESULT_SIZE:-2g}"
+
+# Hadoop Configuration (used by: config/hadoop.zsh)
+export HADOOP_DATA_DIR="${HADOOP_DATA_DIR:-$HOME/hadoop-data}"
+
+# -----------------------------------------------------
+# DATABASE CONFIGURATION
+# -----------------------------------------------------
+# Used by: config/database.zsh, utilities.zsh
+# PostgreSQL
+export PGHOST="${PGHOST:-localhost}"
+export PGUSER="${PGUSER:-dheerajchand}"
+export PGPORT="${PGPORT:-5432}"
+export PGDATABASE="${PGDATABASE:-gis}"
+
+# GeoDjango Template Database (used by: config/database.zsh, utilities.zsh)
+export GEODJANGO_TEMPLATE_SQL_DATABASE="${GEODJANGO_TEMPLATE_SQL_DATABASE:-geodjango_template_db}"
+export GEODJANGO_TEMPLATE_SQL_USER="${GEODJANGO_TEMPLATE_SQL_USER:-dheerajchand}"
+export GEODJANGO_TEMPLATE_SQL_PORT="${GEODJANGO_TEMPLATE_SQL_PORT:-5432}"
+
+# MySQL Configuration (used by: config/database.zsh)
+export MYSQL_HOST="${MYSQL_HOST:-localhost}"
+export MYSQL_USER="${MYSQL_USER:-$USER}"
+export MYSQL_PORT="${MYSQL_PORT:-3306}"
+export MYSQL_DATABASE="${MYSQL_DATABASE:-}"
+
+# Snowflake Configuration (used by: config/database.zsh)
+export SNOWFLAKE_ACCOUNT="${SNOWFLAKE_ACCOUNT:-}"
+export SNOWFLAKE_USER="${SNOWFLAKE_USER:-dheerajchand}"
+export SNOWFLAKE_WAREHOUSE="${SNOWFLAKE_WAREHOUSE:-}"
+export SNOWFLAKE_DATABASE="${SNOWFLAKE_DATABASE:-}"
+export SNOWFLAKE_SCHEMA="${SNOWFLAKE_SCHEMA:-PUBLIC}"
+
+# -----------------------------------------------------
+# DOCKER CONFIGURATION
+# -----------------------------------------------------
+# Used by: config/docker.zsh, docker.zsh, utilities.zsh
+export RANCHER_DOCKER_CONTEXT="${RANCHER_DOCKER_CONTEXT:-rancher-desktop}"
+export DOCKER_DESKTOP_CONTEXT="${DOCKER_DESKTOP_CONTEXT:-desktop-linux}"
+export CURRENT_DOCKER_PROVIDER="${CURRENT_DOCKER_PROVIDER:-rancher}"
+export DEFAULT_DOCKER_CONTEXT="${DEFAULT_DOCKER_CONTEXT:-rancher-desktop}"
+
+# Docker Build Configuration (used by: config/docker.zsh)
+export DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
+export COMPOSE_DOCKER_CLI_BUILD="${COMPOSE_DOCKER_CLI_BUILD:-1}"
+
+# -----------------------------------------------------
+# BACKUP SYSTEM CONFIGURATION
+# -----------------------------------------------------
+# Used by: backup-system.zsh, config/backup-toggle.zsh
+export AUTO_BACKUP_ON_CHANGE="${AUTO_BACKUP_ON_CHANGE:-false}"
+export AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-3600}"  # 1 hour in seconds
+export PATH_DEDUPLICATION_ENABLED="${PATH_DEDUPLICATION_ENABLED:-true}"
+
+# -----------------------------------------------------
+# SYSTEM BEHAVIOR CONTROL
+# -----------------------------------------------------
+# Used by: zshrc (this file), various modules for debugging
+export MODULAR_ZSHRC_VERBOSE="${MODULAR_ZSHRC_VERBOSE:-false}"  # Show module loading messages
+export ZSH_STARTUP_TIMING="${ZSH_STARTUP_TIMING:-false}"        # Display startup performance
+
+# Auto-setup Configuration (used by: auto-setup.zsh)
+export AUTO_SETUP_ON_STARTUP="${AUTO_SETUP_ON_STARTUP:-false}"
+export AUTO_SETUP_CHECK_ONLINE="${AUTO_SETUP_CHECK_ONLINE:-true}"
+export AUTO_SETUP_VERBOSE="${AUTO_SETUP_VERBOSE:-false}"
+
+# Shell Configuration (used by: config/core.zsh)
+export CASE_SENSITIVE="${CASE_SENSITIVE:-true}"
+export DISABLE_AUTO_TITLE="${DISABLE_AUTO_TITLE:-true}"
+
+# -----------------------------------------------------
+# CREDENTIAL SYSTEM CONFIGURATION
+# -----------------------------------------------------
+# Used by: config/credentials.zsh (when module exists)
+export CREDENTIAL_BACKEND="${CREDENTIAL_BACKEND:-env-first}"     # env-first, 1password-first, apple-first, env-only
+export CREDENTIAL_AUTO_SETUP="${CREDENTIAL_AUTO_SETUP:-true}"
+
+# -----------------------------------------------------
+# GIT CONFIGURATION
+# -----------------------------------------------------
+# Used by: config/core.zsh, various git functions
+export GIT_DISCOVERY_ACROSS_FILESYSTEM="${GIT_DISCOVERY_ACROSS_FILESYSTEM:-1}"
+
+# =====================================================
+# END CENTRALIZED VARIABLES SECTION
+# =====================================================
+
+# =====================================================
 # MODULE LOADING SYSTEM
 # =====================================================
 
