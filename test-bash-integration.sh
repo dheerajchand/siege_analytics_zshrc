@@ -76,9 +76,14 @@ echo ""
 echo "🚀 Phase 2: Loading Modular Configuration"
 echo "----------------------------------------"
 
-# Set up paths
-export ZSH_CONFIG_DIR="$HOME/.config/zsh"
-export ZSH_CONFIG_MODULES="$ZSH_CONFIG_DIR/config"
+# Load centralized paths (or fallback to defaults)
+source "$HOME/.config/zsh/zshrc" 2>/dev/null || {
+    # Fallback if config not available
+    export ZSH_CONFIG_DIR="$HOME/.config/zsh"
+    export ZSH_CONFIG_MODULES="$ZSH_CONFIG_DIR/config"
+    export ZSH_ACTIVE_REPO="$HOME/.config/zsh"
+    export ZSH_ARCHIVE_REPO="$HOME/.zshrc_backups"
+}
 
 # Test configuration files exist
 run_test "Config directory exists" "[[ -d '$ZSH_CONFIG_DIR' ]]"

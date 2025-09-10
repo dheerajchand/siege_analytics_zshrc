@@ -11,9 +11,16 @@ set -e
 
 echo "🔄 Syncing repositories..."
 
-# Define paths
-ACTIVE_REPO="$HOME/.config/zsh"
-ARCHIVE_REPO="$HOME/.zshrc_backups"
+# Load centralized configuration
+source "$HOME/.config/zsh/zshrc" 2>/dev/null || {
+    # Fallback to hardcoded paths if config unavailable
+    export ZSH_ACTIVE_REPO="$HOME/.config/zsh"
+    export ZSH_ARCHIVE_REPO="$HOME/.zshrc_backups"
+}
+
+# Use centralized repository paths
+ACTIVE_REPO="$ZSH_ACTIVE_REPO"
+ARCHIVE_REPO="$ZSH_ARCHIVE_REPO"
 
 # Check if both repos exist
 if [[ ! -d "$ACTIVE_REPO/.git" ]]; then

@@ -531,3 +531,116 @@ alias uv-init='uv init'
 alias uv-add='uv add'
 alias uv-sync='uv sync'
 alias uv-run='uv run'
+
+# =====================================================
+# REPOSITORY PATH FUNCTIONS
+# =====================================================
+
+repo_paths() {
+    # Display repository paths for the dual repository system
+    #
+    # Usage:
+    #   repo_paths                    # Show all repository paths
+    #   repo_paths active             # Show active repo path only
+    #   repo_paths archive            # Show archive repo path only
+    #
+    # Examples:
+    #   repo_paths                    # Display all paths
+    #   cd "$(repo_paths active)"     # Navigate to active repo
+    #   ls -la "$(repo_paths archive)" # List archive repo contents
+    
+    local target="${1:-all}"
+    
+    case "$target" in
+        "active"|"dev"|"development")
+            echo "$ZSH_ACTIVE_REPO"
+            ;;
+        "archive"|"backup")
+            echo "$ZSH_ARCHIVE_REPO"
+            ;;
+        "all"|"")
+            echo "🏠 Repository Paths:"
+            echo "  📝 Active (Development): $ZSH_ACTIVE_REPO"
+            echo "  📦 Archive (Backup):     $ZSH_ARCHIVE_REPO"
+            echo ""
+            echo "💡 Usage:"
+            echo "  cd \"\$(repo_paths active)\"   # Navigate to active repo"
+            echo "  cd \"\$(repo_paths archive)\"  # Navigate to archive repo"
+            ;;
+        *)
+            echo "❌ Invalid option: $target"
+            echo "Usage: repo_paths [active|archive|all]"
+            return 1
+            ;;
+    esac
+}
+
+repo_status() {
+    # Show detailed repository status for both active and archive repos
+    #
+    # Usage:
+    #   repo_status                   # Show status of both repositories
+    #
+    # Returns:
+    #   Comprehensive status including git info, file counts, etc.
+    
+    echo "📊 Dual Repository System Status"
+    echo "================================="
+    echo ""
+    
+    # Active Repository
+    echo "📝 Active Repository (Development):"
+    echo "   Path: $ZSH_ACTIVE_REPO"
+    if [[ -d "$ZSH_ACTIVE_REPO/.git" ]]; then
+        cd "$ZSH_ACTIVE_REPO"
+        echo "   Status: ✅ Git repository"
+        echo "   Branch: $(git branch --show-current 2>/dev/null || echo 'unknown')"
+        echo "   Last Commit: $(git log -1 --format='%h %s' 2>/dev/null || echo 'unknown')"
+        echo "   Remote: $(git remote get-url origin 2>/dev/null || echo 'none')"
+        local file_count=$(find . -name "*.zsh" -o -name "*.sh" -o -name "*.md" | wc -l | tr -d ' ')
+        echo "   Files: $file_count configuration files"
+    else
+        echo "   Status: ❌ Not a git repository"
+    fi
+    
+    echo ""
+    
+    # Archive Repository  
+    echo "📦 Archive Repository (Backup):"
+    echo "   Path: $ZSH_ARCHIVE_REPO"
+    if [[ -d "$ZSH_ARCHIVE_REPO/.git" ]]; then
+        cd "$ZSH_ARCHIVE_REPO"
+        echo "   Status: ✅ Git repository"
+        echo "   Branch: $(git branch --show-current 2>/dev/null || echo 'unknown')"
+        echo "   Last Commit: $(git log -1 --format='%h %s' 2>/dev/null || echo 'unknown')"
+        echo "   Remote: $(git remote get-url origin 2>/dev/null || echo 'none')"
+        local backup_count=$(find . -name "config_*" -type d 2>/dev/null | wc -l | tr -d ' ')
+        echo "   Backups: $backup_count timestamped backups"
+    elif [[ -d "$ZSH_ARCHIVE_REPO" ]]; then
+        echo "   Status: ⚠️  Directory exists but not a git repository"
+    else
+        echo "   Status: ❌ Directory not found"
+    fi
+    
+    echo ""
+    echo "🔄 Sync Status:"
+    if [[ -d "$ZSH_ACTIVE_REPO/.git" && -d "$ZSH_ARCHIVE_REPO/.git" ]]; then
+        local active_commit=$(cd "$ZSH_ACTIVE_REPO" && git rev-parse HEAD 2>/dev/null)
+        local archive_commit=$(cd "$ZSH_ARCHIVE_REPO" && git rev-parse HEAD 2>/dev/null)
+        
+        if [[ "$active_commit" == "$archive_commit" ]]; then
+            echo "   ✅ Repositories are synchronized"
+        else
+            echo "   ⚠️  Repositories are out of sync"
+            echo "   💡 Run: ./sync-repos.sh to synchronize"
+        fi
+    else
+        echo "   ❓ Cannot determine sync status"
+    fi
+}
+
+# Convenience aliases for repository navigation
+alias repo-active='cd "$ZSH_ACTIVE_REPO"'
+alias repo-archive='cd "$ZSH_ARCHIVE_REPO"'
+alias repo-dev='cd "$ZSH_ACTIVE_REPO"'
+alias repo-backup='cd "$ZSH_ARCHIVE_REPO"'

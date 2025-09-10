@@ -51,6 +51,13 @@ export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 export ZSH_CONFIG_MODULES="$ZSH_CONFIG_DIR/config"
 export ZSH_CONFIG_FUNCTIONS="$ZSH_CONFIG_DIR/functions"
 
+# =====================================================
+# REPOSITORY PATHS (Dual Repository System)
+# =====================================================
+export ZSH_ACTIVE_REPO="$HOME/.config/zsh"          # Active development repository
+export ZSH_ARCHIVE_REPO="$HOME/.zshrc_backups"      # Backup/archive repository
+export ZSHRC_BACKUPS="$ZSH_ARCHIVE_REPO"            # Legacy compatibility
+
 # Ensure directories exist
 mkdir -p "$ZSH_CONFIG_MODULES"
 mkdir -p "$ZSH_CONFIG_FUNCTIONS"
