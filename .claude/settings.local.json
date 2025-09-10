@@ -126,7 +126,9 @@
       "Bash(head:*)",
       "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc 2>&1 | grep -E \"\"(spark|Loaded)\"\" && echo \"\"=== Testing function ===\"\" && type spark_test_simple')",
       "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'ZSH_CONFIG_MODULES=\"\"$HOME/.config/zsh/config\"\"; source \"\"$ZSH_CONFIG_MODULES/spark.zsh\"\" && echo \"\"=== Direct load successful ===\"\" && type spark_test_simple')",
-      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Testing function ===\"\" && spark_test_simple')"
+      "Bash(MODULAR_ZSHRC_VERBOSE=true zsh -c 'source ~/.config/zsh/zshrc && echo \"\"=== Testing function ===\"\" && spark_test_simple')",
+      "Bash(./test-bash-integration.sh:*)",
+      "Read(//opt/homebrew/bin/**)"
     ],
     "deny": [],
     "ask": []
