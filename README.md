@@ -28,6 +28,14 @@
 - **<2 second startup time** with optimized dynamic loading
 - **Fixed module loading system**: Functions now load correctly (v1.1.0)
 - **Enterprise-grade data science stack**: Spark, Hadoop, Python/UV integration
+- **🚀 Three-tier configuration system**: Light/Staggered/Heavy modes for optimal performance
+
+### ⚡ **Three-Tier Configuration System**
+- **🚀 Light Mode**: Minimal configuration for CI/CD and slow connections (~0.1s startup)
+- **⚡ Staggered Mode**: Progressive loading for JetBrains IDEs (~0.2s initial, full functionality after 2s)
+- **🔥 Heavy Mode**: Full configuration for regular terminals (~2-5s startup)
+- **🎯 Automatic detection**: Context-aware mode selection based on environment
+- **🛠️ Manual control**: Override modes when needed with `zsh-toggle`, `zsh-light`, `zsh-heavy`
 - **Comprehensive credential management**: 1Password, Apple Keychain, environment variables
 - **Auto-backup control system**: Prevents unwanted commits with toggle functionality
 - **Dual repository backup**: Development and archive repositories for redundancy

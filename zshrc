@@ -24,6 +24,104 @@ fi
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
 # =====================================================
+# LIGHT MODE / HEAVY MODE DETECTION (FIRST TEST)
+# =====================================================
+
+# Mode detection - determines which configuration mode to use
+detect_zsh_mode() {
+    # Debug: Show what we're detecting
+    echo "🔍 Checking zsh mode conditions..."
+    echo "  JETBRAINS_IDE: $JETBRAINS_IDE"
+    echo "  PYCHARM_HOSTED: $PYCHARM_HOSTED"
+    echo "  DATASPELL_IDE: $DATASPELL_IDE"
+    echo "  TERM_PROGRAM: $TERM_PROGRAM"
+    echo "  ZSH_MODE: $ZSH_MODE"
+    
+    # Check parent process for JetBrains IDEs
+    local parent_process=""
+    if command -v ps >/dev/null 2>&1; then
+        parent_process=$(ps -p $PPID -o comm= 2>/dev/null || echo "")
+        echo "  PARENT_PROCESS: $parent_process"
+    fi
+    
+    # Manual mode override (highest priority)
+    if [[ "$ZSH_MODE" == "light" ]]; then
+        echo "  ✅ Manual light mode override"
+        echo "light"
+        return 0
+    elif [[ "$ZSH_MODE" == "staggered" ]]; then
+        echo "  ✅ Manual staggered mode override"
+        echo "staggered"
+        return 0
+    elif [[ "$ZSH_MODE" == "heavy" ]]; then
+        echo "  ✅ Manual heavy mode override"
+        echo "heavy"
+        return 0
+    fi
+    
+    # JetBrains IDEs - default to staggered mode
+    if [[ -n "$JETBRAINS_IDE" || -n "$PYCHARM_HOSTED" || -n "$DATASPELL_IDE" || "$TERM_PROGRAM" == "JetBrains"* ]]; then
+        echo "  ✅ JetBrains IDE detected (env vars) - using staggered mode"
+        echo "staggered"
+        return 0
+    fi
+    
+    # JetBrains IDEs - check parent process
+    if [[ "$parent_process" == *"pycharm"* || "$parent_process" == *"dataspell"* || "$parent_process" == *"intellij"* || "$parent_process" == *"webstorm"* || "$parent_process" == *"clion"* || "$parent_process" == *"goland"* ]]; then
+        echo "  ✅ JetBrains IDE detected (parent process: $parent_process) - using staggered mode"
+        echo "staggered"
+        return 0
+    fi
+    
+    # CI/CD environments - use light mode
+    if [[ -n "$CI" || -n "$GITHUB_ACTIONS" || -n "$JENKINS_URL" ]]; then
+        echo "  ✅ CI/CD environment detected - using light mode"
+        echo "light"
+        return 0
+    fi
+    
+    # Slow connections - use light mode
+    if [[ -n "$SLOW_CONNECTION" ]]; then
+        echo "  ✅ Slow connection detected - using light mode"
+        echo "light"
+        return 0
+    fi
+    
+    # Default to heavy mode
+    echo "  ❌ No special conditions met - using heavy mode"
+    echo "heavy"
+    return 0
+}
+
+# Determine mode and set global variables
+DETECTED_MODE=$(detect_zsh_mode)
+export ZSH_MODE="$DETECTED_MODE"
+
+case "$DETECTED_MODE" in
+    "light")
+        export ZSH_LIGHT_MODE=true
+        export ZSH_STAGGERED_MODE=false
+        export IDE_MODE=true
+        export FAST_STARTUP=true
+        echo "🚀 Light mode activated - minimal configuration loading"
+        ;;
+    "staggered")
+        export ZSH_LIGHT_MODE=false
+        export ZSH_STAGGERED_MODE=true
+        export IDE_MODE=true
+        export FAST_STARTUP=true
+        echo "🚀 Staggered mode activated - progressive configuration loading"
+        ;;
+    "heavy")
+        export ZSH_LIGHT_MODE=false
+        export ZSH_STAGGERED_MODE=false
+        export IDE_MODE=false
+        export FAST_STARTUP=false
+        echo "🚀 Heavy mode activated - full configuration loading"
+        ;;
+esac
+
+# =====================================================
 # OH-MY-ZSH SETUP
 # =====================================================
 
@@ -50,6 +148,10 @@ fi
 export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 export ZSH_CONFIG_MODULES="$ZSH_CONFIG_DIR/config"
 export ZSH_CONFIG_FUNCTIONS="$ZSH_CONFIG_DIR/functions"
+
+# =====================================================
+# CONFIGURATION DIRECTORIES
+# =====================================================
 
 # =====================================================
 # REPOSITORY PATHS (Dual Repository System)
@@ -219,6 +321,82 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM="${GIT_DISCOVERY_ACROSS_FILESYSTEM:-1}"
 # =====================================================
 
 # =====================================================
+# LIGHT MODE SKIP CHECK
+# =====================================================
+
+# Mode-specific loading
+if [[ "$ZSH_MODE" == "light" ]]; then
+    echo "⏭️  Light mode: Loading minimal configuration only"
+    
+    # Load only essential modules
+    if [[ -f "$ZSH_CONFIG_MODULES/core.zsh" ]]; then
+        source "$ZSH_CONFIG_MODULES/core.zsh" 2>/dev/null || {
+            echo "⚠️  Core module had warnings but loaded"
+        }
+    else
+        echo "⚠️  Core module not found, using minimal setup"
+    fi
+    
+    # Load environment detection
+    if [[ -f "$ZSH_CONFIG_MODULES/environment.zsh" ]]; then
+        source "$ZSH_CONFIG_MODULES/environment.zsh" 2>/dev/null || echo "⚠️  Environment module had warnings"
+    fi
+    
+    echo "✅ Light mode complete - minimal configuration loaded"
+    # Force exit to prevent main zshrc from continuing
+    exit 0
+
+elif [[ "$ZSH_MODE" == "staggered" ]]; then
+    echo "⏭️  Staggered mode: Loading essential modules first, then progressive enhancement"
+    
+    # Phase 1: Load essential modules immediately
+    if [[ -f "$ZSH_CONFIG_MODULES/core.zsh" ]]; then
+        source "$ZSH_CONFIG_MODULES/core.zsh" 2>/dev/null || {
+            echo "⚠️  Core module had warnings but loaded"
+        }
+    else
+        echo "⚠️  Core module not found, using minimal setup"
+    fi
+    
+    # Load environment detection
+    if [[ -f "$ZSH_CONFIG_MODULES/environment.zsh" ]]; then
+        source "$ZSH_CONFIG_MODULES/environment.zsh" 2>/dev/null || echo "⚠️  Environment module had warnings"
+    fi
+    
+    # Load JetBrains module if in IDE
+    if [[ -f "$ZSH_CONFIG_MODULES/jetbrains.zsh" ]]; then
+        source "$ZSH_CONFIG_MODULES/jetbrains.zsh" 2>/dev/null || echo "⚠️  JetBrains module had warnings"
+    fi
+    
+    echo "✅ Staggered mode Phase 1 complete - essential modules loaded"
+    
+    # Phase 2: Progressive loading of additional modules in background
+    (
+        sleep 2
+        echo "🔄 Staggered mode Phase 2: Loading additional modules..."
+        
+        # Load additional modules progressively
+        if [[ -f "$ZSH_CONFIG_MODULES/credentials.zsh" ]]; then
+            source "$ZSH_CONFIG_MODULES/credentials.zsh" 2>/dev/null || echo "⚠️  Credentials module had warnings"
+        fi
+        
+        if [[ -f "$ZSH_CONFIG_MODULES/database.zsh" ]]; then
+            source "$ZSH_CONFIG_MODULES/database.zsh" 2>/dev/null || echo "⚠️  Database module had warnings"
+        fi
+        
+        if [[ -f "$ZSH_CONFIG_MODULES/status.zsh" ]]; then
+            source "$ZSH_CONFIG_MODULES/status.zsh" 2>/dev/null || echo "⚠️  Status module had warnings"
+        fi
+        
+        echo "✅ Staggered mode Phase 2 complete - additional modules loaded"
+    ) &
+    
+    echo "🎯 Staggered mode complete - progressive loading active"
+    # Force exit to prevent main zshrc from continuing
+    exit 0
+fi
+
+# =====================================================
 # MODULE LOADING SYSTEM
 # =====================================================
 
@@ -308,8 +486,9 @@ load_config_module "database"
 # Load environment detection (after core, needs path_add function)
 load_config_module "environment"
 
-# JetBrains IDE integration
-load_config_module "jetbrains"
+# =====================================================
+# ENVIRONMENT & PLATFORM DETECTION
+# =====================================================
 
 # =====================================================
 # LANGUAGE & RUNTIME ENVIRONMENTS
@@ -548,6 +727,57 @@ reload_modular_zsh() {
 }
 
 # =====================================================
+# LIGHT MODE / HEAVY MODE TOGGLE FUNCTIONS
+# =====================================================
+
+toggle_zsh_mode() {
+    # Toggle between light and heavy mode
+    if [[ "$ZSH_LIGHT_MODE" == "true" ]]; then
+        echo "🔄 Switching to heavy mode..."
+        export ZSH_LIGHT_MODE=false
+        export ZSH_MODE="heavy"
+        zsh-reload
+    else
+        echo "🔄 Switching to light mode..."
+        export ZSH_LIGHT_MODE=true
+        export ZSH_MODE="light"
+        zsh-reload
+    fi
+}
+
+force_light_mode() {
+    # Force light mode
+    echo "🚀 Forcing light mode..."
+    export ZSH_LIGHT_MODE=true
+    export ZSH_MODE="light"
+    zsh-reload
+}
+
+force_heavy_mode() {
+    # Force heavy mode
+    echo "🚀 Forcing heavy mode..."
+    export ZSH_LIGHT_MODE=false
+    export ZSH_MODE="heavy"
+    zsh-reload
+}
+
+zsh_mode_status() {
+    # Show current mode status
+    echo "📊 ZSH Mode Status"
+    echo "=================="
+    echo "Current Mode: $ZSH_MODE"
+    echo "Light Mode: $([[ "$ZSH_LIGHT_MODE" == "true" ]] && echo "Enabled" || echo "Disabled")"
+    echo "IDE Mode: $([[ "$IDE_MODE" == "true" ]] && echo "Enabled" || echo "Disabled")"
+    echo "Fast Startup: $([[ "$FAST_STARTUP" == "true" ]] && echo "Enabled" || echo "Disabled")"
+    echo ""
+    echo "Available Commands:"
+    echo "  toggle_zsh_mode - Switch between light/heavy mode"
+    echo "  force_light_mode - Force light mode"
+    echo "  force_heavy_mode - Force heavy mode"
+    echo "  zsh_mode_status - Show this status"
+}
+
+# =====================================================
 # ALIASES FOR MODULE MANAGEMENT
 # =====================================================
 
@@ -555,6 +785,10 @@ alias zsh-status='modular_zsh_status'
 alias zsh-reload='reload_modular_zsh'
 alias zsh-modules='list_modules'
 alias zsh-verbose='export MODULAR_ZSHRC_VERBOSE=true && zsh-reload'
+alias zsh-mode='zsh_mode_status'
+alias zsh-toggle='toggle_zsh_mode'
+alias zsh-light='force_light_mode'
+alias zsh-heavy='force_heavy_mode'
 
 # =====================================================
 # STARTUP PERFORMANCE

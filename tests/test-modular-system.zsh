@@ -16,6 +16,67 @@ readonly TEST_VERSION="1.0.0"
 source "$(dirname "$0")/../test-framework.zsh"
 
 # =====================================================
+# THREE-TIER SYSTEM TESTS
+# =====================================================
+
+test_three_tier_mode_detection() {
+    # Test mode detection function exists
+    assert_true "command -v detect_zsh_mode >/dev/null" "detect_zsh_mode function should exist"
+    
+    # Test mode variables are set
+    assert_true "[[ -n \"\$ZSH_MODE\" ]]" "ZSH_MODE should be set"
+    assert_true "[[ \"\$ZSH_MODE\" =~ \"^(light|staggered|heavy)\$\" ]]" "ZSH_MODE should be light, staggered, or heavy"
+}
+
+test_light_mode_conditions() {
+    # Test light mode activation
+    local original_mode="$ZSH_MODE"
+    export ZSH_MODE="light"
+    
+    # Reload configuration to test light mode
+    source ~/.config/zsh/zshrc 2>/dev/null || true
+    
+    assert_true "[[ \"\$ZSH_LIGHT_MODE\" == \"true\" ]]" "Light mode should be activated"
+    assert_true "[[ \"\$FAST_STARTUP\" == \"true\" ]]" "Fast startup should be enabled in light mode"
+    
+    export ZSH_MODE="$original_mode"
+}
+
+test_staggered_mode_conditions() {
+    # Test staggered mode activation
+    local original_mode="$ZSH_MODE"
+    export ZSH_MODE="staggered"
+    
+    # Reload configuration to test staggered mode
+    source ~/.config/zsh/zshrc 2>/dev/null || true
+    
+    assert_true "[[ \"\$ZSH_STAGGERED_MODE\" == \"true\" ]]" "Staggered mode should be activated"
+    assert_true "[[ \"\$FAST_STARTUP\" == \"true\" ]]" "Fast startup should be enabled in staggered mode"
+    
+    export ZSH_MODE="$original_mode"
+}
+
+test_mode_control_functions() {
+    # Test mode control functions exist
+    assert_true "command -v zsh_mode_status >/dev/null" "zsh_mode_status function should exist"
+    assert_true "command -v toggle_zsh_mode >/dev/null" "toggle_zsh_mode function should exist"
+    assert_true "command -v force_light_mode >/dev/null" "force_light_mode function should exist"
+    assert_true "command -v force_heavy_mode >/dev/null" "force_heavy_mode function should exist"
+}
+
+test_jetbrains_detection() {
+    # Test JetBrains IDE detection
+    assert_true "command -v detect_zsh_mode >/dev/null" "detect_zsh_mode function should exist"
+    
+    # Test parent process detection logic
+    local parent_process=""
+    if command -v ps >/dev/null 2>&1; then
+        parent_process=$(ps -p $PPID -o comm= 2>/dev/null || echo "")
+        assert_true "[[ -n \"\$parent_process\" ]]" "Parent process should be detectable"
+    fi
+}
+
+# =====================================================
 # MODULE LOADING TESTS
 # =====================================================
 

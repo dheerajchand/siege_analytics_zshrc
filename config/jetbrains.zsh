@@ -1,279 +1,229 @@
-#!/usr/bin/env zsh
-
 # =====================================================
-# JETBRAINS DEVELOPMENT TOOLS INTEGRATION
+# JETBRAINS IDE INTEGRATION MODULE
 # =====================================================
-# 
-# Provides seamless integration with JetBrains IDEs and tooling:
-# - PyCharm for Python development
-# - IntelliJ IDEA for Java/Scala
-# - DataGrip for database management
-# - DataSpell for data science
-# - WebStorm for web development
 #
-# Auto-generated CLI tools by JetBrains Toolbox provide:
-# - Command line access to all IDEs
-# - Project opening from terminal
-# - Wait functionality for git editors
-# - Consistent interface across tools
+# This module provides optimized shell configuration for JetBrains IDEs
+# including DataSpell, PyCharm, IntelliJ, WebStorm, CLion, GoLand, etc.
+#
+# Features:
+# - Fast startup with minimal configuration
+# - Progressive loading of full functionality
+# - IDE-specific optimizations
+# - On-demand function loading
 # =====================================================
 
-# JetBrains tools configuration
-export JETBRAINS_TOOLS_PATH="$HOME/.jetbrains/bin"
+# =====================================================
+# IDE DETECTION
+# =====================================================
 
-# Ensure JetBrains bin directory exists
-if [[ ! -d "$JETBRAINS_TOOLS_PATH" ]]; then
-    mkdir -p "$JETBRAINS_TOOLS_PATH"
+detect_jetbrains_ide() {
+    local ide_name="JetBrains IDE"
+    
+    # Check environment variables first
+    if [[ -n "$JETBRAINS_IDE" ]]; then
+        ide_name="$JETBRAINS_IDE"
+    elif [[ -n "$PYCHARM_HOSTED" ]]; then
+        ide_name="PyCharm"
+    elif [[ -n "$DATASPELL_IDE" ]]; then
+        ide_name="DataSpell"
+    elif [[ "$TERM_PROGRAM" == "JetBrains"* ]]; then
+        ide_name="JetBrains IDE"
+    elif [[ "$0" == *"pycharm"* ]]; then
+        ide_name="PyCharm"
+    elif [[ "$0" == *"dataspell"* ]]; then
+        ide_name="DataSpell"
+    elif [[ "$0" == *"intellij"* ]]; then
+        ide_name="IntelliJ IDEA"
+    elif [[ "$0" == *"webstorm"* ]]; then
+        ide_name="WebStorm"
+    elif [[ "$0" == *"clion"* ]]; then
+        ide_name="CLion"
+    elif [[ "$0" == *"goland"* ]]; then
+        ide_name="GoLand"
+    elif [[ "$0" == *"rider"* ]]; then
+        ide_name="Rider"
+    elif [[ "$0" == *"phpstorm"* ]]; then
+        ide_name="PhpStorm"
+    elif [[ "$0" == *"rubymine"* ]]; then
+        ide_name="RubyMine"
+    elif [[ "$0" == *"appcode"* ]]; then
+        ide_name="AppCode"
+    elif [[ "$0" == *"android-studio"* ]]; then
+        ide_name="Android Studio"
+    fi
+    
+    # Additional DataSpell detection
+    if [[ "$ide_name" == "JetBrains IDE" ]] && [[ -n "$DATASPELL_APPLICATION_HOME" ]]; then
+        ide_name="DataSpell"
+    fi
+    
+    echo "$ide_name"
+}
+
+# =====================================================
+# JETBRAINS CONFIGURATION
+# =====================================================
+
+# Set IDE mode flags
+export IDE_MODE=true
+export FAST_STARTUP=true
+export JETBRAINS_PROGRESSIVE_LOADING=true
+export CURRENT_JETBRAINS_IDE=$(detect_jetbrains_ide)
+
+# Essential environment variables for JetBrains IDEs
+export SIEGE_UTILITIES_TEST="$HOME/Desktop/in_process/code/siege_utilities_verify"
+
+# Ensure essential PATH components
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+# UV integration (fast Python package manager)
+if [[ -d "$HOME/.local/share/uv" ]]; then
+    export PATH="$HOME/.local/share/uv/bin:$PATH"
 fi
 
-# Add JetBrains tools to PATH (high priority for CLI access)
-export PATH="$JETBRAINS_TOOLS_PATH:$PATH"
+# Node.js for web development IDEs
+if [[ -d "$HOME/.nvm" ]] && [[ "$CURRENT_JETBRAINS_IDE" =~ "(WebStorm|IntelliJ|DataSpell)" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" --no-use
+fi
 
 # =====================================================
-# JETBRAINS TOOL FUNCTIONS
+# PROGRESSIVE LOADING SYSTEM
 # =====================================================
 
-jetbrains_status() {
-    # Check status of JetBrains tooling integration
-    #
-    # Shows available tools, versions, and configuration status
-    #
-    # Returns:
-    #     0: All tools properly configured
-    #     1: Issues found with configuration
-    echo "🛠️  JetBrains Development Tools Status"
-    echo ""
+# Phase 1: Immediate essential functions
+load_jetbrains_essentials() {
+    echo "⚡ Loading essential functions for $CURRENT_JETBRAINS_IDE..."
     
-    # Check if JetBrains Toolbox is installed
-    if [[ -d "$JETBRAINS_TOOLS_PATH" ]]; then
-        echo "✅ JetBrains Toolbox integration: Active"
-        echo "📁 Tools directory: $JETBRAINS_TOOLS_PATH"
-        echo ""
-        
-        # List available tools
-        echo "Available CLI Tools:"
-        local tool_count=0
-        for tool in "$JETBRAINS_TOOLS_PATH"/*; do
-            if [[ -x "$tool" && ! -d "$tool" ]]; then
-                local tool_name=$(basename "$tool")
-                echo "  ✅ $tool_name"
-                ((tool_count++))
+    # Load paths configuration (always needed) - with error handling
+    if [[ -f "$HOME/.config/zsh/config/paths.zsh" ]]; then
+        source "$HOME/.config/zsh/config/paths.zsh" 2>/dev/null || {
+            echo "⚠️  Could not load paths.zsh, using minimal PATH"
+            export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+        }
+        echo "✅ Path configuration loaded"
+    else
+        echo "⚠️  paths.zsh not found, using minimal PATH"
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+    fi
+    
+    # Skip core.zsh loading in JetBrains mode to avoid conflicts
+    # Essential PATH is already set above
+    
+    echo "🎯 Essential functions ready"
+}
+
+# Phase 2: Progressive enhancement (background loading)
+progressive_jetbrains_load() {
+    # Wait for IDE to stabilize
+    sleep 3
+    
+    echo "🔄 Progressive enhancement for $CURRENT_JETBRAINS_IDE..."
+    
+    # Load IDE-specific configurations
+    case "$CURRENT_JETBRAINS_IDE" in
+        "DataSpell"|"PyCharm")
+            echo "🐍 Loading Python development tools..."
+            # Python-specific setup
+            if [[ -f "$HOME/.config/zsh/config/python.zsh" ]]; then
+                source "$HOME/.config/zsh/config/python.zsh"
             fi
-        done
-        
-        if [[ $tool_count -eq 0 ]]; then
-            echo "  ⚠️  No CLI tools found"
-            echo "  💡 Generate tools from JetBrains Toolbox → Settings → Tools"
-        fi
-        
-        echo ""
-        echo "Total tools: $tool_count"
-        
-        # Check PATH integration
-        if [[ ":$PATH:" == *":$JETBRAINS_TOOLS_PATH:"* ]]; then
-            echo "✅ PATH integration: Active"
-        else
-            echo "❌ PATH integration: Missing"
-            echo "💡 Add export PATH=\"\$JETBRAINS_TOOLS_PATH:\$PATH\" to your shell config"
-        fi
-        
-    else
-        echo "❌ JetBrains Toolbox integration: Not found"
-        echo "💡 Install JetBrains Toolbox and generate CLI tools"
-        return 1
+            ;;
+        "WebStorm"|"IntelliJ")
+            echo "🌐 Loading web development tools..."
+            # Web development tools
+            if [[ -f "$HOME/.config/zsh/config/web.zsh" ]]; then
+                source "$HOME/.config/zsh/config/web.zsh"
+            fi
+            ;;
+        "CLion")
+            echo "⚙️  Loading C++ development tools..."
+            # C++ development tools
+            if [[ -f "$HOME/.config/zsh/config/cpp.zsh" ]]; then
+                source "$HOME/.config/zsh/config/cpp.zsh"
+            fi
+            ;;
+        "GoLand")
+            echo "🐹 Loading Go development tools..."
+            # Go development tools
+            if [[ -f "$HOME/.config/zsh/config/go.zsh" ]]; then
+                source "$HOME/.config/zsh/config/go.zsh"
+            fi
+            ;;
+        "Android Studio")
+            echo "📱 Loading Android development tools..."
+            # Android development tools
+            if [[ -f "$HOME/.config/zsh/config/android.zsh" ]]; then
+                source "$HOME/.config/zsh/config/android.zsh"
+            fi
+            ;;
+    esac
+    
+    # Load backup functions if available and not explicitly disabled
+    if [[ -f "$HOME/.config/zsh/config/backup.zsh" ]] && [[ "$SKIP_BACKUP_FUNCTIONS" != "true" ]]; then
+        source "$HOME/.config/zsh/config/backup.zsh"
+        echo "✅ Backup functions loaded"
     fi
+    
+    echo "🎯 $CURRENT_JETBRAINS_IDE fully configured!"
 }
 
-pycharm_clean_launch() {
-    # Launch PyCharm with clean environment to debug file dialog issues
-    #
-    # This bypasses potential environment variable conflicts that might
-    # interfere with macOS file dialogs
-    #
-    # Args:
-    #     project_path (str, optional): Path to project to open
-    #
-    # Examples:
-    #     pycharm_clean_launch
-    #     pycharm_clean_launch ~/my_project
-    local project_path="$1"
-    
-    echo "🚀 Launching PyCharm with clean environment..."
-    echo "💡 This may resolve file dialog issues"
-    
-    if [[ -n "$project_path" ]]; then
-        env -i PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
-            HOME="$HOME" \
-            USER="$USER" \
-            "/Users/dheerajchand/Applications/PyCharm.app/Contents/MacOS/pycharm" "$project_path"
-    else
-        env -i PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
-            HOME="$HOME" \
-            USER="$USER" \
-            "/Users/dheerajchand/Applications/PyCharm.app/Contents/MacOS/pycharm"
-    fi
-}
-
-jetbrains_diagnose_env() {
-    # Diagnose potential environment conflicts with JetBrains IDEs
-    #
-    # Checks for common issues that can cause GUI problems:
-    # - Java environment conflicts
-    # - Library path issues
-    # - PATH conflicts
-    echo "🔍 JetBrains Environment Diagnosis"
-    echo ""
-    
-    # Check Java configuration
-    echo "☕ Java Environment:"
-    if [[ -n "$JAVA_HOME" ]]; then
-        echo "  JAVA_HOME: $JAVA_HOME"
-        if java -version >/dev/null 2>&1; then
-            local java_version=$(java -version 2>&1 | head -1)
-            echo "  Java Version: $java_version"
-        else
-            echo "  ❌ Java not accessible from JAVA_HOME"
-        fi
-    else
-        echo "  ⚠️  JAVA_HOME not set"
-    fi
-    
-    # Check for problematic environment variables
-    echo ""
-    echo "🔍 Potentially Problematic Variables:"
-    local issues_found=0
-    
-    if [[ -n "$LD_LIBRARY_PATH" ]]; then
-        echo "  ❌ LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
-        echo "     💡 Can interfere with macOS GUI applications"
-        ((issues_found++))
-    else
-        echo "  ✅ LD_LIBRARY_PATH: Not set (good)"
-    fi
-    
-    if [[ -n "$DYLD_LIBRARY_PATH" ]]; then
-        echo "  ⚠️  DYLD_LIBRARY_PATH: $DYLD_LIBRARY_PATH" 
-        echo "     💡 May cause library conflicts"
-        ((issues_found++))
-    else
-        echo "  ✅ DYLD_LIBRARY_PATH: Not set (good)"
-    fi
-    
-    # Check PATH for JetBrains integration
-    echo ""
-    echo "🛤️  PATH Configuration:"
-    if [[ ":$PATH:" == *":$JETBRAINS_TOOLS_PATH:"* ]]; then
-        echo "  ✅ JetBrains tools in PATH"
-    else
-        echo "  ❌ JetBrains tools missing from PATH"
-        ((issues_found++))
-    fi
-    
-    echo ""
-    if [[ $issues_found -eq 0 ]]; then
-        echo "✅ No obvious environment conflicts found"
-    else
-        echo "⚠️  Found $issues_found potential issues"
-        echo "💡 Try launching with pycharm_clean_launch for testing"
-    fi
-    
-    return $issues_found
+# Phase 3: Manual upgrade function
+upgrade_jetbrains_shell() {
+    echo "⚡ Manual upgrade for $CURRENT_JETBRAINS_IDE..."
+    progressive_jetbrains_load
 }
 
 # =====================================================
-# PROJECT MANAGEMENT HELPERS
+# JETBRAINS-SPECIFIC FUNCTIONS
 # =====================================================
 
-open_project() {
-    # Open project in appropriate JetBrains IDE based on project type
-    #
-    # Auto-detects project type and launches the right IDE:
-    # - Python projects → PyCharm
-    # - Java/Scala projects → IntelliJ IDEA  
-    # - Web projects → WebStorm
-    # - Data science projects → DataSpell
-    #
-    # Args:
-    #     project_path (str): Path to project directory
-    #
-    # Examples:
-    #     open_project ~/my_python_project
-    #     open_project .
-    local project_path="${1:-.}"
-    
-    if [[ ! -d "$project_path" ]]; then
-        echo "❌ Project directory not found: $project_path"
-        return 1
-    fi
-    
-    # Resolve absolute path
-    project_path=$(cd "$project_path" && pwd)
-    
-    echo "🔍 Analyzing project: $project_path"
-    
-    # Detect project type
-    local ide_choice=""
-    local reason=""
-    
-    # Python project detection
-    if [[ -f "$project_path/requirements.txt" || -f "$project_path/pyproject.toml" || -f "$project_path/setup.py" ]]; then
-        # Check if it's a data science project
-        if [[ -d "$project_path/notebooks" ]] || grep -q "jupyter\|pandas\|numpy\|matplotlib" "$project_path/requirements.txt" 2>/dev/null; then
-            ide_choice="dataspell"
-            reason="Data science project (has notebooks or DS libraries)"
-        else
-            ide_choice="pycharm"
-            reason="Python project"
-        fi
-    # Java/Scala project detection
-    elif [[ -f "$project_path/pom.xml" || -f "$project_path/build.gradle" || -f "$project_path/build.sbt" ]]; then
-        ide_choice="idea"
-        reason="Java/Scala project"
-    # Web project detection
-    elif [[ -f "$project_path/package.json" || -f "$project_path/angular.json" || -f "$project_path/vue.config.js" ]]; then
-        ide_choice="webstorm"
-        reason="Web development project"
-    # Default to PyCharm for mixed or unknown projects
-    else
-        ide_choice="pycharm"
-        reason="Default choice for mixed/unknown project type"
-    fi
-    
-    echo "🎯 Selected IDE: $ide_choice ($reason)"
-    
-    # Launch the chosen IDE
-    if command -v "$ide_choice" >/dev/null 2>&1; then
-        echo "🚀 Launching $ide_choice with project: $project_path"
-        "$ide_choice" "$project_path"
-    else
-        echo "❌ $ide_choice CLI tool not found"
-        echo "💡 Install from JetBrains Toolbox and generate CLI tools"
-        return 1
-    fi
+# Function to reload JetBrains configuration
+reload_jetbrains_config() {
+    echo "🔄 Reloading JetBrains configuration..."
+    source "$HOME/.config/zsh/config/jetbrains.zsh"
 }
 
-# =====================================================
-# ALIASES AND SHORTCUTS
-# =====================================================
-
-# IDE shortcuts
-alias py='pycharm'
-alias idea='idea' 
-alias ws='webstorm'
-alias dg='datagrip'
-alias ds='dataspell'
-
-# Project management
-alias project='open_project'
-alias jb-status='jetbrains_status'
-alias jb-diagnose='jetbrains_diagnose_env'
-alias jb-clean='pycharm_clean_launch'
+# Function to show JetBrains status
+jetbrains_status() {
+    echo "🚀 JetBrains IDE Configuration Status"
+    echo "====================================="
+    echo "IDE: $CURRENT_JETBRAINS_IDE"
+    echo "Mode: $([[ "$IDE_MODE" == "true" ]] && echo "IDE Mode" || echo "Normal Mode")"
+    echo "Fast Startup: $([[ "$FAST_STARTUP" == "true" ]] && echo "Enabled" || echo "Disabled")"
+    echo "Progressive Loading: $([[ "$JETBRAINS_PROGRESSIVE_LOADING" == "true" ]] && echo "Enabled" || echo "Disabled")"
+    echo ""
+    echo "Available Commands:"
+    echo "  upgrade_jetbrains_shell - Load full configuration"
+    echo "  reload_jetbrains_config - Reload JetBrains module"
+    echo "  jetbrains_status - Show this status"
+}
 
 # =====================================================
 # INITIALIZATION
 # =====================================================
 
-# Verify JetBrains integration on module load
-if [[ "$JETBRAINS_VERIFY_ON_LOAD" == "true" ]]; then
-    jetbrains_status >/dev/null || echo "⚠️  JetBrains integration issues detected. Run 'jb-status' for details."
-fi
+# Load essential functions immediately
+load_jetbrains_essentials
+
+# Start progressive loading in background
+progressive_jetbrains_load &
+
+# Welcome message
+echo "🚀 $CURRENT_JETBRAINS_IDE detected - Progressive loading enabled"
+echo "💡 Type 'upgrade_jetbrains_shell' for immediate full configuration"
+echo "💡 Type 'jetbrains_status' for configuration details"
+
+# =====================================================
+# ALIASES
+# =====================================================
+
+alias jetbrains-upgrade='upgrade_jetbrains_shell'
+alias jetbrains-reload='reload_jetbrains_config'
+alias jetbrains-status='jetbrains_status'
+
+# =====================================================
+# MODULE COMPLETION
+# =====================================================
+
+echo "✅ JetBrains module loaded successfully"
