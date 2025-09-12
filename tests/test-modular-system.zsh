@@ -5,7 +5,7 @@
 # =====================================================
 # 
 # Tests for the new modular zsh configuration system
-# Validates module loading, status tracking, and core functionality
+# Validates dynamic module discovery, mode loading, and core functionality
 # =====================================================
 
 # Test configuration
@@ -14,6 +14,77 @@ readonly TEST_VERSION="1.0.0"
 
 # Include test framework
 source "$(dirname "$0")/../test-framework.zsh"
+
+# =====================================================
+# DYNAMIC MODULE DISCOVERY TESTS
+# =====================================================
+
+test_dynamic_module_discovery() {
+    local test_name="Dynamic Module Discovery System"
+    local test_result="PASS"
+    local test_details=()
+    
+    echo "🧪 Testing dynamic module discovery system..."
+    
+    # Test if ALL_MODULES variable is set
+    if [[ -z "${ALL_MODULES[*]}" ]]; then
+        test_result="FAIL"
+        test_details+=("ALL_MODULES variable not set")
+    else
+        test_details+=("✅ ALL_MODULES discovered: ${#ALL_MODULES[@]} modules")
+    fi
+    
+    # Test if MODULES_LIGHT is set
+    if [[ -z "${MODULES_LIGHT[*]}" ]]; then
+        test_result="FAIL"
+        test_details+=("MODULES_LIGHT variable not set")
+    else
+        test_details+=("✅ MODULES_LIGHT configured: ${MODULES_LIGHT[*]}")
+    fi
+    
+    # Test if MODULES_HEAVY is set
+    if [[ -z "${MODULES_HEAVY[*]}" ]]; then
+        test_result="FAIL"
+        test_details+=("MODULES_HEAVY variable not set")
+    else
+        test_details+=("✅ MODULES_HEAVY configured: ${#MODULES_HEAVY[@]} modules")
+    fi
+    
+    # Test set operations (HEAVY = ALL - LIGHT)
+    local expected_heavy_count=$((${#ALL_MODULES[@]} - ${#MODULES_LIGHT[@]}))
+    if [[ ${#MODULES_HEAVY[@]} -ne $expected_heavy_count ]]; then
+        test_result="FAIL"
+        test_details+=("Set operations failed: expected $expected_heavy_count heavy modules, got ${#MODULES_HEAVY[@]}")
+    else
+        test_details+=("✅ Set operations working: HEAVY = ALL - LIGHT")
+    fi
+    
+    # Test if jetbrains module is in heavy modules (our fix)
+    if [[ " ${MODULES_HEAVY[*]} " =~ " jetbrains " ]]; then
+        test_details+=("✅ jetbrains module correctly in heavy mode")
+    else
+        test_result="FAIL"
+        test_details+=("❌ jetbrains module missing from heavy mode")
+    fi
+    
+    # Test load_module function exists
+    if ! command -v load_module >/dev/null 2>&1; then
+        test_result="FAIL"
+        test_details+=("load_module function not found")
+    else
+        test_details+=("✅ load_module function exists")
+    fi
+    
+    # Test load_modules function exists
+    if ! command -v load_modules >/dev/null 2>&1; then
+        test_result="FAIL"
+        test_details+=("load_modules function not found")
+    else
+        test_details+=("✅ load_modules function exists")
+    fi
+    
+    print_test_result "$test_name" "$test_result" "${test_details[@]}"
+}
 
 # =====================================================
 # DOCKER CONTEXT SWITCHING TESTS
@@ -466,6 +537,7 @@ test_corrupted_module_handling() {
 # =====================================================
 
 # Register all tests
+register_test "test_dynamic_module_discovery" "test_dynamic_module_discovery"
 register_test "test_core_module_loaded" "test_core_module_loaded"
 register_test "test_credentials_module_loaded" "test_credentials_module_loaded"
 register_test "test_database_module_loaded" "test_database_module_loaded"

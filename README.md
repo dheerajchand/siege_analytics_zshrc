@@ -28,7 +28,14 @@
 - **<2 second startup time** with optimized dynamic loading
 - **Fixed module loading system**: Functions now load correctly (v1.1.0)
 - **Enterprise-grade data science stack**: Spark, Hadoop, Python/UV integration
-- **🚀 Three-tier configuration system**: Light/Staggered/Heavy modes for optimal performance
+- **🚀 Dynamic module discovery system**: Automatic module detection with set operations
+- **⚡ Three-tier configuration system**: Light/Staggered/Heavy modes for optimal performance
+
+### ⚡ **Dynamic Module Discovery System**
+- **🔍 Auto-discovery**: Automatically detects all `.zsh` modules in config directory
+- **📦 Zero hardcoding**: New modules automatically available in heavy/staggered modes
+- **🔧 Set operations**: `HEAVY = ALL - LIGHT` ensures consistency across modes
+- **🛠️ Maintenance-free**: Add module file → automatically included
 
 ### ⚡ **Three-Tier Configuration System**
 - **🚀 Light Mode**: Minimal configuration for CI/CD and slow connections (~0.1s startup)

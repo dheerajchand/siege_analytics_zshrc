@@ -48,6 +48,7 @@ typeset -g TEST_PATTERN=""
 typeset -g TEST_OUTPUT_DIR="./test-results"
 
 # Test results storage
+typeset -gA TEST_FUNCTIONS
 typeset -gA TEST_RESULTS
 typeset -gA TEST_COVERAGE_DATA
 

@@ -318,87 +318,92 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM="${GIT_DISCOVERY_ACROSS_FILESYSTEM:-1}"
 # LIGHT MODE SKIP CHECK
 # =====================================================
 
-# Mode-specific loading
-if [[ "$ZSH_MODE" == "light" ]]; then
-    echo "⏭️  Light mode: Loading minimal configuration only"
+# =====================================================
+# DYNAMIC MODULE DISCOVERY SYSTEM
+# =====================================================
+
+# Dynamically discover all available modules
+ALL_MODULES=($(find "$ZSH_CONFIG_MODULES" -name "*.zsh" -exec basename {} .zsh \; 2>/dev/null))
+
+# Manually specify only what should be in light mode (everything else goes to heavy)
+MODULES_LIGHT=("core" "environment" "paths")
+
+# Heavy mode = Everything - Light mode (set difference)
+MODULES_HEAVY=($(printf '%s\n' "${ALL_MODULES[@]}" "${MODULES_LIGHT[@]}" | sort | uniq -u))
+
+# Function to load a module safely
+load_module() {
+    local module_name="$1"
+    local module_file="$ZSH_CONFIG_MODULES/${module_name}.zsh"
     
-    # Load only essential modules
-    if [[ -f "$ZSH_CONFIG_MODULES/core.zsh" ]]; then
-        source "$ZSH_CONFIG_MODULES/core.zsh" 2>/dev/null || {
-            echo "⚠️  Core module had warnings but loaded"
-        }
+    if [[ -f "$module_file" ]]; then
+        source "$module_file" 2>/dev/null || [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⚠️  ${module_name} module had warnings"
+        return 0
     else
-        echo "⚠️  Core module not found, using minimal setup"
+        [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⚠️  ${module_name} module not found: $module_file"
+        return 1
     fi
+}
+
+# Function to load multiple modules
+load_modules() {
+    local modules=("$@")
+    local loaded_count=0
     
-    # Load environment detection
-    if [[ -f "$ZSH_CONFIG_MODULES/environment.zsh" ]]; then
-        source "$ZSH_CONFIG_MODULES/environment.zsh" 2>/dev/null || echo "⚠️  Environment module had warnings"
+    for module in "${modules[@]}"; do
+        if load_module "$module"; then
+            ((loaded_count++))
+        fi
+    done
+    
+    # Only show output if not in instant prompt mode
+    if [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] || [[ "$POWERLEVEL9K_INSTANT_PROMPT" != "off" ]]; then
+        echo "📦 Loaded $loaded_count modules: ${modules[*]}"
     fi
-    
-    echo "✅ Light mode complete - minimal configuration loaded"
+}
+
+# =====================================================
+# MODE-SPECIFIC LOADING
+# =====================================================
+
+if [[ "$ZSH_MODE" == "light" ]]; then
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Light mode: Loading minimal configuration only"
+    load_modules "${MODULES_LIGHT[@]}"
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Light mode complete - minimal configuration loaded"
     # Use return instead of exit to prevent crashes in sourced scripts
     return 0 2>/dev/null || true
 
 elif [[ "$ZSH_MODE" == "staggered" ]]; then
-    echo "⏭️  Staggered mode: Loading essential modules first, then progressive enhancement"
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Staggered mode: Loading essential modules first, then progressive enhancement"
     
-    # Phase 1: Load essential modules immediately
-    if [[ -f "$ZSH_CONFIG_MODULES/core.zsh" ]]; then
-        source "$ZSH_CONFIG_MODULES/core.zsh" 2>/dev/null || {
-            echo "⚠️  Core module had warnings but loaded"
-        }
-    else
-        echo "⚠️  Core module not found, using minimal setup"
-    fi
+    # Phase 1: Load light modules immediately
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Phase 1: Loading essential modules..."
+    load_modules "${MODULES_LIGHT[@]}"
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Staggered mode Phase 1 complete - essential modules loaded"
     
-    # Load environment detection
-    if [[ -f "$ZSH_CONFIG_MODULES/environment.zsh" ]]; then
-        source "$ZSH_CONFIG_MODULES/environment.zsh" 2>/dev/null || echo "⚠️  Environment module had warnings"
-    fi
-    
-    # Load JetBrains module if in IDE
-    if [[ -f "$ZSH_CONFIG_MODULES/jetbrains.zsh" ]]; then
-        source "$ZSH_CONFIG_MODULES/jetbrains.zsh" 2>/dev/null || echo "⚠️  JetBrains module had warnings"
-    fi
-    
-    echo "✅ Staggered mode Phase 1 complete - essential modules loaded"
-    
-    # Phase 2: Progressive loading of additional modules in background
+    # Phase 2: Progressive loading of heavy modules in background
     (
         sleep 2
         echo ""
         echo "🔄 Staggered mode Phase 2: Loading additional modules..."
         echo "⏳ This happens in the background while you work..."
-        
-        # Load additional modules progressively
-        if [[ -f "$ZSH_CONFIG_MODULES/credentials.zsh" ]]; then
-            source "$ZSH_CONFIG_MODULES/credentials.zsh" 2>/dev/null && echo "✅ Credentials module loaded" || echo "⚠️  Credentials module had warnings"
-        fi
-        
-        if [[ -f "$ZSH_CONFIG_MODULES/database.zsh" ]]; then
-            source "$ZSH_CONFIG_MODULES/database.zsh" 2>/dev/null && echo "✅ Database module loaded" || echo "⚠️  Database module had warnings"
-        fi
-        
-        if [[ -f "$ZSH_CONFIG_MODULES/status.zsh" ]]; then
-            source "$ZSH_CONFIG_MODULES/status.zsh" 2>/dev/null && echo "✅ Status module loaded" || echo "⚠️  Status module had warnings"
-        fi
-        
-        if [[ -f "$ZSH_CONFIG_MODULES/docker.zsh" ]]; then
-            source "$ZSH_CONFIG_MODULES/docker.zsh" 2>/dev/null && echo "✅ Docker module loaded" || echo "⚠️  Docker module had warnings"
-        fi
-        
-        echo ""
-        echo "🎯 Staggered mode Phase 2 complete - additional modules loaded"
-        echo "💡 Full development environment is now ready!"
-        echo ""
+        load_modules "${MODULES_HEAVY[@]}"
+        echo "🎯 Staggered mode complete - progressive loading active"
     ) &
     
-    echo "🎯 Staggered mode complete - progressive loading active"
-    # Clear any background jobs to avoid "you have running jobs" warning
+    # Clear background job notifications to prevent "you have running jobs" warnings
     jobs >/dev/null 2>&1
+    
     # Use return instead of exit to prevent crashes in sourced scripts
     return 0 2>/dev/null || true
+
+elif [[ "$ZSH_MODE" == "heavy" ]]; then
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Heavy mode: Loading full configuration"
+    
+    # Load all modules (light + heavy)
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Loading all modules..."
+    load_modules "${MODULES_LIGHT[@]}" "${MODULES_HEAVY[@]}"
+    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Heavy mode complete - full configuration loaded"
 fi
 
 # =====================================================

@@ -243,12 +243,137 @@ echo "💡 Type 'upgrade_jetbrains_shell' for immediate full configuration"
 echo "💡 Type 'jetbrains_status' for configuration details"
 
 # =====================================================
+# FILE ASSOCIATION MANAGEMENT
+# =====================================================
+
+toggle_notebook_association() {
+    """
+    Toggle notebook (.ipynb) file associations between JetBrains IDEs
+    Works on macOS, Ubuntu, and Red Hat Linux systems
+    """
+    local system=$(uname -s)
+    local current_ide=""
+    local target_ide=""
+    
+    # Detect current system
+    case "$system" in
+        "Darwin")
+            echo "🍎 macOS detected"
+            ;;
+        "Linux")
+            echo "🐧 Linux detected"
+            # Detect Linux distribution
+            if [[ -f /etc/os-release ]]; then
+                source /etc/os-release
+                case "$ID" in
+                    "ubuntu"|"debian")
+                        echo "📦 Ubuntu/Debian detected"
+                        ;;
+                    "rhel"|"centos"|"fedora")
+                        echo "📦 Red Hat/CentOS/Fedora detected"
+                        ;;
+                    *)
+                        echo "📦 Other Linux distribution: $ID"
+                        ;;
+                esac
+            fi
+            ;;
+        *)
+            echo "❌ Unsupported system: $system"
+            return 1
+            ;;
+    esac
+    
+    # Get current association (if possible)
+    case "$system" in
+        "Darwin")
+            # macOS - check current default app
+            local current_app=$(defaults read com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers 2>/dev/null | grep -A 2 -B 2 "ipynb" | grep "CFBundleIdentifier" | head -1 | cut -d'"' -f4)
+            if [[ -n "$current_app" ]]; then
+                echo "Current association: $current_app"
+                if [[ "$current_app" == *"dataspell"* ]]; then
+                    current_ide="DataSpell"
+                    target_ide="PyCharm"
+                elif [[ "$current_app" == *"pycharm"* ]]; then
+                    current_ide="PyCharm"
+                    target_ide="DataSpell"
+                else
+                    echo "Unknown IDE: $current_app"
+                    target_ide="DataSpell"
+                fi
+            else
+                echo "No current association found"
+                target_ide="DataSpell"
+            fi
+            ;;
+        "Linux")
+            # Linux - check xdg-mime
+            local current_app=$(xdg-mime query default application/x-ipynb+json 2>/dev/null)
+            if [[ -n "$current_app" ]]; then
+                echo "Current association: $current_app"
+                if [[ "$current_app" == *"dataspell"* ]]; then
+                    current_ide="DataSpell"
+                    target_ide="PyCharm"
+                elif [[ "$current_app" == *"pycharm"* ]]; then
+                    current_ide="PyCharm"
+                    target_ide="DataSpell"
+                else
+                    echo "Unknown IDE: $current_app"
+                    target_ide="DataSpell"
+                fi
+            else
+                echo "No current association found"
+                target_ide="DataSpell"
+            fi
+            ;;
+    esac
+    
+    echo "🔄 Toggling from $current_ide to $target_ide"
+    
+    # Set new association
+    case "$system" in
+        "Darwin")
+            # macOS - use duti if available, otherwise use defaults
+            if command -v duti >/dev/null 2>&1; then
+                case "$target_ide" in
+                    "DataSpell")
+                        duti -s com.jetbrains.dataspell ipynb all
+                        ;;
+                    "PyCharm")
+                        duti -s com.jetbrains.pycharm ipynb all
+                        ;;
+                esac
+            else
+                echo "⚠️  duti not installed. Install with: brew install duti"
+                echo "   Or manually set in System Preferences > Default Apps"
+                return 1
+            fi
+            ;;
+        "Linux")
+            # Linux - use xdg-mime
+            case "$target_ide" in
+                "DataSpell")
+                    xdg-mime default dataspell.desktop application/x-ipynb+json
+                    ;;
+                "PyCharm")
+                    xdg-mime default pycharm.desktop application/x-ipynb+json
+                    ;;
+            esac
+            ;;
+    esac
+    
+    echo "✅ Notebook files now associated with $target_ide"
+    echo "💡 Test with: open /path/to/notebook.ipynb"
+}
+
+# =====================================================
 # ALIASES
 # =====================================================
 
 alias jetbrains-upgrade='upgrade_jetbrains_shell'
 alias jetbrains-reload='reload_jetbrains_config'
 alias jetbrains-status='jetbrains_status'
+alias toggle-notebooks='toggle_notebook_association'
 
 # =====================================================
 # MODULE COMPLETION
