@@ -17,7 +17,7 @@ The Docker module now supports switching between different container runtimes (D
 
 #### `switch_docker_context(context)`
 
-Switches between Docker Desktop and Rancher Desktop contexts.
+Intelligently switches between Docker Desktop and Rancher Desktop contexts with automatic startup and fallback.
 
 **Parameters:**
 - `context`: The context to switch to (`rancher-desktop`, `docker-desktop`, `rancher`, or `docker`)
@@ -28,10 +28,19 @@ switch_docker_context rancher-desktop
 switch_docker_context docker-desktop
 ```
 
-**Behavior:**
-- Attempts to switch to the specified context
-- If the target context is not available, falls back to the other context
-- Sets the `CURRENT_DOCKER_CONTEXT` environment variable
+**Enhanced Behavior:**
+1. **Attempts to switch** to the specified context
+2. **If runtime not running**: Automatically starts it with progress indicators
+3. **Waits for startup**: Shows countdown timer during initialization
+4. **Smart fallback**: If startup fails, tries the other runtime
+5. **Sets context**: Updates `CURRENT_DOCKER_CONTEXT` environment variable
+6. **Clear feedback**: Provides success/failure messages with emojis
+
+**Startup Process:**
+- Shows "⚠️ [Runtime] not ready, attempting to start..."
+- Displays "⏳ Waiting for [Runtime] to start... (X seconds remaining)"
+- On success: "✅ [Runtime] started successfully"
+- On failure: Falls back to other runtime or reports both failed
 
 #### `auto_switch_docker_context()`
 
@@ -44,8 +53,15 @@ auto_switch_docker_context
 
 ### Aliases
 
-- `docker-switch-rancher`: Switch to Rancher Desktop
-- `docker-switch-docker`: Switch to Docker Desktop  
+#### Smart Switching Aliases
+- `docker-switch-rancher`: Switch to Rancher Desktop (auto-start with fallback)
+- `docker-switch-docker`: Switch to Docker Desktop (auto-start with fallback)
+
+#### Direct Starting Aliases  
+- `start-rancher`: Start Rancher Desktop (with fallback to Docker Desktop)
+- `start-docker`: Start Docker Desktop (with fallback to Rancher Desktop)
+
+#### Status and Context Aliases
 - `docker-context`: List all available Docker contexts
 - `docker-status`: Show current Docker status and context
 
@@ -69,14 +85,24 @@ The Docker module automatically attempts to switch to your preferred context whe
 ### Basic Context Switching
 
 ```bash
-# Switch to Rancher Desktop
+# Switch to Rancher Desktop (auto-starts if not running)
 docker-switch-rancher
 
-# Switch to Docker Desktop
+# Switch to Docker Desktop (auto-starts if not running)
 docker-switch-docker
 
 # Check current context
 docker-context
+```
+
+### Direct Runtime Starting
+
+```bash
+# Start Rancher Desktop (with fallback to Docker Desktop)
+start-rancher
+
+# Start Docker Desktop (with fallback to Rancher Desktop)  
+start-docker
 ```
 
 ### Checking Status

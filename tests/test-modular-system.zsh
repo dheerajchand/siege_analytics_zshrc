@@ -59,7 +59,7 @@ test_docker_context_switching() {
     fi
     
     # Test aliases
-    local aliases_to_test=("docker-switch-rancher" "docker-switch-docker" "docker-context" "docker-status")
+    local aliases_to_test=("docker-switch-rancher" "docker-switch-docker" "docker-context" "docker-status" "start-rancher" "start-docker")
     for alias_name in "${aliases_to_test[@]}"; do
         if alias "$alias_name" >/dev/null 2>&1; then
             test_details+=("✅ Alias '$alias_name' exists")
