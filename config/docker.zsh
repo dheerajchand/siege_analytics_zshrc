@@ -121,10 +121,6 @@ ensure_docker_available() {
                         echo "❌ Docker failed to start within timeout"
                         return 1
                     fi
-                else
-                    echo "❌ Docker Desktop not found at /Applications/Docker.app"
-                    return 1
-                fi
                 ;;
             linux*)
                 # Linux: Try to start Docker service
@@ -153,6 +149,7 @@ ensure_docker_available() {
                 fi
                 ;;
         esac
+        fi
     fi
     
     return 0
