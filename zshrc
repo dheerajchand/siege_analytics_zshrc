@@ -24,6 +24,17 @@ fi
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
 # =====================================================
+# PREVENT DOUBLE LOADING
+# =====================================================
+
+# Prevent this configuration from being loaded twice
+if [[ -n "$MODULAR_ZSHRC_LOADED" ]]; then
+    echo "⚠️  Modular zshrc already loaded, skipping duplicate load"
+    return 0 2>/dev/null || exit 0
+fi
+export MODULAR_ZSHRC_LOADED="true"
+
+# =====================================================
 # LIGHT MODE / HEAVY MODE DETECTION (FIRST TEST)
 # =====================================================
 
@@ -78,9 +89,6 @@ detect_zsh_mode() {
 
 # Determine mode and set global variables
 DETECTED_MODE=$(detect_zsh_mode)
-echo "🔍 Detected mode: $DETECTED_MODE"
-
-# Set the detected mode
 export ZSH_MODE="$DETECTED_MODE"
 
 case "$ZSH_MODE" in
