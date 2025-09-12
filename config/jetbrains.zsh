@@ -183,6 +183,10 @@ progressive_jetbrains_load() {
         source "$HOME/.config/zsh/config/status.zsh" 2>/dev/null && echo "✅ Status module loaded"
     fi
     
+    if [[ -f "$HOME/.config/zsh/config/docker.zsh" ]]; then
+        source "$HOME/.config/zsh/config/docker.zsh" 2>/dev/null && echo "✅ Docker module loaded"
+    fi
+    
     # Load backup functions if available and not explicitly disabled
     if [[ -f "$HOME/.config/zsh/config/backup.zsh" ]] && [[ "$SKIP_BACKUP_FUNCTIONS" != "true" ]]; then
         source "$HOME/.config/zsh/config/backup.zsh"

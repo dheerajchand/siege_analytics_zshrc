@@ -384,6 +384,10 @@ elif [[ "$ZSH_MODE" == "staggered" ]]; then
             source "$ZSH_CONFIG_MODULES/status.zsh" 2>/dev/null && echo "✅ Status module loaded" || echo "⚠️  Status module had warnings"
         fi
         
+        if [[ -f "$ZSH_CONFIG_MODULES/docker.zsh" ]]; then
+            source "$ZSH_CONFIG_MODULES/docker.zsh" 2>/dev/null && echo "✅ Docker module loaded" || echo "⚠️  Docker module had warnings"
+        fi
+        
         echo ""
         echo "🎯 Staggered mode Phase 2 complete - additional modules loaded"
         echo "💡 Full development environment is now ready!"
