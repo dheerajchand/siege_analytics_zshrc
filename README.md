@@ -127,6 +127,7 @@ Comprehensive function documentation with examples and unit tests:
 - **[Spark Functions](docs/api-reference/spark-functions.rst)** - Apache Spark cluster management & job submission
 - **[Hadoop Functions](docs/api-reference/hadoop-functions.rst)** - HDFS, YARN, MapReduce ecosystem management
 - **[Docker Functions](docs/api-reference/docker-functions.rst)** - Container development & deployment workflows
+- **[Docker Context Switching](docs/DOCKER_CONTEXT_SWITCHING.md)** - Switch between Docker Desktop and Rancher Desktop
 - **[Database Functions](docs/api-reference/database-functions.rst)** - Secure database connection management
 - **[Python Functions](docs/api-reference/python-functions.rst)** - Python/UV environment switching & data science projects
 

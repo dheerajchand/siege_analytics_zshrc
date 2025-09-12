@@ -1,7 +1,7 @@
 # =====================================================
 # JETBRAINS IDE INTEGRATION MODULE
 # =====================================================
-#
+# 
 # This module provides optimized shell configuration for JetBrains IDEs
 # including DataSpell, PyCharm, IntelliJ, WebStorm, CLion, GoLand, etc.
 #
@@ -116,9 +116,11 @@ load_jetbrains_essentials() {
 # Phase 2: Progressive enhancement (background loading)
 progressive_jetbrains_load() {
     # Wait for IDE to stabilize
-    sleep 3
+    sleep 2
     
+    echo ""
     echo "🔄 Progressive enhancement for $CURRENT_JETBRAINS_IDE..."
+    echo "⏳ Loading additional modules in background..."
     
     # Load IDE-specific configurations
     case "$CURRENT_JETBRAINS_IDE" in
@@ -127,6 +129,7 @@ progressive_jetbrains_load() {
             # Python-specific setup
             if [[ -f "$HOME/.config/zsh/config/python.zsh" ]]; then
                 source "$HOME/.config/zsh/config/python.zsh"
+                echo "✅ Python tools loaded"
             fi
             ;;
         "WebStorm"|"IntelliJ")
@@ -134,6 +137,7 @@ progressive_jetbrains_load() {
             # Web development tools
             if [[ -f "$HOME/.config/zsh/config/web.zsh" ]]; then
                 source "$HOME/.config/zsh/config/web.zsh"
+                echo "✅ Web tools loaded"
             fi
             ;;
         "CLion")
@@ -141,6 +145,7 @@ progressive_jetbrains_load() {
             # C++ development tools
             if [[ -f "$HOME/.config/zsh/config/cpp.zsh" ]]; then
                 source "$HOME/.config/zsh/config/cpp.zsh"
+                echo "✅ C++ tools loaded"
             fi
             ;;
         "GoLand")
@@ -148,6 +153,7 @@ progressive_jetbrains_load() {
             # Go development tools
             if [[ -f "$HOME/.config/zsh/config/go.zsh" ]]; then
                 source "$HOME/.config/zsh/config/go.zsh"
+                echo "✅ Go tools loaded"
             fi
             ;;
         "Android Studio")
@@ -155,9 +161,27 @@ progressive_jetbrains_load() {
             # Android development tools
             if [[ -f "$HOME/.config/zsh/config/android.zsh" ]]; then
                 source "$HOME/.config/zsh/config/android.zsh"
+                echo "✅ Android tools loaded"
             fi
             ;;
+        *)
+            echo "🔧 Loading general development tools..."
+            ;;
     esac
+    
+    # Load additional utility modules
+    echo "📦 Loading utility modules..."
+    if [[ -f "$HOME/.config/zsh/config/credentials.zsh" ]]; then
+        source "$HOME/.config/zsh/config/credentials.zsh" 2>/dev/null && echo "✅ Credentials module loaded"
+    fi
+    
+    if [[ -f "$HOME/.config/zsh/config/database.zsh" ]]; then
+        source "$HOME/.config/zsh/config/database.zsh" 2>/dev/null && echo "✅ Database module loaded"
+    fi
+    
+    if [[ -f "$HOME/.config/zsh/config/status.zsh" ]]; then
+        source "$HOME/.config/zsh/config/status.zsh" 2>/dev/null && echo "✅ Status module loaded"
+    fi
     
     # Load backup functions if available and not explicitly disabled
     if [[ -f "$HOME/.config/zsh/config/backup.zsh" ]] && [[ "$SKIP_BACKUP_FUNCTIONS" != "true" ]]; then
@@ -165,7 +189,10 @@ progressive_jetbrains_load() {
         echo "✅ Backup functions loaded"
     fi
     
+    echo ""
     echo "🎯 $CURRENT_JETBRAINS_IDE fully configured!"
+    echo "💡 All development tools are now available"
+    echo ""
 }
 
 # Phase 3: Manual upgrade function
@@ -205,9 +232,6 @@ jetbrains_status() {
 
 # Load essential functions immediately
 load_jetbrains_essentials
-
-# Start progressive loading in background
-progressive_jetbrains_load &
 
 # Welcome message
 echo "🚀 $CURRENT_JETBRAINS_IDE detected - Progressive loading enabled"

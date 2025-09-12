@@ -13,6 +13,56 @@
 export DOCKER_MODULE_LOADED="true"
 
 # =====================================================
+# DOCKER/RANCHER CONTEXT MANAGEMENT
+# =====================================================
+
+# Set default container runtime (docker-desktop or rancher-desktop)
+export DEFAULT_CONTAINER_RUNTIME="${DEFAULT_CONTAINER_RUNTIME:-rancher-desktop}"
+
+switch_docker_context() {
+    local context="${1:-$DEFAULT_CONTAINER_RUNTIME}"
+    
+    case "$context" in
+        "rancher-desktop"|"rancher")
+            echo "🐄 Switching to Rancher Desktop..."
+            docker context use rancher-desktop 2>/dev/null
+            if docker info >/dev/null 2>&1; then
+                echo "✅ Rancher Desktop is ready"
+                export CURRENT_DOCKER_CONTEXT="rancher-desktop"
+            else
+                echo "⚠️  Rancher Desktop not ready, trying Docker Desktop..."
+                docker context use desktop-linux 2>/dev/null
+                export CURRENT_DOCKER_CONTEXT="desktop-linux"
+            fi
+            ;;
+        "docker-desktop"|"docker")
+            echo "🐳 Switching to Docker Desktop..."
+            docker context use desktop-linux 2>/dev/null
+            if docker info >/dev/null 2>&1; then
+                echo "✅ Docker Desktop is ready"
+                export CURRENT_DOCKER_CONTEXT="desktop-linux"
+            else
+                echo "⚠️  Docker Desktop not ready, trying Rancher Desktop..."
+                docker context use rancher-desktop 2>/dev/null
+                export CURRENT_DOCKER_CONTEXT="rancher-desktop"
+            fi
+            ;;
+        *)
+            echo "❌ Unknown context: $context"
+            echo "Available contexts: rancher-desktop, docker-desktop"
+            return 1
+            ;;
+    esac
+}
+
+# Auto-switch to preferred runtime on module load
+auto_switch_docker_context() {
+    if [[ -n "$DEFAULT_CONTAINER_RUNTIME" ]]; then
+        switch_docker_context "$DEFAULT_CONTAINER_RUNTIME"
+    fi
+}
+
+# =====================================================
 # SMART DEPENDENCY MANAGEMENT
 # =====================================================
 
@@ -39,13 +89,25 @@ ensure_docker_available() {
     if ! docker info >/dev/null 2>&1; then
         echo "🔄 Docker daemon not running. Attempting to start..."
         
-        case "$OSTYPE" in
-            darwin*)
-                # macOS: Try to start Docker Desktop
-                if [[ -d "/Applications/Docker.app" ]]; then
-                    echo "Starting Docker Desktop..."
-                    open -a Docker
-                    echo "⏳ Waiting for Docker to start..."
+        # First try to switch to preferred context
+        auto_switch_docker_context
+        
+        # If still not working, try to start the appropriate service
+        if ! docker info >/dev/null 2>&1; then
+            case "$OSTYPE" in
+                darwin*)
+                    # macOS: Try to start the preferred container runtime
+                    case "$DEFAULT_CONTAINER_RUNTIME" in
+                        "rancher-desktop")
+                            echo "🐄 Starting Rancher Desktop..."
+                            open -a "Rancher Desktop" 2>/dev/null || echo "⚠️  Rancher Desktop not found"
+                            ;;
+                        "docker-desktop"|*)
+                            echo "🐳 Starting Docker Desktop..."
+                            open -a Docker 2>/dev/null || echo "⚠️  Docker Desktop not found"
+                            ;;
+                    esac
+                    echo "⏳ Waiting for container runtime to start..."
                     local timeout=30
                     while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
                         sleep 2
@@ -522,6 +584,12 @@ docker_network_create() {
 # =====================================================
 # DOCKER ALIASES
 # =====================================================
+
+# Container runtime switching
+alias docker-switch-rancher="switch_docker_context rancher-desktop"
+alias docker-switch-docker="switch_docker_context docker-desktop"
+alias docker-context="docker context ls"
+alias docker-status="docker info | head -10"
 
 alias d='docker'
 alias dc='docker_compose_cmd'

@@ -16,6 +16,85 @@ readonly TEST_VERSION="1.0.0"
 source "$(dirname "$0")/../test-framework.zsh"
 
 # =====================================================
+# DOCKER CONTEXT SWITCHING TESTS
+# =====================================================
+
+test_docker_context_switching() {
+    local test_name="Docker Context Switching"
+    local test_result="PASS"
+    local test_details=()
+    
+    echo "🧪 Testing Docker context switching functions..."
+    
+    # Test if Docker is available
+    if ! command -v docker >/dev/null 2>&1; then
+        test_result="SKIP"
+        test_details+=("Docker not installed")
+        print_test_result "$test_name" "$test_result" "${test_details[@]}"
+        return 0
+    fi
+    
+    # Test switch_docker_context function exists
+    if ! command -v switch_docker_context >/dev/null 2>&1; then
+        test_result="FAIL"
+        test_details+=("switch_docker_context function not found")
+    else
+        test_details+=("✅ switch_docker_context function exists")
+    fi
+    
+    # Test auto_switch_docker_context function exists
+    if ! command -v auto_switch_docker_context >/dev/null 2>&1; then
+        test_result="FAIL"
+        test_details+=("auto_switch_docker_context function not found")
+    else
+        test_details+=("✅ auto_switch_docker_context function exists")
+    fi
+    
+    # Test environment variable
+    if [[ -z "$DEFAULT_CONTAINER_RUNTIME" ]]; then
+        test_result="FAIL"
+        test_details+=("DEFAULT_CONTAINER_RUNTIME not set")
+    else
+        test_details+=("✅ DEFAULT_CONTAINER_RUNTIME is set to: $DEFAULT_CONTAINER_RUNTIME")
+    fi
+    
+    # Test aliases
+    local aliases_to_test=("docker-switch-rancher" "docker-switch-docker" "docker-context" "docker-status")
+    for alias_name in "${aliases_to_test[@]}"; do
+        if alias "$alias_name" >/dev/null 2>&1; then
+            test_details+=("✅ Alias '$alias_name' exists")
+        else
+            test_result="FAIL"
+            test_details+=("❌ Alias '$alias_name' missing")
+        fi
+    done
+    
+    # Test context switching (if Docker is running)
+    if docker info >/dev/null 2>&1; then
+        local current_context=$(docker context ls --format "{{.Name}}" | grep '\*' | sed 's/\*//' | tr -d ' ')
+        test_details+=("✅ Current Docker context: $current_context")
+        
+        # Test switching to rancher-desktop
+        if switch_docker_context rancher-desktop 2>/dev/null; then
+            test_details+=("✅ Successfully switched to rancher-desktop")
+        else
+            test_details+=("⚠️  Could not switch to rancher-desktop (may not be available)")
+        fi
+        
+        # Test switching to docker-desktop
+        if switch_docker_context docker-desktop 2>/dev/null; then
+            test_details+=("✅ Successfully switched to docker-desktop")
+        else
+            test_details+=("⚠️  Could not switch to docker-desktop (may not be available)")
+        fi
+    else
+        test_details+=("⚠️  Docker daemon not running - skipping context switching tests")
+    fi
+    
+    print_test_result "$test_name" "$test_result" "${test_details[@]}"
+}
+
+# =====================================================
 # THREE-TIER SYSTEM TESTS
 # =====================================================
 
@@ -425,5 +504,7 @@ register_test "test_status_commands_integration" "test_status_commands_integrati
 
 register_test "test_missing_module_handling" "test_missing_module_handling"
 register_test "test_corrupted_module_handling" "test_corrupted_module_handling"
+
+register_test "test_docker_context_switching" "test_docker_context_switching"
 
 echo "✅ Modular system tests registered: ${#TEST_FUNCTIONS} tests"
