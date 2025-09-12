@@ -26,25 +26,91 @@ switch_docker_context() {
         "rancher-desktop"|"rancher")
             echo "🐄 Switching to Rancher Desktop..."
             docker context use rancher-desktop 2>/dev/null
+            
             if docker info >/dev/null 2>&1; then
                 echo "✅ Rancher Desktop is ready"
                 export CURRENT_DOCKER_CONTEXT="rancher-desktop"
             else
-                echo "⚠️  Rancher Desktop not ready, trying Docker Desktop..."
-                docker context use desktop-linux 2>/dev/null
-                export CURRENT_DOCKER_CONTEXT="desktop-linux"
+                echo "⚠️  Rancher Desktop not ready, attempting to start..."
+                open -a "Rancher Desktop" 2>/dev/null
+                
+                # Wait for Rancher Desktop to start
+                local timeout=30
+                while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
+                    sleep 2
+                    ((timeout--))
+                    echo "⏳ Waiting for Rancher Desktop to start... ($timeout seconds remaining)"
+                done
+                
+                if docker info >/dev/null 2>&1; then
+                    echo "✅ Rancher Desktop started successfully"
+                    export CURRENT_DOCKER_CONTEXT="rancher-desktop"
+                else
+                    echo "❌ Rancher Desktop failed to start, trying Docker Desktop..."
+                    docker context use desktop-linux 2>/dev/null
+                    open -a Docker 2>/dev/null
+                    
+                    # Wait for Docker Desktop to start
+                    timeout=30
+                    while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
+                        sleep 2
+                        ((timeout--))
+                        echo "⏳ Waiting for Docker Desktop to start... ($timeout seconds remaining)"
+                    done
+                    
+                    if docker info >/dev/null 2>&1; then
+                        echo "✅ Docker Desktop started successfully"
+                        export CURRENT_DOCKER_CONTEXT="desktop-linux"
+                    else
+                        echo "❌ Both Rancher Desktop and Docker Desktop failed to start"
+                        return 1
+                    fi
+                fi
             fi
             ;;
         "docker-desktop"|"docker")
             echo "🐳 Switching to Docker Desktop..."
             docker context use desktop-linux 2>/dev/null
+            
             if docker info >/dev/null 2>&1; then
                 echo "✅ Docker Desktop is ready"
                 export CURRENT_DOCKER_CONTEXT="desktop-linux"
             else
-                echo "⚠️  Docker Desktop not ready, trying Rancher Desktop..."
-                docker context use rancher-desktop 2>/dev/null
-                export CURRENT_DOCKER_CONTEXT="rancher-desktop"
+                echo "⚠️  Docker Desktop not ready, attempting to start..."
+                open -a Docker 2>/dev/null
+                
+                # Wait for Docker Desktop to start
+                local timeout=30
+                while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
+                    sleep 2
+                    ((timeout--))
+                    echo "⏳ Waiting for Docker Desktop to start... ($timeout seconds remaining)"
+                done
+                
+                if docker info >/dev/null 2>&1; then
+                    echo "✅ Docker Desktop started successfully"
+                    export CURRENT_DOCKER_CONTEXT="desktop-linux"
+                else
+                    echo "❌ Docker Desktop failed to start, trying Rancher Desktop..."
+                    docker context use rancher-desktop 2>/dev/null
+                    open -a "Rancher Desktop" 2>/dev/null
+                    
+                    # Wait for Rancher Desktop to start
+                    timeout=30
+                    while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
+                        sleep 2
+                        ((timeout--))
+                        echo "⏳ Waiting for Rancher Desktop to start... ($timeout seconds remaining)"
+                    done
+                    
+                    if docker info >/dev/null 2>&1; then
+                        echo "✅ Rancher Desktop started successfully"
+                        export CURRENT_DOCKER_CONTEXT="rancher-desktop"
+                    else
+                        echo "❌ Both Docker Desktop and Rancher Desktop failed to start"
+                        return 1
+                    fi
+                fi
             fi
             ;;
         *)
@@ -587,6 +653,10 @@ alias docker-switch-rancher="switch_docker_context rancher-desktop"
 alias docker-switch-docker="switch_docker_context docker-desktop"
 alias docker-context="docker context ls"
 alias docker-status="docker info | head -10"
+
+# Direct runtime starting (with fallback)
+alias start-rancher="switch_docker_context rancher-desktop"
+alias start-docker="switch_docker_context docker-desktop"
 
 alias d='docker'
 alias dc='docker_compose_cmd'
