@@ -404,6 +404,11 @@ elif [[ "$ZSH_MODE" == "heavy" ]]; then
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Loading all modules..."
     load_modules "${MODULES_LIGHT[@]}" "${MODULES_HEAVY[@]}"
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Heavy mode complete - full configuration loaded"
+    
+    # Optimize PATH for performance (reduces Finder slowdowns)
+    if command -v deduplicate_path >/dev/null 2>&1; then
+        deduplicate_path
+    fi
 fi
 
 # =====================================================

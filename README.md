@@ -30,6 +30,7 @@
 - **Enterprise-grade data science stack**: Spark, Hadoop, Python/UV integration
 - **🚀 Dynamic module discovery system**: Automatic module detection with set operations
 - **⚡ Three-tier configuration system**: Light/Staggered/Heavy modes for optimal performance
+- **🔧 PATH optimization**: Automatic deduplication fixes Finder slowdowns (48% PATH reduction)
 
 ### ⚡ **Dynamic Module Discovery System**
 - **🔍 Auto-discovery**: Automatically detects all `.zsh` modules in config directory
@@ -435,6 +436,10 @@ system_info
 # Measure performance
 shell_startup_time
 
+# PATH optimization (fixes Finder slowdowns)
+deduplicate_path
+echo ${#PATH}  # Check PATH length
+
 # List available modules
 list_modules
 ```
@@ -473,6 +478,10 @@ list_modules
 ```bash
 # Check current PATH
 echo $PATH | tr ':' '\n'
+echo "PATH length: ${#PATH} characters"
+
+# Fix Finder slowdowns (removes duplicate PATH entries)
+deduplicate_path
 
 # Add missing paths
 path_add "/usr/local/bin"
@@ -520,8 +529,9 @@ export ZSH_IS_DOCKER="true"
 ### **Optimization Features**
 - **Conditional loading**: Heavy modules only load when needed
 - **Credential caching**: Backend detection cached per session
-- **Path deduplication**: Automatic PATH cleanup
+- **Path deduplication**: Automatic PATH cleanup (fixes macOS Finder slowdowns)
 - **Container awareness**: Optimized resource allocation
+- **Performance monitoring**: Built-in startup timing and PATH analysis
 
 ---
 
