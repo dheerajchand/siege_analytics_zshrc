@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(TERM_PROGRAM=\"Cursor\" zsh -c 'detect_zsh_mode() {\n    # VSCode and VSCode-based IDEs\n    if [[ -n \"\"$VSCODE_PID\"\" || \"\"$TERM_PROGRAM\"\" == \"\"vscode\"\" || -n \"\"$VSCODE_INJECTION\"\" ]]; then\n        echo \"\"staggered\"\"\n        return 0\n    fi\n    \n    # Cursor IDE (VSCode-based)\n    if [[ \"\"$TERM_PROGRAM\"\" == \"\"Cursor\"\" || -n \"\"$CURSOR_IDE\"\" ]]; then\n        echo \"\"staggered\"\"\n        return 0\n    fi\n    \n    echo \"\"heavy\"\"\n}\n\necho \"\"Cursor detection result: $(detect_zsh_mode)\"\"')"
+      "Bash(git remote get-url:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
