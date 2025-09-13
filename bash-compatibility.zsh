@@ -362,8 +362,8 @@ deduplicate_path() {
             # Skip empty entries
             [ -z "$entry" ] && continue
             
-            # Check if entry already exists in cleaned path
-            if [[ "$cleaned_path" != *"$entry"* ]]; then
+            # Check if entry already exists in cleaned path (use proper delimiter checking)
+            if [[ ":$cleaned_path:" != *":$entry:"* ]]; then
                 if [ -z "$cleaned_path" ]; then
                     cleaned_path="$entry"
                 else
@@ -381,8 +381,8 @@ deduplicate_path() {
             # Skip empty entries
             [ -z "$entry" ] && continue
             
-            # Check if entry already exists in cleaned path
-            if [[ "$cleaned_path" != *"$entry"* ]]; then
+            # Check if entry already exists in cleaned path (use proper delimiter checking)
+            if [[ ":$cleaned_path:" != *":$entry:"* ]]; then
                 if [ -z "$cleaned_path" ]; then
                     cleaned_path="$entry"
                 else

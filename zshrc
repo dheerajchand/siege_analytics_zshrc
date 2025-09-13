@@ -335,9 +335,15 @@ MODULES_HEAVY=($(printf '%s\n' "${ALL_MODULES[@]}" "${MODULES_LIGHT[@]}" | sort 
 load_module() {
     local module_name="$1"
     local module_file="$ZSH_CONFIG_MODULES/${module_name}.zsh"
-    
+
     if [[ -f "$module_file" ]]; then
         source "$module_file" 2>/dev/null || [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⚠️  ${module_name} module had warnings"
+
+        # Auto-deduplicate PATH after loading modules that modify it
+        if [[ "$PATH_DEDUPLICATION_ENABLED" == "true" ]] && command -v deduplicate_path >/dev/null 2>&1; then
+            deduplicate_path
+        fi
+
         return 0
     else
         [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⚠️  ${module_name} module not found: $module_file"

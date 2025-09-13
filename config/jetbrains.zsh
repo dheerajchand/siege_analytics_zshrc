@@ -73,11 +73,25 @@ export CURRENT_JETBRAINS_IDE=$(detect_jetbrains_ide)
 # Essential environment variables for JetBrains IDEs
 export SIEGE_UTILITIES_TEST="$HOME/Desktop/in_process/code/siege_utilities_verify"
 
-# Ensure essential PATH components
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+# Ensure essential PATH components (check for duplicates)
+if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+    export PATH="/usr/local/bin:$PATH"
+fi
+if [[ ":$PATH:" != *":/usr/bin:"* ]]; then
+    export PATH="/usr/bin:$PATH"
+fi
+if [[ ":$PATH:" != *":/bin:"* ]]; then
+    export PATH="/bin:$PATH"
+fi
+if [[ ":$PATH:" != *":/usr/sbin:"* ]]; then
+    export PATH="/usr/sbin:$PATH"
+fi
+if [[ ":$PATH:" != *":/sbin:"* ]]; then
+    export PATH="/sbin:$PATH"
+fi
 
 # UV integration (fast Python package manager)
-if [[ -d "$HOME/.local/share/uv" ]]; then
+if [[ -d "$HOME/.local/share/uv" ]] && [[ ":$PATH:" != *":$HOME/.local/share/uv/bin:"* ]]; then
     export PATH="$HOME/.local/share/uv/bin:$PATH"
 fi
 
@@ -99,12 +113,22 @@ load_jetbrains_essentials() {
     if [[ -f "$HOME/.config/zsh/config/paths.zsh" ]]; then
         source "$HOME/.config/zsh/config/paths.zsh" 2>/dev/null || {
             echo "⚠️  Could not load paths.zsh, using minimal PATH"
-            export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+            # Add system paths only if not already present
+            for sys_path in "/usr/local/bin" "/usr/bin" "/bin" "/usr/sbin" "/sbin"; do
+                if [[ ":$PATH:" != *":$sys_path:"* ]]; then
+                    export PATH="$sys_path:$PATH"
+                fi
+            done
         }
         echo "✅ Path configuration loaded"
     else
         echo "⚠️  paths.zsh not found, using minimal PATH"
-        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+        # Add system paths only if not already present
+        for sys_path in "/usr/local/bin" "/usr/bin" "/bin" "/usr/sbin" "/sbin"; do
+            if [[ ":$PATH:" != *":$sys_path:"* ]]; then
+                export PATH="$sys_path:$PATH"
+            fi
+        done
     fi
     
     # Skip core.zsh loading in JetBrains mode to avoid conflicts

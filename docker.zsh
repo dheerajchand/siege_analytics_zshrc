@@ -22,8 +22,14 @@ function use_rancher() {
         echo "⚠️  Rancher Desktop context not found. Make sure Rancher Desktop is installed and running."
     fi
     
-    # Update PATH to prioritize Rancher Desktop binaries
-    export PATH="/Users/dheerajchand/.rd/bin:$(echo $PATH | sed 's|/Users/dheerajchand/.rd/bin:||g')"
+    # Update PATH to prioritize Rancher Desktop binaries (avoid duplicates)
+    local rd_bin="/Users/dheerajchand/.rd/bin"
+    # Remove any existing instances first
+    export PATH="$(echo $PATH | sed 's|/Users/dheerajchand/.rd/bin:||g')"
+    # Add to front only if directory exists
+    if [[ -d "$rd_bin" ]]; then
+        export PATH="$rd_bin:$PATH"
+    fi
     
     # Set environment variables
     export CURRENT_DOCKER_PROVIDER="rancher"
@@ -47,10 +53,11 @@ function use_docker_desktop() {
     
     # Remove Rancher Desktop from PATH and add Docker Desktop paths
     export PATH="$(echo $PATH | sed 's|/Users/dheerajchand/.rd/bin:||g')"
-    
-    # Add Docker Desktop paths if they exist
-    if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
-        export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+
+    # Add Docker Desktop paths if they exist and not already in PATH
+    local docker_bin="/Applications/Docker.app/Contents/Resources/bin"
+    if [[ -d "$docker_bin" ]] && [[ ":$PATH:" != *":$docker_bin:"* ]]; then
+        export PATH="$docker_bin:$PATH"
     fi
     
     # Set environment variables
