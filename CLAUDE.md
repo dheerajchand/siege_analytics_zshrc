@@ -112,6 +112,25 @@ echo ${#PATH}         # Check PATH length
 echo $PATH | tr ':' '\n' | wc -l  # Count PATH entries
 ```
 
+### **iCloud Drive Diagnostics & Cleanup**
+```bash
+# Diagnose iCloud sync issues causing system slowdowns
+icloud_diagnose              # Full diagnostic report with CPU usage
+icloud_diagnose --blocked    # Show only blocked containers
+icloud_diagnose --cpu        # Focus on performance issues
+
+# Clean up problematic iCloud containers
+icloud_cleanup               # Interactive cleanup utility
+icloud_cleanup --uninstalled # Remove all uninstalled app containers
+icloud_cleanup --disable <name> # Disable sync for specific container
+icloud_cleanup --force <name>   # Force remove container (requires sudo)
+```
+
+### **System Utilities**
+```bash
+restart_finder        # Restart Finder to fix file dialog issues
+```
+
 ### **Backup System**
 ```bash
 backup_status         # Show backup configuration
