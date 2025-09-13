@@ -58,14 +58,33 @@ detect_zsh_mode() {
         return 0
     fi
     
-    # JetBrains IDEs - default to staggered mode
+    # IDEs - default to staggered mode for better performance
+    # JetBrains IDEs
     if [[ -n "$JETBRAINS_IDE" || -n "$PYCHARM_HOSTED" || -n "$DATASPELL_IDE" || "$TERM_PROGRAM" == "JetBrains"* ]]; then
         echo "staggered"
         return 0
     fi
-    
-    # JetBrains IDEs - check parent process
+
+    # VSCode and VSCode-based IDEs
+    if [[ -n "$VSCODE_PID" || "$TERM_PROGRAM" == "vscode" || -n "$VSCODE_INJECTION" ]]; then
+        echo "staggered"
+        return 0
+    fi
+
+    # Cursor IDE (VSCode-based)
+    if [[ "$TERM_PROGRAM" == "Cursor" || -n "$CURSOR_IDE" ]]; then
+        echo "staggered"
+        return 0
+    fi
+
+    # Check parent process for IDEs
     if [[ "$parent_process" == *"pycharm"* || "$parent_process" == *"dataspell"* || "$parent_process" == *"intellij"* || "$parent_process" == *"webstorm"* || "$parent_process" == *"clion"* || "$parent_process" == *"goland"* ]]; then
+        echo "staggered"
+        return 0
+    fi
+
+    # Check parent process for VSCode/Cursor
+    if [[ "$parent_process" == *"code"* || "$parent_process" == *"Code"* || "$parent_process" == *"cursor"* || "$parent_process" == *"Cursor"* ]]; then
         echo "staggered"
         return 0
     fi
@@ -375,18 +394,32 @@ load_modules() {
 if [[ "$ZSH_MODE" == "light" ]]; then
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Light mode: Loading minimal configuration only"
     load_modules "${MODULES_LIGHT[@]}"
+
+    # Load minimal hierarchical core modules
+    if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
+        source "$HOME/.config/zsh/modules/core/module-loader.zsh"
+        load_hierarchical_modules
+    fi
+
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Light mode complete - minimal configuration loaded"
     # Use return instead of exit to prevent crashes in sourced scripts
     return 0 2>/dev/null || true
 
 elif [[ "$ZSH_MODE" == "staggered" ]]; then
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Staggered mode: Loading essential modules first, then progressive enhancement"
-    
+
     # Phase 1: Load light modules immediately
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Phase 1: Loading essential modules..."
     load_modules "${MODULES_LIGHT[@]}"
+
+    # Load hierarchical core modules immediately (light mode compatible)
+    if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
+        source "$HOME/.config/zsh/modules/core/module-loader.zsh"
+        load_hierarchical_modules
+    fi
+
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Staggered mode Phase 1 complete - essential modules loaded"
-    
+
     # Phase 2: Progressive loading of heavy modules in background
     (
         sleep 2
@@ -394,23 +427,37 @@ elif [[ "$ZSH_MODE" == "staggered" ]]; then
         echo "🔄 Staggered mode Phase 2: Loading additional modules..."
         echo "⏳ This happens in the background while you work..."
         load_modules "${MODULES_HEAVY[@]}"
+
+        # Load heavy hierarchical modules in background
+        export ZSH_STAGGERED_PHASE_2="true"
+        if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
+            load_hierarchical_modules
+        fi
+
         echo "🎯 Staggered mode complete - progressive loading active"
     ) &
-    
+
     # Clear background job notifications to prevent "you have running jobs" warnings
     jobs >/dev/null 2>&1
-    
+
     # Use return instead of exit to prevent crashes in sourced scripts
     return 0 2>/dev/null || true
 
 elif [[ "$ZSH_MODE" == "heavy" ]]; then
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Heavy mode: Loading full configuration"
-    
+
     # Load all modules (light + heavy)
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Loading all modules..."
     load_modules "${MODULES_LIGHT[@]}" "${MODULES_HEAVY[@]}"
+
+    # Load all hierarchical modules
+    if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
+        source "$HOME/.config/zsh/modules/core/module-loader.zsh"
+        load_hierarchical_modules
+    fi
+
     [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Heavy mode complete - full configuration loaded"
-    
+
     # Optimize PATH for performance (reduces Finder slowdowns)
     if command -v deduplicate_path >/dev/null 2>&1; then
         deduplicate_path
