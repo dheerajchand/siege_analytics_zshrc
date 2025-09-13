@@ -136,7 +136,8 @@
       "Bash(MODULAR_ZSHRC_VERBOSE=false source ~/.config/zsh/zshrc)",
       "Bash(env)",
       "Bash(deduplicate_path)",
-      "Bash(enhanced_backup:*)"
+      "Bash(enhanced_backup:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []
