@@ -144,12 +144,37 @@ backup_auto_off       # Disable automatic backups
 # Quick system validation (recommended)
 ./test-modular-quick.sh           # 5-second functionality test
 
-# Cross-shell compatibility
-./test-bash-integration.sh        # Comprehensive bash compatibility
+# Cross-shell compatibility (updated v2.0)
+./tests/test-bash-compatibility.sh  # Comprehensive bash compatibility test
 
 # Full test suite
-./test-cross-platform-enhanced.sh # Complete platform testing
+./tests/test-cross-platform-enhanced.sh # Complete platform testing
 ```
+
+## 🔄 **Cross-Shell Compatibility (v2.0)**
+
+**Modernized bash compatibility system with hierarchical architecture:**
+
+```bash
+# Core compatibility (works in both bash and zsh)
+bash-compatibility.zsh            # Lightweight loader (v2.0)
+├── modules/core/cross-shell.zsh  # Core shell/platform detection
+└── modules/core/utilities.zsh    # Essential cross-shell functions
+
+# Key functions available in both shells:
+python_status                     # Environment status
+setup_python_manager auto        # Smart Python setup
+backup <file>                     # File backup utility
+deduplicate_path                  # PATH optimization
+validate_environment              # Environment validation
+```
+
+**Cross-Shell Features:**
+- **✅ Bash Loading**: Fixed reliability issues (was failing in v1.x)
+- **✅ Smart Detection**: Shell, platform, and container detection
+- **✅ 76% Size Reduction**: 472 → 110 lines (lightweight loader)
+- **✅ Hierarchical**: Core functionality in organized modules
+- **✅ Backward Compatible**: All existing scripts continue working
 
 ## ⚙️ **Configuration**
 
@@ -205,16 +230,24 @@ echo $ZSH_IS_DOCKER  # Container environment flag
 ```
 ~/.config/zsh/
 ├── zshrc                    # Main loader (350+ lines, 86% reduction)
-├── config/                  # 12 modular configuration files
+├── config/                  # 14 modular configuration files
 │   ├── core.zsh            # Essential functions
 │   ├── credentials.zsh     # Security system (24KB)
 │   ├── database.zsh        # Database integration
 │   ├── docker.zsh          # Container management
-│   └── [8 more modules]    
+│   └── [10 more modules]
+├── modules/                 # NEW: Hierarchical architecture
+│   ├── core/               # Cross-shell compatibility
+│   ├── languages/python/   # Language-specific modules
+│   └── platforms/macos/    # Platform-specific utilities
 ├── python/                  # Python management system (8 modules)
-├── backup-system.zsh        # Enhanced backup (42KB)
-├── bash-compatibility.zsh   # Cross-shell layer (14KB)
-└── tests/                   # Testing framework
+├── scripts/                 # Organized scripts
+│   ├── install/            # Installation scripts
+│   ├── setup/              # Configuration scripts
+│   └── utils/              # Utilities (including backup system)
+├── bash-compatibility.zsh   # Lightweight loader (v2.0, 110 lines)
+├── tests/                   # Testing framework
+└── docs/guides/            # Organized documentation
 ```
 
 ## 🚨 **Troubleshooting**
@@ -249,9 +282,12 @@ ZSH_STARTUP_TIMING=true source zshrc      # Show timing details
 
 - ✅ **86% size reduction** (2,435 → 350 lines main config)
 - ✅ **<2 second startup** with dynamic loading
-- ✅ **Full cross-platform support** (macOS, Linux, Docker, WSL)  
+- ✅ **Full cross-platform support** (macOS, Linux, Docker, WSL)
 - ✅ **Enterprise security** with multi-backend credentials
 - ✅ **Advanced Python management** (pyenv + UV integration)
+- ✅ **Hierarchical architecture** with organized modules
+- ✅ **Modernized bash compatibility** (v2.0 - 76% smaller, reliable loading)
+- ✅ **Professional repository organization** (scripts, docs, modules)
 - ✅ **Comprehensive testing** framework with multiple test tiers
 - ✅ **PATH optimization** to fix Finder performance issues
 

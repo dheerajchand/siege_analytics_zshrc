@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(git remote get-url:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(./test-bash-compatibility.sh:*)",
+      "Bash(./tests/test-cross-platform.sh:*)",
+      "Bash(./tests/test-cross-platform-enhanced.sh:*)"
     ],
     "deny": [],
     "ask": []

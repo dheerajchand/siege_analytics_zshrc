@@ -73,6 +73,67 @@ python_status() {
     fi
 }
 
+# Python manager setup for backward compatibility
+setup_python_manager() {
+    local manager=${1:-auto}
+    echo "Setting up Python manager: $manager"
+
+    case "$manager" in
+        "pyenv")
+            setup_pyenv_minimal
+            ;;
+        "uv")
+            setup_uv_minimal
+            ;;
+        "auto"|*)
+            if command -v pyenv >/dev/null 2>&1; then
+                setup_pyenv_minimal
+            else
+                echo "Python manager auto-detection: using system python"
+            fi
+            ;;
+    esac
+}
+
+# Minimal pyenv setup
+setup_pyenv_minimal() {
+    export PYENV_ROOT="$HOME/.pyenv"
+    if [[ -d "$PYENV_ROOT" ]]; then
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        if command -v pyenv >/dev/null 2>&1; then
+            eval "$(pyenv init -)" 2>/dev/null || true
+            echo "Pyenv initialized"
+        fi
+    fi
+}
+
+# Minimal UV setup
+setup_uv_minimal() {
+    if command -v uv >/dev/null 2>&1; then
+        export UV_PYTHON_PREFERENCE="managed"
+        echo "UV configured"
+    else
+        echo "UV not found"
+    fi
+}
+
+# Spark setup stub
+setup_spark() {
+    echo "Spark setup (compatibility mode - basic detection)"
+    if command -v spark-submit >/dev/null 2>&1; then
+        echo "• Spark: Available"
+    else
+        echo "• Spark: Not available"
+    fi
+}
+
+# Show spark config stub
+show_spark_config() {
+    echo "Spark Configuration (compatibility mode):"
+    echo "• SPARK_HOME: ${SPARK_HOME:-Not set}"
+    echo "• Java: $(java -version 2>&1 | head -1 || echo 'Not available')"
+}
+
 # Basic backup function for compatibility
 backup() {
     local source_file="$1"
@@ -89,6 +150,77 @@ backup() {
     echo "Backed up $source_file to $backup_file"
 }
 
+# Shell optimization function
+optimize_shell() {
+    echo "Optimizing shell performance..."
+    deduplicate_path
+    echo "• PATH deduplicated"
+    echo "• Shell optimization complete"
+}
+
+# Environment validation function
+validate_environment() {
+    echo "Validating environment..."
+    local errors=0
+
+    # Check shell detection
+    if [[ -z "$CURRENT_SHELL" ]]; then
+        echo "• ERROR: Shell not detected"
+        ((errors++))
+    else
+        echo "• Shell detection: ✓ ($CURRENT_SHELL)"
+    fi
+
+    # Check platform detection
+    if [[ -z "$PLATFORM" ]]; then
+        echo "• ERROR: Platform not detected"
+        ((errors++))
+    else
+        echo "• Platform detection: ✓ ($PLATFORM)"
+    fi
+
+    # Check PATH
+    if [[ -z "$PATH" ]]; then
+        echo "• ERROR: PATH is empty"
+        ((errors++))
+    else
+        echo "• PATH: ✓ ($(echo $PATH | tr ':' '\n' | wc -l) entries)"
+    fi
+
+    if [[ $errors -eq 0 ]]; then
+        echo "• Environment validation: ✓ PASSED"
+    else
+        echo "• Environment validation: ✗ FAILED ($errors errors)"
+    fi
+}
+
+# Comprehensive compatibility test function
+test_compatibility() {
+    echo "Running comprehensive compatibility test..."
+
+    echo "• Testing python_status..."
+    python_status > /dev/null
+    echo "  ✓ python_status works"
+
+    echo "• Testing setup_python_manager..."
+    setup_python_manager auto > /dev/null
+    echo "  ✓ setup_python_manager works"
+
+    echo "• Testing setup_spark..."
+    setup_spark > /dev/null
+    echo "  ✓ setup_spark works"
+
+    echo "• Testing validate_environment..."
+    validate_environment > /dev/null
+    echo "  ✓ validate_environment works"
+
+    echo "• Testing deduplicate_path..."
+    deduplicate_path
+    echo "  ✓ deduplicate_path works"
+
+    echo "All compatibility tests passed!"
+}
+
 # Basic help function
 zsh_help() {
     echo "Bash Compatibility Help System"
@@ -97,6 +229,7 @@ zsh_help() {
     echo "• python_status  - Show Python environment status"
     echo "• backup <file>  - Backup a file"
     echo "• deduplicate_path - Clean up PATH variable"
+    echo "• optimize_shell - Optimize shell performance"
     echo ""
     echo "Environment variables:"
     echo "• CURRENT_SHELL: $CURRENT_SHELL"

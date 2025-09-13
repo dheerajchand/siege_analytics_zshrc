@@ -59,7 +59,10 @@ echo "✓ python_status completed"
 echo ""
 echo "Testing backup system..."
 echo "Testing backup function..."
-backup "Bash compatibility test"
+# Create a temporary file for testing
+echo "test content" > /tmp/test_backup_file.txt
+backup "/tmp/test_backup_file.txt" "/tmp/test_backups"
+rm -f /tmp/test_backup_file.txt
 echo "✓ backup function completed"
 
 # Test Spark integration
