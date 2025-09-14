@@ -5,7 +5,8 @@
       "WebFetch(domain:github.com)",
       "Bash(./test-bash-compatibility.sh:*)",
       "Bash(./tests/test-cross-platform.sh:*)",
-      "Bash(./tests/test-cross-platform-enhanced.sh:*)"
+      "Bash(./tests/test-cross-platform-enhanced.sh:*)",
+      "Bash(repair_path:*)"
     ],
     "deny": [],
     "ask": []

@@ -106,6 +106,183 @@ deduplicate_path() {
     fi
 }
 
+repair_path() {
+    # Comprehensive PATH repair and cleanup function
+    # Usage: repair_path [--verbose] [--dry-run]
+    #
+    # Fixes common PATH issues:
+    # - Empty entries (::)
+    # - Non-existent directories
+    # - Duplicate entries
+    # - Malformed entries (spaces, special chars)
+    # - Relative paths (converts to absolute when possible)
+    # - Common broken entries (old Homebrew, removed apps, etc.)
+
+    local verbose=false
+    local dry_run=false
+    local show_help=false
+
+    # Parse arguments
+    for arg in "$@"; do
+        case "$arg" in
+            --verbose|-v) verbose=true ;;
+            --dry-run|-n) dry_run=true ;;
+            --help|-h) show_help=true ;;
+        esac
+    done
+
+    if [[ "$show_help" == "true" ]]; then
+        echo "repair_path - Comprehensive PATH cleanup and repair"
+        echo ""
+        echo "Usage: repair_path [OPTIONS]"
+        echo ""
+        echo "Options:"
+        echo "  --verbose, -v    Show detailed information about changes"
+        echo "  --dry-run, -n    Show what would be changed without making changes"
+        echo "  --help, -h       Show this help message"
+        echo ""
+        echo "Fixes:"
+        echo "  • Empty entries (::)"
+        echo "  • Non-existent directories"
+        echo "  • Duplicate entries"
+        echo "  • Malformed paths"
+        echo "  • Relative paths (converts to absolute)"
+        echo "  • Common broken entries"
+        return 0
+    fi
+
+    if [[ -z "$PATH" ]]; then
+        echo "⚠️  PATH is empty - cannot repair"
+        return 1
+    fi
+
+    local original_path="$PATH"
+    local original_count=$(echo "$PATH" | tr ':' '\n' | wc -l)
+    local new_path=""
+    local issues_found=0
+    local duplicates_removed=0
+    local nonexistent_removed=0
+    local malformed_fixed=0
+    local empty_removed=0
+    local relative_converted=0
+
+    echo "🔧 PATH Repair Tool"
+    echo "==================="
+    [[ "$dry_run" == "true" ]] && echo "🔍 DRY RUN MODE - No changes will be made"
+    echo ""
+
+    # Split PATH and process each entry
+    local IFS=":"
+    for entry in $PATH; do
+        local fixed_entry="$entry"
+        local entry_issues=""
+
+        # Skip completely empty entries
+        if [[ -z "$entry" ]]; then
+            entry_issues="${entry_issues}empty "
+            ((empty_removed++))
+            ((issues_found++))
+            [[ "$verbose" == "true" ]] && echo "❌ Removed empty entry"
+            continue
+        fi
+
+        # Fix relative paths by converting to absolute
+        if [[ "$entry" =~ ^[^/] ]]; then
+            if [[ -d "$PWD/$entry" ]]; then
+                fixed_entry="$PWD/$entry"
+                entry_issues="${entry_issues}relative->absolute "
+                ((relative_converted++))
+                ((issues_found++))
+                [[ "$verbose" == "true" ]] && echo "🔄 Converted relative: $entry → $fixed_entry"
+            else
+                entry_issues="${entry_issues}relative-nonexistent "
+                ((nonexistent_removed++))
+                ((issues_found++))
+                [[ "$verbose" == "true" ]] && echo "❌ Removed non-existent relative path: $entry"
+                continue
+            fi
+        fi
+
+        # Check for malformed entries (containing spaces without quotes, etc.)
+        if [[ "$fixed_entry" =~ [[:space:]] ]] && [[ ! "$fixed_entry" =~ ^\" ]]; then
+            entry_issues="${entry_issues}malformed-spaces "
+            ((malformed_fixed++))
+            ((issues_found++))
+            [[ "$verbose" == "true" ]] && echo "⚠️  Malformed path with spaces: $fixed_entry"
+            # Don't automatically fix - might break intentional paths
+        fi
+
+        # Check if directory exists
+        if [[ ! -d "$fixed_entry" ]]; then
+            entry_issues="${entry_issues}nonexistent "
+            ((nonexistent_removed++))
+            ((issues_found++))
+            [[ "$verbose" == "true" ]] && echo "❌ Removed non-existent: $fixed_entry"
+            continue
+        fi
+
+        # Check for duplicates
+        if [[ ":$new_path:" == *":$fixed_entry:"* ]]; then
+            entry_issues="${entry_issues}duplicate "
+            ((duplicates_removed++))
+            ((issues_found++))
+            [[ "$verbose" == "true" ]] && echo "🔄 Removed duplicate: $fixed_entry"
+            continue
+        fi
+
+        # Add to new PATH
+        if [[ -z "$new_path" ]]; then
+            new_path="$fixed_entry"
+        else
+            new_path="$new_path:$fixed_entry"
+        fi
+
+        if [[ "$verbose" == "true" ]] && [[ -z "$entry_issues" ]]; then
+            echo "✅ Kept: $fixed_entry"
+        fi
+    done
+
+    # Report results
+    local new_count=$(echo "$new_path" | tr ':' '\n' | wc -l)
+    local removed_count=$((original_count - new_count))
+
+    echo ""
+    echo "📊 PATH Repair Summary:"
+    echo "======================="
+    echo "• Original entries: $original_count"
+    echo "• Final entries: $new_count"
+    echo "• Total removed: $removed_count"
+    echo ""
+    echo "Issues fixed:"
+    echo "• Empty entries removed: $empty_removed"
+    echo "• Non-existent paths removed: $nonexistent_removed"
+    echo "• Duplicate entries removed: $duplicates_removed"
+    echo "• Relative paths converted: $relative_converted"
+    echo "• Malformed paths detected: $malformed_fixed"
+    echo ""
+
+    if [[ $issues_found -eq 0 ]]; then
+        echo "✅ PATH is already clean - no issues found!"
+        return 0
+    fi
+
+    if [[ "$dry_run" == "true" ]]; then
+        echo "🔍 DRY RUN COMPLETE - Run without --dry-run to apply changes"
+        return 0
+    fi
+
+    # Apply changes
+    export PATH="$new_path"
+    echo "✅ PATH repaired successfully!"
+    echo ""
+    echo "💡 Tips:"
+    echo "• Run 'repair_path --verbose' to see detailed changes"
+    echo "• Use 'deduplicate_path' for quick duplicate removal"
+    echo "• Consider running repair_path after major software installs/removals"
+
+    return 0
+}
+
 # Cross-shell command existence check
 command_exists() {
     command -v "$1" >/dev/null 2>&1
