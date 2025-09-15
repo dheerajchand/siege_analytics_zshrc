@@ -28,7 +28,8 @@
       "Bash(backup_zsh_config:*)",
       "Bash(cat:*)",
       "Bash(git push:*)",
-      "Bash(push_to_main_repo \"feat: add main repository update functions\n\n- Add push_to_main_repo function for direct main repo updates\n- Add push_main convenience function with timestamp\n- Update help system with new repository management commands  \n- Add documentation in CLAUDE.md for repository management\n- Include retry logic and conflict resolution\")"
+      "Bash(push_to_main_repo \"feat: add main repository update functions\n\n- Add push_to_main_repo function for direct main repo updates\n- Add push_main convenience function with timestamp\n- Update help system with new repository management commands  \n- Add documentation in CLAUDE.md for repository management\n- Include retry logic and conflict resolution\")",
+      "Bash(push_main)"
     ],
     "deny": [],
     "ask": []
