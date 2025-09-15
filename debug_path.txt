@@ -1,0 +1,37 @@
+#!/bin/bash
+# Debug PATH analysis
+
+echo "=== PATH ANALYSIS REPORT ===" > /tmp/path_analysis.txt
+echo "Generated: $(date)" >> /tmp/path_analysis.txt
+echo "PATH length: ${#PATH} characters" >> /tmp/path_analysis.txt
+echo "PATH entries: $(echo "$PATH" | tr ':' '\n' | wc -l)" >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "=== ALL PATH ENTRIES ===" >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | nl >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "=== DUPLICATE ANALYSIS ===" >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | sort | uniq -c | sort -nr >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "=== PYTHON/PYENV ENTRIES ===" >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i python >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i pyenv >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "=== NODE/NPM ENTRIES ===" >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i node >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i npm >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "=== JETBRAINS ENTRIES ===" >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i jetbrains >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "=== SPARK/HADOOP ENTRIES ===" >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i spark >> /tmp/path_analysis.txt
+echo "$PATH" | tr ':' '\n' | grep -i hadoop >> /tmp/path_analysis.txt
+echo "" >> /tmp/path_analysis.txt
+
+echo "Analysis complete. View with: cat /tmp/path_analysis.txt"
