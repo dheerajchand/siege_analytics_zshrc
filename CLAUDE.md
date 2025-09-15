@@ -235,6 +235,29 @@ zsh-system switch-full
 exec zsh
 ```
 
+## 🚀 **Repository Management**
+
+### **Main Repository Updates**
+```bash
+# Push changes to main GitHub repository
+push "Add new feature"              # Custom commit message
+pushmain                           # Quick push with timestamp
+
+# Complete sync operations
+sync                               # Sync config repository only
+backup "Major update"              # Create backup with sync
+```
+
+### **Repository Status**
+```bash
+repostatus                         # Show status of both repositories
+zsh_repo_status                    # Detailed repository information
+```
+
+### **Available Repositories**
+- **Main Config**: https://github.com/dheerajchand/siege_analytics_zshrc
+- **Backup Storage**: https://github.com/dheerajchand/zshrc_backups
+
 ## 🎯 **Key Improvements**
 
 - ✅ **94% faster startup** (2s → <0.5s target)

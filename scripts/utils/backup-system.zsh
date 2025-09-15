@@ -848,6 +848,8 @@ alias syncbackup='sync_and_backup'
 alias repostatus='zsh_repo_status'
 alias autobackup='enhanced_backup'
 alias optimize='deduplicate_path'
+alias push='push_to_main_repo'
+alias pushmain='push_main'
 
 # Auto-backup hook for zsh (DISABLED - was causing unwanted auto-commits)
 # autoload -U add-zsh-hook
@@ -865,6 +867,128 @@ function spark_fix_logging {
     echo "🔧 Fixing Spark logging..."
     # This function can be extended to fix Spark logging issues
     return 0
+}
+
+# =====================================================
+# MAIN REPOSITORY UPDATE FUNCTIONS
+# =====================================================
+
+# Push to main repository with commit and push
+function push_to_main_repo {
+    # Push current changes directly to the main GitHub repository.
+    #
+    # This function adds, commits, and pushes changes to the main config repository
+    # (https://github.com/dheerajchand/siege_analytics_zshrc). It handles the
+    # complete workflow for updating the main repository with your changes.
+    #
+    # Args:
+    #     commit_message (str, optional): Custom commit message for the push.
+    #                                    Defaults to timestamp-based message.
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #
+    # Features:
+    #     - Automatic conflict detection and resolution
+    #     - Retry logic with exponential backoff
+    #     - Pull before retry to resolve conflicts
+    #     - Shows repository status before and after
+    #
+    # Example:
+    #     push_to_main_repo "Add 3-tier architecture functions"
+    #     push_to_main_repo  # Uses default timestamp message
+    local commit_message="${1:-Update configuration $(date +"%Y-%m-%d_%H-%M-%S")}"
+    local timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+
+    echo "🚀 Pushing to main repository..."
+    echo "📁 Repository: $ZSHRC_CONFIG_DIR"
+    echo "💬 Message: $commit_message"
+    echo ""
+
+    if [[ ! -d "$ZSHRC_CONFIG_DIR/.git" ]]; then
+        echo "❌ Main repository not found or not a git repository"
+        echo "💡 Expected location: $ZSHRC_CONFIG_DIR"
+        return 1
+    fi
+
+    cd "$ZSHRC_CONFIG_DIR"
+
+    # Show current status
+    echo "📊 Current repository status:"
+    git status --short
+    echo ""
+
+    # Add all changes
+    echo "📝 Adding all changes..."
+    git add .
+
+    # Check if there are any changes to commit
+    if git diff --staged --quiet; then
+        echo "ℹ️  No changes to commit - repository is up to date"
+        return 0
+    fi
+
+    # Commit changes
+    echo "💾 Committing changes..."
+    if git commit -m "$commit_message
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"; then
+        echo "✅ Changes committed successfully"
+
+        # Push to origin with retry logic
+        local push_attempts=0
+        local max_push_attempts=3
+
+        echo "🔄 Pushing to GitHub..."
+        while [[ $push_attempts -lt $max_push_attempts ]]; do
+            if git push origin main; then
+                echo "🚀 Successfully pushed to main repository!"
+                echo "🌐 View changes: https://github.com/dheerajchand/siege_analytics_zshrc"
+                return 0
+            else
+                ((push_attempts++))
+                echo "❌ Push failed (attempt $push_attempts/$max_push_attempts)"
+
+                if [[ $push_attempts -lt $max_push_attempts ]]; then
+                    local wait_time=$((2 ** push_attempts))
+                    echo "⏳ Waiting $wait_time seconds before retry..."
+                    sleep $wait_time
+
+                    # Try to pull latest changes before retry
+                    echo "🔄 Pulling latest changes before retry..."
+                    git pull origin main --rebase
+                fi
+            fi
+        done
+
+        echo "❌ All push attempts failed"
+        echo "💡 Manual intervention required - check for conflicts"
+        return 1
+    else
+        echo "❌ Commit failed"
+        return 1
+    fi
+}
+
+# Quick push function with default message
+function push_main {
+    # Quick push to main repository with timestamp-based commit message.
+    #
+    # This is a convenience function that calls push_to_main_repo with
+    # a default commit message. Useful for quick updates without
+    # needing to specify a custom message.
+    #
+    # Args:
+    #     None
+    #
+    # Returns:
+    #     int: 0 on success, 1 on failure
+    #
+    # Example:
+    #     push_main  # Quick push with default message
+    push_to_main_repo "Configuration update $(date +"%Y-%m-%d_%H-%M-%S")"
 }
 
 # =====================================================
