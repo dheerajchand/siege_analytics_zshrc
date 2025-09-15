@@ -1,0 +1,262 @@
+#!/usr/bin/env zsh
+# =====================================================
+# ZSH SYSTEM CONTROL - Manage the 3-tier architecture
+# =====================================================
+#
+# This script manages the new 3-tier ZSH system:
+# 1. Minimal zshrc (essential only)
+# 2. On-demand modules
+# 3. Background services
+# =====================================================
+
+ZSH_CONFIG_DIR="$HOME/.config/zsh"
+SERVICES_DIR="$ZSH_CONFIG_DIR/services"
+MODULES_DIR="$ZSH_CONFIG_DIR/modules"
+
+# =====================================================
+# SYSTEM STATUS
+# =====================================================
+
+system_status() {
+    echo "🚀 ZSH System Status"
+    echo "===================="
+    echo ""
+
+    # Current configuration
+    if [[ -n "$MINIMAL_ZSHRC_LOADED" ]]; then
+        echo "Configuration: ✅ Minimal (3-tier architecture)"
+        echo "Startup time: Fast (<0.5s target)"
+    else
+        echo "Configuration: ⚠️  Legacy (monolithic)"
+        echo "💡 Switch with: zsh-system switch-minimal"
+    fi
+
+    echo ""
+
+    # Available modules
+    echo "📦 Available Modules:"
+    if [[ -d "$MODULES_DIR" ]]; then
+        for module in "$MODULES_DIR"/*.zsh; do
+            if [[ -f "$module" ]]; then
+                local name=$(basename "$module" .zsh)
+                echo "  📄 $name"
+            fi
+        done
+    else
+        echo "  ❌ No modules directory found"
+    fi
+
+    echo ""
+
+    # Background services
+    echo "🔧 Background Services:"
+    if [[ -d "$SERVICES_DIR" ]]; then
+        for service in "$SERVICES_DIR"/*.zsh; do
+            if [[ -f "$service" ]]; then
+                local name=$(basename "$service" .zsh)
+                echo "  🛠️  $name"
+            fi
+        done
+    else
+        echo "  ❌ No services directory found"
+    fi
+
+    echo ""
+
+    # PATH status
+    echo "🛤️  PATH Status:"
+    echo "  Length: ${#PATH} characters"
+    echo "  Entries: $(echo "$PATH" | tr ':' '\n' | wc -l | tr -d ' ')"
+
+    if [[ ${#PATH} -lt 500 ]]; then
+        echo "  Health: ✅ HEALTHY"
+    elif [[ ${#PATH} -lt 1000 ]]; then
+        echo "  Health: ⚡ MODERATE"
+    elif [[ ${#PATH} -lt 1500 ]]; then
+        echo "  Health: ⚠️  CONCERNING"
+    else
+        echo "  Health: ❌ CRITICAL"
+    fi
+}
+
+# =====================================================
+# MODULE MANAGEMENT
+# =====================================================
+
+list_modules() {
+    echo "📦 Available Modules"
+    echo "==================="
+
+    if [[ ! -d "$MODULES_DIR" ]]; then
+        echo "❌ Modules directory not found: $MODULES_DIR"
+        return 1
+    fi
+
+    for module in "$MODULES_DIR"/*.zsh; do
+        if [[ -f "$module" ]]; then
+            local name=$(basename "$module" .zsh)
+            echo ""
+            echo "📄 $name"
+
+            # Extract description from module
+            local desc=$(grep -m 1 "^# .*MODULE" "$module" | sed 's/^# //' | head -1)
+            if [[ -n "$desc" ]]; then
+                echo "   💡 $desc"
+            fi
+
+            # Show load command
+            echo "   🔧 Load: load-$name"
+        fi
+    done
+
+    echo ""
+    echo "💡 Use 'load-<module>' or 'load_module <module>' to load"
+}
+
+load_module() {
+    local module="$1"
+    local module_path="$MODULES_DIR/$module.zsh"
+
+    if [[ -z "$module" ]]; then
+        echo "Usage: load_module <module_name>"
+        echo ""
+        list_modules
+        return 1
+    fi
+
+    if [[ -f "$module_path" ]]; then
+        source "$module_path"
+    else
+        echo "❌ Module not found: $module"
+        echo ""
+        echo "Available modules:"
+        ls "$MODULES_DIR"/*.zsh 2>/dev/null | xargs -n1 basename | sed 's/.zsh$//' | sed 's/^/  /'
+    fi
+}
+
+# =====================================================
+# SERVICE MANAGEMENT
+# =====================================================
+
+service_control() {
+    local action="$1"
+    local service="$2"
+
+    case "$action" in
+        "list")
+            echo "🔧 Available Services"
+            echo "===================="
+            for service_file in "$SERVICES_DIR"/*.zsh; do
+                if [[ -f "$service_file" ]]; then
+                    local name=$(basename "$service_file" .zsh)
+                    echo "  🛠️  $name"
+                fi
+            done
+            ;;
+        "start"|"stop"|"restart"|"status")
+            if [[ -z "$service" ]]; then
+                echo "Usage: zsh-system service $action <service_name>"
+                service_control list
+                return 1
+            fi
+
+            local service_path="$SERVICES_DIR/$service.zsh"
+            if [[ -f "$service_path" ]]; then
+                "$service_path" "$action"
+            else
+                echo "❌ Service not found: $service"
+                service_control list
+            fi
+            ;;
+        *)
+            echo "Service Management"
+            echo "=================="
+            echo ""
+            echo "Commands:"
+            echo "  list                     - List available services"
+            echo "  start <service>          - Start a service"
+            echo "  stop <service>           - Stop a service"
+            echo "  restart <service>        - Restart a service"
+            echo "  status <service>         - Show service status"
+            ;;
+    esac
+}
+
+# =====================================================
+# SYSTEM SWITCHING
+# =====================================================
+
+switch_minimal() {
+    echo "🔄 Switching to minimal 3-tier architecture..."
+
+    # Backup current zshrc
+    if [[ -f "$ZSH_CONFIG_DIR/zshrc" ]]; then
+        cp "$ZSH_CONFIG_DIR/zshrc" "$ZSH_CONFIG_DIR/zshrc.full.backup"
+        echo "💾 Current zshrc backed up to zshrc.full.backup"
+    fi
+
+    # Switch to minimal
+    if [[ -f "$ZSH_CONFIG_DIR/zshrc.minimal" ]]; then
+        cp "$ZSH_CONFIG_DIR/zshrc.minimal" "$ZSH_CONFIG_DIR/zshrc"
+        echo "✅ Switched to minimal architecture"
+        echo "🔄 Restart your shell to apply changes"
+    else
+        echo "❌ Minimal zshrc not found: $ZSH_CONFIG_DIR/zshrc.minimal"
+    fi
+}
+
+switch_full() {
+    echo "🔄 Switching to full monolithic architecture..."
+
+    if [[ -f "$ZSH_CONFIG_DIR/zshrc.full.backup" ]]; then
+        cp "$ZSH_CONFIG_DIR/zshrc.full.backup" "$ZSH_CONFIG_DIR/zshrc"
+        echo "✅ Switched to full architecture"
+        echo "🔄 Restart your shell to apply changes"
+    else
+        echo "❌ Full backup not found: $ZSH_CONFIG_DIR/zshrc.full.backup"
+    fi
+}
+
+# =====================================================
+# MAIN COMMAND INTERFACE
+# =====================================================
+
+case "${1:-status}" in
+    "status")
+        system_status
+        ;;
+    "modules")
+        list_modules
+        ;;
+    "load")
+        load_module "$2"
+        ;;
+    "service")
+        shift
+        service_control "$@"
+        ;;
+    "switch-minimal")
+        switch_minimal
+        ;;
+    "switch-full")
+        switch_full
+        ;;
+    "help"|*)
+        echo "ZSH System Control - 3-Tier Architecture Manager"
+        echo "================================================"
+        echo ""
+        echo "Commands:"
+        echo "  status              - Show system status"
+        echo "  modules             - List available modules"
+        echo "  load <module>       - Load a specific module"
+        echo "  service <cmd>       - Manage background services"
+        echo "  switch-minimal      - Switch to minimal architecture"
+        echo "  switch-full         - Switch to full architecture"
+        echo "  help                - Show this help"
+        echo ""
+        echo "Examples:"
+        echo "  zsh-system status"
+        echo "  zsh-system load python"
+        echo "  zsh-system service start path-optimizer"
+        ;;
+esac
