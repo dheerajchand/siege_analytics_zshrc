@@ -11,51 +11,9 @@
 # REFACTORED: Improved error handling, performance, and modularity
 # =====================================================
 
-# =====================================================
-# DEPENDENCY CHECKING & ERROR HANDLING
-# =====================================================
-
-# Check for required tools and provide fallbacks
-_check_dependency() {
-    local tool="$1"
-    local fallback="$2"
-    
-    if command -v "$tool" >/dev/null 2>&1; then
-        return 0
-    elif [[ -n "$fallback" ]]; then
-        echo "⚠️  $tool not found, using fallback: $fallback" >&2
-        return 1
-    else
-        echo "❌ Required tool not found: $tool" >&2
-        return 1
-    fi
-}
-
-# Safe math operations with fallbacks
-_safe_math() {
-    local expression="$1"
-    
-    if _check_dependency "bc" ""; then
-        echo "$expression" | bc -l 2>/dev/null || echo "0"
-    else
-        # Fallback to awk for basic math
-        awk "BEGIN {print $expression}" 2>/dev/null || echo "0"
-    fi
-}
-
-# Safe floating point comparison
-_compare_float() {
-    local val1="$1"
-    local op="$2" 
-    local val2="$3"
-    
-    if _check_dependency "bc" ""; then
-        echo "$val1 $op $val2" | bc -l 2>/dev/null || echo "0"
-    else
-        # Fallback using awk
-        awk "BEGIN {print ($val1 $op $val2) ? 1 : 0}" 2>/dev/null || echo "0"
-    fi
-}
+# REMOVED: Over-engineered dependency checking system
+# These functions (_check_dependency, _safe_math, _compare_float) were never used
+# and added unnecessary complexity. Simple inline checks are better.
 
 # =====================================================
 # SHELL OPTIONS & BEHAVIOR
@@ -731,10 +689,10 @@ path_status() {
             echo "🔄 PATH Duplicate Analysis:"
             local duplicates=$(echo "$PATH" | tr ':' '\n' | sort | uniq -d)
             if [[ -n "$duplicates" ]]; then
-                echo "$duplicates" | while read -r dup; do
+                while IFS= read -r dup; do
                     local count=$(echo "$PATH" | tr ':' '\n' | grep -c "^$dup$")
                     echo "   ❌ $dup (appears $count times)"
-                done
+                done < <(echo "$duplicates")
             else
                 echo "   ✅ No duplicates found"
             fi
@@ -760,9 +718,9 @@ path_status() {
 
             # Check for non-existent paths
             local missing_count=0
-            echo "$PATH" | tr ':' '\n' | while read -r dir; do
+            while IFS= read -r dir; do
                 [[ -n "$dir" && ! -d "$dir" ]] && ((missing_count++))
-            done 2>/dev/null
+            done < <(echo "$PATH" | tr ':' '\n') 2>/dev/null
 
             echo ""
             echo "🔧 Available commands:"
@@ -778,11 +736,11 @@ path_health_status() {
     # Return PATH health status based on length and content
     local length=${#PATH}
 
-    if [[ $length -lt 500 ]]; then
+    if [[ $length -lt $PATH_OPTIMAL_THRESHOLD ]]; then
         echo "✅ HEALTHY"
-    elif [[ $length -lt 1000 ]]; then
+    elif [[ $length -lt $PATH_WARNING_THRESHOLD ]]; then
         echo "⚡ MODERATE"
-    elif [[ $length -lt 1500 ]]; then
+    elif [[ $length -lt $PATH_CRITICAL_THRESHOLD ]]; then
         echo "⚠️  CONCERNING"
     else
         echo "❌ CRITICAL"
@@ -824,7 +782,7 @@ path_clean() {
     local duplicate_count=0
     local missing_count=0
 
-    echo "$PATH" | tr ':' '\n' | while read -r dir; do
+    while IFS= read -r dir; do
         # Skip empty entries
         if [[ -z "$dir" ]]; then
             ((removed_count++))
@@ -855,7 +813,7 @@ path_clean() {
         else
             new_path="$new_path:$dir"
         fi
-    done
+    done < <(echo "$PATH" | tr ':' '\n')
 
     if [[ "$mode" == "--dry-run" ]]; then
         echo "🔍 DRY RUN - No changes made"
@@ -902,7 +860,7 @@ path_monitor() {
         "on"|"enable")
             export PATH_MONITORING_ENABLED=true
             echo "✅ PATH monitoring enabled"
-            echo "   PATH will be automatically cleaned when it exceeds 1500 characters"
+            echo "   PATH will be automatically cleaned when it exceeds $PATH_CRITICAL_THRESHOLD characters"
             echo "   Monitoring status stored in \$PATH_MONITORING_ENABLED"
             ;;
         "off"|"disable")
@@ -948,7 +906,7 @@ path_restore() {
 #
 # auto_path_cleanup() {
 #     # Automatic PATH cleanup when monitoring is enabled
-#     if [[ "$PATH_MONITORING_ENABLED" == "true" && ${#PATH} -gt 1500 ]]; then
+#     if [[ "$PATH_MONITORING_ENABLED" == "true" && ${#PATH} -gt $PATH_CRITICAL_THRESHOLD ]]; then
 #         echo "⚠️  PATH length (${#PATH}) exceeds threshold, auto-cleaning..."
 #         path_clean --auto
 #     fi
@@ -956,7 +914,7 @@ path_restore() {
 #
 # Manual PATH cleanup function (use when needed):
 path_cleanup_manual() {
-    if [[ ${#PATH} -gt 1500 ]]; then
+    if [[ ${#PATH} -gt $PATH_CRITICAL_THRESHOLD ]]; then
         echo "⚠️  PATH length (${#PATH}) exceeds threshold"
         echo "🔧 Run 'path_clean --auto' to clean up duplicates"
         return 1
@@ -1001,8 +959,10 @@ path_add() {
                 ;;
         esac
 
-        # Auto-clean if monitoring is enabled and PATH gets too long
-        auto_path_cleanup
+        # Manual PATH cleanup if needed (auto_path_cleanup was disabled for performance)
+        if [[ ${#PATH} -gt $PATH_CRITICAL_THRESHOLD ]]; then
+            echo "⚠️  PATH length (${#PATH}) is getting long. Consider running: path_cleanup_manual"
+        fi
     fi
 }
 
@@ -1010,16 +970,134 @@ path_add() {
 # ICLOUD DIAGNOSTICS & CLEANUP FUNCTIONS
 # =====================================================
 
-icloud_diagnose() {
-    # Diagnose iCloud sync issues and identify problematic containers
+# Constants for iCloud management
+readonly ICLOUD_CPU_WARNING_THRESHOLD=50
+readonly ICLOUD_CPU_MODERATE_THRESHOLD=10
+
+# Constants for PATH management
+readonly PATH_WARNING_THRESHOLD=1000
+readonly PATH_CRITICAL_THRESHOLD=1500
+readonly PATH_OPTIMAL_THRESHOLD=500
+
+_check_brctl_available() {
+    # Centralized brctl dependency check with comprehensive error handling
     #
-    # Dependency check: Ensure brctl is available
+    # Returns:
+    #   0: brctl is available
+    #   1: brctl not found
+    #
+    # Outputs appropriate error messages and suggestions
     if ! command -v brctl >/dev/null 2>&1; then
-        echo "❌ brctl not found. Install iCloud sync tools:"
-        echo "   This function requires brctl (part of iCloud/CloudKit tools)"
-        echo "   On macOS, ensure iCloud Drive is enabled in System Preferences"
+        cat << 'EOF'
+❌ brctl not found. Install iCloud sync tools:
+   This function requires brctl (part of iCloud/CloudKit tools)
+   On macOS, ensure iCloud Drive is enabled in System Preferences
+
+   If brctl is still missing:
+   1. Check System Preferences > Apple ID > iCloud > iCloud Drive
+   2. Restart the system if iCloud Drive was just enabled
+   3. Try running: sudo xcode-select --install
+EOF
         return 1
     fi
+    return 0
+}
+
+_get_fileproviderd_cpu() {
+    # Get fileproviderd CPU usage efficiently without multiple pipes
+    #
+    # Returns:
+    #   CPU percentage as integer (e.g., "25" for 25.5%)
+    #   Empty string if process not found
+    local cpu_info
+    cpu_info=$(ps -o pid,pcpu,comm -e | awk '/fileproviderd$/ {print int($2); exit}')
+    echo "${cpu_info:-0}"
+}
+
+_validate_container_name() {
+    # Secure container name validation to prevent directory traversal
+    #
+    # Args:
+    #   container_name (str): Container name to validate
+    #
+    # Returns:
+    #   0: Valid container name
+    #   1: Invalid or dangerous container name
+    local container_name="$1"
+
+    # Check for empty name
+    if [[ -z "$container_name" ]]; then
+        echo "❌ Container name cannot be empty"
+        return 1
+    fi
+
+    # Check for dangerous patterns
+    if [[ "$container_name" =~ \.\./|^/|^-|^~ ]]; then
+        echo "❌ Container name contains dangerous path elements: $container_name"
+        return 1
+    fi
+
+    # Allow only safe characters: letters, numbers, dots, hyphens, underscores
+    if [[ ! "$container_name" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+        echo "❌ Container name contains invalid characters: $container_name"
+        echo "   Only letters, numbers, dots, hyphens, and underscores allowed"
+        return 1
+    fi
+
+    # Check length (reasonable limit)
+    if [[ ${#container_name} -gt 100 ]]; then
+        echo "❌ Container name too long (max 100 characters): ${#container_name}"
+        return 1
+    fi
+
+    return 0
+}
+
+_analyze_container_issues() {
+    # Helper function to analyze container issues and avoid code duplication
+    #
+    # Description:
+    #   Searches brctl output for specific patterns and provides consistent
+    #   formatting and reporting. Eliminates code duplication between
+    #   different analysis modes in icloud_diagnose().
+    #
+    # Args:
+    #   brctl_output (str): Output from brctl status command
+    #   pattern (str): Grep pattern to match (e.g., "blocked|error|failed")
+    #   description (str): Human-readable description of what we're searching for
+    #   max_results (int, optional): Maximum results to show (default: 10)
+    #
+    # Returns:
+    #   Number of issues found (via stdout)
+    #
+    # Examples:
+    #   issues=$(_analyze_container_issues "$output" "blocked" "Showing blocked containers" 10)
+    #   perf_issues=$(_analyze_container_issues "$output" "(error|failed)" "Performance issues" 5)
+    #
+    # Output Format:
+    #   Prints formatted issue list with proper indentation
+    #   Returns count as last line for capture
+    local brctl_output="$1"
+    local pattern="$2"
+    local description="$3"
+    local max_results="${4:-10}"
+
+    echo "   🔍 $description..."
+    local issues
+    issues=$(echo "$brctl_output" | grep -E "$pattern" | head -"$max_results")
+
+    if [[ -n "$issues" ]]; then
+        echo "$issues" | sed 's/^/     /'
+        echo "$issues" | wc -l | tr -d ' '
+    else
+        echo "   ✅ No issues detected"
+        echo "0"
+    fi
+}
+
+icloud_diagnose() {
+    # Diagnose iCloud sync issues and identify problematic containers
+    _check_brctl_available || return 1
 
     # This function identifies containers that are:
     #   - Stuck in sync loops (high CPU usage)
@@ -1036,46 +1114,66 @@ icloud_diagnose() {
     #     icloud_diagnose
     #     icloud_diagnose --blocked | grep uninstalled
 
-    local focus_mode="${1:-all}"
+    local focus_mode="${1:-}"
 
     echo "🔍 iCloud Drive Diagnostic Report"
     echo "================================="
     echo ""
 
-    # Check fileproviderd CPU usage
+    # Check fileproviderd CPU usage efficiently
     echo "📊 File Provider Daemon Status:"
-    local fpd_cpu=$(ps aux | grep fileproviderd | grep -v grep | awk '{print $3}' | head -1)
-    if [[ -n "$fpd_cpu" ]]; then
-        echo "   CPU Usage: ${fpd_cpu}%"
-        if (( ${fpd_cpu%.*} > 50 )); then
+    local fileproviderd_cpu
+    fileproviderd_cpu=$(_get_fileproviderd_cpu)
+
+    if [[ "$fileproviderd_cpu" -gt 0 ]]; then
+        echo "   CPU Usage: ${fileproviderd_cpu}%"
+        if (( fileproviderd_cpu > ICLOUD_CPU_WARNING_THRESHOLD )); then
             echo "   ⚠️  HIGH CPU USAGE - Investigating sync issues..."
-        elif (( ${fpd_cpu%.*} > 10 )); then
+        elif (( fileproviderd_cpu > ICLOUD_CPU_MODERATE_THRESHOLD )); then
             echo "   ⚡ Moderate activity"
         else
             echo "   ✅ Normal operation"
         fi
     else
-        echo "   ❓ fileproviderd not running"
+        echo "   ❓ fileproviderd not running or idle"
     fi
     echo ""
 
-    # Analyze container sync status
+    # Analyze container sync status with proper error handling
     echo "📦 Container Sync Analysis:"
 
+    local brctl_output
+    if ! brctl_output=$(brctl status 2>&1); then
+        echo "   ❌ Failed to get container status from brctl"
+        echo "   Error: $brctl_output"
+        return 1
+    fi
+
+    local issues_found=0
     case "$focus_mode" in
-        "--cpu"|"--performance")
-            echo "   🔍 Focusing on performance issues..."
-            brctl status 2>/dev/null | grep -E "(blocked|error|failed|needs-sync)" | head -10
+        "--performance")
+            issues_found=$(_analyze_container_issues "$brctl_output" "(blocked|error|failed|needs-sync)" "Focusing on performance issues" 10)
             ;;
         "--blocked")
-            echo "   🔍 Showing blocked containers..."
-            brctl status 2>/dev/null | grep -E "blocked-app-uninstalled" | head -10
+            issues_found=$(_analyze_container_issues "$brctl_output" "blocked-app-uninstalled" "Showing blocked containers" 10)
+            ;;
+        # Deprecated alias for backwards compatibility
+        "--cpu")
+            echo "⚠️  --cpu is deprecated, use --performance instead"
+            issues_found=$(_analyze_container_issues "$brctl_output" "(blocked|error|failed|needs-sync)" "Focusing on performance issues" 10)
+            ;;
+        ""|"--all")
+            echo "   📋 Full container status (showing issues only):"
+            issues_found=$(_analyze_container_issues "$brctl_output" "(blocked|error|failed|needs-sync|uninstalled)" "" 15)
             ;;
         *)
-            echo "   📋 Full container status (showing issues only):"
-            brctl status 2>/dev/null | grep -E "(blocked|error|failed|needs-sync|uninstalled)" | head -15
+            echo "❌ Invalid option: $focus_mode"
+            echo "Usage: icloud_diagnose [--performance|--blocked|--all]"
+            return 1
             ;;
     esac
+
+    [[ $issues_found -gt 0 ]] && echo "   Found $issues_found container issues"
 
     echo ""
     echo "🔧 Quick Actions Available:"
@@ -1086,32 +1184,241 @@ icloud_diagnose() {
     echo "💡 If fileproviderd CPU > 50%, run icloud_cleanup to resolve sync issues"
 }
 
-icloud_cleanup() {
-    # Clean up problematic iCloud containers that cause system performance issues
+_restart_fileproviderd() {
+    # Safely restart fileproviderd with error handling
+    echo "🔄 Restarting fileproviderd to apply changes..."
+    if pkill -f fileproviderd 2>/dev/null; then
+        sleep 2
+        echo "✅ fileproviderd restarted successfully"
+    else
+        echo "⚠️  fileproviderd may not have been running"
+    fi
+}
+
+_disable_container_sync() {
+    # Disable sync for a specific container with error handling
     #
-    # Dependency check: Ensure brctl is available
-    if ! command -v brctl >/dev/null 2>&1; then
-        echo "❌ brctl not found. Install iCloud sync tools:"
-        echo "   This function requires brctl (part of iCloud/CloudKit tools)"
-        echo "   On macOS, ensure iCloud Drive is enabled in System Preferences"
+    # Args:
+    #   container_name (str): Container to disable sync for
+    #
+    # Returns:
+    #   0: Success
+    #   1: Failed to disable sync
+    local container_name="$1"
+
+    if ! _validate_container_name "$container_name"; then
         return 1
     fi
 
-    # This function can:
-    #   - Remove containers for uninstalled apps
-    #   - Disable sync for problematic containers
-    #   - Force remove specific containers causing issues
+    echo "🔧 Disabling sync for: $container_name"
+    if defaults write com.apple.bird disable-sync-for-bundle-ids -array-add "$container_name" 2>/dev/null; then
+        _restart_fileproviderd
+        echo "✅ Sync disabled successfully"
+        return 0
+    else
+        echo "❌ Failed to disable sync for $container_name"
+        return 1
+    fi
+}
+
+_cleanup_uninstalled_containers() {
+    # Remove containers for uninstalled apps
+    echo "🔍 Finding containers for uninstalled apps..."
+
+    local brctl_output
+    if ! brctl_output=$(brctl status 2>&1); then
+        echo "❌ Failed to get container status: $brctl_output"
+        return 1
+    fi
+
+    local blocked_containers
+    blocked_containers=($(echo "$brctl_output" | grep "blocked-app-uninstalled" | cut -d'<' -f2 | cut -d'[' -f1))
+
+    if [[ ${#blocked_containers[@]} -eq 0 ]]; then
+        echo "✅ No blocked containers found!"
+        return 0
+    fi
+
+    echo "Found ${#blocked_containers[@]} problematic containers:"
+    printf "   📦 %s\n" "${blocked_containers[@]}"
+    echo ""
+
+    echo "🔧 Disabling sync for these containers..."
+    local containers_disabled=0
+    for container in "${blocked_containers[@]}"; do
+        echo "   Disabling: $container"
+        if defaults write com.apple.bird disable-sync-for-bundle-ids -array-add "$container" 2>/dev/null; then
+            ((containers_disabled++))
+        else
+            echo "   ⚠️  Could not disable sync for $container"
+        fi
+    done
+
+    _restart_fileproviderd
+    echo "✅ Cleanup completed! Disabled sync for $containers_disabled containers."
+    echo "💡 Run 'icloud_diagnose' to verify the fix."
+}
+
+_find_container_paths() {
+    # Securely find container paths with validation
+    #
+    # Args:
+    #   container_name (str): Container name to search for
+    #
+    # Returns:
+    #   Array of matching paths (via stdout)
+    local container_name="$1"
+    local mobile_docs="$HOME/Library/Mobile Documents"
+
+    if [[ ! -d "$mobile_docs" ]]; then
+        echo "❌ Mobile Documents directory not found: $mobile_docs" >&2
+        return 1
+    fi
+
+    # Use find with strict safety options to prevent traversal attacks
+    find "$mobile_docs" -maxdepth 1 -type d -name "*${container_name}*" -print0 2>/dev/null
+}
+
+_force_remove_container() {
+    # Force remove a container with extensive safety checks
+    #
+    # Description:
+    #   Performs secure removal of iCloud containers with multi-step validation
+    #   and confirmation process. Uses safe path finding and validation to
+    #   prevent directory traversal attacks and accidental deletions.
+    #
+    # Args:
+    #   container_name (str): Container to remove
+    #
+    # Returns:
+    #   0: Success
+    #   1: Failed or cancelled
+    #
+    # Security:
+    #   Input validation: Full container name validation
+    #   Path safety: Secure path finding with maxdepth limits
+    #   Double confirmation: Two separate user confirmations required
+    #   Sudo validation: Only removes validated, existing directories
+    local container_name="$1"
+
+    # First safety check: validate container name format
+    if ! _validate_container_name "$container_name"; then
+        return 1
+    fi
+
+    # Initial warning and first confirmation
+    echo "⚠️  Force removing container: $container_name"
+    echo "This will permanently delete all data for this container."
+    echo -n "Are you sure? (y/N): "
+    read -r confirmation
+
+    # Exit early if user cancels at first prompt
+    if [[ ! "$confirmation" =~ ^[Yy]$ ]]; then
+        echo "❌ Operation cancelled"
+        return 1
+    fi
+
+    echo "🗑️  Removing container files..."
+
+    # Second safety check: find exact container paths using secure method
+    # This prevents glob expansion attacks and validates paths exist
+    local container_paths=()
+    while IFS= read -r -d '' path; do
+        container_paths+=("$path")
+    done < <(_find_container_paths "$container_name")
+
+    # Validate that we found actual containers to remove
+    if [[ ${#container_paths[@]} -eq 0 ]]; then
+        echo "❌ No containers found matching: $container_name"
+        return 1
+    fi
+
+    # Show user exactly what will be deleted and get final confirmation
+    echo "Found ${#container_paths[@]} container(s) to remove:"
+    printf "  %s\n" "${container_paths[@]}"
+    echo -n "Proceed with deletion? (y/N): "
+    read -r final_confirmation
+
+    # Exit if user cancels at final prompt
+    if [[ ! "$final_confirmation" =~ ^[Yy]$ ]]; then
+        echo "❌ Operation cancelled"
+        return 1
+    fi
+
+    # Perform actual removal with individual path validation
+    local containers_removed=0
+    for path in "${container_paths[@]}"; do
+        # Additional safety: verify path exists and is a directory before removal
+        if [[ -d "$path" ]] && sudo rm -rf "$path" 2>/dev/null; then
+            ((containers_removed++))
+            echo "✅ Removed: $(basename "$path")"
+        else
+            echo "❌ Failed to remove: $(basename "$path")"
+        fi
+    done
+
+    # Report results and restart daemon if any containers were removed
+    if [[ $containers_removed -gt 0 ]]; then
+        _restart_fileproviderd
+        echo "✅ Successfully removed $containers_removed containers"
+    else
+        echo "❌ No containers were removed"
+        return 1
+    fi
+}
+
+_show_cleanup_menu() {
+    # Interactive cleanup menu
+    cat << 'EOF'
+🛠️  Available cleanup options:
+
+1. 📱 Remove containers for uninstalled apps (RECOMMENDED)
+   icloud_cleanup --uninstalled
+
+2. 🚫 Disable sync for specific container
+   icloud_cleanup --disable <container-name>
+
+3. 🗑️  Force remove container (permanent deletion)
+   icloud_cleanup --force <container-name>
+
+💡 Run 'icloud_diagnose' first to identify problematic containers
+
+EOF
+
+    echo -n "Choose option (1-3) or press Enter to exit: "
+    read -r choice
+
+    case "$choice" in
+        "1")
+            _cleanup_uninstalled_containers
+            ;;
+        "2")
+            echo -n "Enter container name: "
+            read -r container_name
+            _disable_container_sync "$container_name"
+            ;;
+        "3")
+            echo -n "Enter container name: "
+            read -r container_name
+            _force_remove_container "$container_name"
+            ;;
+        *)
+            echo "👋 Cleanup cancelled"
+            ;;
+    esac
+}
+
+icloud_cleanup() {
+    # Clean up problematic iCloud containers (now modular and secure)
     #
     # Usage:
-    #     icloud_cleanup                    # Interactive mode - shows options
-    #     icloud_cleanup --uninstalled     # Remove all uninstalled app containers
-    #     icloud_cleanup --disable <name>  # Disable sync for container
-    #     icloud_cleanup --force <name>    # Force remove container (requires sudo)
-    #
-    # Examples:
-    #     icloud_cleanup --uninstalled
-    #     icloud_cleanup --force "com.dave.bike"
-    #     icloud_cleanup --disable "2NSFZY54JA.com.dave.bike"
+    #   icloud_cleanup                    # Interactive mode
+    #   icloud_cleanup --uninstalled     # Remove uninstalled app containers
+    #   icloud_cleanup --disable <name>  # Disable sync for container
+    #   icloud_cleanup --force <name>    # Force remove container (requires sudo)
+
+    # Use centralized dependency check
+    _check_brctl_available || return 1
 
     local action="${1:-interactive}"
     local target_container="$2"
@@ -1121,112 +1428,32 @@ icloud_cleanup() {
     echo ""
 
     case "$action" in
-        "--uninstalled"|"--blocked")
-            echo "🔍 Finding containers for uninstalled apps..."
-            local blocked_containers=($(brctl status 2>/dev/null | grep "blocked-app-uninstalled" | cut -d'<' -f2 | cut -d'[' -f1))
-
-            if [[ ${#blocked_containers[@]} -eq 0 ]]; then
-                echo "✅ No blocked containers found!"
-                return 0
-            fi
-
-            echo "Found ${#blocked_containers[@]} problematic containers:"
-            for container in "${blocked_containers[@]}"; do
-                echo "   📦 $container"
-            done
-            echo ""
-
-            echo "🔧 Disabling sync for these containers..."
-            for container in "${blocked_containers[@]}"; do
-                echo "   Disabling: $container"
-                defaults write com.apple.bird disable-sync-for-bundle-ids -array-add "$container" 2>/dev/null || {
-                    echo "   ⚠️  Could not disable sync for $container"
-                }
-            done
-
-            echo ""
-            echo "🔄 Restarting fileproviderd to apply changes..."
-            pkill -f fileproviderd 2>/dev/null
-            sleep 2
-
-            echo "✅ Cleanup completed! Run 'icloud_diagnose' to verify the fix."
+        "--uninstalled")
+            _cleanup_uninstalled_containers
             ;;
-
         "--disable")
             if [[ -z "$target_container" ]]; then
                 echo "❌ Error: Container name required"
                 echo "Usage: icloud_cleanup --disable <container-name>"
                 return 1
             fi
-
-            echo "🔧 Disabling sync for: $target_container"
-            defaults write com.apple.bird disable-sync-for-bundle-ids -array-add "$target_container"
-            pkill -f fileproviderd 2>/dev/null
-            echo "✅ Sync disabled. fileproviderd restarted."
+            _disable_container_sync "$target_container"
             ;;
-
         "--force")
             if [[ -z "$target_container" ]]; then
                 echo "❌ Error: Container name required"
                 echo "Usage: icloud_cleanup --force <container-name>"
                 return 1
             fi
-
-            echo "⚠️  Force removing container: $target_container"
-            echo "This will permanently delete all data for this container."
-            echo -n "Are you sure? (y/N): "
-            read -r confirmation
-
-            if [[ "$confirmation" =~ ^[Yy]$ ]]; then
-                echo "🗑️  Removing container files..."
-                local container_path="$HOME/Library/Mobile Documents/*${target_container}*"
-                if sudo rm -rf $container_path 2>/dev/null; then
-                    echo "✅ Container removed successfully"
-                    pkill -f fileproviderd 2>/dev/null
-                    echo "🔄 Restarted fileproviderd"
-                else
-                    echo "❌ Failed to remove container. Check permissions or container name."
-                fi
-            else
-                echo "❌ Operation cancelled"
-            fi
+            _force_remove_container "$target_container"
             ;;
-
+        # Deprecated alias for backwards compatibility
+        "--blocked")
+            echo "⚠️  --blocked is deprecated, use --uninstalled instead"
+            _cleanup_uninstalled_containers
+            ;;
         *)
-            echo "🛠️  Available cleanup options:"
-            echo ""
-            echo "1. 📱 Remove containers for uninstalled apps (RECOMMENDED)"
-            echo "   icloud_cleanup --uninstalled"
-            echo ""
-            echo "2. 🚫 Disable sync for specific container"
-            echo "   icloud_cleanup --disable <container-name>"
-            echo ""
-            echo "3. 🗑️  Force remove container (permanent deletion)"
-            echo "   icloud_cleanup --force <container-name>"
-            echo ""
-            echo "💡 Run 'icloud_diagnose' first to identify problematic containers"
-            echo ""
-            echo -n "Choose option (1-3) or press Enter to exit: "
-            read -r choice
-
-            case "$choice" in
-                "1")
-                    icloud_cleanup --uninstalled
-                    ;;
-                "2")
-                    echo -n "Enter container name: "
-                    read -r container_name
-                    icloud_cleanup --disable "$container_name"
-                    ;;
-                "3")
-                    echo -n "Enter container name: "
-                    read -r container_name
-                    icloud_cleanup --force "$container_name"
-                    ;;
-                *)
-                    echo "👋 Cleanup cancelled"
-                    ;;
-            esac
+            _show_cleanup_menu
             ;;
     esac
 }
