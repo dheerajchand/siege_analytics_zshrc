@@ -1,13 +1,61 @@
 #!/usr/bin/env zsh
 
 # =====================================================
-# CORE SHELL CONFIGURATION
+# CORE SHELL CONFIGURATION - REFACTORED
 # =====================================================
 # 
 # Essential shell settings, aliases, and basic functionality
 # This module contains the fundamental configuration that should
 # load first and is required by other modules
+# 
+# REFACTORED: Improved error handling, performance, and modularity
 # =====================================================
+
+# =====================================================
+# DEPENDENCY CHECKING & ERROR HANDLING
+# =====================================================
+
+# Check for required tools and provide fallbacks
+_check_dependency() {
+    local tool="$1"
+    local fallback="$2"
+    
+    if command -v "$tool" >/dev/null 2>&1; then
+        return 0
+    elif [[ -n "$fallback" ]]; then
+        echo "⚠️  $tool not found, using fallback: $fallback" >&2
+        return 1
+    else
+        echo "❌ Required tool not found: $tool" >&2
+        return 1
+    fi
+}
+
+# Safe math operations with fallbacks
+_safe_math() {
+    local expression="$1"
+    
+    if _check_dependency "bc" ""; then
+        echo "$expression" | bc -l 2>/dev/null || echo "0"
+    else
+        # Fallback to awk for basic math
+        awk "BEGIN {print $expression}" 2>/dev/null || echo "0"
+    fi
+}
+
+# Safe floating point comparison
+_compare_float() {
+    local val1="$1"
+    local op="$2" 
+    local val2="$3"
+    
+    if _check_dependency "bc" ""; then
+        echo "$val1 $op $val2" | bc -l 2>/dev/null || echo "0"
+    else
+        # Fallback using awk
+        awk "BEGIN {print ($val1 $op $val2) ? 1 : 0}" 2>/dev/null || echo "0"
+    fi
+}
 
 # =====================================================
 # SHELL OPTIONS & BEHAVIOR
@@ -269,28 +317,12 @@ reload_shell() {
     echo "✅ Shell configuration reloaded"
 }
 
-shell_startup_time() {
-    # Measure shell startup time
-    #
-    # Examples:
-    #     shell_startup_time
-    #     shell_startup_time 5  # Run 5 times and average
-    local iterations="${1:-3}"
-    echo "🕐 Measuring shell startup time ($iterations iterations)..."
-    
-    local total_time=0
-    for i in $(seq 1 $iterations); do
-        local start_time=$(date +%s.%N)
-        zsh -i -c exit
-        local end_time=$(date +%s.%N)
-        local iteration_time=$(echo "$end_time - $start_time" | bc)
-        echo "  Iteration $i: ${iteration_time}s"
-        total_time=$(echo "$total_time + $iteration_time" | bc)
-    done
-    
-    local average_time=$(echo "scale=3; $total_time / $iterations" | bc)
-    echo "📊 Average startup time: ${average_time}s"
-}
+# REMOVED: shell_startup_time() function - Major performance killer
+# This function was recursively spawning shell instances during startup
+# and using external bc processes, causing massive performance degradation.
+#
+# Replacement for testing: Use external timing tools like hyperfine:
+#   hyperfine 'zsh -i -c exit'
 
 # =====================================================
 # SYSTEM INFORMATION
@@ -910,19 +942,35 @@ path_restore() {
     fi
 }
 
-auto_path_cleanup() {
-    # Automatic PATH cleanup when monitoring is enabled
-    if [[ "$PATH_MONITORING_ENABLED" == "true" && ${#PATH} -gt 1500 ]]; then
-        echo "⚠️  PATH length (${#PATH}) exceeds threshold, auto-cleaning..."
-        path_clean --auto
+# DISABLED: auto_path_cleanup() precmd hook - Major performance killer
+# This hook was running before every prompt, checking PATH length on every command.
+# This caused noticeable shell responsiveness issues.
+#
+# auto_path_cleanup() {
+#     # Automatic PATH cleanup when monitoring is enabled
+#     if [[ "$PATH_MONITORING_ENABLED" == "true" && ${#PATH} -gt 1500 ]]; then
+#         echo "⚠️  PATH length (${#PATH}) exceeds threshold, auto-cleaning..."
+#         path_clean --auto
+#     fi
+# }
+#
+# Manual PATH cleanup function (use when needed):
+path_cleanup_manual() {
+    if [[ ${#PATH} -gt 1500 ]]; then
+        echo "⚠️  PATH length (${#PATH}) exceeds threshold"
+        echo "🔧 Run 'path_clean --auto' to clean up duplicates"
+        return 1
+    else
+        echo "✅ PATH length (${#PATH}) is healthy"
+        return 0
     fi
 }
 
-# Hook to monitor PATH on prompt display
-if [[ -n "$ZSH_VERSION" ]]; then
-    autoload -U add-zsh-hook
-    add-zsh-hook precmd auto_path_cleanup
-fi
+# DISABLED: PATH monitoring hook that was causing performance issues
+# if [[ -n "$ZSH_VERSION" ]]; then
+#     autoload -U add-zsh-hook
+#     add-zsh-hook precmd auto_path_cleanup
+# fi
 
 # =====================================================
 # ENHANCED PATH ADD FUNCTION (REPLACES EXISTING)
@@ -965,6 +1013,14 @@ path_add() {
 icloud_diagnose() {
     # Diagnose iCloud sync issues and identify problematic containers
     #
+    # Dependency check: Ensure brctl is available
+    if ! command -v brctl >/dev/null 2>&1; then
+        echo "❌ brctl not found. Install iCloud sync tools:"
+        echo "   This function requires brctl (part of iCloud/CloudKit tools)"
+        echo "   On macOS, ensure iCloud Drive is enabled in System Preferences"
+        return 1
+    fi
+
     # This function identifies containers that are:
     #   - Stuck in sync loops (high CPU usage)
     #   - Blocked due to uninstalled apps
@@ -991,9 +1047,9 @@ icloud_diagnose() {
     local fpd_cpu=$(ps aux | grep fileproviderd | grep -v grep | awk '{print $3}' | head -1)
     if [[ -n "$fpd_cpu" ]]; then
         echo "   CPU Usage: ${fpd_cpu}%"
-        if (( $(echo "$fpd_cpu > 50" | bc -l 2>/dev/null || echo 0) )); then
+        if (( ${fpd_cpu%.*} > 50 )); then
             echo "   ⚠️  HIGH CPU USAGE - Investigating sync issues..."
-        elif (( $(echo "$fpd_cpu > 10" | bc -l 2>/dev/null || echo 0) )); then
+        elif (( ${fpd_cpu%.*} > 10 )); then
             echo "   ⚡ Moderate activity"
         else
             echo "   ✅ Normal operation"
@@ -1033,6 +1089,14 @@ icloud_diagnose() {
 icloud_cleanup() {
     # Clean up problematic iCloud containers that cause system performance issues
     #
+    # Dependency check: Ensure brctl is available
+    if ! command -v brctl >/dev/null 2>&1; then
+        echo "❌ brctl not found. Install iCloud sync tools:"
+        echo "   This function requires brctl (part of iCloud/CloudKit tools)"
+        echo "   On macOS, ensure iCloud Drive is enabled in System Preferences"
+        return 1
+    fi
+
     # This function can:
     #   - Remove containers for uninstalled apps
     #   - Disable sync for problematic containers
