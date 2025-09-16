@@ -358,7 +358,38 @@ run/                   # PID files
 
 ---
 
-## 🔧 **Emergency Procedures**
+## 🔧 **Debugging & Maintenance**
+
+### **PATH Management**
+- Use `repair_path --verbose` for comprehensive PATH cleanup
+- Use `deduplicate_path` for quick duplicate removal
+- Monitor PATH length: `echo "PATH length: ${#PATH}"`
+
+### **Module Loading**
+- Check loaded modules: `zsh-status`
+- Test module loading: `zsh-verbose` for detailed output
+- Debug module failures: Check module dependencies
+
+### **Performance Monitoring**
+- Shell startup time: `zsh-reload` with timing
+- PATH impact: Check Finder performance after changes
+- Memory usage: Monitor system resources
+
+### **Debugging Protocol**
+1. **Follow the Debugging Directives**: See `docs/guides/DEBUGGING_DIRECTIVES.md`
+2. **Check PATH Issues**: Use `repair_path --verbose` to diagnose PATH problems
+3. **Verify Module Loading**: Use `zsh-status` to check loaded modules
+4. **Test in Clean Shell**: Use `zsh -f` to test without configuration
+
+### **Maintenance Procedures**
+- **Daily**: Check PATH length, quick cleanup if needed
+- **Weekly**: Run comprehensive PATH cleanup, check module loading
+- **Monthly**: Full system audit, performance benchmark
+- **After Changes**: Follow debugging directives, test incrementally
+
+---
+
+## 🚨 **Emergency Procedures**
 
 ### **Rollback to Full System**
 ```bash

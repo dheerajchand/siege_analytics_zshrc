@@ -142,6 +142,34 @@ function_name() {
 
 ---
 
+## 🔧 **Debugging & Maintenance Status**
+
+### ✅ **Available Tools**
+- `repair_path` - Comprehensive PATH cleanup
+- `deduplicate_path` - Quick duplicate removal
+- `zsh-status` - Module loading status
+- `zsh-verbose` - Detailed loading output
+
+### 📋 **Maintenance Checklist**
+- [ ] PATH length < 500 characters
+- [ ] All modules load without errors
+- [ ] Shell startup time < 1 second
+- [ ] Finder performance acceptable
+- [ ] No duplicate functions
+
+### 🚨 **Critical Rules**
+- Always follow debugging directives
+- Test PATH impact after changes
+- Monitor system performance
+- Use incremental testing
+
+### 📚 **Documentation**
+- ✅ [DEBUGGING_DIRECTIVES.md](DEBUGGING_DIRECTIVES.md) - Investigation protocol
+- ✅ [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common problems & solutions
+- ✅ [MAINTENANCE.md](MAINTENANCE.md) - Maintenance procedures
+
+---
+
 ## 🎯 **NEXT SESSION PRIORITIES**
 
 1. **Debug and fix function auto-loading** (resolve `sync_all_passwords_to_1password` loading)

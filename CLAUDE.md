@@ -11,9 +11,22 @@
 ## 📊 **Quick Commands**
 
 ```bash
-zsh-system status              # Complete system overview
-zsh-system modules             # List available modules
-zsh-system service list        # Background services
+# System status and management
+~/.config/zsh/zsh-system status        # Complete system overview
+~/.config/zsh/zsh-system modules       # List available modules
+~/.config/zsh/zsh-system switch-full   # Switch to full mode
+~/.config/zsh/zsh-system switch-minimal # Switch to minimal mode
+
+# Module loading (available immediately in minimal mode)
+load-python                    # Python environments
+load-docker                    # Docker management
+load-database                  # PostgreSQL integration
+load-spark                     # Apache Spark & Hadoop
+load-jetbrains                 # IDE integration
+
+# Quick help
+help                          # Complete guide
+modules                       # Show loaded/available modules
 ```
 
 ## 🏗️ **Architecture Overview**
@@ -159,53 +172,80 @@ environment-setup               # Environment caching
 
 ## 🚨 **Migration Guide**
 
-### **Switching to 3-Tier System**
+### **Current Status: Both Systems Available**
 
-1. **Backup Current Setup**:
-   ```bash
-   # Automatic backup during switch
-   zsh-system switch-minimal
-   ```
+You now have **two architectures** that you can switch between:
 
-2. **Restart Shell**:
-   ```bash
-   exec zsh
-   ```
+1. **Minimal 3-Tier System** (default): `~/.zshrc`
+   - Ultra-fast startup (<0.5s)
+   - Load modules on-demand
+   - Clean PATH (62 characters)
 
-3. **Load Modules as Needed**:
-   ```bash
-   load-python     # When working with Python
-   load-docker     # When using Docker
-   ```
+2. **Full Modular System**: `~/.config/zsh/zshrc`
+   - All modules pre-loaded
+   - Context-aware loading (light/staggered/heavy modes)
+   - More features but slower startup
 
-4. **Start Background Services**:
-   ```bash
-   zsh-system service start path-optimizer
-   ```
+### **Switching Between Systems**
+
+```bash
+# Switch to full system (loads all modules)
+~/.config/zsh/zsh-system switch-full
+exec zsh
+
+# Switch back to minimal system (on-demand loading)
+~/.config/zsh/zsh-system switch-minimal
+exec zsh
+```
+
+### **Choosing the Right System**
+
+**Use Minimal 3-Tier When:**
+- You want maximum speed
+- You only use specific tools occasionally
+- You're in a resource-constrained environment
+
+**Use Full System When:**
+- You need all features immediately available
+- You work with multiple tools simultaneously
+- You prefer context-aware loading (IDE detection)
 
 ### **If Issues Occur**:
 ```bash
-# Switch back to full system
-zsh-system switch-full
-exec zsh
+# Systems automatically backup each other
+ls ~/.config/zsh/zshrc.*.backup
 
-# Or manually restore
+# Manual restore examples
+cp ~/.config/zsh/zshrc.minimal.backup ~/.zshrc
 cp ~/.config/zsh/zshrc.full.backup ~/.config/zsh/zshrc
 ```
 
 ## 📊 **Performance Benefits**
 
-### **Before (Monolithic)**
-- Startup: 2+ seconds
-- PATH: 2018 characters, 47 entries
-- Memory: High (all modules loaded)
-- Maintenance: Complex, error-prone
+### **Minimal 3-Tier System**
+- ✅ Startup: <0.5 seconds (actual: ~0.1s)
+- ✅ PATH: 62 characters, 6 entries (was 2018+ chars)
+- ✅ Memory: Minimal (core only)
+- ✅ Modules: Load only what you need
+- ✅ Claude Code: Always available
+- ✅ Oh-My-Zsh: Working with themes/plugins
 
-### **After (3-Tier)**
-- Startup: <0.5 seconds (target)
-- PATH: <500 characters, clean
-- Memory: Low (minimal core only)
-- Maintenance: Modular, isolated
+### **Full System**
+- ✅ Startup: Context-aware (light/staggered/heavy)
+- ✅ PATH: Auto-optimized with deduplication
+- ✅ Features: All modules pre-loaded
+- ✅ IDE Detection: Automatic mode switching
+- ✅ Advanced: Background services, caching
+
+### **Comparison**
+| Feature | Minimal | Full |
+|---------|---------|------|
+| Startup Speed | ⚡ Ultra-fast | 🚀 Context-aware |
+| Memory Usage | 🪶 Minimal | 📦 Full-featured |
+| Module Loading | 📦 On-demand | ✅ Pre-loaded |
+| PATH Management | 🧹 Clean | 🔧 Auto-optimized |
+| IDE Integration | ➖ Basic | ✅ Advanced |
+| Background Services | ➖ None | ✅ Available |
 
 ## 🔍 **Troubleshooting**
 

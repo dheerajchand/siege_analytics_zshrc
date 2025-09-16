@@ -44,7 +44,15 @@
       "Bash(pushmain)",
       "Bash(alias push='push_to_main_repo')",
       "Bash(alias pushmain='push_main')",
-      "Bash(push_to_main_repo:*)"
+      "Bash(push_to_main_repo:*)",
+      "Bash(sudo ln:*)",
+      "Bash($ZSH_CONFIG_DIR/zsh-system:*)",
+      "Bash(declare -f)",
+      "Bash(~/.config/zsh/zsh-system switch-full)",
+      "Bash(~/.config/zsh/zsh-system switch-minimal)",
+      "Bash(load-python)",
+      "Bash(modules)",
+      "Bash(push \"Complete 3-tier system optimization with enhanced startup message and comprehensive documentation\n\n✅ SYSTEMATIC EVALUATION & CLEANUP\n- Removed ad hoc PATH additions and wrapper functions\n- Kept only essential module loading aliases\n- Fixed Oh-My-Zsh integration for themes/plugins\n\n✅ ENHANCED STARTUP MESSAGE\n- Shows real-time status: PATH length, module count (0/5)\n- Lists available modules with descriptions\n- Provides system management commands with full paths\n- Includes mode switching instructions\n\n✅ COMPREHENSIVE TESTING\n- Module loading: load-python works correctly\n- Mode switching: switch-full/minimal tested\n- Claude Code: Available in both architectures\n- PATH management: Clean 62 chars vs 2018+ previous\n\n✅ UPDATED DOCUMENTATION\n- Quick commands with full paths\n- Migration guide for dual architecture\n- Performance comparison table\n- Complete troubleshooting guide\n\n✅ DUAL ARCHITECTURE SYSTEM\n- Minimal 3-tier: Ultra-fast startup, on-demand modules\n- Full modular: Context-aware, all features pre-loaded\n- Seamless switching between architectures\n\nPerformance: 62-char PATH, <0.5s startup, systematic design\")"
     ],
     "deny": [],
     "ask": []

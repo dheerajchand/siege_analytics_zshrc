@@ -1,898 +1,183 @@
 #!/usr/bin/env zsh
-
 # =====================================================
-# MODULAR ZSHRC - Enhanced Shell Configuration System
+# MINIMAL ZSHRC - Essential Shell Configuration
 # =====================================================
 #
-# This is the new modular zshrc that replaces the monolithic 2400+ line file.
-# It loads configuration modules dynamically based on available tools and requirements.
+# Lightweight zshrc focused on core functionality only.
+# Heavy features moved to on-demand modules and background services.
 #
-# Configuration modules are stored in ~/.config/zsh/config/
-# Functions are stored in ~/.config/zsh/functions/
+# Performance target: <0.5s startup, <500 char PATH
 # =====================================================
 
 # =====================================================
-# POWERLEVEL10K INSTANT PROMPT (Must be first)
+# INSTANT PROMPT (P10K)
 # =====================================================
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Suppress Powerlevel10k console output warnings
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+# =====================================================
+# ESSENTIAL ENVIRONMENT
+# =====================================================
+export EDITOR="${EDITOR:-zed}"
+export VISUAL="$EDITOR"
+export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 
 # =====================================================
-# PREVENT DOUBLE LOADING
+# CORE PATH SETUP
 # =====================================================
+# Clean, minimal PATH with only essential directories
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-# Prevent this configuration from being loaded twice
-if [[ -n "$MODULAR_ZSHRC_LOADED" ]]; then
-    echo "⚠️  Modular zshrc already loaded, skipping duplicate load"
-    return 0 2>/dev/null || exit 0
-fi
-export MODULAR_ZSHRC_LOADED="true"
-
-# =====================================================
-# LIGHT MODE / HEAVY MODE DETECTION (FIRST TEST)
-# =====================================================
-
-# Mode detection - determines which configuration mode to use
-detect_zsh_mode() {
-    # Check parent process for JetBrains IDEs
-    local parent_process=""
-    if command -v ps >/dev/null 2>&1; then
-        parent_process=$(ps -p $PPID -o comm= 2>/dev/null || echo "")
-    fi
-    
-    # Manual mode override (highest priority)
-    if [[ "$ZSH_MODE" == "light" ]]; then
-        echo "light"
-        return 0
-    elif [[ "$ZSH_MODE" == "staggered" ]]; then
-        echo "staggered"
-        return 0
-    elif [[ "$ZSH_MODE" == "heavy" ]]; then
-        echo "heavy"
-        return 0
-    fi
-    
-    # IDEs - default to staggered mode for better performance
-    # JetBrains IDEs
-    if [[ -n "$JETBRAINS_IDE" || -n "$PYCHARM_HOSTED" || -n "$DATASPELL_IDE" || "$TERM_PROGRAM" == "JetBrains"* ]]; then
-        echo "staggered"
-        return 0
-    fi
-
-    # VSCode and VSCode-based IDEs
-    if [[ -n "$VSCODE_PID" || "$TERM_PROGRAM" == "vscode" || -n "$VSCODE_INJECTION" ]]; then
-        echo "staggered"
-        return 0
-    fi
-
-    # Cursor IDE (VSCode-based)
-    if [[ "$TERM_PROGRAM" == "Cursor" || -n "$CURSOR_IDE" ]]; then
-        echo "staggered"
-        return 0
-    fi
-
-    # Check parent process for IDEs
-    if [[ "$parent_process" == *"pycharm"* || "$parent_process" == *"dataspell"* || "$parent_process" == *"intellij"* || "$parent_process" == *"webstorm"* || "$parent_process" == *"clion"* || "$parent_process" == *"goland"* ]]; then
-        echo "staggered"
-        return 0
-    fi
-
-    # Check parent process for VSCode/Cursor
-    if [[ "$parent_process" == *"code"* || "$parent_process" == *"Code"* || "$parent_process" == *"cursor"* || "$parent_process" == *"Cursor"* ]]; then
-        echo "staggered"
-        return 0
-    fi
-    
-    # CI/CD environments - use light mode
-    if [[ -n "$CI" || -n "$GITHUB_ACTIONS" || -n "$JENKINS_URL" ]]; then
-        echo "light"
-        return 0
-    fi
-    
-    # Slow connections - use light mode
-    if [[ -n "$SLOW_CONNECTION" ]]; then
-        echo "light"
-        return 0
-    fi
-    
-    # Default to heavy mode
-    echo "heavy"
-    return 0
-}
-
-# Determine mode and set global variables
-DETECTED_MODE=$(detect_zsh_mode)
-export ZSH_MODE="$DETECTED_MODE"
-
-case "$ZSH_MODE" in
-    "light")
-        export ZSH_LIGHT_MODE=true
-        export ZSH_STAGGERED_MODE=false
-        export IDE_MODE=true
-        export FAST_STARTUP=true
-        echo "🚀 Light mode activated - minimal configuration loading"
-        ;;
-    "staggered")
-        export ZSH_LIGHT_MODE=false
-        export ZSH_STAGGERED_MODE=true
-        export IDE_MODE=true
-        export FAST_STARTUP=true
-        echo "🚀 Staggered mode activated - progressive configuration loading"
-        ;;
-    "heavy")
-        export ZSH_LIGHT_MODE=false
-        export ZSH_STAGGERED_MODE=false
-        export IDE_MODE=false
-        export FAST_STARTUP=false
-        echo "🚀 Heavy mode activated - full configuration loading"
-        ;;
-esac
+# Add user binaries if they exist
+[[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
+[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
 
 # =====================================================
-# OH-MY-ZSH SETUP
+# OH-MY-ZSH MINIMAL SETUP
 # =====================================================
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(git)
 
-# Path to oh-my-zsh configuration
-export ZSH=$HOME/.dotfiles/oh-my-zsh
-
-# Theme configuration
-export ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# Oh-my-zsh plugins
-plugins=(colorize compleat dirpersist autojump git gulp history cp)
-
-# Source oh-my-zsh
+# Load Oh My Zsh if available
 if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
     source $ZSH/oh-my-zsh.sh
 else
-    echo "⚠️  Oh-my-zsh not found at $ZSH"
+    echo "⚠️  Oh My Zsh not found - continuing with basic setup"
+    # Basic git aliases if Oh My Zsh unavailable
+    alias gs='git status'
+    alias ga='git add'
+    alias gc='git commit'
+    alias gp='git push'
 fi
 
 # =====================================================
-# CONFIGURATION DIRECTORIES
+# ESSENTIAL ALIASES & FUNCTIONS
 # =====================================================
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias ..='cd ..'
+alias ...='cd ../..'
 
-export ZSH_CONFIG_DIR="$HOME/.config/zsh"
-export ZSH_CONFIG_MODULES="$ZSH_CONFIG_DIR/config"
-export ZSH_CONFIG_FUNCTIONS="$ZSH_CONFIG_DIR/functions"
-
-# =====================================================
-# CONFIGURATION DIRECTORIES
-# =====================================================
-
-# =====================================================
-# REPOSITORY PATHS (Dual Repository System)
-# =====================================================
-export ZSH_ACTIVE_REPO="$HOME/.config/zsh"          # Active development repository
-export ZSH_ARCHIVE_REPO="$HOME/.zshrc_backups"      # Backup/archive repository
-export ZSHRC_BACKUPS="$ZSH_ARCHIVE_REPO"            # Legacy compatibility
-
-# Ensure directories exist
-mkdir -p "$ZSH_CONFIG_MODULES"
-mkdir -p "$ZSH_CONFIG_FUNCTIONS"
+# Core utilities
+mkcd() { mkdir -p "$1" && cd "$1"; }
+command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 # =====================================================
-# CENTRALIZED SYSTEM VARIABLES
+# ON-DEMAND MODULE SYSTEM
 # =====================================================
-# 
-# This section contains ALL system-wide configuration variables.
-# Variables are organized by category with clear documentation
-# showing which modules/functions use each variable.
-#
-# IMPORTANT: All modules should reference these centralized variables
-# rather than defining their own. This ensures consistency and makes
-# the system easier to configure and maintain.
-# =====================================================
-
-# -----------------------------------------------------
-# USER PREFERENCES (Personal Settings)
-# -----------------------------------------------------
-# Used by: config/core.zsh, various scripts
-export EDITOR="${EDITOR:-zed}"                        # Default text editor
-export VISUAL="${VISUAL:-zed}"                        # Visual editor
-export WORKING_ON_LAPTOP="${WORKING_ON_LAPTOP:-True}" # Laptop optimization flag
-
-# User project paths (used by: environment.zsh, various navigation functions)
-export SIEGE="${SIEGE:-$HOME/Documents/Professional/Siege_Analytics}"
-export GEOCODE="${GEOCODE:-$HOME/Documents/Professional/Siege_Analytics/Clients/TAN/Projects/tan_geocoding_test}"
-export MASAI="${MASAI:-$HOME/Documents/Professional/Siege_Analytics/Clients/MI}"
-export RESUME_GENERATOR="${RESUME_GENERATOR:-$HOME/Documents/Professional/resume_generator}"
-export SIEGE_UTILITIES_TEST="${SIEGE_UTILITIES_TEST:-$HOME/Desktop/in_process/code/siege_utilities_verify}"
-export SIEGE_UTILITIES="${SIEGE_UTILITIES:-$HOME/Documents/Professional/Siege_Analytics/Code/siege_utilities}"
-
-# -----------------------------------------------------
-# PYTHON ENVIRONMENT CONFIGURATION
-# -----------------------------------------------------
-# Used by: python/init.zsh, python/core.zsh, config/spark.zsh
-export PYTHON_MANAGER="${PYTHON_MANAGER:-auto}"       # pyenv, uv, or auto
-export PREFERRED_VENV="${PREFERRED_VENV:-geo31111}"   # Default Python virtual environment
-export PYTHON_DEFAULT_VERSION="${PYTHON_DEFAULT_VERSION:-3.11}"
-export UV_DEFAULT_PYTHON="${UV_DEFAULT_PYTHON:-3.11}"
-
-# UV Configuration (used by: bash-compatibility.zsh, python modules)
-export UV_PYTHON_PREFERENCE="${UV_PYTHON_PREFERENCE:-managed}"
-export UV_PYTHON_DOWNLOADS="${UV_PYTHON_DOWNLOADS:-automatic}"
-export UV_COMPILE_BYTECODE="${UV_COMPILE_BYTECODE:-1}"
-export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
-
-# -----------------------------------------------------
-# JAVA & JVM CONFIGURATION
-# -----------------------------------------------------
-# Used by: auto-setup.zsh, config/spark.zsh, config/hadoop.zsh
-export TARGET_JAVA_VERSION="${TARGET_JAVA_VERSION:-17.0.12-tem}"
-export TARGET_SCALA_VERSION="${TARGET_SCALA_VERSION:-2.12.18}"
-
-# JVM Memory Settings (used by: config/hadoop.zsh, config/spark.zsh)
-export HADOOP_HEAPSIZE="${HADOOP_HEAPSIZE:-1024}"     # Hadoop JVM heap size (MB)
-export YARN_HEAPSIZE="${YARN_HEAPSIZE:-1024}"         # YARN JVM heap size (MB)
-
-# -----------------------------------------------------
-# BIG DATA TOOL CONFIGURATION
-# -----------------------------------------------------
-# Used by: auto-setup.zsh, config/spark.zsh, config/hadoop.zsh
-export TARGET_SPARK_VERSION="${TARGET_SPARK_VERSION:-3.5.3}"
-export TARGET_HADOOP_VERSION="${TARGET_HADOOP_VERSION:-3.3.6}"
-export TARGET_MAVEN_VERSION="${TARGET_MAVEN_VERSION:-3.9.6}"
-
-# Spark Configuration (used by: config/spark.zsh, python/integrations/spark.zsh)
-export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
-export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}"
-export SPARK_MASTER_URL="${SPARK_MASTER_URL:-spark://localhost:7077}"
-export SPARK_NUM_EXECUTORS="${SPARK_NUM_EXECUTORS:-4}"
-export SPARK_EXECUTOR_CORES="${SPARK_EXECUTOR_CORES:-1}"
-export SPARK_DRIVER_MAX_RESULT_SIZE="${SPARK_DRIVER_MAX_RESULT_SIZE:-2g}"
-
-# Hadoop Configuration (used by: config/hadoop.zsh)
-export HADOOP_DATA_DIR="${HADOOP_DATA_DIR:-$HOME/hadoop-data}"
-
-# -----------------------------------------------------
-# DATABASE CONFIGURATION
-# -----------------------------------------------------
-# Used by: config/database.zsh, utilities.zsh
-# PostgreSQL
-export PGHOST="${PGHOST:-localhost}"
-export PGUSER="${PGUSER:-dheerajchand}"
-export PGPORT="${PGPORT:-5432}"
-export PGDATABASE="${PGDATABASE:-gis}"
-
-# GeoDjango Template Database (used by: config/database.zsh, utilities.zsh)
-export GEODJANGO_TEMPLATE_SQL_DATABASE="${GEODJANGO_TEMPLATE_SQL_DATABASE:-geodjango_template_db}"
-export GEODJANGO_TEMPLATE_SQL_USER="${GEODJANGO_TEMPLATE_SQL_USER:-dheerajchand}"
-export GEODJANGO_TEMPLATE_SQL_PORT="${GEODJANGO_TEMPLATE_SQL_PORT:-5432}"
-
-# MySQL Configuration (used by: config/database.zsh)
-export MYSQL_HOST="${MYSQL_HOST:-localhost}"
-export MYSQL_USER="${MYSQL_USER:-$USER}"
-export MYSQL_PORT="${MYSQL_PORT:-3306}"
-export MYSQL_DATABASE="${MYSQL_DATABASE:-}"
-
-# Snowflake Configuration (used by: config/database.zsh)
-export SNOWFLAKE_ACCOUNT="${SNOWFLAKE_ACCOUNT:-}"
-export SNOWFLAKE_USER="${SNOWFLAKE_USER:-dheerajchand}"
-export SNOWFLAKE_WAREHOUSE="${SNOWFLAKE_WAREHOUSE:-}"
-export SNOWFLAKE_DATABASE="${SNOWFLAKE_DATABASE:-}"
-export SNOWFLAKE_SCHEMA="${SNOWFLAKE_SCHEMA:-PUBLIC}"
-
-# -----------------------------------------------------
-# DOCKER CONFIGURATION
-# -----------------------------------------------------
-# Used by: config/docker.zsh, docker.zsh, utilities.zsh
-export RANCHER_DOCKER_CONTEXT="${RANCHER_DOCKER_CONTEXT:-rancher-desktop}"
-export DOCKER_DESKTOP_CONTEXT="${DOCKER_DESKTOP_CONTEXT:-desktop-linux}"
-export CURRENT_DOCKER_PROVIDER="${CURRENT_DOCKER_PROVIDER:-rancher}"
-export DEFAULT_DOCKER_CONTEXT="${DEFAULT_DOCKER_CONTEXT:-rancher-desktop}"
-
-# Docker Build Configuration (used by: config/docker.zsh)
-export DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
-export COMPOSE_DOCKER_CLI_BUILD="${COMPOSE_DOCKER_CLI_BUILD:-1}"
-
-# -----------------------------------------------------
-# BACKUP SYSTEM CONFIGURATION
-# -----------------------------------------------------
-# Used by: backup-system.zsh, config/backup-toggle.zsh
-export AUTO_BACKUP_ON_CHANGE="${AUTO_BACKUP_ON_CHANGE:-false}"
-export AUTO_BACKUP_INTERVAL="${AUTO_BACKUP_INTERVAL:-3600}"  # 1 hour in seconds
-export PATH_DEDUPLICATION_ENABLED="${PATH_DEDUPLICATION_ENABLED:-true}"
-
-# -----------------------------------------------------
-# SYSTEM BEHAVIOR CONTROL
-# -----------------------------------------------------
-# Used by: zshrc (this file), various modules for debugging
-export MODULAR_ZSHRC_VERBOSE="${MODULAR_ZSHRC_VERBOSE:-false}"  # Show module loading messages
-export ZSH_STARTUP_TIMING="${ZSH_STARTUP_TIMING:-false}"        # Display startup performance
-
-# Auto-setup Configuration (used by: auto-setup.zsh)
-export AUTO_SETUP_ON_STARTUP="${AUTO_SETUP_ON_STARTUP:-false}"
-export AUTO_SETUP_CHECK_ONLINE="${AUTO_SETUP_CHECK_ONLINE:-true}"
-export AUTO_SETUP_VERBOSE="${AUTO_SETUP_VERBOSE:-false}"
-
-# Shell Configuration (used by: config/core.zsh)
-export CASE_SENSITIVE="${CASE_SENSITIVE:-true}"
-export DISABLE_AUTO_TITLE="${DISABLE_AUTO_TITLE:-true}"
-
-# -----------------------------------------------------
-# CREDENTIAL SYSTEM CONFIGURATION
-# -----------------------------------------------------
-# Used by: config/credentials.zsh (when module exists)
-export CREDENTIAL_BACKEND="${CREDENTIAL_BACKEND:-env-first}"     # env-first, 1password-first, apple-first, env-only
-export CREDENTIAL_AUTO_SETUP="${CREDENTIAL_AUTO_SETUP:-true}"
-
-# -----------------------------------------------------
-# GIT CONFIGURATION
-# -----------------------------------------------------
-# Used by: config/core.zsh, various git functions
-export GIT_DISCOVERY_ACROSS_FILESYSTEM="${GIT_DISCOVERY_ACROSS_FILESYSTEM:-1}"
-
-# =====================================================
-# END CENTRALIZED VARIABLES SECTION
-# =====================================================
-
-# =====================================================
-# LIGHT MODE SKIP CHECK
-# =====================================================
-
-# =====================================================
-# DYNAMIC MODULE DISCOVERY SYSTEM
-# =====================================================
-
-# Dynamically discover all available modules
-ALL_MODULES=($(find "$ZSH_CONFIG_MODULES" -name "*.zsh" -exec basename {} .zsh \; 2>/dev/null))
-
-# Manually specify only what should be in light mode (everything else goes to heavy)
-MODULES_LIGHT=("core" "environment" "paths")
-
-# Heavy mode = Everything - Light mode (set difference)
-MODULES_HEAVY=($(printf '%s\n' "${ALL_MODULES[@]}" "${MODULES_LIGHT[@]}" | sort | uniq -u))
-
-# Function to load a module safely
 load_module() {
-    local module_name="$1"
-    local module_file="$ZSH_CONFIG_MODULES/${module_name}.zsh"
-
-    if [[ -f "$module_file" ]]; then
-        source "$module_file" 2>/dev/null || [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⚠️  ${module_name} module had warnings"
-
-        # Auto-deduplicate PATH after loading modules that modify it
-        if [[ "$PATH_DEDUPLICATION_ENABLED" == "true" ]] && command -v deduplicate_path >/dev/null 2>&1; then
-            deduplicate_path
-        fi
-
-        return 0
-    else
-        [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⚠️  ${module_name} module not found: $module_file"
-        return 1
-    fi
-}
-
-# Function to load multiple modules
-load_modules() {
-    local modules=("$@")
-    local loaded_count=0
-    
-    for module in "${modules[@]}"; do
-        if load_module "$module"; then
-            ((loaded_count++))
-        fi
-    done
-    
-    # Only show output if not in instant prompt mode
-    if [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] || [[ "$POWERLEVEL9K_INSTANT_PROMPT" != "off" ]]; then
-        echo "📦 Loaded $loaded_count modules: ${modules[*]}"
-    fi
-}
-
-# =====================================================
-# MODE-SPECIFIC LOADING
-# =====================================================
-
-if [[ "$ZSH_MODE" == "light" ]]; then
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Light mode: Loading minimal configuration only"
-    load_modules "${MODULES_LIGHT[@]}"
-
-    # Load minimal hierarchical core modules
-    if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
-        source "$HOME/.config/zsh/modules/core/module-loader.zsh"
-        load_hierarchical_modules
-    fi
-
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Light mode complete - minimal configuration loaded"
-    # Use return instead of exit to prevent crashes in sourced scripts
-    return 0 2>/dev/null || true
-
-elif [[ "$ZSH_MODE" == "staggered" ]]; then
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Staggered mode: Loading essential modules first, then progressive enhancement"
-
-    # Phase 1: Load light modules immediately
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Phase 1: Loading essential modules..."
-    load_modules "${MODULES_LIGHT[@]}"
-
-    # Load hierarchical core modules immediately (light mode compatible)
-    if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
-        source "$HOME/.config/zsh/modules/core/module-loader.zsh"
-        load_hierarchical_modules
-    fi
-
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Staggered mode Phase 1 complete - essential modules loaded"
-
-    # Phase 2: Progressive loading of heavy modules in background
-    (
-        sleep 2
-        echo ""
-        echo "🔄 Staggered mode Phase 2: Loading additional modules..."
-        echo "⏳ This happens in the background while you work..."
-        load_modules "${MODULES_HEAVY[@]}"
-
-        # Load heavy hierarchical modules in background
-        export ZSH_STAGGERED_PHASE_2="true"
-        if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
-            load_hierarchical_modules
-        fi
-
-        echo "🎯 Staggered mode complete - progressive loading active"
-    ) &
-
-    # Clear background job notifications to prevent "you have running jobs" warnings
-    jobs >/dev/null 2>&1
-
-    # Use return instead of exit to prevent crashes in sourced scripts
-    return 0 2>/dev/null || true
-
-elif [[ "$ZSH_MODE" == "heavy" ]]; then
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "⏭️  Heavy mode: Loading full configuration"
-
-    # Load all modules (light + heavy)
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "🚀 Loading all modules..."
-    load_modules "${MODULES_LIGHT[@]}" "${MODULES_HEAVY[@]}"
-
-    # Load all hierarchical modules
-    if [[ -f "$HOME/.config/zsh/modules/core/module-loader.zsh" ]]; then
-        source "$HOME/.config/zsh/modules/core/module-loader.zsh"
-        load_hierarchical_modules
-    fi
-
-    [[ -z "$POWERLEVEL9K_INSTANT_PROMPT" ]] && echo "✅ Heavy mode complete - full configuration loaded"
-
-    # Optimize PATH for performance (reduces Finder slowdowns)
-    if command -v deduplicate_path >/dev/null 2>&1; then
-        deduplicate_path
-    fi
-fi
-
-# =====================================================
-# MODULE LOADING SYSTEM
-# =====================================================
-
-# Track loaded modules (cross-shell compatible)
-# Initialize associative array based on shell type
-if [[ -n "$ZSH_VERSION" ]]; then
-    typeset -gA LOADED_MODULES
-elif [[ -n "$BASH_VERSION" ]]; then
-    declare -gA LOADED_MODULES
-fi
-
-load_config_module() {
-    # Load a configuration module with error handling
-    #
-    # Args:
-    #     module_name (str): Name of module (without .zsh extension)
-    #     required (bool, optional): Whether module is required (default: false)
-    local module_name="$1"
-    local required="${2:-false}"
-    local module_path="$ZSH_CONFIG_MODULES/${module_name}.zsh"
+    local module="$1"
+    local module_path="$ZSH_CONFIG_DIR/modules/$module.zsh"
 
     if [[ -f "$module_path" ]]; then
-        # Load module and capture only errors (not stdout)
-        local error_output
-        if source "$module_path" 2>/tmp/module_load_error_$$; then
-            # Check if there were any errors
-            if [[ -s "/tmp/module_load_error_$$" ]]; then
-                error_output=$(cat "/tmp/module_load_error_$$")
-                [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "⚠️  Warnings in module: $module_name: $error_output"
-            fi
-            LOADED_MODULES[$module_name]="success"
-            [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "✅ Loaded: $module_name"
-            rm -f "/tmp/module_load_error_$$"
-            return 0
+        echo "📦 Loading $module module..."
+        source "$module_path"
+
+        # Track loaded modules
+        if [[ -z "$LOADED_MODULES" ]]; then
+            export LOADED_MODULES="$module"
         else
-            error_output=$(cat "/tmp/module_load_error_$$" 2>/dev/null)
-            LOADED_MODULES[$module_name]="error"
-            echo "❌ Error loading module: $module_name"
-            [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "   Error details: $error_output"
-            rm -f "/tmp/module_load_error_$$"
-            [[ "$required" == "true" ]] && return 1
+            export LOADED_MODULES="$LOADED_MODULES $module"
         fi
+
+        echo "✅ Module $module loaded successfully!"
+
+        # Show what's available after loading
+        echo "💡 Additional modules available:"
+        ls $ZSH_CONFIG_DIR/modules/*.zsh 2>/dev/null | xargs -n1 basename | sed 's/.zsh$//' | grep -v "^$module$" | sed 's/^/  load-/' | tr '\n' ' '
+        echo ""
+
     else
-        LOADED_MODULES[$module_name]="missing"
-        if [[ "$required" == "true" ]]; then
-            echo "❌ Required module missing: $module_name"
-            return 1
-        else
-            [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "⏭️  Module not found: $module_name"
-        fi
-    fi
-
-    return 0
-}
-
-# =====================================================
-# CORE MODULE LOADING (Required)
-# =====================================================
-
-# Load shell compatibility layer first (for cross-shell support)
-load_config_module "shell-compat"
-
-# Load core configuration (essential shell setup)
-load_config_module "core" true || {
-    echo "💥 FATAL: Core module failed to load. Shell may not function properly."
-    return 1
-}
-
-# =====================================================
-# CREDENTIAL & SECURITY MODULES
-# =====================================================
-
-# Load credential management system
-load_config_module "credentials"
-
-# Load database configuration (depends on credentials)
-load_config_module "database"
-
-# =====================================================
-# DEVELOPMENT TOOLS
-# =====================================================
-
-# =====================================================
-# ENVIRONMENT & PLATFORM DETECTION
-# =====================================================
-
-# Load environment detection (after core, needs path_add function)
-load_config_module "environment"
-
-# =====================================================
-# ENVIRONMENT & PLATFORM DETECTION
-# =====================================================
-
-# =====================================================
-# LANGUAGE & RUNTIME ENVIRONMENTS
-# =====================================================
-
-# Node.js/NVM setup
-if command -v nvm >/dev/null 2>&1 || [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
-    # NVM setup
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"
-    [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-
-    # Auto-load .nvmrc files
-    load-nvmrc() {
-        if [[ -f .nvmrc && -r .nvmrc ]]; then
-            nvm use &> /dev/null
-        else
-            nvm use stable &> /dev/null
-        fi
-    }
-    autoload -U add-zsh-hook
-    add-zsh-hook chpwd load-nvmrc
-    load-nvmrc
-fi
-
-# Python setup (pyenv)
-
-# Advanced Python Management System (v2.1.0-optimized)
-if [[ -f "$ZSH_CONFIG_DIR/python/init.zsh" ]]; then
-    source "$ZSH_CONFIG_DIR/python/init.zsh"
-fi
-
-
-# pyenv setup
-if command -v pyenv >/dev/null 2>&1; then
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-    eval "$(pyenv init --path)"
-
-    # Auto-activate preferred environment
-    if [[ -n "$PREFERRED_VENV" ]]; then
-        pyenv activate "$PREFERRED_VENV" 2>/dev/null || true
-    fi
-fi
-
-# UV setup (fast Python package manager) - Cross-shell compatible
-if command -v uv >/dev/null 2>&1; then
-
-    uv_auto_activate() {
-        # Check if we're in a UV project directory
-        if [[ -f "pyproject.toml" ]] && [[ -d ".venv" ]]; then
-            # Only activate if not already in this virtual environment
-            if [[ "$VIRTUAL_ENV" != "$PWD/.venv" ]]; then
-                echo "🔄 Activating UV project: $(basename $PWD)"
-                source .venv/bin/activate
-            fi
-        fi
-    }
-
-    # Cross-shell hook setup
-    if [[ -n "$ZSH_VERSION" ]]; then
-        # ZSH: Use add-zsh-hook
-        autoload -U add-zsh-hook
-        add-zsh-hook chpwd uv_auto_activate
-    elif [[ -n "$BASH_VERSION" ]]; then
-        # Bash: Override cd function
-        if ! declare -f cd_original >/dev/null 2>&1; then
-            cd_original() { builtin cd "$@"; }
-        fi
-        cd() {
-            cd_original "$@"
-            uv_auto_activate
-        }
-    fi
-
-    # Check current directory on shell startup
-    uv_auto_activate
-fi
-
-# =====================================================
-# BIG DATA & ANALYTICS (Conditional Loading)
-# =====================================================
-
-# SDKMAN initialization (if available)
-if [[ -s "${SDKMAN_DIR:-$HOME/.sdkman}/bin/sdkman-init.sh" ]]; then
-    export SDKMAN_DIR=$(brew --prefix sdkman-cli)/libexec 2>/dev/null || export SDKMAN_DIR="$HOME/.sdkman"
-    source "${SDKMAN_DIR}/bin/sdkman-init.sh"
-fi
-
-# Load big data modules (functions always available)
-load_config_module "spark"
-load_config_module "hadoop"
-
-# =====================================================
-# SYSTEM-SPECIFIC MODULES
-# =====================================================
-
-# Docker integration (functions always available)
-load_config_module "docker"
-
-# Load backup system (optional module)
-# load_config_module "backup-system"
-
-# Load backup toggle system (for controlling auto-backup)
-load_config_module "backup-toggle"
-
-# Load status system (master_status and other status functions)
-load_config_module "status"
-
-# Load help system
-load_config_module "help"
-
-# =====================================================
-# UTILITY FUNCTIONS FROM OLD ZSHRC
-# =====================================================
-
-# Python utility functions
-if command -v pip >/dev/null 2>&1; then
-    cleanvenv() {
-        # Clean current virtual environment
-        pip freeze | grep -v "^-e" | xargs pip uninstall -y
-    }
-fi
-
-remove_python_cruft() {
-    # Remove Python bytecode and cache files
-    find . -name "*.pyc" -delete 2>/dev/null
-    find . -name "__pycache__" -exec rm -rf {} + 2>/dev/null
-}
-
-# Git utility
-update_local_repo() {
-    # Track all remote branches locally
-    for remote in $(git branch -r); do
-        git branch --track ${remote#origin/} $remote 2>/dev/null
-    done
-}
-
-# Set Git discovery across filesystem
-export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-
-# =====================================================
-# LEGACY MODULE SOURCES (Temporary)
-# =====================================================
-
-# Source existing modules that haven't been refactored yet
-legacy_modules=(
-    "utilities.zsh"
-)
-
-for module in "${legacy_modules[@]}"; do
-    local legacy_module_path="$ZSH_CONFIG_DIR/$module"
-    if [[ -f "$legacy_module_path" ]]; then
-        if source "$legacy_module_path" 2>/dev/null; then
-            [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && echo "✅ Legacy: $module"
-        else
-            echo "⚠️  Error in legacy module: $module"
-        fi
-    fi
-done
-
-# =====================================================
-# USER CUSTOMIZATIONS
-# =====================================================
-
-# Load user-specific customizations if they exist
-if [[ -f "$ZSH_CONFIG_DIR/user.zsh" ]]; then
-    source "$ZSH_CONFIG_DIR/user.zsh"
-fi
-
-# Load local machine-specific customizations
-if [[ -f "$ZSH_CONFIG_DIR/local.zsh" ]]; then
-    source "$ZSH_CONFIG_DIR/local.zsh"
-fi
-
-# =====================================================
-# MODULE STATUS & DIAGNOSTICS
-# =====================================================
-
-modular_zsh_status() {
-    # Show status of all modules
-    echo "📦 Modular ZSH Configuration Status"
-    echo "==================================="
-    echo ""
-
-    echo "Configuration Directory: $ZSH_CONFIG_DIR"
-    echo "Modules Directory: $ZSH_CONFIG_MODULES"
-    echo ""
-
-    echo "Module Status:"
-    for module module_status in ${(kv)LOADED_MODULES}; do
-        case "$module_status" in
-            "success")
-                echo "  ✅ $module: Loaded successfully"
-                ;;
-            "error")
-                echo "  ❌ $module: Failed to load"
-                ;;
-            "missing")
-                echo "  ⏭️  $module: Not found (optional)"
-                ;;
-            *)
-                echo "  ❓ $module: Unknown status ($module_status)"
-                ;;
-        esac
-    done
-
-    echo ""
-
-    # Show available but not loaded modules
-    echo "Available Modules:"
-    if [[ -d "$ZSH_CONFIG_MODULES" ]]; then
-        for module_file in "$ZSH_CONFIG_MODULES"/*.zsh; do
-            if [[ -f "$module_file" ]]; then
-                local module_name=$(basename "$module_file" .zsh)
-                if [[ -z "${LOADED_MODULES[$module_name]}" ]]; then
-                    echo "  📄 $module_name: Available but not loaded"
-                fi
-            fi
-        done
+        echo "❌ Module not found: $module"
+        echo ""
+        echo "📦 Available modules:"
+        ls $ZSH_CONFIG_DIR/modules/*.zsh 2>/dev/null | xargs -n1 basename | sed 's/.zsh$//' | sed 's/^/  load-/'
+        echo ""
+        echo "💡 Use 'zsh-system modules' for detailed information"
     fi
 }
 
-reload_modular_zsh() {
-    # Reload the modular zsh configuration
-    echo "🔄 Reloading modular ZSH configuration..."
+# Show loaded modules
+show_loaded_modules() {
+    echo "📊 Module Status"
+    echo "==============="
+    echo "🚀 Core: Minimal (always loaded)"
 
-    # Clear loaded modules tracking
-    LOADED_MODULES=()
-
-    # Source this file again
-    source ~/.zshrc
-
-    echo "✅ Configuration reloaded"
-    echo "💡 Run 'modular_zsh_status' to see module status"
-}
-
-# =====================================================
-# LIGHT MODE / HEAVY MODE TOGGLE FUNCTIONS
-# =====================================================
-
-toggle_zsh_mode() {
-    # Toggle between light and heavy mode
-    if [[ "$ZSH_LIGHT_MODE" == "true" ]]; then
-        echo "🔄 Switching to heavy mode..."
-        export ZSH_LIGHT_MODE=false
-        export ZSH_MODE="heavy"
-        zsh-reload
+    if [[ -n "$LOADED_MODULES" ]]; then
+        echo "📦 Loaded: $LOADED_MODULES"
     else
-        echo "🔄 Switching to light mode..."
-        export ZSH_LIGHT_MODE=true
-        export ZSH_MODE="light"
-        zsh-reload
+        echo "📦 Loaded: None (use load-<module> to load)"
     fi
-}
 
-force_light_mode() {
-    # Force light mode
-    echo "🚀 Forcing light mode..."
-    export ZSH_LIGHT_MODE=true
-    export ZSH_MODE="light"
-    zsh-reload
-}
-
-force_heavy_mode() {
-    # Force heavy mode
-    echo "🚀 Forcing heavy mode..."
-    export ZSH_LIGHT_MODE=false
-    export ZSH_MODE="heavy"
-    zsh-reload
-}
-
-zsh_mode_status() {
-    # Show current mode status
-    echo "📊 ZSH Mode Status"
-    echo "=================="
-    echo "Current Mode: $ZSH_MODE"
-    echo "Light Mode: $([[ "$ZSH_LIGHT_MODE" == "true" ]] && echo "Enabled" || echo "Disabled")"
-    echo "IDE Mode: $([[ "$IDE_MODE" == "true" ]] && echo "Enabled" || echo "Disabled")"
-    echo "Fast Startup: $([[ "$FAST_STARTUP" == "true" ]] && echo "Enabled" || echo "Disabled")"
     echo ""
-    echo "Available Commands:"
-    echo "  toggle_zsh_mode - Switch between light/heavy mode"
-    echo "  force_light_mode - Force light mode"
-    echo "  force_heavy_mode - Force heavy mode"
-    echo "  zsh_mode_status - Show this status"
+    echo "📋 Available modules:"
+    ls $ZSH_CONFIG_DIR/modules/*.zsh 2>/dev/null | xargs -n1 basename | sed 's/.zsh$//' | sed 's/^/  load-/'
+    echo ""
+    echo "💡 Type 'load-<module>' or 'help' for assistance"
 }
 
-# =====================================================
-# ALIASES FOR MODULE MANAGEMENT
-# =====================================================
-
-alias zsh-status='modular_zsh_status'
-alias zsh-reload='reload_modular_zsh'
-alias zsh-modules='list_modules'
-alias zsh-verbose='export MODULAR_ZSHRC_VERBOSE=true && zsh-reload'
-alias zsh-mode='zsh_mode_status'
-alias zsh-toggle='toggle_zsh_mode'
-alias zsh-light='force_light_mode'
-alias zsh-heavy='force_heavy_mode'
+# Quick module aliases
+alias load-python='load_module python'
+alias load-docker='load_module docker'
+alias load-database='load_module database'
+alias load-spark='load_module spark'
+alias load-jetbrains='load_module jetbrains'
 
 # =====================================================
-# STARTUP PERFORMANCE
+# POWERLEVEL10K CONFIG
 # =====================================================
-
-# Track startup time if requested
-if [[ "$ZSH_STARTUP_TIMING" == "true" ]]; then
-    echo "⏱️  Modular ZSH startup completed in ${SECONDS}s"
-    echo "📦 Loaded ${#LOADED_MODULES} modules"
-fi
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # =====================================================
-# AUTOMATIC PATH CLEANUP
+# HELP & USER GUIDANCE
 # =====================================================
 
-# Clean PATH if it's too long (helps prevent Finder issues)
-if [[ "$PATH_DEDUPLICATION_ENABLED" == "true" && ${#PATH} -gt 1500 ]]; then
-    if command -v path_clean >/dev/null 2>&1; then
-        path_clean --auto >/dev/null 2>&1
-    fi
-fi
+# 3-tier help system
+zsh_help() {
+    echo "🚀 3-Tier ZSH System Help"
+    echo "========================="
+    echo ""
+    echo "📦 Load modules on demand:"
+    echo "  load-python     # Python environments (pyenv, UV, virtualenv)"
+    echo "  load-docker     # Docker management & development"
+    echo "  load-database   # PostgreSQL integration"
+    echo "  load-spark      # Apache Spark & Hadoop"
+    echo "  load-jetbrains  # IDE integration"
+    echo ""
+    echo "📊 Check what's loaded:"
+    echo "  modules         # Show loaded/available modules"
+    echo "  zsh-system status       # Complete system overview"
+    echo ""
+    echo "🔧 System management:"
+    echo "  zsh-system modules          # Detailed module info"
+    echo "  zsh-system service list     # Background services"
+    echo "  zsh-system switch-minimal   # Switch to minimal mode"
+    echo "  zsh-system switch-full      # Switch to full mode"
+    echo ""
+    echo "🚀 Repository management:"
+    echo "  push 'message'              # Push changes to main repo"
+    echo "  pushmain                    # Quick push with timestamp"
+    echo "  sync                        # Sync config repository"
+    echo "  backup 'message'            # Create backup with sync"
+    echo ""
+    echo "📚 Documentation:"
+    echo "  See CLAUDE.md for complete guide"
+    echo "  See MIGRATION.md for switching help"
+}
 
-# Enable automatic PATH monitoring for future sessions
-if command -v path_monitor >/dev/null 2>&1; then
-    export PATH_MONITORING_ENABLED=true
-fi
+alias help='zsh_help'
+alias modules='show_loaded_modules'
+
+# Welcome message for new users
+echo "🚀 3-Tier ZSH System loaded!"
+echo "💡 Type 'help' for module loading guide or 'modules' to see what's available"
+echo "📦 Quick start: load-python, load-docker, load-database, load-spark, load-jetbrains"
+echo ""
 
 # =====================================================
-# INITIALIZATION COMPLETE
+# COMPLETION
 # =====================================================
-
-export MODULAR_ZSHRC_LOADED=true
-export MODULAR_ZSHRC_VERSION="1.0.0"
-
-# Welcome message (only if verbose)
-if [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]]; then
-    echo "🚀 Enhanced Modular ZSH Configuration System v${MODULAR_ZSHRC_VERSION}"
-    echo "💡 Run 'zsh-status' to see configuration details"
-fi
+export MINIMAL_ZSHRC_LOADED=true

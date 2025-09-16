@@ -885,10 +885,50 @@ zsh-system help                # System management help
 zsh-system status              # Complete system overview
 ```
 
+## 🚨 **Troubleshooting & Debugging**
+
+If you encounter issues with the zsh configuration:
+
+### **Quick Diagnostics**
+```bash
+# Check system status
+zsh-status                    # Module loading status
+repair_path --dry-run         # Check for PATH issues
+echo "PATH length: ${#PATH}"  # Verify PATH size
+
+# Test module loading
+zsh-verbose                   # Detailed loading output
+zsh-reload                    # Reload configuration
+```
+
+### **Common Issues & Solutions**
+
+#### **PATH Explosion (2000+ characters)**
+**Symptoms**: Finder slowdowns, slow shell startup
+**Solution**: `repair_path --verbose`
+**Prevention**: Follow debugging directives for all changes
+
+#### **Module Loading Failures**
+**Symptoms**: Functions not available, error messages
+**Solution**: Check `zsh-status`, verify module dependencies
+**Prevention**: Test modules incrementally
+
+#### **Performance Issues**
+**Symptoms**: Slow shell startup, system lag
+**Solution**: Use minimal mode, check PATH length
+**Prevention**: Monitor system impact of changes
+
+### **Debugging Protocol**
+1. **Follow the Debugging Directives**: See `docs/guides/DEBUGGING_DIRECTIVES.md`
+2. **Check PATH Issues**: Use `repair_path --verbose` to diagnose PATH problems
+3. **Verify Module Loading**: Use `zsh-status` to check loaded modules
+4. **Test in Clean Shell**: Use `zsh -f` to test without configuration
+
 ### **Community & Support**
 - **Repository**: [dheerajchand/siege_analytics_zshrc](https://github.com/dheerajchand/siege_analytics_zshrc)
 - **Issues**: [GitHub Issues](https://github.com/dheerajchand/siege_analytics_zshrc/issues)
 - **Website**: [siegeanalytics.com](https://www.siegeanalytics.com)
+- **Troubleshooting**: [DEBUGGING_DIRECTIVES.md](docs/guides/DEBUGGING_DIRECTIVES.md)
 
 ---
 
