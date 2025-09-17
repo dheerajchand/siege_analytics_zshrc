@@ -17,7 +17,7 @@ echo "🐍 Loading Python module..."
 # PYTHON ENVIRONMENT SETUP
 # =====================================================
 
-# Setup pyenv if available
+# Setup pyenv if available (uses centralized PYENV_ROOT)
 if [[ -d "$PYENV_ROOT" ]]; then
     [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
@@ -27,7 +27,7 @@ if [[ -d "$PYENV_ROOT" ]]; then
     fi
 fi
 
-# Setup UV if available
+# Setup UV if available (uses centralized UV_BIN_PATH)
 if command -v uv >/dev/null 2>&1; then
     export PATH="$UV_BIN_PATH:$PATH"
     echo "✅ UV initialized"

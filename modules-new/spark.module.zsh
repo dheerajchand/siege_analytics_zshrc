@@ -17,17 +17,17 @@ echo "⚡ Loading Spark module..."
 # SPARK ENVIRONMENT SETUP
 # =====================================================
 
-# Setup SDKMAN if available
+# Setup SDKMAN if available (uses centralized paths)
 if [[ -f "$SDKMAN_INIT_SCRIPT" ]]; then
     source "$SDKMAN_INIT_SCRIPT"
 
-    # Setup Spark
+    # Setup Spark (uses centralized SPARK_*_PATH variables)
     if [[ -d "$SPARK_HOME_PATH" ]]; then
         export SPARK_HOME="$SPARK_HOME_PATH"
         export PATH="$SPARK_BIN_PATH:$SPARK_SBIN_PATH:$PATH"
     fi
 
-    # Setup Hadoop
+    # Setup Hadoop (uses centralized HADOOP_*_PATH variables)
     if [[ -d "$HADOOP_HOME_PATH" ]]; then
         export HADOOP_HOME="$HADOOP_HOME_PATH"
         export PATH="$HADOOP_BIN_PATH:$HADOOP_SBIN_PATH:$PATH"
