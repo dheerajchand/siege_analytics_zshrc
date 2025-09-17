@@ -3,7 +3,11 @@
     "allow": [
       "Bash(sed:*)",
       "Bash(git checkout:*)",
-      "Read(///**)"
+      "Read(///**)",
+      "Bash(chmod:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(backup \"A+ documentation and comprehensive testing suite\")"
     ],
     "deny": [],
     "ask": []
