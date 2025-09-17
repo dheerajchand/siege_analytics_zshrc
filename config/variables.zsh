@@ -15,6 +15,7 @@
 # ZSH Configuration
 export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 export ZSH_MODULES_DIR="$ZSH_CONFIG_DIR/modules"
+export ZSH_CONFIG_MODULES="$ZSH_CONFIG_DIR/config"  # Legacy config location
 export ZSH_SERVICES_DIR="$ZSH_CONFIG_DIR/services"
 export ZSH_SCRIPTS_DIR="$ZSH_CONFIG_DIR/scripts"
 export ZSH_CACHE_DIR="$ZSH_CONFIG_DIR/cache"
@@ -159,6 +160,22 @@ export ZSH_PERFORMANCE_LOGGING="${ZSH_PERFORMANCE_LOGGING:-false}"
 # Backup System
 export AUTO_BACKUP_ENABLED="${AUTO_BACKUP_ENABLED:-true}"
 export BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
+
+# =====================================================
+# MODULE SYSTEM CONFIGURATION
+# =====================================================
+
+# Mode Definitions (Light mode modules - others calculated dynamically)
+# Keep this minimal - only essential modules for fast startup
+export ZSH_LIGHT_MODULES="python javascript"
+
+# Module Discovery Patterns
+export MODULE_FILE_PATTERN="*.module.zsh"
+export MODULE_NAME_SUFFIX=".module.zsh"
+
+# Mode State Tracking
+export ZSH_CURRENT_MODE="${ZSH_CURRENT_MODE:-minimal}"
+export ZSH_LIGHT_MODE="${ZSH_LIGHT_MODE:-false}"
 
 # =====================================================
 # REPOSITORY CONFIGURATION
