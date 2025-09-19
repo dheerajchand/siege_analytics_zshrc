@@ -30,7 +30,13 @@
       "Bash(jobs)",
       "Bash(python_status:*)",
       "Bash(echo $ZSH_CURRENT_MODE)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(./tests/test-critical-functions.zsh:*)",
+      "Bash(./tests/test-dependency-validation.zsh:*)",
+      "Bash(load_module utils)",
+      "Bash(./tests/test-function-call-validation.zsh:*)",
+      "Bash(./tests/test-race-conditions.zsh:*)",
+      "Bash(./tests/test-comprehensive-final.zsh)"
     ],
     "deny": [],
     "ask": []
