@@ -167,7 +167,7 @@ export BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 
 # Mode Definitions (Light mode modules - others calculated dynamically)
 # Keep this minimal - only essential modules for fast startup
-export ZSH_LIGHT_MODULES="python javascript"
+export ZSH_LIGHT_MODULES="utils python javascript"
 
 # Module Discovery Patterns
 export MODULE_FILE_PATTERN="*.module.zsh"

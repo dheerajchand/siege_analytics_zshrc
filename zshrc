@@ -321,10 +321,16 @@ zsh-switch-staggered() {
     # Load remaining modules in background with real-time progress updates
     # Using &! to auto-disown and prevent hanging background jobs
     {
+        # Wait briefly to ensure foreground loading is complete and variables are set
+        sleep 0.2
+
+        # Re-source variables to ensure they're available in background context
+        [[ -f "$ZSH_CONFIG_DIR/config/variables.zsh" ]] && source "$ZSH_CONFIG_DIR/config/variables.zsh"
+
         local bg_loaded=0
         local total_bg=${#heavy_modules[@]}
         for module in "${heavy_modules[@]}"; do
-            sleep 0.5  # Reduced delay for better user experience
+            sleep 0.3  # Reduced delay for better user experience
             if [[ -f "$modules_dir/${module}.module.zsh" ]]; then
                 printf "  [BG %d/%d] Loading %s... " $((bg_loaded + 1)) $total_bg "$module" >&2
                 if source "$modules_dir/${module}.module.zsh" 2>/dev/null; then
