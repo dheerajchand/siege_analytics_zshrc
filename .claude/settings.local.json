@@ -36,7 +36,10 @@
       "Bash(load_module utils)",
       "Bash(./tests/test-function-call-validation.zsh:*)",
       "Bash(./tests/test-race-conditions.zsh:*)",
-      "Bash(./tests/test-comprehensive-final.zsh)"
+      "Bash(./tests/test-comprehensive-final.zsh)",
+      "Bash(backup \"Complete resolution of hostile audit - ALL critical issues fixed\")",
+      "Bash(git push:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []
