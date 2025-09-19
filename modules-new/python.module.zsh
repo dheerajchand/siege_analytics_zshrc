@@ -22,8 +22,16 @@ if [[ -d "$PYENV_ROOT" ]]; then
     [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
     if command -v pyenv >/dev/null 2>&1; then
+        # Critical: Initialize pyenv with both --path and regular init for shims
+        eval "$(pyenv init --path)"
         eval "$(pyenv init -)"
-        echo "✅ Pyenv initialized"
+
+        # Initialize pyenv-virtualenv if available
+        if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
+            eval "$(pyenv virtualenv-init -)"
+        fi
+
+        echo "✅ Pyenv initialized with shims"
     fi
 fi
 
@@ -493,6 +501,15 @@ python_fix_environment() {
 }
 
 # =====================================================
+# COMPREHENSIVE PYTHON SYSTEM INTEGRATION
+# =====================================================
+
+# Load comprehensive Python switching system if available
+if [[ -f "$HOME/.config/zsh/config/python.zsh" ]]; then
+    source "$HOME/.config/zsh/config/python.zsh"
+fi
+
+# =====================================================
 # ALIASES
 # =====================================================
 
@@ -505,6 +522,13 @@ alias py-jupyter='python_jupyter'
 alias py-create='python_create_project'
 alias py-health='python_health_check'
 alias py-fix='python_fix_environment'
+
+# Add comprehensive system aliases if available
+if declare -f use_pyenv >/dev/null 2>&1; then
+    alias use-pyenv='use_pyenv'
+    alias use-uv='use_uv'
+    alias switch-python='switch_python_manager'
+fi
 
 echo "✅ Python module loaded successfully"
 

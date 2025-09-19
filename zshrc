@@ -1,7 +1,12 @@
 #!/usr/bin/env zsh
 # =====================================================
-# MINIMAL ZSHRC - Essential Shell Configuration
+# SIEGE ANALYTICS ZSH SYSTEM - Main Configuration
 # =====================================================
+#
+# CRITICAL: This is the ONLY ZSH system to use
+# - NEVER reference ~/.dotfiles/ or atomantic files
+# - ~/.zshrc is a symlink to this file
+# - Uses ~/.config/zsh/oh-my-zsh (NOT ~/.dotfiles/oh-my-zsh)
 #
 # Lightweight zshrc focused on core functionality only.
 # Heavy features moved to on-demand modules and background services.
@@ -10,11 +15,10 @@
 # =====================================================
 
 # =====================================================
-# INSTANT PROMPT (P10K)
+# P10K INSTANT PROMPT - HANDLED BY MAIN ~/.zshrc
 # =====================================================
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+# P10K instant prompt initialization is handled by the main ~/.zshrc file
+# to prevent dual initialization that causes corruption
 
 # =====================================================
 # ESSENTIAL ENVIRONMENT
@@ -42,7 +46,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # =====================================================
 # OH-MY-ZSH MINIMAL SETUP
 # =====================================================
-export ZSH="$HOME/.dotfiles/oh-my-zsh"
+export ZSH="$HOME/.config/zsh/oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)
 
@@ -315,7 +319,8 @@ zsh-switch-staggered() {
     echo "💡 Background modules will show progress as they load..."
 
     # Load remaining modules in background with real-time progress updates
-    (
+    # Using &! to auto-disown and prevent hanging background jobs
+    {
         local bg_loaded=0
         local total_bg=${#heavy_modules[@]}
         for module in "${heavy_modules[@]}"; do
@@ -336,7 +341,7 @@ zsh-switch-staggered() {
         echo "" >&2
         echo "🎉 Staggered loading complete! ($((loaded_count + bg_loaded))/${#all_modules[@]} total modules loaded)" >&2
         echo "💫 All modules ready for use" >&2
-    ) &
+    } &!
 
     export ZSH_CURRENT_MODE="staggered"
     export ZSH_LIGHT_MODE="false"
@@ -419,9 +424,10 @@ alias load-javascript='load_module javascript'
 # Removed: Ad hoc wrapper function - use direct path instead
 
 # =====================================================
-# POWERLEVEL10K CONFIG
+# POWERLEVEL10K CONFIG - HANDLED BY MAIN ~/.zshrc
 # =====================================================
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# P10K configuration sourcing is handled by the main ~/.zshrc file
+# to prevent duplicate sourcing that can cause prompt corruption
 
 # =====================================================
 # HELP & USER GUIDANCE
@@ -541,6 +547,16 @@ if [[ -f "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh" ]]; then
     alias sync='sync_zsh'
     alias backup='enhanced_backup'
     alias repostatus='zsh_repo_status'
+fi
+
+# =====================================================
+# AUTO-MODE DETECTION & STARTUP
+# =====================================================
+
+# Auto-detect and switch to optimal mode based on environment if not already done
+# This ensures proper module loading based on context (IDE, terminal, etc.)
+if [[ -z "$ZSH_CURRENT_MODE" || "$ZSH_CURRENT_MODE" == "minimal" ]]; then
+    zsh-auto-switch
 fi
 
 # =====================================================
