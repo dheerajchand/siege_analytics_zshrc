@@ -212,6 +212,35 @@ test_initialization_order() {
 }
 
 # =====================================================
+# TEST ENVIRONMENT SETUP
+# =====================================================
+
+setup_test_environment() {
+    echo "Setting up test environment..."
+
+    # Source the main configuration to ensure all modules are loaded
+    source ~/.config/zsh/zshrc >/dev/null 2>&1 || true
+
+    # Wait for background loading to complete
+    sleep 1
+
+    # Explicitly load utils module to ensure functions are available
+    if [[ $(type -w "load_module" 2>/dev/null) == *": function" ]]; then
+        # Try to load utils through the module system
+        load_module utils >/dev/null 2>&1 || true
+    fi
+
+    # If still not available, try direct sourcing
+    if [[ $(type -w "_report_missing_dependency" 2>/dev/null) != *": function" ]]; then
+        if [[ -f "$ZSH_CONFIG_DIR/modules-new/utils.module.zsh" ]]; then
+            source "$ZSH_CONFIG_DIR/modules-new/utils.module.zsh" >/dev/null 2>&1 || true
+        fi
+    fi
+
+    echo "Test environment setup complete."
+}
+
+# =====================================================
 # MAIN TEST EXECUTION
 # =====================================================
 
@@ -224,6 +253,9 @@ echo "2. Missing utility functions (_report_* functions)"
 echo "3. Module loading race conditions"
 echo "4. Background loading synchronization issues"
 echo
+
+# Setup test environment
+setup_test_environment
 
 # Run all test suites
 test_oh_my_zsh_dependency

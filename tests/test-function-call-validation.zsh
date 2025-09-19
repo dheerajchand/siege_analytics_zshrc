@@ -272,6 +272,43 @@ test_cross_module_dependencies() {
 }
 
 # =====================================================
+# TEST ENVIRONMENT SETUP
+# =====================================================
+
+setup_test_environment() {
+    echo "Setting up function test environment..."
+
+    # Source the main configuration to ensure all modules are loaded
+    source ~/.config/zsh/zshrc >/dev/null 2>&1 || true
+
+    # Wait for background loading to complete
+    sleep 2
+
+    # Explicitly load utils module to ensure functions are available
+    if [[ $(type -w "load_module" 2>/dev/null) == *": function" ]]; then
+        echo "Loading utils module through module system..."
+        load_module utils >/dev/null 2>&1 || true
+    fi
+
+    # If still not available, try direct sourcing
+    if [[ $(type -w "_report_missing_dependency" 2>/dev/null) != *": function" ]]; then
+        echo "Loading utils module directly..."
+        if [[ -f "$ZSH_CONFIG_DIR/modules-new/utils.module.zsh" ]]; then
+            source "$ZSH_CONFIG_DIR/modules-new/utils.module.zsh" >/dev/null 2>&1 || true
+        fi
+    fi
+
+    # Verify function availability
+    if [[ $(type -w "_report_missing_dependency" 2>/dev/null) == *": function" ]]; then
+        echo "✅ Utils functions successfully loaded for testing"
+    else
+        echo "❌ Utils functions still not available - tests will show original failure state"
+    fi
+
+    echo "Function test environment setup complete."
+}
+
+# =====================================================
 # MAIN TEST EXECUTION
 # =====================================================
 
@@ -282,11 +319,8 @@ echo "These tests validate that the critical function calls work correctly"
 echo "after the fixes were applied. Before the fixes, these would have failed."
 echo
 
-# Load utils module to ensure functions are available
-if [[ $(type -w "load_module" 2>/dev/null) == *": function" ]]; then
-    echo "Loading utils module for testing..."
-    load_module utils >/dev/null 2>&1 || true
-fi
+# Setup test environment
+setup_test_environment
 
 # Run all test suites
 test_report_functions
