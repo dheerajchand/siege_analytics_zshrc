@@ -243,30 +243,77 @@ test_cross_module_dependencies() {
     echo "Testing that modules can successfully call utility functions."
     echo
 
-    # Test that python module can use utility functions
-    echo "  Testing Python module utility function access..."
+    # Load test helpers for robust module status detection
+    source "$(dirname "$0")/test-helpers.zsh" 2>/dev/null || true
 
-    # Check if Python module functions exist and can potentially call utils
-    if [[ $(type -w "python_status" 2>/dev/null) == *": function" ]]; then
-        echo "${GREEN}    ✓ Python module loaded and can access utility functions${NC}"
-        TEST_RESULTS+=("✓ Python module can access utilities")
-    else
-        echo "${YELLOW}    ? Python module not loaded yet (background loading)${NC}"
-        TEST_RESULTS+=("? Python module not loaded yet")
-    fi
+    # Test modules with enhanced status detection
+    local modules=("python" "docker" "database" "spark")
 
-    # Test that other modules would be able to call utility functions
-    local modules=("docker" "database" "spark")
     for module in "${modules[@]}"; do
         echo "  Testing $module module utility function access..."
-        if [[ $(type -w "${module}_status" 2>/dev/null) == *": function" ]]; then
-            echo "${GREEN}    ✓ $module module can access utility functions${NC}"
-            TEST_RESULTS+=("✓ $module module can access utilities")
-        else
-            echo "${YELLOW}    ? $module module not loaded yet (background loading)${NC}"
-            TEST_RESULTS+=("? $module module not loaded yet")
-        fi
+
+        local module_status=$(get_module_status_text "$module" 2>/dev/null || echo "unknown")
+
+        case "$module_status" in
+            "loaded")
+                echo "${GREEN}    ✓ $module module loaded and can access utility functions${NC}"
+                TEST_RESULTS+=("✓ $module module can access utilities")
+
+                # Try to actually test utility function access
+                local status_func="${module}_status"
+                if robust_function_callable "$status_func" 2>/dev/null; then
+                    echo "${GREEN}      ✓ $module status function operational${NC}"
+                fi
+                ;;
+            "pending")
+                echo "${YELLOW}    ⏳ $module module loading in background...${NC}"
+                TEST_RESULTS+=("⏳ $module module loading in background")
+
+                # Wait a bit and check again
+                sleep 1
+                local recheck_status=$(get_module_status_text "$module" 2>/dev/null || echo "unknown")
+                if [[ "$recheck_status" == "loaded" ]]; then
+                    echo "${GREEN}      ✓ $module module finished loading${NC}"
+                    TEST_RESULTS[-1]="✓ $module module finished loading"
+                fi
+                ;;
+            "not_loaded")
+                echo "${RED}    ✗ $module module not loaded${NC}"
+                TEST_RESULTS+=("✗ $module module not loaded")
+                ;;
+            *)
+                echo "${YELLOW}    ? $module module status unknown${NC}"
+                TEST_RESULTS+=("? $module module status unknown")
+                ;;
+        esac
     done
+
+    # Summary of module loading
+    echo
+    echo "  Module Loading Summary:"
+    local loaded_count=0
+    local pending_count=0
+    local failed_count=0
+
+    for module in "${modules[@]}"; do
+        local status=$(get_module_status_text "$module" 2>/dev/null || echo "unknown")
+        case "$status" in
+            "loaded")
+                echo "${GREEN}    ✓ $module: Loaded${NC}"
+                ((loaded_count++))
+                ;;
+            "pending")
+                echo "${YELLOW}    ⏳ $module: Loading${NC}"
+                ((pending_count++))
+                ;;
+            *)
+                echo "${RED}    ✗ $module: Failed${NC}"
+                ((failed_count++))
+                ;;
+        esac
+    done
+
+    echo "    Total: $loaded_count loaded, $pending_count loading, $failed_count failed"
 
     echo
 }
@@ -276,36 +323,44 @@ test_cross_module_dependencies() {
 # =====================================================
 
 setup_test_environment() {
-    echo "Setting up function test environment..."
+    echo "Setting up enhanced function test environment..."
 
-    # Source the main configuration to ensure all modules are loaded
-    source ~/.config/zsh/zshrc >/dev/null 2>&1 || true
+    # Load test helpers first
+    source "$(dirname "$0")/test-helpers.zsh" 2>/dev/null || {
+        echo "⚠️  Test helpers not available - using basic setup"
+        # Fallback to basic setup
+        source ~/.config/zsh/zshrc >/dev/null 2>&1 || true
+        sleep 2
+        return 0
+    }
 
-    # Wait for background loading to complete
-    sleep 2
-
-    # Explicitly load utils module to ensure functions are available
-    if [[ $(type -w "load_module" 2>/dev/null) == *": function" ]]; then
-        echo "Loading utils module through module system..."
-        load_module utils >/dev/null 2>&1 || true
-    fi
-
-    # If still not available, try direct sourcing
-    if [[ $(type -w "_report_missing_dependency" 2>/dev/null) != *": function" ]]; then
-        echo "Loading utils module directly..."
-        if [[ -f "$ZSH_CONFIG_DIR/modules-new/utils.module.zsh" ]]; then
-            source "$ZSH_CONFIG_DIR/modules-new/utils.module.zsh" >/dev/null 2>&1 || true
-        fi
-    fi
-
-    # Verify function availability
-    if [[ $(type -w "_report_missing_dependency" 2>/dev/null) == *": function" ]]; then
-        echo "✅ Utils functions successfully loaded for testing"
+    # Use comprehensive test environment setup
+    if setup_comprehensive_test_environment; then
+        echo "✅ Enhanced test environment setup successful"
     else
-        echo "❌ Utils functions still not available - tests will show original failure state"
+        echo "⚠️  Enhanced setup failed - falling back to basic setup"
+        # Fallback to original method
+        source ~/.config/zsh/zshrc >/dev/null 2>&1 || true
+        sleep 2
+        force_load_module "utils"
     fi
 
-    echo "Function test environment setup complete."
+    # Final verification with robust detection
+    local critical_functions=("_report_missing_dependency" "_command_exists" "_directory_accessible")
+    local available_count=0
+
+    echo "Verifying critical function availability:"
+    for func in "${critical_functions[@]}"; do
+        if robust_function_exists "$func"; then
+            echo "  ✅ $func available"
+            ((available_count++))
+        else
+            echo "  ❌ $func missing"
+        fi
+    done
+
+    echo "Function availability: $available_count/${#critical_functions[@]} functions ready"
+    echo "Enhanced test environment setup complete."
 }
 
 # =====================================================
