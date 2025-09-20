@@ -1,0 +1,34 @@
+#!/usr/bin/env zsh
+# EMERGENCY MINIMAL ZSHRC - GUARANTEED WORKING
+
+export ZSH_CONFIG_DIR="$HOME/.config/zsh"
+export ZSH="$HOME/.config/zsh/oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(git)
+
+# Load Oh My Zsh
+if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
+    source $ZSH/oh-my-zsh.sh
+fi
+
+# Load P10K config
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Basic aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Basic functions
+mkcd() { mkdir -p "$1" && cd "$1"; }
+command_exists() { command -v "$1" >/dev/null 2>&1; }
+
+# Essential Claude Code support
+claude_parent_process=$(ps -p $PPID -o comm= 2>/dev/null || echo "")
+if [[ "$claude_parent_process" == "claude" ]]; then
+    if source "$ZSH_CONFIG_DIR/modules/utils.module.zsh" 2>/dev/null; then
+        source "$ZSH_CONFIG_DIR/modules/python.module.zsh" 2>/dev/null
+    fi
+fi
+
+export MINIMAL_ZSHRC_LOADED=true
