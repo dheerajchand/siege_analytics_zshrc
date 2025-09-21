@@ -55,7 +55,8 @@
       "Bash(backup \"docs: update CLAUDE.md to reflect production-ready status\")",
       "Bash(zshreload:*)",
       "Bash(backup:*)",
-      "Bash(alias backup)"
+      "Bash(alias backup)",
+      "Bash(./test-production-system.zsh:*)"
     ],
     "deny": [],
     "ask": []
