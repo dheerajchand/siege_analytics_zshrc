@@ -36,10 +36,14 @@ command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 echo "🚀 Loading essential modules..."
 
+# Initialize LOADED_MODULES as empty
+LOADED_MODULES=""
+
 # Load utils module (includes backup system)
 if [[ -f "$ZSH_CONFIG_DIR/modules/utils.module.zsh" ]]; then
     source "$ZSH_CONFIG_DIR/modules/utils.module.zsh"
     echo "  ✅ Utils module loaded"
+    LOADED_MODULES="utils"
 else
     echo "  ❌ Utils module not found"
 fi
@@ -48,12 +52,13 @@ fi
 if [[ -f "$ZSH_CONFIG_DIR/modules/python.module.zsh" ]]; then
     source "$ZSH_CONFIG_DIR/modules/python.module.zsh"
     echo "  ✅ Python module loaded"
+    LOADED_MODULES="${LOADED_MODULES:+$LOADED_MODULES }python"
 else
     echo "  ❌ Python module not found"
 fi
 
-# Set LOADED_MODULES variable
-export LOADED_MODULES="utils python"
+# Export the actual loaded modules
+export LOADED_MODULES
 
 # Load backup system explicitly
 if [[ -f "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh" ]]; then
@@ -134,7 +139,7 @@ detect_zsh_mode() {
 startup_status() {
     local path_length=${#PATH}
     local loaded_count=0
-    local available_modules=""
+    local available_modules=0
 
     # Count loaded modules
     if [[ -n "$LOADED_MODULES" ]]; then
@@ -144,9 +149,19 @@ startup_status() {
     # Get available modules
     if [[ -d "$ZSH_CONFIG_DIR/modules" ]]; then
         available_modules=$(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | wc -l | tr -d ' ')
+    else
+        available_modules=0
     fi
 
-    echo "🚀 3-Tier ZSH System - Production Ready"
+    # Determine system status
+    local system_status="Production Ready"
+    if [[ $loaded_count -eq 0 ]]; then
+        system_status="⚠️  Module Loading Failed"
+    elif [[ $available_modules -eq 0 ]]; then
+        system_status="⚠️  Modules Directory Missing"
+    fi
+
+    echo "🚀 3-Tier ZSH System - $system_status"
     echo "======================================"
     echo "📊 Status: PATH=$path_length chars, $loaded_count/$available_modules modules loaded"
     echo "🔧 Mode: $(detect_zsh_mode)"
@@ -168,6 +183,11 @@ zshreboot() {
     exec zsh -i
 }
 
+# Ensure module tracking variables persist (fix for variable clearing issue)
+# Note: LOADED_MODULES is set based on actual module loading above
+export UTILS_MODULE_LOADED=true
+export PYTHON_MODULE_LOADED=true
+
 # Show startup status
 startup_status
 
@@ -176,3 +196,8 @@ export MINIMAL_ZSHRC_LOADED=true
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/dheerajchand/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+
+# Final variable setting after all initialization
+# Note: LOADED_MODULES is set based on actual module loading success
+export UTILS_MODULE_LOADED=true
+export PYTHON_MODULE_LOADED=true

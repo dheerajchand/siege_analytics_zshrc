@@ -61,7 +61,15 @@
       "Bash(export LOADED_MODULES=\"utils\")",
       "Bash(export LOADED_MODULES=\"utils python\")",
       "Bash([[ -n \"$LOADED_MODULES\" ]])",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Read(//private/tmp/**)",
+      "Bash(for i in {1..3})",
+      "Bash(do echo \"Run $i:\")",
+      "Bash(~/.config/zsh/test-production-system.zsh)",
+      "Bash(done)",
+      "Bash(export LOADED_MODULES=\"test_value\")",
+      "Bash(alias echo)",
+      "Bash(setopt)"
     ],
     "deny": [],
     "ask": []

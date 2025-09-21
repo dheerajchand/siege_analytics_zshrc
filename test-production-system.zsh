@@ -97,14 +97,12 @@ if [[ $tests_failed -eq 0 ]]; then
     echo "✅ Documentation updated and accurate"
     echo "✅ Filesystem cleaned and organized"
 
-    # System health summary
+    # System health summary (run in proper shell context)
     echo ""
     echo "💎 PRODUCTION HEALTH SUMMARY:"
-    echo "   Essential modules: $(echo $LOADED_MODULES | wc -w | tr -d ' ')/2 loaded"
-    echo "   PATH length: ${#PATH} characters (target: <500)"
-    echo "   Python: $(command -v python 2>/dev/null || echo 'Not found')"
-    echo "   Backup system: $(alias backup >/dev/null 2>&1 && echo 'Available' || echo 'Missing')"
-    echo "   Shell mode: $(detect_zsh_mode 2>/dev/null || echo 'Unknown')"
+    local health_result
+    health_result=$(zsh -c "source ~/.zshrc >/dev/null 2>&1; echo \"Essential modules: \$(echo \$LOADED_MODULES | wc -w | tr -d ' ')/2 loaded\"; echo \"PATH length: \${#PATH} characters (target: <500)\"; echo \"Python: \$(command -v python 2>/dev/null || echo 'Not found')\"; echo \"Backup system: \$(alias backup >/dev/null 2>&1 && echo 'Available' || echo 'Missing')\"; echo \"Shell mode: \$(detect_zsh_mode 2>/dev/null || echo 'Unknown')\"")
+    echo "$health_result" | sed 's/^/   /'
 
     exit 0
 else
