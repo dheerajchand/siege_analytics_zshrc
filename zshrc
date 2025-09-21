@@ -338,10 +338,14 @@ claude_parent_process=$(ps -p $PPID -o comm= 2>/dev/null || echo "")
 # Check for Claude Code context: direct parent OR in terminal/IDE that would use Claude Code
 if [[ "$claude_parent_process" == "claude" ]] || [[ -n "$CLAUDE_CODE_SESSION" ]] || [[ "$claude_parent_process" == "/bin/zsh" && -n "$TERM_PROGRAM" ]]; then
     echo "🤖 Claude Code environment detected - loading essential modules..."
-    # Load utils module first
+    # Load utils module first (includes backup system)
     source "$ZSH_CONFIG_DIR/modules/utils.module.zsh"
+    # Ensure backup system is loaded
+    if ! command -v enhanced_backup >/dev/null 2>&1; then
+        source "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh"
+    fi
     export LOADED_MODULES="utils"
-    echo "  ✅ Utils module loaded"
+    echo "  ✅ Utils module loaded (with backup system)"
 
     # Load python module
     source "$ZSH_CONFIG_DIR/modules/python.module.zsh"
@@ -353,10 +357,14 @@ else
     # Regular terminal session - load essential modules for normal use
     echo "🖥️  Regular terminal detected - loading essential modules..."
 
-    # Load utils module first
+    # Load utils module first (includes backup system)
     source "$ZSH_CONFIG_DIR/modules/utils.module.zsh"
+    # Ensure backup system is loaded
+    if ! command -v enhanced_backup >/dev/null 2>&1; then
+        source "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh"
+    fi
     export LOADED_MODULES="utils"
-    echo "  ✅ Utils module loaded"
+    echo "  ✅ Utils module loaded (with backup system)"
 
     # Load python module
     source "$ZSH_CONFIG_DIR/modules/python.module.zsh"

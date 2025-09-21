@@ -57,7 +57,10 @@
       "Bash(backup:*)",
       "Bash(alias backup)",
       "Bash(./test-production-system.zsh:*)",
-      "Bash(enhanced_backup:*)"
+      "Bash(enhanced_backup:*)",
+      "Bash(export LOADED_MODULES=\"utils\")",
+      "Bash(export LOADED_MODULES=\"utils python\")",
+      "Bash([[ -n \"$LOADED_MODULES\" ]])"
     ],
     "deny": [],
     "ask": []
