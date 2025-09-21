@@ -56,7 +56,8 @@
       "Bash(zshreload:*)",
       "Bash(backup:*)",
       "Bash(alias backup)",
-      "Bash(./test-production-system.zsh:*)"
+      "Bash(./test-production-system.zsh:*)",
+      "Bash(enhanced_backup:*)"
     ],
     "deny": [],
     "ask": []
