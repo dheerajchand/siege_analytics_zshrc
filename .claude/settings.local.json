@@ -60,7 +60,8 @@
       "Bash(enhanced_backup:*)",
       "Bash(export LOADED_MODULES=\"utils\")",
       "Bash(export LOADED_MODULES=\"utils python\")",
-      "Bash([[ -n \"$LOADED_MODULES\" ]])"
+      "Bash([[ -n \"$LOADED_MODULES\" ]])",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

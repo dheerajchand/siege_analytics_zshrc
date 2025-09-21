@@ -29,9 +29,9 @@ run_test() {
 
     local result
     if [[ "$test_command" == *"typeset -f"* ]]; then
-        result=$(zsh -c "$test_command" 2>/dev/null)
+        result=$(zsh -c "source ~/.zshrc; $test_command" 2>/dev/null)
     else
-        result=$(eval "$test_command" 2>/dev/null)
+        result=$(zsh -c "source ~/.zshrc; $test_command" 2>/dev/null)
     fi
     local exit_code=$?
 
