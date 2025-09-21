@@ -177,8 +177,8 @@ detect_zsh_mode() {
         return 0
     fi
 
-    # Default to minimal mode for safety (changed from staggered)
-    echo "minimal"
+    # Default to staggered mode for full functionality
+    echo "staggered"
 }
 
 # Help system

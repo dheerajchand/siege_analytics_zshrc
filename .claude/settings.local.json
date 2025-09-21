@@ -48,7 +48,14 @@
       "Bash(fi)",
       "Bash(./zsh-system service status:*)",
       "Bash(./zsh-system service start:*)",
-      "Bash(./zsh-system service stop path-optimizer)"
+      "Bash(./zsh-system service stop path-optimizer)",
+      "Bash(git commit:*)",
+      "Bash(grep:*)",
+      "Bash(backup \"docs: update README to reflect completed Phase 1-3 architecture\")",
+      "Bash(backup \"docs: update CLAUDE.md to reflect production-ready status\")",
+      "Bash(zshreload:*)",
+      "Bash(backup:*)",
+      "Bash(alias backup)"
     ],
     "deny": [],
     "ask": []

@@ -189,6 +189,14 @@ _environment_health_check() {
     fi
 }
 
+# Load backup system - ESSENTIAL for production use
+if [[ -f "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh" ]]; then
+    source "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh"
+    echo "✅ Backup system loaded (enhanced_backup, pushmain, sync available)"
+else
+    echo "⚠️  Backup system not found - manual git commits required"
+fi
+
 echo "✅ Utils module loaded successfully"
 
 # =====================================================
