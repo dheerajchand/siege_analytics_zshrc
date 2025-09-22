@@ -60,7 +60,17 @@
       "Bash(enhanced_backup:*)",
       "Bash(export LOADED_MODULES=\"utils\")",
       "Bash(export LOADED_MODULES=\"utils python\")",
-      "Bash([[ -n \"$LOADED_MODULES\" ]])"
+      "Bash([[ -n \"$LOADED_MODULES\" ]])",
+      "Bash(git checkout:*)",
+      "Bash(startup_status)",
+      "Bash(load_module utils)",
+      "Bash(load_module python)",
+      "Bash(load_module docker)",
+      "Bash(docker:*)",
+      "Bash(load_module spark)",
+      "Bash(command -v:*)",
+      "Bash(~/.config/zsh/test-real-world-integration.zsh)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []
