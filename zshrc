@@ -5,6 +5,9 @@ export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 
 # Load centralized variables first
 [[ -f "$ZSH_CONFIG_DIR/config/variables.zsh" ]] && source "$ZSH_CONFIG_DIR/config/variables.zsh"
+
+# Load core functions (CRITICAL: This was missing!)
+[[ -f "$ZSH_CONFIG_DIR/config/core.zsh" ]] && source "$ZSH_CONFIG_DIR/config/core.zsh"
 export ZSH="$HOME/.config/zsh/oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)
