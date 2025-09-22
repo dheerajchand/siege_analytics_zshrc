@@ -35,6 +35,8 @@ export JETBRAINS_BIN="$HOME/.jetbrains/bin"
 # =====================================================
 
 # Python Environment Paths
+# Set PYENV_ROOT - default to ~/.pyenv even for Homebrew installations
+# Homebrew pyenv still uses ~/.pyenv for storing versions and shims
 export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
 export UV_BIN_PATH="$HOME/.local/share/uv/bin"
 export PYTHON_VENV_PATH="$HOME/.virtualenvs"

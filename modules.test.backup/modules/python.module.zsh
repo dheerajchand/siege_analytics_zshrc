@@ -18,35 +18,34 @@ echo "🐍 Loading Python module..."
 # =====================================================
 
 # Setup pyenv if available (uses centralized PYENV_ROOT)
-# Handle both manual installation (~/.pyenv) and Homebrew installation
-if command -v pyenv >/dev/null 2>&1; then
-    # Add pyenv bin to PATH if it exists and isn't already there
-    if [[ -d "$PYENV_ROOT/bin" && ":$PATH:" != *":$PYENV_ROOT/bin:"* ]]; then
-        export PATH="$PYENV_ROOT/bin:$PATH"
-    fi
-    # Critical: Initialize pyenv with both --path and regular init for shims
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
+if [[ -d "$PYENV_ROOT" ]]; then
+    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
-    # Initialize pyenv-virtualenv if available
-    if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
-        local virtualenv_init_script
-        virtualenv_init_script="$(pyenv virtualenv-init -)"
-        if [[ -n "$virtualenv_init_script" ]]; then
-            eval "$virtualenv_init_script"
-            if [[ "$PYENV_VIRTUALENV_INIT" == "1" ]]; then
-                echo "✅ Pyenv-virtualenv initialized successfully"
+    if command -v pyenv >/dev/null 2>&1; then
+        # Critical: Initialize pyenv with both --path and regular init for shims
+        eval "$(pyenv init --path)"
+        eval "$(pyenv init -)"
+
+        # Initialize pyenv-virtualenv if available
+        if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
+            local virtualenv_init_script
+            virtualenv_init_script="$(pyenv virtualenv-init -)"
+            if [[ -n "$virtualenv_init_script" ]]; then
+                eval "$virtualenv_init_script"
+                if [[ "$PYENV_VIRTUALENV_INIT" == "1" ]]; then
+                    echo "✅ Pyenv-virtualenv initialized successfully"
+                else
+                    echo "⚠️  Pyenv-virtualenv initialization may have failed"
+                fi
             else
-                echo "⚠️  Pyenv-virtualenv initialization may have failed"
+                _report_missing_dependency "pyenv-virtualenv-init" "Virtual environment activation" "Python environment setup" "Ensure pyenv-virtualenv is properly installed"
             fi
         else
-            _report_missing_dependency "pyenv-virtualenv-init" "Virtual environment activation" "Python environment setup" "Ensure pyenv-virtualenv is properly installed"
+            _report_missing_dependency "pyenv-virtualenv-init" "Virtual environment initialization" "Python environment setup" "Install pyenv-virtualenv plugin"
         fi
-    else
-        _report_missing_dependency "pyenv-virtualenv-init" "Virtual environment initialization" "Python environment setup" "Install pyenv-virtualenv plugin"
-    fi
 
-    echo "✅ Pyenv initialized with shims"
+        echo "✅ Pyenv initialized with shims"
+    fi
 fi
 
 # Setup UV if available (uses centralized UV_BIN_PATH)
@@ -140,12 +139,6 @@ python_status() {
         echo "💤 No virtual environment active"
     fi
 }
-
-# Ensure python command is available (compatibility function)
-if command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
-    python() { python3 "$@"; }
-    echo "✅ Python function created (python -> python3)"
-fi
 
 echo "✅ Python module loaded successfully"
 

@@ -69,7 +69,13 @@
       "Bash(done)",
       "Bash(export LOADED_MODULES=\"test_value\")",
       "Bash(alias echo)",
-      "Bash(setopt)"
+      "Bash(setopt)",
+      "Bash(for mode in heavy staggered minimal light)",
+      "Bash(/dev/null)",
+      "Bash(for path in /usr/local/bin/pyenv /opt/homebrew/bin/pyenv ~/.pyenv/bin/pyenv)",
+      "Bash(do if [[ -f \"$path\" ]])",
+      "Bash(then echo \"Found: $path\")",
+      "Bash(command -v:*)"
     ],
     "deny": [],
     "ask": []
