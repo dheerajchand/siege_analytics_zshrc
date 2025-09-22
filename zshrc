@@ -133,7 +133,7 @@ detect_zsh_mode() {
     [[ -f "$ZSH_CONFIG_DIR/config/variables.zsh" ]] && source "$ZSH_CONFIG_DIR/config/variables.zsh"
 
     # Manual mode override (highest priority)
-    if [[ -n "$ZSH_MODE" ]]; then
+    if [[ -n "${ZSH_MODE:-}" ]]; then
         echo "$ZSH_MODE"
         return 0
     fi
