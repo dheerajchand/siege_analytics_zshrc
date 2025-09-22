@@ -8,7 +8,7 @@
 # Dependencies: centralized variables
 # =====================================================
 
-echo "🐍 Loading Python module..."
+# Loading Python module silently
 
 # Load centralized variables
 [[ -f "$ZSH_CONFIG_DIR/config/variables.zsh" ]] && source "$ZSH_CONFIG_DIR/config/variables.zsh"
@@ -33,9 +33,9 @@ if [[ -d "$PYENV_ROOT" ]]; then
             if [[ -n "$virtualenv_init_script" ]]; then
                 eval "$virtualenv_init_script"
                 if [[ "$PYENV_VIRTUALENV_INIT" == "1" ]]; then
-                    echo "✅ Pyenv-virtualenv initialized successfully"
+                    # Pyenv-virtualenv initialized successfully
                 else
-                    echo "⚠️  Pyenv-virtualenv initialization may have failed"
+                    # Pyenv-virtualenv initialization may have failed
                 fi
             else
                 _report_missing_dependency "pyenv-virtualenv-init" "Virtual environment activation" "Python environment setup" "Ensure pyenv-virtualenv is properly installed"
@@ -44,19 +44,19 @@ if [[ -d "$PYENV_ROOT" ]]; then
             _report_missing_dependency "pyenv-virtualenv-init" "Virtual environment initialization" "Python environment setup" "Install pyenv-virtualenv plugin"
         fi
 
-        echo "✅ Pyenv initialized with shims"
+        # Pyenv initialized with shims
     fi
 fi
 
 # Setup UV if available (uses centralized UV_BIN_PATH)
 if command -v uv >/dev/null 2>&1; then
     export PATH="$UV_BIN_PATH:$PATH"
-    echo "✅ UV initialized"
+    # UV initialized
 fi
 
 # Auto-activate preferred pyenv environment
 if command -v pyenv >/dev/null 2>&1 && [[ -n "$PREFERRED_VENV" ]]; then
-    echo "🔍 Attempting to activate preferred environment: $PREFERRED_VENV"
+    # Attempting to activate preferred environment: $PREFERRED_VENV
 
     if pyenv versions --bare | grep -q "^$PREFERRED_VENV$"; then
         # Try activation with detailed error reporting
@@ -65,21 +65,21 @@ if command -v pyenv >/dev/null 2>&1 && [[ -n "$PREFERRED_VENV" ]]; then
         local activation_status=$?
 
         if [[ $activation_status -eq 0 ]]; then
-            echo "✅ Successfully activated pyenv environment: $PREFERRED_VENV"
-            echo "🔍 Current pyenv version: $(pyenv version)"
+            # Successfully activated pyenv environment: $PREFERRED_VENV
+            # Current pyenv version: $(pyenv version)
         else
-            echo "❌ Failed to activate pyenv environment: $PREFERRED_VENV"
-            echo "    Error: $activation_output"
-            echo "    Reason: pyenv-virtualenv may not be properly initialized"
-            echo "    Current pyenv version: $(pyenv version)"
+            # Failed to activate pyenv environment: $PREFERRED_VENV
+            # Error: $activation_output
+            # Reason: pyenv-virtualenv may not be properly initialized
+            # Current pyenv version: $(pyenv version)
 
             # Try alternative activation method
-            echo "🔄 Attempting alternative activation method..."
+            # Attempting alternative activation method...
             if pyenv shell "$PREFERRED_VENV" 2>/dev/null; then
-                echo "✅ Activated $PREFERRED_VENV using 'pyenv shell'"
+                # Activated $PREFERRED_VENV using 'pyenv shell'
             else
-                echo "❌ All activation methods failed"
-                echo "    You may need to manually run: pyenv activate $PREFERRED_VENV"
+                # All activation methods failed
+                # You may need to manually run: pyenv activate $PREFERRED_VENV
             fi
         fi
     else
@@ -140,7 +140,7 @@ python_status() {
     fi
 }
 
-echo "✅ Python module loaded successfully"
+# Python module loaded successfully
 
 # =====================================================
 # COMPLETION

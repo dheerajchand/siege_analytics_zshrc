@@ -1,0 +1,297 @@
+#!/bin/bash
+# =====================================================
+# HOSTILE TESTING FRAMEWORK - COMPREHENSIVE VALIDATION
+# =====================================================
+#
+# Purpose: Find EVERY way the system can fail in real usage
+# Principle: Assume failure until proven otherwise in ALL contexts
+# Method: Test subshells, scripts, automation contexts
+# =====================================================
+
+echo "🔥 HOSTILE TESTING FRAMEWORK - COMPREHENSIVE VALIDATION"
+echo "======================================================="
+echo "Testing principle: Assume failure, prove success in ALL contexts"
+echo "Focus: Subshells, scripts, automation, real-world usage"
+echo ""
+
+# Test result tracking
+TOTAL_TESTS=0
+PASSED_TESTS=0
+FAILED_TESTS=0
+CRITICAL_FAILURES=()
+WARNING_ISSUES=()
+
+# Helper function for hostile test execution
+run_hostile_test() {
+    local test_name="$1"
+    local test_description="$2"
+    local test_script="$3"
+    local success_pattern="$4"
+    local is_critical="${5:-true}"
+
+    ((TOTAL_TESTS++))
+    echo "🔍 HOSTILE TEST: $test_name"
+    echo "   Description: $test_description"
+    echo "   Context: $test_script"
+
+    # Create test script and execute
+    local test_file="/tmp/hostile_test_$$_${TOTAL_TESTS}.sh"
+    cat > "$test_file" << EOF
+#!/bin/bash
+$test_script
+EOF
+    chmod +x "$test_file"
+
+    # Execute test script
+    local result
+    local exit_code
+    result=$(bash "$test_file" 2>&1)
+    exit_code=$?
+
+    # Clean up test file
+    rm -f "$test_file"
+
+    # Evaluate result
+    if [[ $exit_code -eq 0 && "$result" =~ $success_pattern ]]; then
+        echo "✅ PASS: Functionality verified in isolated context"
+        ((PASSED_TESTS++))
+    else
+        echo "❌ FAIL: Functionality broken in real usage context"
+        if [[ "$is_critical" == "true" ]]; then
+            CRITICAL_FAILURES+=("$test_name")
+        else
+            WARNING_ISSUES+=("$test_name")
+        fi
+        ((FAILED_TESTS++))
+        echo "   Expected pattern: $success_pattern"
+        echo "   Actual output: $result"
+        echo "   Exit code: $exit_code"
+    fi
+    echo ""
+}
+
+# =====================================================
+# PHASE 1: CORE FUNCTION AVAILABILITY TESTS
+# =====================================================
+
+echo "📋 PHASE 1: Core Function Availability in Subshells"
+echo "==================================================="
+
+# Test HF.1: Basic functions in subshell
+run_hostile_test "HF.1 Basic Functions" \
+    "Test if basic functions work in script context" \
+    "source ~/.zshrc >/dev/null 2>&1; command_exists ls && echo 'command_exists works' || echo 'command_exists failed'" \
+    "command_exists works"
+
+# Test HF.2: mkcd function in subshell
+run_hostile_test "HF.2 mkcd Function" \
+    "Test mkcd function availability in script" \
+    "source ~/.zshrc >/dev/null 2>&1; typeset -f mkcd >/dev/null && echo 'mkcd available' || echo 'mkcd missing'" \
+    "mkcd available"
+
+# Test HF.3: Module loading system in subshell
+run_hostile_test "HF.3 Module System" \
+    "Test load_module function in script context" \
+    "source ~/.zshrc >/dev/null 2>&1; typeset -f load_module >/dev/null && echo 'load_module available' || echo 'load_module missing'" \
+    "load_module available"
+
+# Test HF.4: Mode detection in subshell
+run_hostile_test "HF.4 Mode Detection" \
+    "Test detect_zsh_mode function in script" \
+    "source ~/.zshrc >/dev/null 2>&1; typeset -f detect_zsh_mode >/dev/null && echo 'detect_zsh_mode available' || echo 'detect_zsh_mode missing'" \
+    "detect_zsh_mode available"
+
+# =====================================================
+# PHASE 2: MODULE LOADING TESTS IN ISOLATION
+# =====================================================
+
+echo "📋 PHASE 2: Module Loading in Script Contexts"
+echo "============================================="
+
+# Test HM.1: Utils module loading in script
+run_hostile_test "HM.1 Utils Module Loading" \
+    "Load utils module in script and verify functions" \
+    "source ~/.zshrc >/dev/null 2>&1; load_module utils >/dev/null 2>&1; command -v backup >/dev/null && echo 'backup available' || echo 'backup missing'" \
+    "backup available"
+
+# Test HM.2: Python module loading in script
+run_hostile_test "HM.2 Python Module Loading" \
+    "Load python module in script and verify functionality" \
+    "source ~/.zshrc >/dev/null 2>&1; load_module python >/dev/null 2>&1; python3 --version >/dev/null 2>&1 && echo 'python functional' || echo 'python broken'" \
+    "python functional"
+
+# Test HM.3: Module state persistence
+run_hostile_test "HM.3 Module State Tracking" \
+    "Verify LOADED_MODULES variable in script context" \
+    "source ~/.zshrc >/dev/null 2>&1; load_module utils >/dev/null 2>&1; echo \"LOADED_MODULES: \$LOADED_MODULES\"; echo \$LOADED_MODULES | grep -q utils && echo 'state tracked' || echo 'state lost'" \
+    "state tracked"
+
+# Test HM.4: Multiple module loading
+run_hostile_test "HM.4 Multiple Module Loading" \
+    "Load multiple modules and verify state" \
+    "source ~/.zshrc >/dev/null 2>&1; load_module utils >/dev/null 2>&1; load_module python >/dev/null 2>&1; echo \$LOADED_MODULES | grep -E 'utils.*python|python.*utils' && echo 'multiple modules tracked' || echo 'tracking failed'" \
+    "multiple modules tracked"
+
+# =====================================================
+# PHASE 3: CLAUDE CODE ENVIRONMENT DETECTION
+# =====================================================
+
+echo "📋 PHASE 3: Claude Code Environment Detection"
+echo "============================================"
+
+# Test HC.1: Parent process detection in script
+run_hostile_test "HC.1 Parent Process Detection" \
+    "Test parent process detection mechanism" \
+    "source ~/.zshrc >/dev/null 2>&1; ps -p \$PPID -o comm= 2>/dev/null | grep -q claude && echo 'claude parent detected' || echo 'parent detection failed'" \
+    "claude parent detected" \
+    false
+
+# Test HC.2: Claude Code session variable
+run_hostile_test "HC.2 Claude Session Variable" \
+    "Test CLAUDE_CODE_SESSION variable detection" \
+    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc 2>&1 | grep -q 'Claude Code' && echo 'session detected' || echo 'session not detected'" \
+    "session detected" \
+    false
+
+# Test HC.3: Auto-loading in Claude Code context
+run_hostile_test "HC.3 Auto-loading Verification" \
+    "Verify modules auto-load in Claude Code environment" \
+    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc >/dev/null 2>&1; echo \$LOADED_MODULES | grep -E '(utils|python)' && echo 'auto-loading works' || echo 'auto-loading failed'" \
+    "auto-loading works"
+
+# =====================================================
+# PHASE 4: REAL-WORLD AUTOMATION SCENARIOS
+# =====================================================
+
+echo "📋 PHASE 4: Real-World Automation Scenarios"
+echo "==========================================="
+
+# Test HA.1: Cron job simulation
+run_hostile_test "HA.1 Cron Job Simulation" \
+    "Simulate cron job execution environment" \
+    "env -i PATH=/usr/bin:/bin bash -c 'source ~/.zshrc >/dev/null 2>&1; command -v ls >/dev/null && echo \"cron compatible\" || echo \"cron broken\"'" \
+    "cron compatible" \
+    false
+
+# Test HA.2: SSH session simulation
+run_hostile_test "HA.2 SSH Session Simulation" \
+    "Simulate SSH non-interactive session" \
+    "bash -c 'source ~/.zshrc >/dev/null 2>&1; echo \$PATH | wc -c | awk \"{\$1 < 500 ? print \\\"path clean\\\" : print \\\"path bloated\\\"}\"'" \
+    "path clean" \
+    false
+
+# Test HA.3: CI/CD pipeline simulation
+run_hostile_test "HA.3 CI/CD Pipeline Simulation" \
+    "Simulate CI/CD environment with minimal PATH" \
+    "env PATH=/usr/bin:/bin bash -c 'source ~/.zshrc >/dev/null 2>&1; load_module python >/dev/null 2>&1; python3 --version >/dev/null 2>&1 && echo \"ci compatible\" || echo \"ci broken\"'" \
+    "ci compatible" \
+    false
+
+# Test HA.4: Docker container simulation
+run_hostile_test "HA.4 Docker Container Simulation" \
+    "Test in minimal container-like environment" \
+    "env -i HOME=$HOME PATH=/usr/bin:/bin SHELL=/bin/bash bash -c 'source ~/.zshrc >/dev/null 2>&1; command -v zsh >/dev/null && echo \"container compatible\" || echo \"container broken\"'" \
+    "container compatible" \
+    false
+
+# =====================================================
+# PHASE 5: PERFORMANCE AND RELIABILITY
+# =====================================================
+
+echo "📋 PHASE 5: Performance and Reliability Tests"
+echo "============================================="
+
+# Test HP.1: Startup time in script
+run_hostile_test "HP.1 Startup Performance" \
+    "Measure startup time in script context" \
+    "time (source ~/.zshrc >/dev/null 2>&1) 2>&1 | grep real | awk '{print \$2}' | sed 's/[^0-9.]//g' | awk '{\$1 < 1.0 ? print \"fast startup\" : print \"slow startup\"}'" \
+    "fast startup" \
+    false
+
+# Test HP.2: Memory efficiency in script
+run_hostile_test "HP.2 Memory Efficiency" \
+    "Check memory usage in script context" \
+    "bash -c 'source ~/.zshrc >/dev/null 2>&1; ps -o rss= -p \$\$ | awk \"\\\$1 < 50000 { print \\\"efficient\\\" } \\\$1 >= 50000 { print \\\"heavy\\\" }\"'" \
+    "efficient" \
+    false
+
+# Test HP.3: PATH optimization persistence
+run_hostile_test "HP.3 PATH Optimization" \
+    "Verify PATH stays optimized in scripts" \
+    "source ~/.zshrc >/dev/null 2>&1; echo \$PATH | wc -c | awk '{\$1 < 500 ? print \"optimized\" : print \"bloated\"}'" \
+    "optimized"
+
+# =====================================================
+# PHASE 6: EDGE CASE AND ERROR HANDLING
+# =====================================================
+
+echo "📋 PHASE 6: Edge Cases and Error Handling"
+echo "========================================="
+
+# Test HE.1: Missing dependency handling
+run_hostile_test "HE.1 Missing Dependencies" \
+    "Test module loading with missing dependencies" \
+    "source ~/.zshrc >/dev/null 2>&1; unset -f path_add 2>/dev/null; load_module spark 2>&1 | grep -E '(Error|dependency|missing)' && echo 'error handled' || echo 'error not handled'" \
+    "error handled" \
+    false
+
+# Test HE.2: Corrupted module handling
+run_hostile_test "HE.2 Corrupted Module Handling" \
+    "Test system resilience to corrupted modules" \
+    "echo 'invalid syntax }{' > /tmp/corrupt_module.zsh; source ~/.zshrc >/dev/null 2>&1; source /tmp/corrupt_module.zsh 2>&1 | grep -q 'syntax error' && echo 'error detected' || echo 'error ignored'; rm -f /tmp/corrupt_module.zsh" \
+    "error detected" \
+    false
+
+# Test HE.3: Network failure resilience
+run_hostile_test "HE.3 Network Failure Resilience" \
+    "Test system startup without network" \
+    "timeout 5 bash -c 'source ~/.zshrc >/dev/null 2>&1; echo \"startup completed\"' 2>/dev/null && echo 'network independent' || echo 'network dependent'" \
+    "network independent"
+
+# =====================================================
+# HOSTILE TESTING RESULTS AND ANALYSIS
+# =====================================================
+
+echo "🔥 HOSTILE TESTING FRAMEWORK RESULTS"
+echo "===================================="
+echo "📊 Total tests run: $TOTAL_TESTS"
+echo "✅ Tests passed: $PASSED_TESTS"
+echo "❌ Tests failed: $FAILED_TESTS"
+echo "📈 Pass rate: $(( PASSED_TESTS * 100 / TOTAL_TESTS ))%"
+echo ""
+
+if [[ ${#CRITICAL_FAILURES[@]} -gt 0 ]]; then
+    echo "🚨 CRITICAL FAILURES (System Unusable):"
+    for failure in "${CRITICAL_FAILURES[@]}"; do
+        echo "  - $failure"
+    done
+    echo ""
+fi
+
+if [[ ${#WARNING_ISSUES[@]} -gt 0 ]]; then
+    echo "⚠️  WARNING ISSUES (Degraded Functionality):"
+    for warning in "${WARNING_ISSUES[@]}"; do
+        echo "  - $warning"
+    done
+    echo ""
+fi
+
+# Determine overall system status
+if [[ ${#CRITICAL_FAILURES[@]} -eq 0 && $FAILED_TESTS -eq 0 ]]; then
+    echo "🎉 HOSTILE TESTING VERDICT: SYSTEM READY FOR PRODUCTION"
+    echo "✅ All critical functionality verified in all contexts"
+    echo "✅ No critical failures detected"
+    echo "✅ System passes hostile validation requirements"
+    exit 0
+elif [[ ${#CRITICAL_FAILURES[@]} -eq 0 && $FAILED_TESTS -le 3 ]]; then
+    echo "⚠️  HOSTILE TESTING VERDICT: CONDITIONAL APPROVAL"
+    echo "✅ No critical failures but minor issues exist"
+    echo "🔧 Address warning issues for full production readiness"
+    exit 1
+else
+    echo "🚨 HOSTILE TESTING VERDICT: SYSTEM NOT READY"
+    echo "❌ Critical failures prevent production deployment"
+    echo "❌ Multiple functionality failures detected"
+    echo "🔧 Major repairs required before deployment"
+    exit 2
+fi

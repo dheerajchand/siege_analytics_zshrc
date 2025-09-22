@@ -641,7 +641,7 @@ function list_zsh_backups {
 }
 
 # Convenience aliases
-alias backup='enhanced_backup'
+# alias backup='enhanced_backup'  # Commented out - using function instead
 alias backups='list_zsh_backups'
 alias autobackup='auto_backup_trigger'
 alias optimize='deduplicate_path'
@@ -849,7 +849,7 @@ alias repostatus='zsh_repo_status'
 alias autobackup='enhanced_backup'
 alias optimize='deduplicate_path'
 alias push='push_to_main_repo'
-alias pushmain='push_main'
+# alias pushmain='push_main'  # Commented out - using function instead for script compatibility
 
 # Auto-backup hook for zsh (DISABLED - was causing unwanted auto-commits)
 # autoload -U add-zsh-hook
@@ -1389,3 +1389,19 @@ alias zshrc-compare='compare_zshrc_files'
 alias zshrc-workflow='sync_zshrc_workflow'
 alias zshrc-status='zshrc_sync_status'
 alias test-config='test_config_script'
+
+# Script-compatible backup function (aliases don't work in non-interactive shells)
+backup() {
+    enhanced_backup "$@"
+}
+
+# Function available in zsh subshells by default
+
+
+# Script-compatible pushmain function (aliases don't work in non-interactive shells)
+pushmain() {
+    push_main "$@"
+}
+
+# Function available in zsh subshells by default
+

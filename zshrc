@@ -18,12 +18,12 @@ export ZSH_CONFIG_DIR="$HOME/.config/zsh"
 # TIER 1: CORE FOUNDATION (CRITICAL - MUST NOT FAIL)
 # =====================================================
 
-echo "🔧 TIER 1: Loading core foundation..."
+# Loading core foundation silently
 
 # 1.1 Load centralized variables FIRST
 if [[ -f "$ZSH_CONFIG_DIR/config/variables.zsh" ]]; then
     source "$ZSH_CONFIG_DIR/config/variables.zsh"
-    echo "  ✅ Variables loaded"
+    # Variables loaded silently
 else
     echo "  ❌ CRITICAL: Variables not found"
     exit 1
@@ -32,7 +32,7 @@ fi
 # 1.2 Load core functions BEFORE modules (DEPENDENCY REQUIREMENT)
 if [[ -f "$ZSH_CONFIG_DIR/config/core.zsh" ]]; then
     source "$ZSH_CONFIG_DIR/config/core.zsh"
-    echo "  ✅ Core functions loaded"
+    # Core functions loaded silently
 
     # Verify critical dependencies for modules
     if ! typeset -f path_add >/dev/null; then
@@ -50,8 +50,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)
 
 if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
-    source $ZSH/oh-my-zsh.sh
-    echo "  ✅ Oh My Zsh loaded"
+    source $ZSH/oh-my-zsh.sh >/dev/null 2>&1
+    # Oh My Zsh loaded silently
 fi
 
 # 1.4 Load P10K config
@@ -66,13 +66,13 @@ alias l='ls -CF'
 mkcd() { mkdir -p "$1" && cd "$1"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
-echo "✅ TIER 1: Core foundation ready"
+# Core foundation ready
 
 # =====================================================
 # TIER 2: MODULE LOADING SYSTEM WITH DEPENDENCY RESOLUTION
 # =====================================================
 
-echo "🔧 TIER 2: Initializing module system..."
+# Initializing module system silently
 
 # Initialize module tracking
 export LOADED_MODULES=""
@@ -83,10 +83,7 @@ load_module() {
     local module_path="$ZSH_CONFIG_DIR/modules/$module.module.zsh"
 
     if [[ -z "$module" ]]; then
-        echo "❌ Error: No module name provided"
-        echo "📋 Usage: load_module <module_name>"
-        echo "📋 Available modules:"
-        ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | xargs -n1 basename | sed 's/.module.zsh$//' | sed 's/^/  /'
+        # Error: No module name provided (run startup_status for usage info)
         return 1
     fi
 
@@ -109,7 +106,7 @@ load_module() {
     esac
 
     if [[ -f "$module_path" ]]; then
-        echo "📦 Loading $module module..."
+        # Loading $module module...
 
         # Load with error capture
         if source "$module_path" 2>/dev/null; then
@@ -156,18 +153,17 @@ load_module() {
                 export LOADED_MODULES="$LOADED_MODULES $module"
             fi
 
-            echo "✅ Module $module loaded successfully!"
-            echo "🔍 Verification: $verification_result"
-            echo "📊 Total modules loaded: $(echo $LOADED_MODULES | wc -w | tr -d ' ')"
+            # Module $module loaded successfully
+            # Verification: $verification_result
+            # Total modules loaded: $(echo $LOADED_MODULES | wc -w | tr -d ' ')
             return 0
         else
-            echo "❌ Error: Failed to load $module - source error or missing dependencies"
+            # Error: Failed to load $module - source error or missing dependencies
             return 1
         fi
     else
-        echo "❌ Module not found: $module"
-        echo "📋 Available modules:"
-        ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | xargs -n1 basename | sed 's/.module.zsh$//' | sed 's/^/  /'
+        # Module not found: $module
+        # Available modules listed in error (suppressed for clean startup)
         return 1
     fi
 }
@@ -179,40 +175,79 @@ alias load-docker='load_module docker'
 alias load-spark='load_module spark'
 alias load-database='load_module database'
 
-echo "✅ TIER 2: Module system ready"
+# Module system ready
 
 # =====================================================
 # TIER 2: ESSENTIAL MODULE AUTO-LOADING (CONTEXT-AWARE)
 # =====================================================
 
-echo "🔧 TIER 2: Loading essential modules..."
+# Loading essential modules silently
 
-# Detect Claude Code environment
-claude_parent_process=$(ps -p $PPID -o comm= 2>/dev/null || echo "")
-if [[ "$claude_parent_process" == "claude" ]] || [[ -n "$CLAUDE_CODE_SESSION" ]]; then
-    echo "🤖 Claude Code environment detected"
+# Process tree walker to find Claude ancestor
+find_claude_in_process_tree() {
+    local current_pid=$1
+    local depth=0
+    local max_depth=10  # Prevent infinite loops
+
+    while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
+        local process_name=$(ps -p $current_pid -o comm= 2>/dev/null || echo "")
+        if [[ "$process_name" == "claude" ]]; then
+            return 0  # Found claude in process tree
+        fi
+
+        # Get parent PID
+        current_pid=$(ps -p $current_pid -o ppid= 2>/dev/null | tr -d ' ' || echo "1")
+        ((depth++))
+    done
+
+    return 1  # Claude not found in process tree
+}
+
+# Enhanced Claude Code environment detection
+detect_claude_environment() {
+    # Method 1: Environment variable (most reliable)
+    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
+        return 0
+    fi
+
+    # Method 2: Process tree walking (works in all contexts)
+    if find_claude_in_process_tree $$; then
+        return 0
+    fi
+
+    # Method 3: Process search fallback
+    if ps aux | grep -q '[c]laude'; then
+        return 0
+    fi
+
+    return 1
+}
+
+# Detect Claude Code environment using improved detection
+if detect_claude_environment; then
+    # Claude Code environment detected
 
     # Load essential modules for development
-    echo "📦 Loading essential modules for Claude Code..."
+    # Loading essential modules for Claude Code
 
     # Load utils first (provides backup system)
     if load_module utils; then
-        echo "  ✅ Utils module ready for Claude Code"
+        # Utils module ready for Claude Code
     else
-        echo "  ⚠️  Utils module failed - backup system may not be available"
+        # Utils module failed - backup system may not be available
     fi
 
     # Load python for development work
     if load_module python; then
-        echo "  ✅ Python module ready for Claude Code"
+        # Python module ready for Claude Code
     else
-        echo "  ⚠️  Python module failed - Python environments may not be available"
+        # Python module failed - Python environments may not be available
     fi
 
-    echo "📦 Claude Code essential modules loaded"
+    # Claude Code essential modules loaded
 else
-    echo "🖥️  Regular terminal environment detected"
-    echo "💡 Use load_module commands to load features on-demand"
+    # Regular terminal environment detected
+    # Use load_module commands to load features on-demand
 fi
 
 # =====================================================
@@ -331,18 +366,15 @@ zshreboot() {
 # Note: Background services are implemented separately in zsh-system
 # This avoids startup delays and potential hanging issues
 
-echo "✅ TIER 3: Background services available via zsh-system"
+# Background services available via zsh-system
 
 # =====================================================
 # STARTUP COMPLETION
 # =====================================================
 
-echo ""
-echo "🎉 3-Tier ZSH System - Systematic Production Ready"
-echo "=================================================="
+# 3-Tier ZSH System - Systematic Production Ready
 
-# Show startup status
-startup_status
+# Startup complete - status available via startup_status command
 
 export SYSTEMATIC_ZSHRC_LOADED=true
 
@@ -353,3 +385,17 @@ export SYSTEMATIC_ZSHRC_LOADED=true
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/dheerajchand/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+# Functions are available in zsh subshells by default
+# (export -f is bash-specific and causes output in zsh)
+
+# Removed broken error trap that was causing constant spam
+
+# Shell compatibility layer for script execution
+if [[ -n "$BASH_VERSION" ]]; then
+    # Running in bash - ensure key functions are available
+    shopt -s expand_aliases 2>/dev/null || true
+fi
+
+# Ensure functions are available in both zsh and bash contexts
+command_exists() { command -v "$1" >/dev/null 2>&1; }
+# Function available in zsh by default

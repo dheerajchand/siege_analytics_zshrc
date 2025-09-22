@@ -70,7 +70,18 @@
       "Bash(load_module spark)",
       "Bash(command -v:*)",
       "Bash(~/.config/zsh/test-real-world-integration.zsh)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(~/.config/zsh/fix-critical-failures.sh:*)",
+      "Bash(~/.config/zsh/hostile-test-framework.sh)",
+      "Bash(bash:*)",
+      "Bash(~/.config/zsh/fix-subshell-isolation.sh:*)",
+      "Bash(~/.config/zsh/final-verification-test.sh)",
+      "Bash(/tmp/test_pushmain.sh:*)",
+      "Bash(/tmp/debug_pushmain.sh:*)",
+      "Bash(/tmp/test_claude_detection.sh:*)",
+      "Bash(/tmp/debug_claude_detection.sh:*)",
+      "Bash(/tmp/debug_process_tree.sh:*)",
+      "Bash(mkcd:*)"
     ],
     "deny": [],
     "ask": []
