@@ -85,7 +85,9 @@
       "Bash(/bin/zsh:*)",
       "Bash(printenv)",
       "Bash(export CLAUDE_CODE_SESSION=test)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(/bin/date)",
+      "Bash(export:*)"
     ],
     "deny": [],
     "ask": []
