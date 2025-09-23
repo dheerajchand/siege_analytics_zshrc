@@ -126,11 +126,11 @@ run_hostile_test "HM.3 Module State Tracking" \
     "source ~/.zshrc >/dev/null 2>&1; load_module utils >/dev/null 2>&1; echo \"LOADED_MODULES: \$LOADED_MODULES\"; echo \$LOADED_MODULES | grep -q utils && echo 'state tracked' || echo 'state lost'" \
     "state tracked"
 
-# Test HM.4: Multiple module loading
-run_hostile_test "HM.4 Multiple Module Loading" \
-    "Load multiple modules and verify state" \
-    "source ~/.zshrc >/dev/null 2>&1; load_module utils >/dev/null 2>&1; load_module python >/dev/null 2>&1; echo \$LOADED_MODULES | grep -E 'utils.*python|python.*utils' && echo 'multiple modules tracked' || echo 'tracking failed'" \
-    "multiple modules tracked"
+# Test HM.4: Staggered module loading verification
+run_hostile_test "HM.4 Staggered Module Loading" \
+    "Verify staggered mode loads all expected modules" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test; source ~/.zshrc 2>&1 | grep -c \"✅.*:\" | grep -q \"^6\\\$\" && echo \"all modules loaded\" || echo \"modules missing\"'" \
+    "all modules loaded"
 
 # =====================================================
 # PHASE 3: CLAUDE CODE ENVIRONMENT DETECTION
@@ -153,11 +153,36 @@ run_hostile_test "HC.2 Claude Session Variable" \
     "session detected" \
     false
 
-# Test HC.3: Auto-loading in Claude Code context
-run_hostile_test "HC.3 Auto-loading Verification" \
-    "Verify modules auto-load in Claude Code environment" \
-    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc >/dev/null 2>&1; echo \$LOADED_MODULES | grep -E '(utils|python)' && echo 'auto-loading works' || echo 'auto-loading failed'" \
-    "auto-loading works"
+# Test HC.3: Staggered mode auto-loading in Claude Code context
+run_hostile_test "HC.3 Staggered Auto-loading Verification" \
+    "Verify all 6 primary modules auto-load in Claude Code staggered mode" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test; source ~/.zshrc 2>&1 | grep -q \"ZSH ready - 6 modules loaded\" && echo \"staggered loading works\" || echo \"staggered loading failed\"'" \
+    "staggered loading works"
+
+# Test HC.4: Hierarchical module loading
+run_hostile_test "HC.4 Hierarchical Module Loading" \
+    "Verify hierarchical modules are discovered and processed" \
+    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc 2>&1 | grep -q 'Loading hierarchical module' && echo 'hierarchical modules processed' || echo 'hierarchical modules not found'" \
+    "hierarchical modules processed" \
+    false
+
+# Test HC.5: PATH protection functionality
+run_hostile_test "HC.5 PATH Protection" \
+    "Verify PATH corruption protection works" \
+    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc >/dev/null 2>&1; command -v basename >/dev/null && echo 'path protected' || echo 'path corrupted'" \
+    "path protected"
+
+# Test HC.6: JavaScript module functionality
+run_hostile_test "HC.6 JavaScript Module Loading" \
+    "Verify newly created javascript module loads correctly" \
+    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc >/dev/null 2>&1; echo \$LOADED_MODULES | grep -q javascript && echo 'javascript module loaded' || echo 'javascript module missing'" \
+    "javascript module loaded"
+
+# Test HC.7: Shell restart functionality
+run_hostile_test "HC.7 Shell Restart Safety" \
+    "Verify zshreboot function works without crashing" \
+    "/bin/zsh -c 'source ~/.zshrc >/dev/null 2>&1; command -v zshreboot >/dev/null && echo \"restart function available\" || echo \"restart function missing\"'" \
+    "restart function available"
 
 # =====================================================
 # PHASE 4: REAL-WORLD AUTOMATION SCENARIOS

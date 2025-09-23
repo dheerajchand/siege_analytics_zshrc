@@ -153,9 +153,7 @@ load_module() {
                 export LOADED_MODULES="$LOADED_MODULES $module"
             fi
 
-            # Module $module loaded successfully
-            # Verification: $verification_result
-            # Total modules loaded: $(echo $LOADED_MODULES | wc -w | tr -d ' ')
+            echo "✅ $module: $verification_result"
             return 0
         else
             # Error: Failed to load $module - source error or missing dependencies
@@ -223,31 +221,63 @@ detect_claude_environment() {
     return 1
 }
 
-# Detect Claude Code environment using improved detection
+# Detect Claude Code environment and load in STAGGERED mode
+# Note: mode detection happens later, defaulting to staggered for Claude Code
 if detect_claude_environment; then
-    # Claude Code environment detected
+    echo "🤖 Claude Code environment detected - loading in staggered mode"
 
-    # Load essential modules for development
-    # Loading essential modules for Claude Code
+    # Load all available modules in staggered fashion
+    if [[ -d "$ZSH_CONFIG_DIR/modules" ]]; then
+        # Find .module.zsh files (primary modules)
+        primary_modules=($(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | xargs -n1 basename | sed 's/.module.zsh$//'))
 
-    # Load utils first (provides backup system)
-    if load_module utils; then
-        # Utils module ready for Claude Code
-    else
-        # Utils module failed - backup system may not be available
+        # Find hierarchical modules in subdirectories
+        hierarchical_modules=($(find "$ZSH_CONFIG_DIR/modules" -name "*.zsh" ! -name "*.module.zsh" 2>/dev/null))
+
+        total_modules=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
+        echo "📦 Loading $total_modules modules systematically (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)..."
+
+        # Load utils first (dependency for others)
+        if [[ " ${primary_modules[*]} " =~ " utils " ]]; then
+            if load_module utils; then
+                true  # Success message handled by load_module
+            else
+                echo "❌ Utils module failed - continuing without backup system"
+            fi
+        fi
+
+        # Load remaining primary modules
+        for module in "${primary_modules[@]}"; do
+            [[ "$module" == "utils" ]] && continue  # Skip utils - already loaded
+            load_module "$module"  # Show functional status for each module
+        done
+
+        # Load hierarchical modules with PATH protection
+        for module_path in "${hierarchical_modules[@]}"; do
+            if [[ -f "$module_path" ]]; then
+                module_name=$(/usr/bin/basename "$module_path" 2>/dev/null || echo "unknown")
+                [[ -n "$module_name" && "$module_name" != "unknown" ]] && echo "📁 Loading hierarchical module: $module_name"
+
+                # Save PATH before loading
+                saved_path="$PATH"
+
+                # Load module with error handling
+                if source "$module_path" 2>/dev/null; then
+                    # Check if basic commands still work after loading
+                    if ! /usr/bin/test -x /usr/bin/basename 2>/dev/null; then
+                        echo "❌ $module_name corrupted PATH, restoring..."
+                        export PATH="$saved_path"
+                    fi
+                else
+                    [[ -n "$module_name" && "$module_name" != "unknown" ]] && echo "❌ Failed to load $module_name"
+                fi
+            fi
+        done
+
+        echo "✅ Staggered loading complete - all modules processed"
     fi
-
-    # Load python for development work
-    if load_module python; then
-        # Python module ready for Claude Code
-    else
-        # Python module failed - Python environments may not be available
-    fi
-
-    # Claude Code essential modules loaded
 else
-    # Regular terminal environment detected
-    # Use load_module commands to load features on-demand
+    echo "🖥️  Regular terminal - use load_module commands for features"
 fi
 
 # =====================================================
@@ -356,7 +386,7 @@ zshreload() {
 
 zshreboot() {
     echo "🔄 Restarting ZSH shell..."
-    exec zsh -i
+    exec /bin/zsh -i
 }
 
 # =====================================================
@@ -374,7 +404,14 @@ zshreboot() {
 
 # 3-Tier ZSH System - Systematic Production Ready
 
-# Startup complete - status available via startup_status command
+# Show minimal startup confirmation
+if command -v wc >/dev/null 2>&1 && command -v tr >/dev/null 2>&1; then
+    module_count=$(echo "$LOADED_MODULES" | /usr/bin/wc -w | /usr/bin/tr -d ' ')
+else
+    # Fallback count using parameter expansion
+    module_count=$(echo "$LOADED_MODULES" | awk '{print NF}' 2>/dev/null || echo "?")
+fi
+echo "⚡ ZSH ready - $module_count modules loaded"
 
 export SYSTEMATIC_ZSHRC_LOADED=true
 

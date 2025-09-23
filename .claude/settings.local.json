@@ -81,7 +81,11 @@
       "Bash(/tmp/test_claude_detection.sh:*)",
       "Bash(/tmp/debug_claude_detection.sh:*)",
       "Bash(/tmp/debug_process_tree.sh:*)",
-      "Bash(mkcd:*)"
+      "Bash(mkcd:*)",
+      "Bash(/bin/zsh:*)",
+      "Bash(printenv)",
+      "Bash(export CLAUDE_CODE_SESSION=test)",
+      "Bash(/dev/null)"
     ],
     "deny": [],
     "ask": []
