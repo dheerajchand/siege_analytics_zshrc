@@ -93,12 +93,12 @@ deduplicate_path() {
         local IFS=":"
 
         # Essential system directories that must always be preserved
-        local essential_dirs="/usr/bin /bin /usr/sbin /sbin /usr/local/bin"
+        local essential_dirs=("/usr/bin" "/bin" "/usr/sbin" "/sbin" "/usr/local/bin")
 
         for dir in $PATH; do
             # Always keep essential directories even if -d test fails
             local is_essential=false
-            for essential in $essential_dirs; do
+            for essential in "${essential_dirs[@]}"; do
                 if [ "$dir" = "$essential" ]; then
                     is_essential=true
                     break
@@ -116,7 +116,7 @@ deduplicate_path() {
         done
 
         # Ensure essential directories are present even if they weren't in original PATH
-        for essential in $essential_dirs; do
+        for essential in "${essential_dirs[@]}"; do
             if [[ ":$new_path:" != *":$essential:"* ]]; then
                 if [ -z "$new_path" ]; then
                     new_path="$essential"
@@ -324,7 +324,7 @@ join_array() {
 # Cross-shell initialization
 init_cross_shell() {
     setup_shell_options
-    deduplicate_path
+    # deduplicate_path - commented out, call manually when needed
 
     # Set common aliases that work in both shells
     alias ll='ls -la'

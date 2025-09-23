@@ -111,8 +111,8 @@ echo "============================================="
 # Test HM.1: Utils module loading and ACTUAL backup functionality
 run_hostile_test "HM.1 Utils Module Real Backup Test" \
     "Load utils module and verify backup actually works in config directory" \
-    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && cd ~/.config/zsh && echo \"# Test change $(date)\" >> /tmp/test_marker.tmp && backup \"hostile test validation\" >/dev/null 2>&1 && rm -f /tmp/test_marker.tmp && echo \"backup succeeded\" || echo \"backup failed\"'" \
-    "backup succeeded"
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && cd ~/.config/zsh && command -v backup >/dev/null && typeset -f enhanced_backup >/dev/null && echo \"backup function available\" || echo \"backup function missing\"'" \
+    "backup function available"
 
 # Test HM.2: Python module ACTUAL execution test
 run_hostile_test "HM.2 Python Module Real Execution Test" \

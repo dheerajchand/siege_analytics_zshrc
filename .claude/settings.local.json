@@ -87,7 +87,10 @@
       "Bash(export CLAUDE_CODE_SESSION=test)",
       "Bash(/dev/null)",
       "Bash(/bin/date)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(git --version)",
+      "Bash(kill:*)",
+      "Bash(deduplicate_path)"
     ],
     "deny": [],
     "ask": []

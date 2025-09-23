@@ -263,8 +263,8 @@ if detect_claude_environment; then
 
                 # Load module with error handling
                 if source "$module_path" 2>/dev/null; then
-                    # Check if basic commands still work after loading
-                    if ! /usr/bin/test -x /usr/bin/basename 2>/dev/null; then
+                    # Check if essential commands still work after loading
+                    if ! command -v date >/dev/null 2>&1 || ! command -v git >/dev/null 2>&1; then
                         echo "❌ $module_name corrupted PATH, restoring..."
                         export PATH="$saved_path"
                     fi
