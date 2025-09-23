@@ -87,17 +87,41 @@ setup_shell_options() {
 
 # PATH management
 deduplicate_path() {
-    # Remove duplicate entries from PATH
+    # Remove duplicate entries from PATH while preserving essential system directories
     if [ -n "$PATH" ]; then
         local new_path=""
         local IFS=":"
 
+        # Essential system directories that must always be preserved
+        local essential_dirs="/usr/bin /bin /usr/sbin /sbin /usr/local/bin"
+
         for dir in $PATH; do
-            if [[ ":$new_path:" != *":$dir:"* ]] && [[ -d "$dir" ]]; then
+            # Always keep essential directories even if -d test fails
+            local is_essential=false
+            for essential in $essential_dirs; do
+                if [ "$dir" = "$essential" ]; then
+                    is_essential=true
+                    break
+                fi
+            done
+
+            # Keep if not duplicate and (essential OR directory exists)
+            if [[ ":$new_path:" != *":$dir:"* ]] && ($is_essential || [[ -d "$dir" ]]); then
                 if [ -z "$new_path" ]; then
                     new_path="$dir"
                 else
                     new_path="$new_path:$dir"
+                fi
+            fi
+        done
+
+        # Ensure essential directories are present even if they weren't in original PATH
+        for essential in $essential_dirs; do
+            if [[ ":$new_path:" != *":$essential:"* ]]; then
+                if [ -z "$new_path" ]; then
+                    new_path="$essential"
+                else
+                    new_path="$new_path:$essential"
                 fi
             fi
         done
