@@ -8,7 +8,7 @@
 # Dependencies: None (foundational module)
 # =====================================================
 
-echo "🔧 Loading Utils module..."
+# Loading Utils module silently
 
 # =====================================================
 # ERROR REPORTING FUNCTIONS
@@ -191,15 +191,17 @@ _environment_health_check() {
 
 # Load backup system - ESSENTIAL for production use
 if [[ -f "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh" ]]; then
-    source "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh"
-    echo "✅ Backup system loaded (enhanced_backup, pushmain, sync available)"
+    source "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh" >/dev/null 2>&1
+    # Backup system loaded (enhanced_backup, pushmain, sync available)
 else
     echo "⚠️  Backup system not found - manual git commits required"
 fi
 
-echo "✅ Utils module loaded successfully"
+# Utils module loaded successfully
 
 # =====================================================
 # COMPLETION
 # =====================================================
 export UTILS_MODULE_LOADED=true
+# Functions are available in zsh subshells by default
+# (export -f is bash-specific and causes output spam in zsh)

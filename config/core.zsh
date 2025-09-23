@@ -1032,7 +1032,7 @@ _validate_container_name() {
     fi
 
     # Check for dangerous patterns
-    if [[ "$container_name" =~ \.\./|^/|^-|^~ ]]; then
+    if [[ "$container_name" =~ "\.\./|^/|^-|^~" ]]; then
         echo "❌ Container name contains dangerous path elements: $container_name"
         return 1
     fi
