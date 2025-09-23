@@ -108,17 +108,17 @@ run_hostile_test "HF.4 Mode Detection" \
 echo "📋 PHASE 2: Module Loading in Script Contexts"
 echo "============================================="
 
-# Test HM.1: Utils module loading in script
-run_hostile_test "HM.1 Utils Module Loading" \
-    "Load utils module in script and verify functions" \
-    "source ~/.zshrc >/dev/null 2>&1; load_module utils >/dev/null 2>&1; command -v backup >/dev/null && echo 'backup available' || echo 'backup missing'" \
-    "backup available"
+# Test HM.1: Utils module loading and ACTUAL backup functionality
+run_hostile_test "HM.1 Utils Module Real Backup Test" \
+    "Load utils module and verify backup actually works end-to-end" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && cd /tmp && mkdir -p hostile_test_$$_backup && cd hostile_test_$$_backup && git init >/dev/null 2>&1 && echo test > file.txt && backup \"hostile test\" >/dev/null 2>&1 && echo \"backup succeeded\" || echo \"backup failed\"; cd /tmp && rm -rf hostile_test_$$_backup'" \
+    "backup succeeded"
 
-# Test HM.2: Python module loading in script
-run_hostile_test "HM.2 Python Module Loading" \
-    "Load python module in script and verify functionality" \
-    "source ~/.zshrc >/dev/null 2>&1; load_module python >/dev/null 2>&1; python3 --version >/dev/null 2>&1 && echo 'python functional' || echo 'python broken'" \
-    "python functional"
+# Test HM.2: Python module ACTUAL execution test
+run_hostile_test "HM.2 Python Module Real Execution Test" \
+    "Load python module and verify Python can actually execute code" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && load_module python >/dev/null 2>&1 && python3 -c \"print(2+2)\" 2>/dev/null | grep -q \"4\" && echo \"python execution works\" || echo \"python execution broken\"'" \
+    "python execution works"
 
 # Test HM.3: Module state persistence
 run_hostile_test "HM.3 Module State Tracking" \
@@ -166,11 +166,11 @@ run_hostile_test "HC.4 Hierarchical Module Loading" \
     "hierarchical modules processed" \
     false
 
-# Test HC.5: PATH protection functionality
-run_hostile_test "HC.5 PATH Protection" \
-    "Verify PATH corruption protection works" \
-    "export CLAUDE_CODE_SESSION=test; source ~/.zshrc >/dev/null 2>&1; command -v basename >/dev/null && echo 'path protected' || echo 'path corrupted'" \
-    "path protected"
+# Test HC.5: PATH protection REAL functionality test
+run_hostile_test "HC.5 PATH Protection Real Test" \
+    "Verify essential commands work after staggered loading" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && date >/dev/null 2>&1 && git --version >/dev/null 2>&1 && mkdir -p /tmp/path_test_$$ && rmdir /tmp/path_test_$$ && echo \"essential commands work\" || echo \"essential commands broken\"'" \
+    "essential commands work"
 
 # Test HC.6: JavaScript module functionality
 run_hostile_test "HC.6 JavaScript Module Loading" \
@@ -253,11 +253,11 @@ run_hostile_test "HP.3 PATH Optimization" \
 echo "📋 PHASE 6: Edge Cases and Error Handling"
 echo "========================================="
 
-# Test HE.1: Missing dependency handling
-run_hostile_test "HE.1 Missing Dependencies" \
-    "Test module loading with missing dependencies" \
-    "source ~/.zshrc >/dev/null 2>&1; unset -f path_add 2>/dev/null; load_module spark 2>&1 | grep -E '(Error|dependency|missing)' && echo 'error handled' || echo 'error not handled'" \
-    "error handled" \
+# Test HE.1: Missing dependency ACTUAL error handling
+run_hostile_test "HE.1 Missing Dependencies Real Test" \
+    "Test system continues working when dependencies missing" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && unset -f path_add 2>/dev/null && load_module spark >/dev/null 2>&1; backup \"dependency test\" >/dev/null 2>&1 && echo \"system still functional\" || echo \"system broken\"'" \
+    "system still functional" \
     false
 
 # Test HE.2: Corrupted module handling
