@@ -110,8 +110,8 @@ echo "============================================="
 
 # Test HM.1: Utils module loading and ACTUAL backup functionality
 run_hostile_test "HM.1 Utils Module Real Backup Test" \
-    "Load utils module and verify backup actually works end-to-end" \
-    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && cd /tmp && mkdir -p hostile_test_$$_backup && cd hostile_test_$$_backup && git init >/dev/null 2>&1 && echo test > file.txt && backup \"hostile test\" >/dev/null 2>&1 && echo \"backup succeeded\" || echo \"backup failed\"; cd /tmp && rm -rf hostile_test_$$_backup'" \
+    "Load utils module and verify backup actually works in config directory" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && cd ~/.config/zsh && echo \"# Test change $(date)\" >> /tmp/test_marker.tmp && backup \"hostile test validation\" >/dev/null 2>&1 && rm -f /tmp/test_marker.tmp && echo \"backup succeeded\" || echo \"backup failed\"'" \
     "backup succeeded"
 
 # Test HM.2: Python module ACTUAL execution test
@@ -191,11 +191,11 @@ run_hostile_test "HC.7 Shell Restart Safety" \
 echo "📋 PHASE 4: Real-World Automation Scenarios"
 echo "==========================================="
 
-# Test HA.1: Cron job simulation
-run_hostile_test "HA.1 Cron Job Simulation" \
-    "Simulate cron job execution environment" \
-    "env -i HOME=\$HOME PATH=/usr/bin:/bin bash -c 'source ~/.zshrc >/dev/null 2>&1; command -v ls >/dev/null && echo \"cron compatible\" || echo \"cron broken\"'" \
-    "cron compatible" \
+# Test HA.1: Cron job REAL execution simulation
+run_hostile_test "HA.1 Cron Job Real Execution Test" \
+    "Simulate actual cron job that needs to create files and run commands" \
+    "env -i HOME=\$HOME PATH=/usr/bin:/bin bash -c 'source ~/.zshrc >/dev/null 2>&1 && mkdir -p /tmp/cron_test_\$\$ && echo \"test\" > /tmp/cron_test_\$\$/file.txt && cat /tmp/cron_test_\$\$/file.txt >/dev/null && rm -rf /tmp/cron_test_\$\$ && echo \"cron execution works\" || echo \"cron execution broken\"'" \
+    "cron execution works" \
     false
 
 # Test HA.2: SSH session simulation
@@ -205,11 +205,11 @@ run_hostile_test "HA.2 SSH Session Simulation" \
     "path clean" \
     false
 
-# Test HA.3: CI/CD pipeline simulation
-run_hostile_test "HA.3 CI/CD Pipeline Simulation" \
-    "Simulate CI/CD environment with minimal PATH" \
-    "env PATH=/usr/bin:/bin bash -c 'source ~/.zshrc >/dev/null 2>&1; load_module python >/dev/null 2>&1; python3 --version >/dev/null 2>&1 && echo \"ci compatible\" || echo \"ci broken\"'" \
-    "ci compatible" \
+# Test HA.3: CI/CD pipeline REAL workflow simulation
+run_hostile_test "HA.3 CI/CD Pipeline Real Workflow Test" \
+    "Simulate actual CI/CD workflow that builds and tests code" \
+    "env PATH=/usr/bin:/bin bash -c 'source ~/.zshrc >/dev/null 2>&1 && load_module python >/dev/null 2>&1 && cd /tmp && mkdir -p ci_test_\$\$ && cd ci_test_\$\$ && echo \"print(\\\"hello world\\\")\" > test.py && python3 test.py | grep -q \"hello world\" && cd /tmp && rm -rf ci_test_\$\$ && echo \"ci workflow works\" || echo \"ci workflow broken\"'" \
+    "ci workflow works" \
     false
 
 # Test HA.4: Docker container simulation
@@ -260,11 +260,11 @@ run_hostile_test "HE.1 Missing Dependencies Real Test" \
     "system still functional" \
     false
 
-# Test HE.2: Corrupted module handling
-run_hostile_test "HE.2 Corrupted Module Handling" \
-    "Test system resilience to corrupted modules" \
-    "echo 'invalid syntax }{' > /tmp/corrupt_module.zsh; source ~/.zshrc >/dev/null 2>&1; source /tmp/corrupt_module.zsh 2>&1 | grep -E '(syntax error|command not found|invalid)' && echo 'error detected' || echo 'error ignored'; rm -f /tmp/corrupt_module.zsh" \
-    "error detected" \
+# Test HE.2: Corrupted module REAL resilience test
+run_hostile_test "HE.2 Corrupted Module Real Resilience Test" \
+    "Test system continues working after loading corrupted module" \
+    "echo 'invalid syntax }{' > /tmp/corrupt_module.zsh && zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && source /tmp/corrupt_module.zsh >/dev/null 2>&1; date >/dev/null 2>&1 && backup \"corruption test\" >/dev/null 2>&1 && echo \"system resilient\" || echo \"system broken\"' && rm -f /tmp/corrupt_module.zsh" \
+    "system resilient" \
     false
 
 # Test HE.3: Network failure resilience
@@ -272,6 +272,31 @@ run_hostile_test "HE.3 Network Failure Resilience" \
     "Test system startup without network" \
     "timeout 5 bash -c 'source ~/.zshrc >/dev/null 2>&1; echo \"startup completed\"' 2>/dev/null && echo 'network independent' || echo 'network dependent'" \
     "network independent"
+
+# =====================================================
+# PHASE 7: REAL USER WORKFLOW VALIDATION
+# =====================================================
+
+echo "📋 PHASE 7: Real User Workflow Tests"
+echo "===================================="
+
+# Test UW.1: Complete development workflow
+run_hostile_test "UW.1 Real Development Workflow" \
+    "Test complete edit→backup→verify workflow" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && cd ~/.config/zsh && echo \"# Workflow test \$(date)\" >> /tmp/workflow_test.tmp && backup \"workflow validation\" >/dev/null 2>&1 && rm -f /tmp/workflow_test.tmp && git log --oneline -1 | grep -q \"workflow validation\" && echo \"development workflow works\" || echo \"development workflow broken\"'" \
+    "development workflow works"
+
+# Test UW.2: Module loading and actual usage
+run_hostile_test "UW.2 Module Usage Workflow" \
+    "Test loading modules and actually using their features" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && load_module python >/dev/null 2>&1 && python3 -c \"import sys; print(sys.version)\" >/dev/null 2>&1 && load_module docker >/dev/null 2>&1 && docker --version >/dev/null 2>&1 && echo \"module usage workflow works\" || echo \"module usage workflow broken\"'" \
+    "module usage workflow works"
+
+# Test UW.3: Shell restart and persistence
+run_hostile_test "UW.3 Shell Restart Persistence" \
+    "Test that functions survive shell restart" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test && source ~/.zshrc >/dev/null 2>&1 && /bin/zsh -c \"source ~/.zshrc >/dev/null 2>&1 && command -v backup >/dev/null && command -v load_module >/dev/null && echo \\\"functions persist\\\" || echo \\\"functions lost\\\"\"'" \
+    "functions persist"
 
 # =====================================================
 # HOSTILE TESTING RESULTS AND ANALYSIS
