@@ -70,7 +70,7 @@ command_exists() { command -v "$1" >/dev/null 2>&1; }
 # =====================================================
 load_module() {
     local module="$1"
-    local module_path="$ZSH_CONFIG_DIR/modules/$module.zsh"
+    local module_path="$ZSH_CONFIG_DIR/modules/$module.module.zsh"
 
     if [[ -f "$module_path" ]]; then
         echo "📦 Loading $module module..."
@@ -125,6 +125,57 @@ alias load-docker='load_module docker'
 alias load-database='load_module database'
 alias load-spark='load_module spark'
 alias load-jetbrains='load_module jetbrains'
+
+# =====================================================
+# CLAUDE CODE ENVIRONMENT DETECTION & STAGGERED MODE
+# =====================================================
+detect_claude_environment() {
+    # Method 1: Environment variable (most reliable)
+    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
+        return 0
+    fi
+
+    # Method 2: Process tree walking
+    local current_pid=$$
+    local depth=0
+    local max_depth=10
+
+    while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
+        # Get process command line
+        local proc_cmdline=$(ps -p $current_pid -o args= 2>/dev/null || echo "")
+        if [[ "$proc_cmdline" == *"claude"* ]]; then
+            return 0  # Found claude in process tree
+        fi
+
+        # Get parent PID
+        current_pid=$(ps -p $current_pid -o ppid= 2>/dev/null | tr -d ' ' || echo "1")
+        ((depth++))
+    done
+
+    return 1
+}
+
+# Auto-load essential modules in staggered mode (default for all environments)
+if [[ "$ZSH_MODE" != "light" ]]; then
+    echo "🚀 Loading in staggered mode..."
+
+    # Load utils first (essential for backup system)
+    if load_module utils 2>/dev/null; then
+        true  # Success
+    else
+        echo "❌ Utils module failed - continuing without backup system"
+    fi
+
+    # Load python (essential for development)
+    if load_module python 2>/dev/null; then
+        true  # Success
+    else
+        echo "❌ Python module failed - continuing without Python tools"
+    fi
+
+    echo "✅ Staggered mode ready - 2 essential modules loaded"
+    echo "💡 Load more with: load-docker, load-database, load-spark, load-jetbrains"
+fi
 
 # =====================================================
 # POWERLEVEL10K CONFIG
