@@ -37,15 +37,19 @@ run_hostile_test() {
     # Create test script and execute
     local test_file="/tmp/hostile_test_$$_${TOTAL_TESTS}.sh"
     cat > "$test_file" << EOF
-#!/bin/bash
+#!/usr/bin/env zsh
 $test_script
 EOF
     chmod +x "$test_file"
 
-    # Execute test script
+    # Execute test script - use zsh for zshrc-related tests, bash for others
     local result
     local exit_code
-    result=$(bash "$test_file" 2>&1)
+    if [[ "$test_script" == *"source ~/.zshrc"* ]]; then
+        result=$(zsh "$test_file" 2>&1)
+    else
+        result=$(bash "$test_file" 2>&1)
+    fi
     exit_code=$?
 
     # Clean up test file
