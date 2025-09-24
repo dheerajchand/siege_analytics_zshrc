@@ -137,6 +137,11 @@ alias load-database='load_module database'
 alias load-spark='load_module spark'
 alias load-jetbrains='load_module jetbrains'
 
+# Shell restart function
+zshreboot() {
+    exec zsh
+}
+
 # =====================================================
 # CLAUDE CODE ENVIRONMENT DETECTION & STAGGERED MODE
 # =====================================================
@@ -219,7 +224,7 @@ if [[ "$ZSH_MODE" != "light" ]]; then
             fi
         done
 
-        echo "✅ ZSH ready - $total_modules modules loaded"
+        echo "✅ ZSH ready - ${#primary_modules[@]} modules loaded"
     fi
 fi
 
