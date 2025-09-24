@@ -100,7 +100,9 @@
       "Bash(hash:*)",
       "Bash(export TERM_PROGRAM=\"iTerm.app\")",
       "Bash(command:*)",
-      "Bash(export CLAUDE_CODE_SESSION=\"test\")"
+      "Bash(export CLAUDE_CODE_SESSION=\"test\")",
+      "Bash(/usr/bin/wc -l ~/.zshrc)",
+      "Bash(yes)"
     ],
     "deny": [],
     "ask": []

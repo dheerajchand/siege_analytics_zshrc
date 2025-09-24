@@ -299,23 +299,85 @@ if detect_claude_environment; then
         echo "✅ Staggered loading complete - all modules processed"
     fi
 else
-    echo "🖥️  Regular terminal - use load_module commands for features"
+    echo "🖥️  Regular terminal - loading in staggered mode"
 
-    # Load essential modules everywhere (production requirement)
-    echo "📦 Loading essential modules..."
+    # Load all available modules in staggered fashion (same as Claude Code)
+    if [[ -d "$ZSH_CONFIG_DIR/modules" ]]; then
+        # Find .module.zsh files (primary modules)
+        primary_modules=($(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | xargs -n1 basename | sed 's/.module.zsh$//'))
 
-    # Load utils first (provides backup system)
-    if load_module utils; then
-        true  # Success message handled by load_module
-    else
-        echo "❌ Utils module failed - continuing without backup system"
-    fi
+        # Find hierarchical modules in subdirectories
+        hierarchical_modules=($(find "$ZSH_CONFIG_DIR/modules" -name "*.zsh" ! -name "*.module.zsh" 2>/dev/null))
 
-    # Load python (essential for development)
-    if load_module python; then
-        true  # Success message handled by load_module
-    else
-        echo "❌ Python module failed - continuing without Python integration"
+        total_modules=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
+        echo "📦 Loading $total_modules modules systematically (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)..."
+
+        # Load utils first (dependency for others)
+        if [[ " ${primary_modules[*]} " =~ " utils " ]]; then
+            if load_module utils; then
+                true  # Success message handled by load_module
+            else
+                echo "❌ Utils module failed - continuing without backup system"
+            fi
+        fi
+
+        # Load remaining primary modules
+        for module in "${primary_modules[@]}"; do
+            [[ "$module" == "utils" ]] && continue  # Skip utils - already loaded
+            load_module "$module"  # Show functional status for each module
+        done
+
+        # Load hierarchical modules with PATH protection
+        for module_path in "${hierarchical_modules[@]}"; do
+            if [[ -f "$module_path" ]]; then
+                module_name=$(/usr/bin/basename "$module_path" 2>/dev/null || echo "unknown")
+                [[ -n "$module_name" && "$module_name" != "unknown" ]] && echo "📁 Loading hierarchical module: $module_name"
+
+                # Save PATH before loading
+                saved_path="$PATH"
+
+                # Load module with enhanced PATH protection
+                if source "$module_path" 2>/dev/null; then
+                    # Comprehensive essential command verification
+                    local essential_commands=("wc" "grep" "awk" "sed" "date" "git" "ls" "cat" "tr")
+                    local path_corrupted=false
+
+                    for cmd in "${essential_commands[@]}"; do
+                        if ! command -v "$cmd" >/dev/null 2>&1; then
+                            echo "❌ $module_name corrupted PATH - missing $cmd, restoring..."
+                            export PATH="$saved_path"
+                            path_corrupted=true
+                            break
+                        fi
+                    done
+
+                    # Verify PATH has essential directories
+                    local essential_dirs=("/usr/bin" "/bin" "/usr/sbin" "/sbin")
+                    for dir in "${essential_dirs[@]}"; do
+                        if [[ ":$PATH:" != *":$dir:"* ]]; then
+                            echo "❌ $module_name removed essential directory $dir, restoring..."
+                            export PATH="$saved_path"
+                            path_corrupted=true
+                            break
+                        fi
+                    done
+
+                    if [[ "$path_corrupted" == "false" ]]; then
+                        # Add to loaded modules tracking
+                        local clean_name=$(echo "$module_name" | sed 's/\.zsh$//')
+                        if [[ -z "$LOADED_MODULES" ]]; then
+                            export LOADED_MODULES="$clean_name"
+                        else
+                            export LOADED_MODULES="$LOADED_MODULES $clean_name"
+                        fi
+                    fi
+                else
+                    [[ -n "$module_name" && "$module_name" != "unknown" ]] && echo "❌ Failed to load $module_name"
+                fi
+            fi
+        done
+
+        echo "✅ Staggered loading complete - all modules processed"
     fi
 fi
 
