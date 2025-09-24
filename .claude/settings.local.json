@@ -102,7 +102,13 @@
       "Bash(command:*)",
       "Bash(export CLAUDE_CODE_SESSION=\"test\")",
       "Bash(/usr/bin/wc -l ~/.zshrc)",
-      "Bash(yes)"
+      "Bash(yes)",
+      "Bash(detect_claude_environment)",
+      "Bash(~/.config/zsh/zsh-system service list)",
+      "Bash(~/.config/zsh/zsh-system service stop path-optimizer)",
+      "Bash(~/.config/zsh/zsh-system service stop environment-setup)",
+      "Bash(xargs kill:*)",
+      "Bash(~/.config/zsh/zsh-system switch-minimal)"
     ],
     "deny": [],
     "ask": []
