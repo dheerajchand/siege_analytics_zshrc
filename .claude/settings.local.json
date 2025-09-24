@@ -97,7 +97,10 @@
       "Bash(cat:*)",
       "Bash(xattr:*)",
       "Bash(unset:*)",
-      "Bash(hash:*)"
+      "Bash(hash:*)",
+      "Bash(export TERM_PROGRAM=\"iTerm.app\")",
+      "Bash(command:*)",
+      "Bash(export CLAUDE_CODE_SESSION=\"test\")"
     ],
     "deny": [],
     "ask": []

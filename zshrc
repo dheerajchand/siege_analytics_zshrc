@@ -122,7 +122,8 @@ load_module() {
                     ;;
                 python)
                     if python3 --version >/dev/null 2>&1; then
-                        verification_result="✅ Python $(python3 --version | cut -d' ' -f2) functional"
+                        local py_version=$(python3 --version 2>&1 | cut -d' ' -f2)
+                        verification_result="✅ Python $py_version functional"
                     else
                         verification_result="⚠️  Python not functional"
                     fi
@@ -181,16 +182,24 @@ alias load-database='load_module database'
 
 # Loading essential modules silently
 
-# Process tree walker to find Claude ancestor
-find_claude_in_process_tree() {
-    local current_pid=$1
+
+# Fixed Claude Code environment detection
+detect_claude_environment() {
+    # Method 1: Environment variable (most reliable)
+    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
+        return 0
+    fi
+
+    # Method 2: Process tree walking (fixed implementation)
+    local current_pid=$$
     local depth=0
-    local max_depth=10  # Prevent infinite loops
+    local max_depth=10
 
     while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
-        local process_name=$(ps -p $current_pid -o comm= 2>/dev/null || echo "")
-        if [[ "$process_name" == "claude" ]]; then
-            return 0  # Found claude in process tree
+        # Get process command line, not just comm
+        local proc_cmdline=$(ps -p $current_pid -o args= 2>/dev/null || echo "")
+        if [[ "$proc_cmdline" == *"claude"* ]] && [[ "$proc_cmdline" == *"code"* ]]; then
+            return 0  # Found claude code in process tree
         fi
 
         # Get parent PID
@@ -198,23 +207,8 @@ find_claude_in_process_tree() {
         ((depth++))
     done
 
-    return 1  # Claude not found in process tree
-}
-
-# Enhanced Claude Code environment detection
-detect_claude_environment() {
-    # Method 1: Environment variable (most reliable)
-    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
-        return 0
-    fi
-
-    # Method 2: Process tree walking (works in all contexts)
-    if find_claude_in_process_tree $$; then
-        return 0
-    fi
-
-    # Method 3: Process search fallback
-    if ps aux | grep -q '[c]laude'; then
+    # Method 3: Process search (more specific)
+    if ps aux 2>/dev/null | grep -q '[c]laude.*code'; then
         return 0
     fi
 
@@ -261,13 +255,33 @@ if detect_claude_environment; then
                 # Save PATH before loading
                 saved_path="$PATH"
 
-                # Load module with error handling
+                # Load module with enhanced PATH protection
                 if source "$module_path" 2>/dev/null; then
-                    # Check if essential commands still work after loading
-                    if ! command -v date >/dev/null 2>&1 || ! command -v git >/dev/null 2>&1; then
-                        echo "❌ $module_name corrupted PATH, restoring..."
-                        export PATH="$saved_path"
-                    else
+                    # Comprehensive essential command verification
+                    local essential_commands=("wc" "grep" "awk" "sed" "date" "git" "ls" "cat" "tr")
+                    local path_corrupted=false
+
+                    for cmd in "${essential_commands[@]}"; do
+                        if ! command -v "$cmd" >/dev/null 2>&1; then
+                            echo "❌ $module_name corrupted PATH - missing $cmd, restoring..."
+                            export PATH="$saved_path"
+                            path_corrupted=true
+                            break
+                        fi
+                    done
+
+                    # Verify PATH has essential directories
+                    local essential_dirs=("/usr/bin" "/bin" "/usr/sbin" "/sbin")
+                    for dir in "${essential_dirs[@]}"; do
+                        if [[ ":$PATH:" != *":$dir:"* ]]; then
+                            echo "❌ $module_name removed essential directory $dir, restoring..."
+                            export PATH="$saved_path"
+                            path_corrupted=true
+                            break
+                        fi
+                    done
+
+                    if [[ "$path_corrupted" == "false" ]]; then
                         # Add to loaded modules tracking
                         local clean_name=$(echo "$module_name" | sed 's/\.zsh$//')
                         if [[ -z "$LOADED_MODULES" ]]; then
