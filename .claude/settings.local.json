@@ -90,7 +90,14 @@
       "Bash(export:*)",
       "Bash(git --version)",
       "Bash(kill:*)",
-      "Bash(deduplicate_path)"
+      "Bash(deduplicate_path)",
+      "Read(//bin/**)",
+      "Read(//private/etc/**)",
+      "Bash(whereis:*)",
+      "Bash(cat:*)",
+      "Bash(xattr:*)",
+      "Bash(unset:*)",
+      "Bash(hash:*)"
     ],
     "deny": [],
     "ask": []

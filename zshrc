@@ -267,6 +267,14 @@ if detect_claude_environment; then
                     if ! command -v date >/dev/null 2>&1 || ! command -v git >/dev/null 2>&1; then
                         echo "❌ $module_name corrupted PATH, restoring..."
                         export PATH="$saved_path"
+                    else
+                        # Add to loaded modules tracking
+                        local clean_name=$(echo "$module_name" | sed 's/\.zsh$//')
+                        if [[ -z "$LOADED_MODULES" ]]; then
+                            export LOADED_MODULES="$clean_name"
+                        else
+                            export LOADED_MODULES="$LOADED_MODULES $clean_name"
+                        fi
                     fi
                 else
                     [[ -n "$module_name" && "$module_name" != "unknown" ]] && echo "❌ Failed to load $module_name"
@@ -278,6 +286,23 @@ if detect_claude_environment; then
     fi
 else
     echo "🖥️  Regular terminal - use load_module commands for features"
+
+    # Load essential modules everywhere (production requirement)
+    echo "📦 Loading essential modules..."
+
+    # Load utils first (provides backup system)
+    if load_module utils; then
+        true  # Success message handled by load_module
+    else
+        echo "❌ Utils module failed - continuing without backup system"
+    fi
+
+    # Load python (essential for development)
+    if load_module python; then
+        true  # Success message handled by load_module
+    else
+        echo "❌ Python module failed - continuing without Python integration"
+    fi
 fi
 
 # =====================================================
@@ -329,13 +354,23 @@ startup_status() {
     local available_modules=0
 
     # Count actually loaded modules
-    if [[ -n "$LOADED_MODULES" ]]; then
-        loaded_count=$(echo $LOADED_MODULES | wc -w | tr -d ' ')
+    local current_loaded="$LOADED_MODULES"
+    if [[ -z "$current_loaded" && -f "$ZSH_CONFIG_DIR/cache/loaded_modules" ]]; then
+        current_loaded=$(cat "$ZSH_CONFIG_DIR/cache/loaded_modules" 2>/dev/null || echo "")
     fi
 
-    # Count available modules
+
+    if [[ -n "$current_loaded" ]]; then
+        loaded_count=$(echo $current_loaded | wc -w | tr -d ' ')
+    fi
+
+    # Count all available modules (primary + hierarchical = 12)
+    local primary_modules=0
+    local hierarchical_modules=0
     if [[ -d "$ZSH_CONFIG_DIR/modules" ]]; then
-        available_modules=$(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | wc -l | tr -d ' ')
+        primary_modules=$(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | wc -l | tr -d ' ')
+        hierarchical_modules=$(find "$ZSH_CONFIG_DIR/modules" -name "*.zsh" ! -name "*.module.zsh" 2>/dev/null | wc -l | tr -d ' ')
+        available_modules=$((primary_modules + hierarchical_modules))
     fi
 
     # System health assessment
@@ -350,7 +385,7 @@ startup_status() {
     echo "======================================"
     echo "📊 Status: PATH=$path_length chars, $loaded_count/$available_modules modules loaded"
     echo "🔧 Mode: $(detect_zsh_mode)"
-    echo "📦 Loaded modules: ${LOADED_MODULES:-none}"
+    echo "📦 Loaded modules: ${current_loaded:-none}"
     echo ""
     echo "💡 Available commands:"
     echo "  startup_status     # Show this status"
@@ -363,8 +398,13 @@ show_loaded_modules() {
     echo "==============="
     echo "🚀 Core: Always loaded (variables, core functions, Oh-My-Zsh)"
 
-    if [[ -n "$LOADED_MODULES" ]]; then
-        echo "📦 Loaded modules: $LOADED_MODULES"
+    local current_loaded="$LOADED_MODULES"
+    if [[ -z "$current_loaded" && -f "$ZSH_CONFIG_DIR/cache/loaded_modules" ]]; then
+        current_loaded=$(cat "$ZSH_CONFIG_DIR/cache/loaded_modules" 2>/dev/null || echo "")
+    fi
+
+    if [[ -n "$current_loaded" ]]; then
+        echo "📦 Loaded modules: $current_loaded"
     else
         echo "📦 Loaded modules: None"
     fi
@@ -404,14 +444,22 @@ zshreboot() {
 
 # 3-Tier ZSH System - Systematic Production Ready
 
-# Show minimal startup confirmation
-if command -v wc >/dev/null 2>&1 && command -v tr >/dev/null 2>&1; then
-    module_count=$(echo "$LOADED_MODULES" | /usr/bin/wc -w | /usr/bin/tr -d ' ')
+# Show startup confirmation with accurate count
+if [[ -f "$ZSH_CONFIG_DIR/cache/loaded_modules" ]]; then
+    cached_modules=$(cat "$ZSH_CONFIG_DIR/cache/loaded_modules" 2>/dev/null || echo "")
+    if command -v wc >/dev/null 2>&1 && command -v tr >/dev/null 2>&1; then
+        module_count=$(echo "$cached_modules" | /usr/bin/wc -w | /usr/bin/tr -d ' ')
+    else
+        module_count=$(echo "$cached_modules" | awk '{print NF}' 2>/dev/null || echo "0")
+    fi
 else
-    # Fallback count using parameter expansion
-    module_count=$(echo "$LOADED_MODULES" | awk '{print NF}' 2>/dev/null || echo "?")
+    module_count="0"
 fi
 echo "⚡ ZSH ready - $module_count modules loaded"
+
+# Save loaded modules to persistent file for status tracking
+mkdir -p "$ZSH_CONFIG_DIR/cache"
+echo "$LOADED_MODULES" > "$ZSH_CONFIG_DIR/cache/loaded_modules"
 
 export SYSTEMATIC_ZSHRC_LOADED=true
 
