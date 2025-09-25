@@ -129,7 +129,9 @@
       "Bash([[ -f \"$SDKMAN_DIR/bin/sdkman-init.sh\" ]])",
       "Bash(then echo \"✅ SDKMAN init conditions met\")",
       "Bash(else echo \"❌ SDKMAN init conditions NOT met\")",
-      "Bash(sdk list:*)"
+      "Bash(sdk list:*)",
+      "Bash(git log:*)",
+      "Bash(time zsh:*)"
     ],
     "deny": [],
     "ask": []
