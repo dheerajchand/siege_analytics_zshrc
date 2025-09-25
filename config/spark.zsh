@@ -147,6 +147,9 @@ setup_spark_environment() {
     export SPARK_CONF_DIR="$SPARK_HOME/conf"
     export PYSPARK_PYTHON=python3
     export PYSPARK_DRIVER_PYTHON=python3
+
+    # Force Spark Master to use localhost instead of hostname
+    export SPARK_MASTER_HOST=localhost
     
     # Add Spark to PATH (with fallback if path_add not available)
     if command -v path_add >/dev/null 2>&1; then

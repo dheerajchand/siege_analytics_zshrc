@@ -132,7 +132,10 @@
       "Bash(sdk list:*)",
       "Bash(git log:*)",
       "Bash(time zsh:*)",
-      "Bash(./honest-testing-framework.sh:*)"
+      "Bash(./honest-testing-framework.sh:*)",
+      "Bash(lsof:*)",
+      "Bash(ping:*)",
+      "Bash(sudo tee:*)"
     ],
     "deny": [],
     "ask": []
