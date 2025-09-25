@@ -123,7 +123,13 @@
       "Bash(/tmp/environment_comparison.sh:*)",
       "Bash(./battle-test-framework.sh:*)",
       "WebSearch",
-      "Bash(./big-data-reality-test.sh:*)"
+      "Bash(./big-data-reality-test.sh:*)",
+      "Bash(java:*)",
+      "Bash(if [[ -n \"$SDKMAN_DIR\" ]])",
+      "Bash([[ -f \"$SDKMAN_DIR/bin/sdkman-init.sh\" ]])",
+      "Bash(then echo \"✅ SDKMAN init conditions met\")",
+      "Bash(else echo \"❌ SDKMAN init conditions NOT met\")",
+      "Bash(sdk list:*)"
     ],
     "deny": [],
     "ask": []
