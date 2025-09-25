@@ -66,6 +66,62 @@ mkcd() { mkdir -p "$1" && cd "$1"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 # =====================================================
+# CONTAINER DETECTION & LIGHT MODE
+# =====================================================
+# Auto-detect container environments
+if [[ -f "/.dockerenv" ]] || [[ -n "$container" ]] || [[ "$TERM_PROGRAM" == "docker" ]]; then
+    ZSH_MODE="light"
+fi
+
+# Light mode: minimal functionality with instructions
+if [[ "$ZSH_MODE" == "light" ]]; then
+    echo "⚡ ZSH Light Mode - Minimal functionality only"
+    echo "💡 For full development environment: unset ZSH_MODE && exec zsh"
+    echo "📦 Or run: ZSH_MODE=staggered exec zsh"
+    return 0  # Exit early, skip all module loading
+fi
+
+# =====================================================
+# CLAUDE CODE ENVIRONMENT DETECTION & FUNCTIONS
+# =====================================================
+detect_claude_environment() {
+    # Method 1: Environment variable (most reliable)
+    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
+        return 0
+    fi
+
+    # Method 2: Process tree walking
+    local current_pid=$$
+    local depth=0
+    local max_depth=10
+
+    while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
+        # Get process command line
+        local proc_cmdline=$(ps -p $current_pid -o args= 2>/dev/null || echo "")
+        if [[ "$proc_cmdline" == *"claude"* ]]; then
+            return 0  # Found claude in process tree
+        fi
+
+        # Get parent PID
+        current_pid=$(ps -p $current_pid -o ppid= 2>/dev/null | tr -d ' ' || echo "1")
+        ((depth++))
+    done
+
+    return 1
+}
+
+# Mode detection function (required by hostile tests)
+detect_zsh_mode() {
+    if [[ "$ZSH_MODE" == "light" ]]; then
+        echo "light"
+    elif [[ "$ZSH_MODE" == "heavy" ]]; then
+        echo "heavy"
+    else
+        echo "staggered"
+    fi
+}
+
+# =====================================================
 # ON-DEMAND MODULE SYSTEM
 # =====================================================
 load_module() {
@@ -140,45 +196,8 @@ zshreboot() {
 }
 
 # =====================================================
-# CLAUDE CODE ENVIRONMENT DETECTION & STAGGERED MODE
+# STAGGERED MODE AUTO-LOADING
 # =====================================================
-detect_claude_environment() {
-    # Method 1: Environment variable (most reliable)
-    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
-        return 0
-    fi
-
-    # Method 2: Process tree walking
-    local current_pid=$$
-    local depth=0
-    local max_depth=10
-
-    while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
-        # Get process command line
-        local proc_cmdline=$(ps -p $current_pid -o args= 2>/dev/null || echo "")
-        if [[ "$proc_cmdline" == *"claude"* ]]; then
-            return 0  # Found claude in process tree
-        fi
-
-        # Get parent PID
-        current_pid=$(ps -p $current_pid -o ppid= 2>/dev/null | tr -d ' ' || echo "1")
-        ((depth++))
-    done
-
-    return 1
-}
-
-# Mode detection function (required by hostile tests)
-detect_zsh_mode() {
-    if [[ "$ZSH_MODE" == "light" ]]; then
-        echo "light"
-    elif [[ "$ZSH_MODE" == "heavy" ]]; then
-        echo "heavy"
-    else
-        echo "staggered"
-    fi
-}
-
 # Auto-load all modules in staggered mode (default for all environments)
 if [[ "$ZSH_MODE" != "light" ]]; then
     if detect_claude_environment; then

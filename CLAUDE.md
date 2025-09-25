@@ -1,14 +1,14 @@
-# CLAUDE.md - Staggered Loading ZSH Production System
+# CLAUDE.md - ZSH-Only Production System
 
-## 🎉 **Production-Ready Staggered Loading System**
+## 🎉 **Production-Ready ZSH Development Environment**
 
-**Complete 12-module development environment with automatic Claude Code detection**
+**Complete modular ZSH system with context-aware loading**
 
 - ✅ **6 Primary Modules**: utils, database, docker, javascript, python, spark
-- ✅ **6 Hierarchical Modules**: system.zsh, utilities.zsh, module-loader.zsh, cross-shell.zsh, managers.zsh, projects.zsh
-- ✅ **PATH Protection**: Automatic corruption detection and restoration
-- ✅ **100% Test Coverage**: All 25 hostile tests passing
-- ✅ **Crash Prevention**: Safe shell restart and new window functionality
+- ✅ **Consolidated Functions**: mkcd, extract, findtext, is_online, backup system
+- ✅ **Context-Aware Loading**: Light mode (containers) vs Staggered mode (development)
+- ✅ **ZSH-Focused**: Optimized for zsh-only usage, no bash compatibility layer
+- ✅ **Hostile Tested**: Validated with comprehensive failure scenario testing
 
 ## 📊 **Quick Commands**
 
@@ -40,31 +40,38 @@ Essential shell functionality only:
 - Module loading system
 - **Target**: <60 lines, <0.5s startup
 
-### **Staggered Mode: Automatic Full Loading**
-In Claude Code environment, all modules load automatically:
+### **Staggered Mode: Full Development Environment (DEFAULT)**
+Loads all modules for complete functionality:
 ```bash
-# Primary Modules (automatically loaded)
-✅ utils      # Backup system (enhanced_backup, pushmain, sync)
-✅ database   # Database tools and connections
-✅ docker     # Docker 28.4.0 functional
+# Primary Modules (automatically loaded everywhere except containers)
+✅ utils      # Consolidated utilities: mkcd, extract, findtext, is_online
+             # Backup system: enhanced_backup, pushmain, sync, path_add
+✅ database   # PostgreSQL tools and connections
+✅ docker     # Docker 28.4.0 management and development
 ✅ javascript # Node.js/npm/yarn environment
-✅ python     # Python 3.11.11 functional
-✅ spark      # Spark functional
+✅ python     # Python 3.11.11 with pyenv, UV, virtualenv
+✅ spark      # Apache Spark & Hadoop for big data processing
 
-# Hierarchical Modules (with PATH protection)
-📁 system.zsh       # macOS system integration
-📁 utilities.zsh    # Additional utilities
-📁 module-loader.zsh # Dynamic module discovery
-📁 cross-shell.zsh  # Cross-shell compatibility (protected)
-📁 managers.zsh     # Python/Node managers
-📁 projects.zsh     # Project management tools
+# Hierarchical Modules (currently disabled for stability)
+📁 system.zsh       # macOS system integration (disabled)
+📁 module-loader.zsh # Dynamic module discovery (disabled)
+📁 managers.zsh     # Python/Node version managers (disabled)
+📁 projects.zsh     # Project initialization tools (disabled)
 ```
 
-### **Tier 3: Background Services**
-Heavy processing in background:
+### **Light Mode: Container/Minimal Environment**
+For docker containers or when `ZSH_MODE=light`:
 ```bash
-path-optimizer     # Automatic PATH cleanup
-environment-setup  # Cache environment setup
+# Shows instructions to enable full functionality
+echo "💡 For full development environment, run: ZSH_MODE=staggered exec zsh"
+```
+
+### **Context Detection**
+```bash
+# Automatic mode selection:
+- Docker containers: Light mode (minimal startup)
+- Development environments: Staggered mode (full functionality)
+- Claude Code: Staggered mode with loading output (for debugging)
 ```
 
 ## 🔧 **Module System**

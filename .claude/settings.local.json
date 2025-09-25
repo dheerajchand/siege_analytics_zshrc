@@ -112,7 +112,12 @@
       "Bash(extract:*)",
       "Bash(PATH=\"/usr/bin:/bin\" command_exists rg)",
       "Bash(command_exists \"\")",
-      "Bash(command_exists:*)"
+      "Bash(command_exists:*)",
+      "Bash(is_online)",
+      "Bash(ZSH_MODE=light zsh -c 'source ~/.zshrc 2>&1')",
+      "Bash(container=docker zsh -c 'source ~/.zshrc 2>&1')",
+      "Bash(TERM_PROGRAM=docker zsh -c 'source ~/.zshrc 2>&1')",
+      "Bash(./hostile-test-framework.sh)"
     ],
     "deny": [],
     "ask": []
