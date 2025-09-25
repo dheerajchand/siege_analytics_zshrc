@@ -199,7 +199,9 @@ RESTORE_EOF
     if [[ ! -d "$ZSHRC_BACKUPS/.git" ]]; then
         echo "🔧 Initializing backup Git repository..."
         git -C "$ZSHRC_BACKUPS" init
-        git -C "$ZSHRC_BACKUPS" remote add origin "git@github.com:dheerajchand/zshrc_backups.git" 2>/dev/null || true
+        # Use dynamic repository configuration from variables.zsh
+        local git_url="${ZSH_BACKUP_REPO/https:\/\/github.com\//git@github.com:}.git"
+        git -C "$ZSHRC_BACKUPS" remote add origin "$git_url" 2>/dev/null || true
         git -C "$ZSHRC_BACKUPS" branch -M main 2>/dev/null || true
     fi
 
@@ -703,8 +705,8 @@ function sync_zsh_repositories {
     fi
     
     echo "✅ Both repositories synced successfully!"
-    echo "📚 Config: https://github.com/dheerajchand/siege_analytics_zshrc"
-    echo "💾 Backups: https://github.com/dheerajchand/zshrc_backups"
+    echo "📚 Config: $ZSH_MAIN_REPO"
+    echo "💾 Backups: $ZSH_BACKUP_REPO"
 }
 
 # Quick sync with default message
@@ -878,7 +880,7 @@ function push_to_main_repo {
     # Push current changes directly to the main GitHub repository.
     #
     # This function adds, commits, and pushes changes to the main config repository
-    # (https://github.com/dheerajchand/siege_analytics_zshrc). It handles the
+    # (using ZSH_MAIN_REPO from variables.zsh). It handles the
     # complete workflow for updating the main repository with your changes.
     #
     # Args:
@@ -945,7 +947,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"; then
         while [[ $push_attempts -lt $max_push_attempts ]]; do
             if git push origin main; then
                 echo "🚀 Successfully pushed to main repository!"
-                echo "🌐 View changes: https://github.com/dheerajchand/siege_analytics_zshrc"
+                echo "🌐 View changes: $ZSH_MAIN_REPO"
                 return 0
             else
                 ((push_attempts++))

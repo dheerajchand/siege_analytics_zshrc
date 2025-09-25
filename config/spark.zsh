@@ -102,18 +102,19 @@ setup_spark_environment() {
     # Auto-detect and configure Spark
     local spark_candidates=()
     
-    # Platform-specific Spark locations
+    # Platform-specific Spark locations (using dynamic paths from variables.zsh)
     case "$ZSH_PLATFORM" in
         "macos")
             spark_candidates=(
-                "/opt/homebrew/opt/apache-spark/libexec"
-                "/usr/local/opt/apache-spark/libexec"
+                "$SPARK_HOME_PATH"  # From variables.zsh - SDKMAN or Homebrew
+                "${HOMEBREW_PREFIX}/opt/apache-spark/libexec"
                 "$HOME/spark"
                 "$HOME/apache-spark"
             )
             ;;
         "linux")
             spark_candidates=(
+                "$SPARK_HOME_PATH"  # From variables.zsh - SDKMAN or system
                 "/opt/spark"
                 "/usr/local/spark"
                 "/opt/apache-spark"

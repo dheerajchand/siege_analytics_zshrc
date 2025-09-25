@@ -6,7 +6,14 @@
 # Single source of truth for all environment variables,
 # paths, and constants used across the ZSH configuration.
 #
+# User-specific overrides can be placed in:
+# - ~/.zsh_user_config  (recommended)
+# - ~/.zshenv           (system-wide)
+#
 # =====================================================
+
+# Load user-specific configuration overrides if they exist
+[[ -f "$HOME/.zsh_user_config" ]] && source "$HOME/.zsh_user_config"
 
 # =====================================================
 # CORE DIRECTORIES & PATHS
@@ -31,7 +38,26 @@ export USER_BIN="$HOME/bin"
 export JETBRAINS_BIN="$HOME/.jetbrains/bin"
 
 # =====================================================
-# TOOL-SPECIFIC PATHS
+# PLATFORM DETECTION & DYNAMIC PATHS
+# =====================================================
+
+# Detect platform for path resolution
+ZSH_PLATFORM_ARCH="$(uname -m)"
+ZSH_PLATFORM_OS="$(uname -s)"
+
+# Homebrew path detection (Apple Silicon vs Intel)
+if [[ "$ZSH_PLATFORM_OS" == "Darwin" ]]; then
+    if [[ "$ZSH_PLATFORM_ARCH" == "arm64" ]]; then
+        export HOMEBREW_PREFIX="/opt/homebrew"
+    else
+        export HOMEBREW_PREFIX="/usr/local"
+    fi
+elif [[ "$ZSH_PLATFORM_OS" == "Linux" ]]; then
+    export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+fi
+
+# =====================================================
+# TOOL-SPECIFIC PATHS (DYNAMIC)
 # =====================================================
 
 # Python Environment Paths
@@ -43,13 +69,20 @@ export PYTHON_VENV_PATH="$HOME/.virtualenvs"
 export NVM_DIR="$HOME/.nvm"
 export NODE_MODULES_BIN="./node_modules/.bin"
 
-# Java/JVM Paths
+# Java/JVM Paths (dynamic based on SDKMAN)
 export SDKMAN_DIR="$HOME/.sdkman"
-export JAVA_TOOLS_PATH="/opt/homebrew/opt/sdkman-cli/libexec/candidates/java/current/bin"
+if [[ -d "$SDKMAN_DIR" ]]; then
+    export JAVA_TOOLS_PATH="$SDKMAN_DIR/candidates/java/current/bin"
+    export SPARK_HOME_PATH="$SDKMAN_DIR/candidates/spark/current"
+    export HADOOP_HOME_PATH="$SDKMAN_DIR/candidates/hadoop/current"
+else
+    # Fallback to system locations
+    export JAVA_TOOLS_PATH="${HOMEBREW_PREFIX}/bin"
+    export SPARK_HOME_PATH="${HOMEBREW_PREFIX}/opt/apache-spark/libexec"
+    export HADOOP_HOME_PATH="${HOMEBREW_PREFIX}/opt/hadoop"
+fi
 
-# Big Data Paths
-export SPARK_HOME_PATH="/opt/homebrew/opt/sdkman-cli/libexec/candidates/spark/current"
-export HADOOP_HOME_PATH="/opt/homebrew/opt/sdkman-cli/libexec/candidates/hadoop/current"
+# Big Data Paths (derived from detected homes)
 export SPARK_BIN_PATH="$SPARK_HOME_PATH/bin"
 export SPARK_SBIN_PATH="$SPARK_HOME_PATH/sbin"
 export HADOOP_BIN_PATH="$HADOOP_HOME_PATH/bin"
@@ -59,9 +92,9 @@ export HADOOP_SBIN_PATH="$HADOOP_HOME_PATH/sbin"
 export DOCKER_CONFIG_PATH="$HOME/.docker"
 export RANCHER_DESKTOP_PATH="$HOME/.rd/bin"
 
-# Homebrew Paths
-export HOMEBREW_BIN="/opt/homebrew/bin"
-export HOMEBREW_SBIN="/opt/homebrew/sbin"
+# Homebrew Paths (using detected prefix)
+export HOMEBREW_BIN="$HOMEBREW_PREFIX/bin"
+export HOMEBREW_SBIN="$HOMEBREW_PREFIX/sbin"
 
 # =====================================================
 # CORE SYSTEM PATHS
@@ -114,11 +147,27 @@ export IDE_PATHS=(
 # APPLICATION DEFAULTS
 # =====================================================
 
-# Database Configuration
-export PGUSER="${PGUSER:-dheerajchand}"
-export PGHOST="${PGHOST:-localhost}"
-export PGPORT="${PGPORT:-5432}"
-export PGDATABASE="${PGDATABASE:-postgres}"
+# =====================================================
+# USER-SPECIFIC DEFAULTS
+# =====================================================
+# These variables default to $USER for portability, but can be overridden
+# by setting environment variables in ~/.zshenv or similar
+
+# Database Configuration (using system username for portability)
+# Only set if not already defined by user
+[[ -z "$PGUSER" ]] && export PGUSER="$USER"
+[[ -z "$PGHOST" ]] && export PGHOST="localhost"
+[[ -z "$PGPORT" ]] && export PGPORT="5432"
+[[ -z "$PGDATABASE" ]] && export PGDATABASE="postgres"
+
+# MySQL Configuration (also using system username)
+[[ -z "$MYSQL_USER" ]] && export MYSQL_USER="$USER"
+[[ -z "$MYSQL_HOST" ]] && export MYSQL_HOST="localhost"
+[[ -z "$MYSQL_PORT" ]] && export MYSQL_PORT="3306"
+
+# Snowflake Configuration
+[[ -z "$SNOWFLAKE_USER" ]] && export SNOWFLAKE_USER="$USER"
+[[ -z "$SNOWFLAKE_ACCOUNT" ]] && export SNOWFLAKE_ACCOUNT=""
 
 # Python Configuration
 export PYTHON_MANAGER="${PYTHON_MANAGER:-auto}"
@@ -178,16 +227,21 @@ export ZSH_CURRENT_MODE="${ZSH_CURRENT_MODE:-minimal}"
 export ZSH_LIGHT_MODE="${ZSH_LIGHT_MODE:-false}"
 
 # =====================================================
-# REPOSITORY CONFIGURATION
+# REPOSITORY CONFIGURATION (DYNAMIC)
 # =====================================================
 
-# Main repository paths
-export ZSH_MAIN_REPO="https://github.com/dheerajchand/siege_analytics_zshrc"
-export ZSH_BACKUP_REPO="https://github.com/dheerajchand/zshrc_backups"
+# Repository Configuration (defaults to current user, can be overridden)
+[[ -z "$ZSH_REPO_OWNER" ]] && export ZSH_REPO_OWNER="$USER"
+[[ -z "$ZSH_REPO_NAME" ]] && export ZSH_REPO_NAME="siege_analytics_zshrc"
+[[ -z "$ZSH_BACKUP_REPO_NAME" ]] && export ZSH_BACKUP_REPO_NAME="zshrc_backups"
+
+# Main repository paths (constructed from configurable components)
+export ZSH_MAIN_REPO="https://github.com/${ZSH_REPO_OWNER}/${ZSH_REPO_NAME}"
+export ZSH_BACKUP_REPO="https://github.com/${ZSH_REPO_OWNER}/${ZSH_BACKUP_REPO_NAME}"
 
 # Local repository paths
 export ZSH_ACTIVE_REPO="$ZSH_CONFIG_DIR"
-export ZSH_ARCHIVE_REPO="$HOME/.zsh_backups"
+export ZSH_ARCHIVE_REPO="$HOME/.zshrc_backups"
 
 # =====================================================
 # COMPLETION
