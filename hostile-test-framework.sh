@@ -159,8 +159,8 @@ run_hostile_test "HC.2 Claude Session Variable" \
 
 # Test HC.3: Staggered mode auto-loading in Claude Code context
 run_hostile_test "HC.3 Staggered Auto-loading Verification" \
-    "Verify all 6 primary modules auto-load in Claude Code staggered mode" \
-    "zsh -c 'export CLAUDE_CODE_SESSION=test; source ~/.zshrc 2>&1 | grep -q \"ZSH ready - 6 modules loaded\" && echo \"staggered loading works\" || echo \"staggered loading failed\"'" \
+"Verify all 11 modules (6 primary + 5 hierarchical) auto-load in Claude Code staggered mode" \
+    "zsh -c 'export CLAUDE_CODE_SESSION=test; source ~/.zshrc 2>&1 | grep -q \"ZSH ready - 11 modules loaded\" && echo \"staggered loading works\" || echo \"staggered loading failed\"'" \
     "staggered loading works"
 
 # Test HC.4: Hierarchical module loading

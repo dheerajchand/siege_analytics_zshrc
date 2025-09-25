@@ -237,7 +237,8 @@ if [[ "$ZSH_MODE" != "light" ]]; then
             source "$hierarchical_module" 2>/dev/null || echo "⚠️  Hierarchical module load warning: $(basename "$hierarchical_module")"
         done
 
-        echo "✅ ZSH ready - ${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical modules loaded"
+        total_loaded_count=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
+        echo "✅ ZSH ready - $total_loaded_count modules loaded (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)"
     fi
 fi
 
