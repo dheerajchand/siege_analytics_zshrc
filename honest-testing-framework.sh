@@ -106,7 +106,7 @@ echo "================================================"
 run_honest_test "HT.5 Backup Complete Workflow" \
     "Verify backup creates commit AND pushes to remote" \
     "cd ~/.config/zsh && zsh -c 'source ~/.zshrc >/dev/null 2>&1 && backup \"honest test $(date +%s)\" 2>&1'" \
-    "✅.*Enhanced backup created.*created:" \
+    "✅ Enhanced backup created.*backup completed successfully" \
     "failed\\|error"
 
 # Test HT.6: Python environment complete functionality
