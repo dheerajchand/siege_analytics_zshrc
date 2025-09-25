@@ -231,9 +231,13 @@ if [[ "$ZSH_MODE" != "light" ]]; then
             load_module "$module"  # Show functional status for each module
         done
 
-        # Skip hierarchical modules for now (causing module path corruption)
+        # Load hierarchical modules
+        for hierarchical_module in "${hierarchical_modules[@]}"; do
+            echo "📦 Loading hierarchical module: $(basename "$hierarchical_module")"
+            source "$hierarchical_module" 2>/dev/null || echo "⚠️  Hierarchical module load warning: $(basename "$hierarchical_module")"
+        done
 
-        echo "✅ ZSH ready - ${#primary_modules[@]} modules loaded"
+        echo "✅ ZSH ready - ${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical modules loaded"
     fi
 fi
 
