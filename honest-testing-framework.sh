@@ -55,7 +55,7 @@ run_honest_test() {
     fi
 
     # Check for success criteria (must be exact match) - support multiline patterns
-    if printf "%s" "$actual_output" | grep -qE "$success_criteria"; then
+    if printf "%s" "$actual_output" | tr '\n' ' ' | grep -qE "$success_criteria"; then
         echo "✅ COMPLETE SUCCESS: All requirements met"
         PASSED_TESTS=$((PASSED_TESTS + 1))
     else
