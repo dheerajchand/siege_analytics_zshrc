@@ -168,3 +168,4 @@ echo "💡 Use 'test_terminal_compatibility' to verify setup"
 echo "💡 Use 'zsh_exec <command>' to run zsh functions from any shell"
 
 
+

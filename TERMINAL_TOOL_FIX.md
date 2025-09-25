@@ -62,3 +62,4 @@ To make this permanent, add this to your zshrc:
 This fix should allow the AI assistant to access zsh functions through the terminal tool interface.
 
 
+
