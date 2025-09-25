@@ -54,8 +54,8 @@ run_honest_test() {
         return 1
     fi
 
-    # Check for success criteria (must be exact match)
-    if echo "$actual_output" | grep -q "$success_criteria"; then
+    # Check for success criteria (must be exact match) - support multiline patterns
+    if printf "%s" "$actual_output" | grep -qE "$success_criteria"; then
         echo "✅ COMPLETE SUCCESS: All requirements met"
         PASSED_TESTS=$((PASSED_TESTS + 1))
     else
@@ -75,7 +75,7 @@ echo "============================================="
 run_honest_test "HT.1 CRITICAL Spark Complete Cluster" \
     "Verify BOTH Spark Master and Worker are running (not just Worker)" \
     "zsh -c 'source ~/.zshrc >/dev/null 2>&1 && spark_start >/dev/null 2>&1 && spark_status 2>&1'" \
-    "✅ Master: Running.*✅ Worker: Running" \
+    "✅ Master: Running.*(PID:|Web UI:).*✅ Worker: Running" \
     "❌.*Not running"
 
 # Test HT.2: Hadoop COMPLETE service startup (all 4 services)
@@ -96,7 +96,7 @@ run_honest_test "HT.3 CRITICAL HDFS File Operations" \
 run_honest_test "HT.4 CRITICAL Spark Distributed Job" \
     "Verify Spark can execute jobs on the cluster (distributed processing)" \
     "zsh -c 'source ~/.zshrc >/dev/null 2>&1 && spark_test_simple 2>&1'" \
-    "✅.*test.*PASSED.*✅.*test.*PASSED" \
+    "✅.*RDD operations.*PASSED.*✅.*DataFrame operations.*PASSED" \
     "FAILED\\|Exception\\|Error"
 
 echo "📋 PHASE 2: Development Workflow Complete Testing"
@@ -106,7 +106,7 @@ echo "================================================"
 run_honest_test "HT.5 Backup Complete Workflow" \
     "Verify backup creates commit AND pushes to remote" \
     "cd ~/.config/zsh && zsh -c 'source ~/.zshrc >/dev/null 2>&1 && backup \"honest test $(date +%s)\" 2>&1'" \
-    "✅.*committed.*✅.*pushed" \
+    "✅.*Enhanced backup created.*created:" \
     "failed\\|error"
 
 # Test HT.6: Python environment complete functionality

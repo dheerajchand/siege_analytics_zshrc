@@ -411,11 +411,11 @@ hadoop_status() {
     echo "  Java: ${JAVA_HOME:-Not set}"
     echo ""
     
-    # Count running services
-    local namenode_count=$(pgrep -cf "NameNode" 2>/dev/null || echo 0)
-    local datanode_count=$(pgrep -cf "DataNode" 2>/dev/null || echo 0)
-    local resourcemanager_count=$(pgrep -cf "ResourceManager" 2>/dev/null || echo 0)
-    local nodemanager_count=$(pgrep -cf "NodeManager" 2>/dev/null || echo 0)
+    # Count running services (macOS compatible)
+    local namenode_count=$(pgrep -f "NameNode" 2>/dev/null | wc -l | tr -d ' ')
+    local datanode_count=$(pgrep -f "DataNode" 2>/dev/null | wc -l | tr -d ' ')
+    local resourcemanager_count=$(pgrep -f "ResourceManager" 2>/dev/null | wc -l | tr -d ' ')
+    local nodemanager_count=$(pgrep -f "NodeManager" 2>/dev/null | wc -l | tr -d ' ')
     
     echo "Service Status:"
     echo "  NameNode: $([[ $namenode_count -gt 0 ]] && echo "✅ Running (PID: $(pgrep -f "NameNode"))" || echo "❌ Stopped")"

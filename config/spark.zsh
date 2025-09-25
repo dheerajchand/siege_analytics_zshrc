@@ -251,9 +251,9 @@ spark_status() {
     else
         echo "  ❌ Master: Not running"
     fi
-    
+
     if spark_worker_running; then
-        local worker_pids=$(pgrep -f "spark.deploy.worker.Worker" | tr '\n' '\n')
+        local worker_pids=$(pgrep -f "spark.deploy.worker.Worker" | tr '\n' ' ' | sed 's/ $//')
         echo "  ✅ Worker: Running (PID: $worker_pids)"
         echo "     Web UI: http://localhost:8081"
     else
