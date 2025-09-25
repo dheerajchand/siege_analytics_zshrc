@@ -135,7 +135,10 @@
       "Bash(./honest-testing-framework.sh:*)",
       "Bash(lsof:*)",
       "Bash(ping:*)",
-      "Bash(sudo tee:*)"
+      "Bash(sudo tee:*)",
+      "Bash(ssh:*)",
+      "Bash(pgrep:*)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []
