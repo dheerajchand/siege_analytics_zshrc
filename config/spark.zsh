@@ -49,72 +49,108 @@ ensure_spark_available() {
                 source "$SDKMAN_DIR/bin/sdkman-init.sh"
                 return 0
             else
-                echo "❌ Spark installation via SDKMAN failed"
-                return 1
+                echo "❌ Spark installation failed"
             fi
-        else
-            echo "✅ Spark already available via SDKMAN"
-            return 0
         fi
     else
-        echo "⚠️  SDKMAN not available - manual Spark installation required"
-        echo "💡 Install SDKMAN: curl -s \"https://get.sdkman.io\" | bash"
-        return 1
+        # Fallback: Try Homebrew on macOS
+        if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
+            if ! brew list apache-spark >/dev/null 2>&1; then
+                echo "🔄 Installing Spark via Homebrew..."
+                brew install apache-spark
+                if [[ $? -eq 0 ]]; then
+                    echo "✅ Spark installed via Homebrew"
+                    export SPARK_HOME="$(brew --prefix apache-spark)/libexec"
+                    return 0
+                fi
+            fi
+        fi
     fi
+    
+    return 0
 }
 
 start_spark_cluster() {
-    # Start local Spark cluster
-    ensure_spark_available || return 1
+    # Smart function to start Spark cluster
+    # Ensures Spark is available first
+    
+    if ! ensure_spark_available; then
+        echo "❌ Cannot start Spark - installation failed"
+        return 1
+    fi
     
     if [[ -z "$SPARK_HOME" ]]; then
         echo "❌ SPARK_HOME not set"
         return 1
     fi
     
-    echo "🚀 Starting Spark cluster..."
-    
-    # Start master
-    if ! spark_master_running; then
-        echo "▶️  Starting Spark master..."
+    # Check if master is already running
+    if spark_master_running; then
+        echo "✅ Spark master already running"
+    else
+        echo "🔄 Starting Spark master..."
         "$SPARK_HOME/sbin/start-master.sh"
-        sleep 2
-    else
-        echo "✅ Master already running"
+        
+        # Wait for master to start
+        local timeout=10
+        while ! spark_master_running && [[ $timeout -gt 0 ]]; do
+            sleep 1
+            ((timeout--))
+        done
+        
+        if spark_master_running; then
+            echo "✅ Spark master started"
+        else
+            echo "❌ Spark master failed to start"
+            return 1
+        fi
     fi
     
-    # Start worker
-    if ! spark_worker_running; then
-        echo "▶️  Starting Spark worker..."
-        "$SPARK_HOME/sbin/start-worker.sh" spark://localhost:7077
+    # Check if worker is running
+    if spark_worker_running; then
+        echo "✅ Spark worker already running"
     else
-        echo "✅ Worker already running"
+        echo "🔄 Starting Spark worker..."
+        "$SPARK_HOME/sbin/start-worker.sh" "spark://localhost:7077"
+        
+        # Wait for worker to start
+        local timeout=10
+        while ! spark_worker_running && [[ $timeout -gt 0 ]]; do
+            sleep 1
+            ((timeout--))
+        done
+        
+        if spark_worker_running; then
+            echo "✅ Spark worker started"
+        else
+            echo "❌ Spark worker failed to start"
+            return 1
+        fi
     fi
     
-    echo "✅ Spark cluster started"
+    return 0
 }
 
 # =====================================================
-# SPARK ENVIRONMENT SETUP
+# SPARK CONFIGURATION & DETECTION  
 # =====================================================
 
 setup_spark_environment() {
     # Auto-detect and configure Spark
     local spark_candidates=()
     
-    # Platform-specific Spark locations (using dynamic paths from variables.zsh)
+    # Platform-specific Spark locations
     case "$ZSH_PLATFORM" in
         "macos")
             spark_candidates=(
-                "$SPARK_HOME_PATH"  # From variables.zsh - SDKMAN or Homebrew
-                "${HOMEBREW_PREFIX}/opt/apache-spark/libexec"
+                "/opt/homebrew/opt/apache-spark/libexec"
+                "/usr/local/opt/apache-spark/libexec"
                 "$HOME/spark"
                 "$HOME/apache-spark"
             )
             ;;
         "linux")
             spark_candidates=(
-                "$SPARK_HOME_PATH"  # From variables.zsh - SDKMAN or system
                 "/opt/spark"
                 "/usr/local/spark"
                 "/opt/apache-spark"
@@ -148,24 +184,15 @@ setup_spark_environment() {
     export SPARK_CONF_DIR="$SPARK_HOME/conf"
     export PYSPARK_PYTHON=python3
     export PYSPARK_DRIVER_PYTHON=python3
-
-    # Force Spark Master to use localhost instead of hostname
-    export SPARK_MASTER_HOST=localhost
     
-    # Add Spark to PATH (with fallback if path_add not available)
-    if command -v path_add >/dev/null 2>&1; then
-        path_add "$SPARK_HOME/bin"
-        path_add "$SPARK_HOME/sbin"
-    else
-        # Fallback PATH addition
-        [[ ":$PATH:" != *":$SPARK_HOME/bin:"* ]] && export PATH="$SPARK_HOME/bin:$PATH"
-        [[ ":$PATH:" != *":$SPARK_HOME/sbin:"* ]] && export PATH="$SPARK_HOME/sbin:$PATH"
-    fi
+    # Add Spark to PATH
+    path_add "$SPARK_HOME/bin"
+    path_add "$SPARK_HOME/sbin"
     
     # Default configurations
-    # Note: Spark configuration variables are defined in main zshrc centralized section:
-    # - SPARK_DRIVER_MEMORY, SPARK_EXECUTOR_MEMORY, SPARK_MASTER_URL
-    # - SPARK_NUM_EXECUTORS, SPARK_EXECUTOR_CORES, SPARK_DRIVER_MAX_RESULT_SIZE
+    export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
+    export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-1g}"
+    export SPARK_MASTER_URL="${SPARK_MASTER_URL:-spark://localhost:7077}"
     
     # Container-specific adjustments
     if [[ "$ZSH_IS_DOCKER" == "true" ]]; then
@@ -176,7 +203,38 @@ setup_spark_environment() {
 }
 
 # =====================================================
-# MAIN SPARK FUNCTIONS
+# SPARK DEPENDENCY MANAGEMENT
+# =====================================================
+
+get_spark_dependencies() {
+    # Generate common Spark dependencies string (cross-shell compatible)
+    local deps=""
+    
+    # Check for common JAR directories
+    local jar_dirs="$HOME/spark-jars $HOME/.spark/jars $SPARK_HOME/jars $HOME/local-jars"
+    
+    # Add JARs if directories exist
+    for jar_dir in $jar_dirs; do
+        if [[ -d "$jar_dir" ]] && [[ -n "$(find "$jar_dir" -name "*.jar" 2>/dev/null)" ]]; then
+            local jar_list=$(find "$jar_dir" -name "*.jar" | paste -sd ',')
+            deps="$deps --jars $jar_list"
+            break  # Use first available JAR directory
+        fi
+    done
+    
+    # Common packages for different use cases
+    local common_packages="org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.0,com.databricks:spark-csv_2.12:1.5.0"
+    
+    # Check if packages should be included (only if not in container to save bandwidth)
+    if [[ "$ZSH_IS_DOCKER" != "true" ]]; then
+        deps="$deps --packages $common_packages"
+    fi
+    
+    echo "$deps"
+}
+
+# =====================================================
+# SPARK CLUSTER MANAGEMENT
 # =====================================================
 
 spark_start() {
@@ -187,75 +245,93 @@ spark_start() {
     #   Starts a complete Apache Spark cluster (master + worker) with automatic
     #   dependency resolution. Will auto-install Spark via SDKMAN if not available,
     #   configure environment variables, and start both master and worker processes.
+    #   Includes smart dependency management that handles missing installations.
+    #
+    # Dependencies:
+    #   - Automatically installs Spark via SDKMAN or Homebrew
+    #   - Requires Java (auto-configured via SDKMAN)
+    #   - Uses netcat for port checking (falls back to process checking)
     #
     # Usage:
     #   spark_start
     #
+    # Environment Variables Set:
+    #   SPARK_HOME - Path to Spark installation
+    #   SPARK_MASTER_URL - URL of started master (spark://localhost:7077)
+    #
     # Returns:
-    #   0 if successful, 1 if failed
+    #   0 on success, 1 on failure
     #
     # Examples:
-    #   spark_start                    # Start cluster with defaults
-    #   SPARK_DRIVER_MEMORY=4g spark_start  # Start with custom memory
+    #   spark_start                    # Start cluster with auto-install
+    #   spark-start                    # Alias version
     #
-    echo "🚀 Starting Apache Spark cluster..."
+    # See Also:
+    #   spark_stop, spark_status, ensure_spark_available
     
-    # Ensure Spark is available
-    if ! command -v spark-submit >/dev/null 2>&1; then
-        echo "🔍 Spark not found, attempting to install..."
-        ensure_spark_available || {
-            echo "❌ Could not install Spark automatically"
-            echo "💡 Please install Spark manually or via SDKMAN"
-            return 1
-        }
+    # Use smart dependency management
+    echo "🔄 Ensuring Spark is available..."
+    if ! ensure_spark_available; then
+        echo "❌ Failed to ensure Spark availability"
+        return 1
     fi
     
-    # Setup environment if needed
-    setup_spark_environment 2>/dev/null || true
-    
-    # Start cluster
-    start_spark_cluster
+    # Delegate to smart cluster startup
+    return start_spark_cluster
 }
 
+# Cleaned up orphaned code from spark_start refactor
+
 spark_stop() {
-    # Stop Spark cluster
+    # Stop local Spark cluster
+    if [[ -z "$SPARK_HOME" ]]; then
+        echo "❌ SPARK_HOME not set"
+        return 1
+    fi
+    
     echo "🛑 Stopping Spark cluster..."
     
-    if [[ -n "$SPARK_HOME" ]]; then
-        "$SPARK_HOME/sbin/stop-worker.sh" 2>/dev/null || true
-        "$SPARK_HOME/sbin/stop-master.sh" 2>/dev/null || true
+    # Stop worker first
+    if pgrep -f "spark.deploy.worker.Worker" >/dev/null; then
+        echo "   Stopping worker..."
+        "$SPARK_HOME/sbin/stop-worker.sh" 2>/dev/null
+        echo "   ✅ Worker stopped"
+    fi
+    
+    # Stop master
+    if pgrep -f "spark.deploy.master.Master" >/dev/null; then
+        echo "   Stopping master..."
+        "$SPARK_HOME/sbin/stop-master.sh" 2>/dev/null
+        echo "   ✅ Master stopped"
     fi
     
     echo "✅ Spark cluster stopped"
 }
 
 spark_status() {
-    # Show comprehensive Spark status
+    # Show Spark cluster status
     echo "⚡ Apache Spark Status"
     echo "===================="
     echo ""
     
-    # Configuration
     echo "Configuration:"
     echo "  SPARK_HOME: ${SPARK_HOME:-Not set}"
-    echo "  Driver Memory: ${SPARK_DRIVER_MEMORY:-2g}"
-    echo "  Executor Memory: ${SPARK_EXECUTOR_MEMORY:-1g}"
-    echo "  Master URL: ${SPARK_MASTER_URL:-spark://localhost:7077}"
+    echo "  Driver Memory: $SPARK_DRIVER_MEMORY"
+    echo "  Executor Memory: $SPARK_EXECUTOR_MEMORY"
+    echo "  Master URL: $SPARK_MASTER_URL"
     echo ""
     
-    # Cluster status
+    # Check if Spark processes are running
     echo "Cluster Status:"
-    if spark_master_running; then
-        local master_pid=$(pgrep -f "spark.deploy.master.Master" | head -1)
-        echo "  ✅ Master: Running (PID: $master_pid)"
+    if pgrep -f "spark.deploy.master.Master" >/dev/null; then
+        echo "  ✅ Master: Running (PID: $(pgrep -f "spark.deploy.master.Master"))"
         echo "     Web UI: http://localhost:8080"
     else
         echo "  ❌ Master: Not running"
     fi
-
-    if spark_worker_running; then
-        local worker_pids=$(pgrep -f "spark.deploy.worker.Worker" | tr '\n' ' ' | sed 's/ $//')
-        echo "  ✅ Worker: Running (PID: $worker_pids)"
+    
+    if pgrep -f "spark.deploy.worker.Worker" >/dev/null; then
+        echo "  ✅ Worker: Running (PID: $(pgrep -f "spark.deploy.worker.Worker"))"
         echo "     Web UI: http://localhost:8081"
     else
         echo "  ❌ Worker: Not running"
@@ -276,21 +352,286 @@ spark_status() {
     else
         echo "  ❌ Master Web UI (8080): Not accessible"
     fi
+}
+
+# =====================================================
+# SPARK SUBMIT FUNCTIONS
+# =====================================================
+
+default_spark_submit() {
+    # Standard local Spark submit with optimizations
+    local py_file="$1"
     
-    # System status
-    echo ""
-    echo "System:"
-    if command -v spark-submit >/dev/null 2>&1; then
-        echo "  ✅ spark-submit: Available"
-    else
-        echo "  ❌ spark-submit: Not found"
+    if [[ -z "$py_file" ]]; then
+        echo "Usage: default_spark_submit <python_file>"
+        return 1
     fi
     
-    if command -v pyspark >/dev/null 2>&1; then
-        echo "  ✅ pyspark: Available"  
-    else
-        echo "  ❌ pyspark: Not found"
+    if [[ ! -f "$py_file" ]]; then
+        echo "❌ File not found: $py_file"
+        return 1
     fi
+    
+    echo "🏠 Local Spark submit with enhanced dependencies..."
+    local dependencies=$(get_spark_dependencies)
+    
+    # Use local mode with all available cores
+    spark-submit \
+        --master "local[*]" \
+        --driver-memory "$SPARK_DRIVER_MEMORY" \
+        --executor-memory "$SPARK_EXECUTOR_MEMORY" \
+        --conf "spark.sql.adaptive.enabled=true" \
+        --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+        $dependencies \
+        "$py_file"
+}
+
+distributed_spark_submit() {
+    # Submit to distributed Spark cluster
+    local py_file="$1"
+    local master_url="${2:-$SPARK_MASTER_URL}"
+    
+    if [[ -z "$py_file" ]]; then
+        echo "Usage: distributed_spark_submit <python_file> [master_url]"
+        return 1
+    fi
+    
+    if [[ ! -f "$py_file" ]]; then
+        echo "❌ File not found: $py_file"
+        return 1
+    fi
+    
+    if [[ -z "$master_url" ]]; then
+        echo "❌ No master URL. Run: spark_start"
+        return 1
+    fi
+    
+    echo "🌐 Distributed Spark submit..."
+    local dependencies=$(get_spark_dependencies)
+    
+    spark-submit \
+        --master "$master_url" \
+        --deploy-mode client \
+        --driver-memory "$SPARK_DRIVER_MEMORY" \
+        --executor-memory "$SPARK_EXECUTOR_MEMORY" \
+        --executor-cores 1 \
+        --num-executors 4 \
+        --conf "spark.sql.adaptive.enabled=true" \
+        --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+        --conf "spark.network.timeout=300s" \
+        $dependencies \
+        "$py_file"
+}
+
+smart_spark_submit() {
+    # Automatically choose best execution mode
+    local py_file="$1"
+    
+    if [[ -z "$py_file" ]]; then
+        echo "Usage: smart_spark_submit <python_file>"
+        return 1
+    fi
+    
+    echo "🤖 Smart environment detection..."
+    
+    # Check for running cluster
+    if [[ -n "$SPARK_MASTER_URL" ]] && pgrep -f "spark.deploy.master.Master" >/dev/null; then
+        echo "✅ Local Spark cluster detected - using distributed mode"
+        distributed_spark_submit "$py_file"
+        return
+    fi
+    
+    # Check if we can start a cluster
+    if [[ -n "$SPARK_HOME" ]] && [[ -f "$SPARK_HOME/sbin/start-master.sh" ]] && [[ "$ZSH_IS_DOCKER" != "true" ]]; then
+        echo "ℹ️  No running cluster found - would you like to start one? (y/n)"
+        read "start_cluster?"
+        if [[ "$start_cluster" == "y" ]]; then
+            spark_start
+            sleep 2
+            distributed_spark_submit "$py_file"
+            return
+        fi
+    fi
+    
+    # Fall back to local mode
+    echo "ℹ️  Using local mode"
+    default_spark_submit "$py_file"
+}
+
+spark_yarn_submit() {
+    # Submit to YARN cluster
+    local script_file="$1"
+    local deploy_mode="${2:-client}"
+    
+    if [[ -z "$script_file" ]]; then
+        echo "Usage: spark_yarn_submit <script_file> [client|cluster]"
+        return 1
+    fi
+    
+    # Check if YARN is available (requires Hadoop module)
+    if ! command -v yarn >/dev/null 2>&1; then
+        echo "❌ YARN not available. Install Hadoop first."
+        return 1
+    fi
+    
+    echo "🚀 Submitting Spark job to YARN..."
+    local dependencies=$(get_spark_dependencies)
+    
+    spark-submit \
+        --master yarn \
+        --deploy-mode "$deploy_mode" \
+        --driver-memory 2g \
+        --executor-memory 1g \
+        --executor-cores 2 \
+        --num-executors 2 \
+        --conf "spark.sql.adaptive.enabled=true" \
+        --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+        $dependencies \
+        "$script_file"
+}
+
+heavy_api_submit() {
+    # Optimized submit for API-heavy workloads
+    local py_file="$1"
+    local mode="${2:-auto}"
+    
+    if [[ -z "$py_file" ]]; then
+        echo "Usage: heavy_api_submit <python_file> [mode]"
+        echo "Modes: auto (default), local, distributed, yarn"
+        return 1
+    fi
+    
+    if [[ ! -f "$py_file" ]]; then
+        echo "❌ File not found: $py_file"
+        return 1
+    fi
+    
+    echo "🚀 Heavy API Workload Submit - Optimized for API-intensive processing..."
+    
+    # Heavy API workload optimizations
+    local heavy_api_configs=(
+        "--conf spark.sql.adaptive.enabled=true"
+        "--conf spark.sql.adaptive.coalescePartitions.enabled=true"
+        "--conf spark.serializer=org.apache.spark.serializer.KryoSerializer"
+        "--conf spark.network.timeout=600s"
+        "--conf spark.executor.heartbeatInterval=60s"
+        "--conf spark.sql.execution.arrow.pyspark.enabled=true"
+        "--conf spark.sql.adaptive.skewJoin.enabled=true"
+        "--conf spark.dynamicAllocation.enabled=false"
+        "--conf spark.python.worker.reuse=true"
+        "--conf spark.sql.adaptive.localShuffleReader.enabled=true"
+    )
+    
+    local dependencies=$(get_spark_dependencies)
+    
+    # Auto-detect mode
+    case "$mode" in
+        auto)
+            echo "   🤖 Auto-detecting best execution environment..."
+            if command -v yarn >/dev/null 2>&1 && pgrep -f ResourceManager >/dev/null; then
+                echo "   ✅ YARN available - using YARN mode"
+                mode="yarn"
+            elif [[ -n "$SPARK_MASTER_URL" ]] && pgrep -f "spark.deploy.master.Master" >/dev/null; then
+                echo "   ✅ Spark cluster available - using distributed mode"
+                mode="distributed"
+            else
+                echo "   ℹ️  Using local mode with heavy API optimizations"
+                mode="local"
+            fi
+            ;;
+    esac
+    
+    # Execute based on mode
+    case "$mode" in
+        local)
+            echo "   🏠 Local mode with API-heavy optimizations..."
+            spark-submit \
+                --master "local[*]" \
+                --driver-memory 4g \
+                --conf "spark.driver.maxResultSize=2g" \
+                ${heavy_api_configs[*]} \
+                $dependencies \
+                "$py_file"
+            ;;
+        distributed)
+            if [[ -z "$SPARK_MASTER_URL" ]] || ! pgrep -f "spark.deploy.master.Master" >/dev/null; then
+                echo "❌ No Spark cluster running. Run: spark_start"
+                return 1
+            fi
+            echo "   🌐 Distributed mode with API-heavy optimizations..."
+            spark-submit \
+                --master "$SPARK_MASTER_URL" \
+                --deploy-mode client \
+                --driver-memory 4g \
+                --executor-memory 2g \
+                --executor-cores 2 \
+                --num-executors 4 \
+                --conf "spark.driver.maxResultSize=2g" \
+                ${heavy_api_configs[*]} \
+                $dependencies \
+                "$py_file"
+            ;;
+        yarn)
+            if ! command -v yarn >/dev/null 2>&1 || ! pgrep -f ResourceManager >/dev/null; then
+                echo "❌ YARN not running. Install and start Hadoop."
+                return 1
+            fi
+            echo "   🎯 YARN mode with API-heavy optimizations..."
+            spark-submit \
+                --master yarn \
+                --deploy-mode client \
+                --driver-memory 4g \
+                --executor-memory 2g \
+                --executor-cores 2 \
+                --num-executors 4 \
+                --conf "spark.driver.maxResultSize=2g" \
+                ${heavy_api_configs[*]} \
+                $dependencies \
+                "$py_file"
+            ;;
+        *)
+            echo "❌ Invalid mode: $mode"
+            return 1
+            ;;
+    esac
+}
+
+# =====================================================
+# SPARK UTILITIES
+# =====================================================
+
+spark_shell() {
+    # Start Spark shell with common configurations
+    echo "🐚 Starting Spark shell..."
+    local dependencies=$(get_spark_dependencies)
+    
+    spark-shell \
+        --conf "spark.sql.adaptive.enabled=true" \
+        --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+        $dependencies
+}
+
+pyspark_shell() {
+    # Start PySpark shell with common configurations
+    echo "🐍 Starting PySpark shell..."
+    local dependencies=$(get_spark_dependencies)
+    
+    pyspark \
+        --conf "spark.sql.adaptive.enabled=true" \
+        --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+        $dependencies
+}
+
+spark_history_server() {
+    # Start Spark history server
+    if [[ -z "$SPARK_HOME" ]]; then
+        echo "❌ SPARK_HOME not set"
+        return 1
+    fi
+    
+    echo "📊 Starting Spark History Server..."
+    "$SPARK_HOME/sbin/start-history-server.sh"
+    echo "✅ History server started at http://localhost:18080"
 }
 
 # =====================================================
@@ -385,20 +726,45 @@ except Exception as e:
     fi
 }
 
+test_spark_comprehensive() {
+    #
+    # Comprehensive Spark functionality test (placeholder for advanced testing)
+    #
+    echo "🧪 Comprehensive Spark functionality test..."
+    echo "🔄 This would test advanced features like:"
+    echo "   - Sedona geospatial processing"
+    echo "   - GraphFrames graph processing"  
+    echo "   - MLlib machine learning"
+    echo "   - Structured Streaming"
+    echo ""
+    echo "💡 Use spark_test_simple for basic validation"
+    echo "🚀 Advanced tests coming in future updates"
+}
+
 # =====================================================
-# ALIASES
+# SPARK ALIASES
 # =====================================================
 
 alias spark-start='spark_start'
 alias spark-stop='spark_stop'
 alias spark-status='spark_status'
+alias spark-restart='spark_stop && sleep 2 && spark_start'
+alias spark-submit-local='default_spark_submit'
+alias spark-submit-distributed='distributed_spark_submit'
+alias spark-submit-smart='smart_spark_submit'
+alias spark-submit-yarn='spark_yarn_submit'
+alias spark-submit-heavy='heavy_api_submit'
+alias spark-shell-start='spark_shell'
+alias pyspark-start='pyspark_shell'
+alias spark-history='spark_history_server'
+alias spark-logs='ls -la $SPARK_HOME/logs/'
 
 # =====================================================
 # INITIALIZATION
 # =====================================================
 
-# Setup Spark environment (with error handling)
-setup_spark_environment 2>/dev/null || true
+# Setup Spark environment
+setup_spark_environment
 
 # Show setup status if verbose
 if [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && [[ -n "$SPARK_HOME" ]]; then
