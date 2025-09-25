@@ -94,8 +94,8 @@ run_battle_test "BT.4 CRITICAL Backup System" \
 # Test BT.5: Python environment integration
 run_battle_test "BT.5 Python Integration" \
     "Verify Python module provides working environment" \
-    "zsh -c 'source ~/.zshrc >/dev/null 2>&1 && python3 -c \"import sys; print(f\\\"python_{sys.version_info.major}_{sys.version_info.minor}_works\\\")\" 2>/dev/null' | grep -q 'python_.*_works'" \
-    "python_.*_works" \
+    "zsh -c 'source ~/.zshrc >/dev/null 2>&1 && python3 --version >/dev/null 2>&1 && echo python_integration_works'" \
+    "python_integration_works" \
     "Python execution"
 
 # Test BT.6: Module state persistence
