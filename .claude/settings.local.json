@@ -117,7 +117,11 @@
       "Bash(ZSH_MODE=light zsh -c 'source ~/.zshrc 2>&1')",
       "Bash(container=docker zsh -c 'source ~/.zshrc 2>&1')",
       "Bash(TERM_PROGRAM=docker zsh -c 'source ~/.zshrc 2>&1')",
-      "Bash(./hostile-test-framework.sh)"
+      "Bash(./hostile-test-framework.sh)",
+      "Bash(open:*)",
+      "Bash(pstree:*)",
+      "Bash(/tmp/environment_comparison.sh:*)",
+      "Bash(./battle-test-framework.sh:*)"
     ],
     "deny": [],
     "ask": []
