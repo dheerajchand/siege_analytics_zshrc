@@ -121,7 +121,9 @@
       "Bash(open:*)",
       "Bash(pstree:*)",
       "Bash(/tmp/environment_comparison.sh:*)",
-      "Bash(./battle-test-framework.sh:*)"
+      "Bash(./battle-test-framework.sh:*)",
+      "WebSearch",
+      "Bash(./big-data-reality-test.sh:*)"
     ],
     "deny": [],
     "ask": []

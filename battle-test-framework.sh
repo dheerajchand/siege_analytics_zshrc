@@ -91,12 +91,12 @@ run_battle_test "BT.4 CRITICAL Backup System" \
     "backup_works" \
     "Real git repository"
 
-# Test BT.5: Python environment integration
-run_battle_test "BT.5 Python Integration" \
-    "Verify Python module provides working environment" \
-    "zsh -c 'source ~/.zshrc >/dev/null 2>&1 && python3 --version >/dev/null 2>&1 && echo python_integration_works'" \
-    "python_integration_works" \
-    "Python execution"
+# Test BT.5: Big data stack reality check
+run_battle_test "BT.5 CRITICAL Big Data Stack" \
+    "Test if Spark/Hadoop actually work (not just load)" \
+    "zsh -c 'source ~/.zshrc >/dev/null 2>&1 && load_module spark >/dev/null 2>&1 && spark_start >/dev/null 2>&1 && spark_status 2>&1' | grep -q '✅.*Running' && echo 'big_data_functional'" \
+    "big_data_functional" \
+    "Real Spark execution"
 
 # Test BT.6: Module state persistence
 run_battle_test "BT.6 Module State Tracking" \
