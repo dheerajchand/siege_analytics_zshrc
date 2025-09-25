@@ -96,10 +96,7 @@ load_module() {
         esac
         echo "✅ $module: $verification_result"
 
-        # Show what's available after loading
-        echo "💡 Additional modules available:"
-        ls $ZSH_CONFIG_DIR/modules/*.zsh 2>/dev/null | xargs -n1 basename | sed 's/.zsh$//' | grep -v "^$module$" | sed 's/^/  load-/' | tr '\n' ' '
-        echo ""
+        # Module loaded (output suppressed for clean startup)
 
     else
         echo "❌ Module not found: $module"
@@ -215,14 +212,7 @@ if [[ "$ZSH_MODE" != "light" ]]; then
             load_module "$module"  # Show functional status for each module
         done
 
-        # Load hierarchical modules
-        for module_path in "${hierarchical_modules[@]}"; do
-            if [[ -f "$module_path" ]]; then
-                module_name=$(/usr/bin/basename "$module_path" 2>/dev/null || echo "unknown")
-                [[ -n "$module_name" && "$module_name" != "unknown" ]] && echo "📁 Loading hierarchical module: $module_name"
-                source "$module_path" 2>/dev/null
-            fi
-        done
+        # Skip hierarchical modules for now (causing module path corruption)
 
         echo "✅ ZSH ready - ${#primary_modules[@]} modules loaded"
     fi

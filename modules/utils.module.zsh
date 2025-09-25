@@ -93,8 +93,8 @@ _report_config_error() {
 # Purpose: Check if a command exists in PATH
 # Arguments: $1 - command name
 # Returns: 0 if exists, 1 if not
-# Usage: if _command_exists "git"; then echo "Git available"; fi
-_command_exists() {
+# Usage: if command_exists "git"; then echo "Git available"; fi
+command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
@@ -155,7 +155,7 @@ _environment_health_check() {
     # Check essential commands
     local essential_commands=("ls" "cd" "pwd" "echo" "which")
     for cmd in "${essential_commands[@]}"; do
-        if _command_exists "$cmd"; then
+        if command_exists "$cmd"; then
             echo "✅ $cmd: Available"
         else
             echo "❌ $cmd: Missing"
@@ -196,6 +196,78 @@ if [[ -f "$ZSH_CONFIG_DIR/scripts/utils/backup-system.zsh" ]]; then
 else
     echo "⚠️  Backup system not found - manual git commits required"
 fi
+
+# PATH management function
+path_add() {
+    local new_path="$1"
+    local position="${2:-prepend}"
+
+    if [[ -d "$new_path" && ":$PATH:" != *":$new_path:"* ]]; then
+        case "$position" in
+            "prepend") export PATH="$new_path:$PATH" ;;
+            "append") export PATH="$PATH:$new_path" ;;
+        esac
+    fi
+}
+
+# =====================================================
+# USER UTILITIES (consolidated from utilities.zsh)
+# =====================================================
+
+is_online() {
+    # Check if internet connection is available
+    ping -c 1 google.com &> /dev/null
+}
+
+is_online_status() {
+    # Get online status as string
+    if is_online; then
+        echo "online"
+    else
+        echo "offline"
+    fi
+}
+
+mkcd() {
+    # Create directory and cd into it
+    mkdir -p "$1" && cd "$1"
+}
+
+extract() {
+    # Universal extraction function
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "Don't know how to extract '$1'" ;;
+        esac
+    else
+        echo "File '$1' not found"
+    fi
+}
+
+findtext() {
+    # Search for text in files recursively
+    local text="$1"
+    local path="${2:-.}"
+
+    if command_exists rg; then
+        rg "$text" "$path"
+    elif command_exists ag; then
+        ag "$text" "$path"
+    else
+        grep -r "$text" "$path"
+    fi
+}
 
 # Utils module loaded successfully
 
