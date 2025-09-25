@@ -108,7 +108,11 @@
       "Bash(~/.config/zsh/zsh-system service stop path-optimizer)",
       "Bash(~/.config/zsh/zsh-system service stop environment-setup)",
       "Bash(xargs kill:*)",
-      "Bash(~/.config/zsh/zsh-system switch-minimal)"
+      "Bash(~/.config/zsh/zsh-system switch-minimal)",
+      "Bash(extract:*)",
+      "Bash(PATH=\"/usr/bin:/bin\" command_exists rg)",
+      "Bash(command_exists \"\")",
+      "Bash(command_exists:*)"
     ],
     "deny": [],
     "ask": []
