@@ -10,10 +10,23 @@
 
 echo "⚡ Loading Spark module..."
 
+# Load critical function guard (silently)
+if [[ -f "$ZSH_CONFIG_DIR/CRITICAL_FUNCTION_GUARD.zsh" ]]; then
+    source "$ZSH_CONFIG_DIR/CRITICAL_FUNCTION_GUARD.zsh" >/dev/null 2>&1
+fi
+
 # Load Spark configuration and functions
 if [[ -f "$ZSH_CONFIG_DIR/config/spark.zsh" ]]; then
     source "$ZSH_CONFIG_DIR/config/spark.zsh"
-    echo "✅ Spark functions loaded"
+
+    # CRITICAL: Verify functions actually loaded
+    if command -v verify_critical_functions &> /dev/null && verify_critical_functions "spark"; then
+        echo "✅ Spark functions loaded and verified"
+    else
+        echo "❌ CRITICAL: Spark functions failed to load properly"
+        echo "🔧 Check: config/spark.zsh for missing function definitions"
+        return 1
+    fi
 else
     echo "❌ Spark config not found: $ZSH_CONFIG_DIR/config/spark.zsh"
     return 1

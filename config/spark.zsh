@@ -185,9 +185,13 @@ setup_spark_environment() {
     export PYSPARK_PYTHON=python3
     export PYSPARK_DRIVER_PYTHON=python3
     
-    # Add Spark to PATH
-    path_add "$SPARK_HOME/bin"
-    path_add "$SPARK_HOME/sbin"
+    # Add Spark to PATH (safe method - no external dependencies)
+    if [[ -d "$SPARK_HOME/bin" && "$PATH" != *"$SPARK_HOME/bin"* ]]; then
+        export PATH="$SPARK_HOME/bin:$PATH"
+    fi
+    if [[ -d "$SPARK_HOME/sbin" && "$PATH" != *"$SPARK_HOME/sbin"* ]]; then
+        export PATH="$SPARK_HOME/sbin:$PATH"
+    fi
     
     # Default configurations
     export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
@@ -222,8 +226,8 @@ get_spark_dependencies() {
         fi
     done
     
-    # Common packages for different use cases
-    local common_packages="org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.0,com.databricks:spark-csv_2.12:1.5.0"
+    # Common packages for different use cases (verified working versions)
+    local common_packages="org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-streaming-kafka-0-10_2.12:3.5.0"
     
     # Check if packages should be included (only if not in container to save bandwidth)
     if [[ "$ZSH_IS_DOCKER" != "true" ]]; then
@@ -361,12 +365,19 @@ spark_status() {
 default_spark_submit() {
     # Standard local Spark submit with optimizations
     local py_file="$1"
-    
+
+    # Handle spark-submit flags (--help, --version, etc.)
+    if [[ "$py_file" =~ ^-- ]]; then
+        spark-submit "$@"
+        return $?
+    fi
+
     if [[ -z "$py_file" ]]; then
-        echo "Usage: default_spark_submit <python_file>"
+        echo "Usage: default_spark_submit <python_file> [spark_options...]"
+        echo "   or: default_spark_submit --help|--version"
         return 1
     fi
-    
+
     if [[ ! -f "$py_file" ]]; then
         echo "❌ File not found: $py_file"
         return 1
@@ -376,14 +387,14 @@ default_spark_submit() {
     local dependencies=$(get_spark_dependencies)
     
     # Use local mode with all available cores
-    spark-submit \
-        --master "local[*]" \
-        --driver-memory "$SPARK_DRIVER_MEMORY" \
-        --executor-memory "$SPARK_EXECUTOR_MEMORY" \
-        --conf "spark.sql.adaptive.enabled=true" \
-        --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+    eval "spark-submit \
+        --master \"local[*]\" \
+        --driver-memory \"$SPARK_DRIVER_MEMORY\" \
+        --executor-memory \"$SPARK_EXECUTOR_MEMORY\" \
+        --conf \"spark.sql.adaptive.enabled=true\" \
+        --conf \"spark.serializer=org.apache.spark.serializer.KryoSerializer\" \
         $dependencies \
-        "$py_file"
+        \"$py_file\""
 }
 
 distributed_spark_submit() {

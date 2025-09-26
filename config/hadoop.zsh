@@ -68,9 +68,13 @@ setup_hadoop_environment() {
     export HADOOP_PID_DIR="/tmp/hadoop-$USER"
     export MAPRED_CONF_DIR="$HADOOP_HOME/etc/hadoop"
     
-    # Add Hadoop to PATH
-    path_add "$HADOOP_HOME/bin"
-    path_add "$HADOOP_HOME/sbin"
+    # Add Hadoop to PATH (safe method - no external dependencies)
+    if [[ -d "$HADOOP_HOME/bin" && "$PATH" != *"$HADOOP_HOME/bin"* ]]; then
+        export PATH="$HADOOP_HOME/bin:$PATH"
+    fi
+    if [[ -d "$HADOOP_HOME/sbin" && "$PATH" != *"$HADOOP_HOME/sbin"* ]]; then
+        export PATH="$HADOOP_HOME/sbin:$PATH"
+    fi
     
     # Setup classpath
     export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*:${HADOOP_CLASSPATH:-}"
