@@ -19,6 +19,12 @@ fi
 # =====================================================
 # ESSENTIAL ENVIRONMENT
 # =====================================================
+
+# Initialize FPATH for zsh modules and completions
+if [[ -z "$FPATH" ]]; then
+    export FPATH="/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions"
+fi
+# =====================================================
 export EDITOR="${EDITOR:-zed}"
 export VISUAL="$EDITOR"
 export ZSH_CONFIG_DIR="$HOME/.config/zsh"

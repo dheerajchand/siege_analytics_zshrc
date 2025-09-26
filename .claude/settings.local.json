@@ -156,7 +156,8 @@
       "Bash(spark-submit:*)",
       "Bash(declare:*)",
       "Bash(spark_shell:*)",
-      "Bash(pyspark_shell:*)"
+      "Bash(pyspark_shell:*)",
+      "Read(//opt/homebrew/Cellar/pyenv/2.6.7/completions/**)"
     ],
     "deny": [],
     "ask": []
