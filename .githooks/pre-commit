@@ -1,0 +1,35 @@
+#!/bin/bash
+# =====================================================
+# PRE-COMMIT HOOK - CRITICAL FUNCTION PROTECTION
+# =====================================================
+
+# Source the critical function guard
+if [[ -f "$(git rev-parse --show-toplevel)/.config/zsh/CRITICAL_FUNCTION_GUARD.zsh" ]]; then
+    source "$(git rev-parse --show-toplevel)/.config/zsh/CRITICAL_FUNCTION_GUARD.zsh"
+    check_critical_functions_before_commit
+fi
+
+# Check for large deletions in critical files
+echo "🔍 Checking for large deletions in critical files..."
+
+CRITICAL_FILES=(
+    "config/spark.zsh"
+    "config/python.zsh"
+    "modules/python.module.zsh"
+)
+
+for file in "${CRITICAL_FILES[@]}"; do
+    if git diff --cached --numstat "$file" | awk '{if($2 > 50) exit 1}'; then
+        echo "🚨 WARNING: Large deletion detected in $file"
+        echo "📊 Changes: $(git diff --cached --numstat "$file")"
+        echo ""
+        echo "❓ Proceed with large deletion? (y/N)"
+        read -r confirm
+        if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+            echo "❌ Commit aborted"
+            exit 1
+        fi
+    fi
+done
+
+echo "✅ Pre-commit checks passed"

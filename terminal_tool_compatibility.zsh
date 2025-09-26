@@ -169,3 +169,4 @@ echo "💡 Use 'zsh_exec <command>' to run zsh functions from any shell"
 
 
 
+

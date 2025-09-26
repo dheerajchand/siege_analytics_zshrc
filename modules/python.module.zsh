@@ -99,6 +99,60 @@ fi
 # PYTHON FUNCTIONS
 # =====================================================
 
+# Python Help Functions
+python_help() {
+    echo "🐍 Python Development Environment Help"
+    echo "======================================"
+    echo ""
+    echo "🚀 Core Commands:"
+    echo "   python_status    - Show detailed environment status"
+    echo "   python_help      - This help guide"
+    echo "   pyhelp           - Quick reference"
+    echo "   py-info          - Universal Python status (recommended)"
+    echo "   py-switch list   - List all environments (universal)"
+    echo "   py-uv           - Activate UV project (universal)"
+    echo ""
+    echo "🐍 Environment Management:"
+    echo "   pyenv versions       - List all environments"
+    echo "   pyenv virtualenv     - Create virtualenv"
+    echo "   pyenv global <env>   - Set global environment"
+    echo "   pyenv local <env>    - Set project environment"
+    echo ""
+    echo "📦 UV Integration:"
+    echo "   uv init --python 3.12   - Create UV project"
+    echo "   uv add requests pandas  - Add packages"
+    echo "   uv run python script.py - Run in project env"
+    echo "   uv sync                 - Install dependencies"
+    echo ""
+    echo "🎯 Current Environment:"
+    if command -v pyenv >/dev/null 2>&1; then
+        echo "   Active: $(pyenv version 2>/dev/null | cut -d' ' -f1)"
+        if [[ -n "$VIRTUAL_ENV" ]]; then
+            echo "   Virtualenv: ✅ $(basename $VIRTUAL_ENV)"
+        else
+            echo "   Virtualenv: None"
+        fi
+    fi
+    echo "   UV Available: $(command -v uv >/dev/null && echo 'Yes' || echo 'No')"
+}
+
+pyhelp() {
+    echo "🐍 Python Quick Reference"
+    echo "========================"
+    echo ""
+    echo "🔧 Status:     python_status | py-info"
+    echo "🌟 Universal:  py-uv | py-switch list"
+    echo "📋 Detailed:   python_help"
+    echo ""
+    echo "💡 Current Environment:"
+    echo "   Manager: pyenv + UV"
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        echo "   Virtualenv: ✅ $(basename $VIRTUAL_ENV)"
+    else
+        echo "   Virtualenv: None"
+    fi
+}
+
 # Purpose: Show comprehensive Python environment status
 # Arguments: None
 # Returns: 0 always

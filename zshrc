@@ -36,7 +36,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # =====================================================
 # OH-MY-ZSH MINIMAL SETUP
 # =====================================================
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH="$HOME/.config/zsh/oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)
 
@@ -189,11 +189,55 @@ alias load-docker='load_module docker'
 alias load-database='load_module database'
 alias load-spark='load_module spark'
 alias load-jetbrains='load_module jetbrains'
+alias load-ide='echo "💡 IDE integration auto-loads based on environment. Available: ide-fix, ide-uv-setup"'
 
 # Shell restart function
 zshreboot() {
     exec zsh
 }
+
+# =====================================================
+# IDE DETECTION & AUTO-INTEGRATION
+# =====================================================
+detect_ide_environment() {
+    # JetBrains IDEs
+    if [[ -n "$JETBRAINS_IDE" ]] || [[ -n "$PYCHARM_HOSTED" ]] || [[ -n "$DATASPELL_IDE" ]] || [[ "$TERM_PROGRAM" == "JetBrains"* ]] || [[ "$0" == *"pycharm"* ]] || [[ "$0" == *"dataspell"* ]] || [[ "$0" == *"intellij"* ]] || [[ "$0" == *"webstorm"* ]] || [[ "$0" == *"clion"* ]] || [[ "$0" == *"goland"* ]]; then
+        export IDE_CATEGORY="jetbrains"
+        export IDE_MODE=true
+        return 0
+    fi
+
+    # Cursor
+    if [[ -n "$CURSOR_IDE" ]] || [[ "$TERM_PROGRAM" == "Cursor"* ]] || [[ "$0" == *"cursor"* ]]; then
+        export IDE_CATEGORY="cursor"
+        export IDE_MODE=true
+        return 0
+    fi
+
+    # VS Code
+    if [[ "$TERM_PROGRAM" == "vscode" ]] || [[ -n "$VSCODE_INJECTION" ]]; then
+        export IDE_CATEGORY="vscode"
+        export IDE_MODE=true
+        return 0
+    fi
+
+    return 1
+}
+
+# Auto-load IDE integration if detected
+if detect_ide_environment && [[ "$ZSH_MODE" != "light" ]]; then
+    case "$IDE_CATEGORY" in
+        "jetbrains")
+            echo "🎯 JetBrains IDE detected - will load IDE integration"
+            ;;
+        "cursor")
+            echo "🎯 Cursor IDE detected - will load IDE integration"
+            ;;
+        "vscode")
+            echo "🎯 VS Code detected - will load IDE integration"
+            ;;
+    esac
+fi
 
 # =====================================================
 # STAGGERED MODE AUTO-LOADING
@@ -239,6 +283,27 @@ if [[ "$ZSH_MODE" != "light" ]]; then
 
         total_loaded_count=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
         echo "✅ ZSH ready - $total_loaded_count modules loaded (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)"
+
+        # Load IDE-specific integration after all modules
+        if [[ -n "$IDE_CATEGORY" ]]; then
+            case "$IDE_CATEGORY" in
+                "cursor")
+                    if [[ -f "$ZSH_CONFIG_DIR/cursor_integration.zsh" ]]; then
+                        echo "🎯 Loading Cursor IDE integration..."
+                        source "$ZSH_CONFIG_DIR/cursor_integration.zsh"
+                    fi
+                    ;;
+                "jetbrains")
+                    echo "🎯 JetBrains IDE integration loaded via module system"
+                    ;;
+                "vscode")
+                    if [[ -f "$ZSH_CONFIG_DIR/ide_helpers.zsh" ]]; then
+                        echo "🎯 Loading VS Code IDE integration..."
+                        source "$ZSH_CONFIG_DIR/ide_helpers.zsh"
+                    fi
+                    ;;
+            esac
+        fi
     fi
 fi
 
@@ -272,6 +337,13 @@ zsh_help() {
     echo "  zsh-system service list     # Background services"
     echo "  zsh-system switch-minimal   # Switch to minimal mode"
     echo "  zsh-system switch-full      # Switch to full mode"
+    echo ""
+    echo "🎯 IDE Integration:"
+    echo "  ide-fix                     # Universal IDE diagnostic"
+    echo "  ide-uv-setup               # Setup UV project for any IDE"
+    echo "  jetbrains-fix              # JetBrains-specific fixes"
+    echo "  cursor-fix                 # Cursor-specific fixes"
+    echo "  cursor-commands            # Cursor quick commands"
     echo ""
     echo "🚀 Repository management:"
     echo "  push 'message'              # Push changes to main repo"

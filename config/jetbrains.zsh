@@ -151,9 +151,18 @@ progressive_jetbrains_load() {
         "DataSpell"|"PyCharm")
             echo "🐍 Loading Python development tools..."
             # Python-specific setup
-            if [[ -f "$HOME/.config/zsh/config/python.zsh" ]]; then
+            if [[ -f "$HOME/.config/zsh/modules/python.module.zsh" ]]; then
+                source "$HOME/.config/zsh/modules/python.module.zsh"
+                echo "✅ Python module loaded"
+            elif [[ -f "$HOME/.config/zsh/config/python.zsh" ]]; then
                 source "$HOME/.config/zsh/config/python.zsh"
                 echo "✅ Python tools loaded"
+            fi
+
+            # Load Python managers (universal pyenv/UV system)
+            if [[ -f "$HOME/.config/zsh/modules/languages/python/managers.zsh" ]]; then
+                source "$HOME/.config/zsh/modules/languages/python/managers.zsh"
+                echo "✅ Universal Python/UV managers loaded"
             fi
             ;;
         "WebStorm"|"IntelliJ")
@@ -193,24 +202,31 @@ progressive_jetbrains_load() {
             ;;
     esac
     
+    # Load universal IDE helpers
+    echo "📦 Loading universal IDE integration..."
+    if [[ -f "$HOME/.config/zsh/ide_helpers.zsh" ]]; then
+        source "$HOME/.config/zsh/ide_helpers.zsh"
+        echo "✅ Universal IDE helpers loaded"
+    fi
+
     # Load additional utility modules
     echo "📦 Loading utility modules..."
     if [[ -f "$HOME/.config/zsh/config/credentials.zsh" ]]; then
         source "$HOME/.config/zsh/config/credentials.zsh" 2>/dev/null && echo "✅ Credentials module loaded"
     fi
-    
+
     if [[ -f "$HOME/.config/zsh/config/database.zsh" ]]; then
         source "$HOME/.config/zsh/config/database.zsh" 2>/dev/null && echo "✅ Database module loaded"
     fi
-    
+
     if [[ -f "$HOME/.config/zsh/config/status.zsh" ]]; then
         source "$HOME/.config/zsh/config/status.zsh" 2>/dev/null && echo "✅ Status module loaded"
     fi
-    
+
     if [[ -f "$HOME/.config/zsh/config/docker.zsh" ]]; then
         source "$HOME/.config/zsh/config/docker.zsh" 2>/dev/null && echo "✅ Docker module loaded"
     fi
-    
+
     # Load backup functions if available and not explicitly disabled
     if [[ -f "$HOME/.config/zsh/config/backup.zsh" ]] && [[ "$SKIP_BACKUP_FUNCTIONS" != "true" ]]; then
         source "$HOME/.config/zsh/config/backup.zsh"

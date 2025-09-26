@@ -63,3 +63,4 @@ This fix should allow the AI assistant to access zsh functions through the termi
 
 
 
+

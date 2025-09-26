@@ -54,3 +54,4 @@ echo "💡 This diagnostic helps identify why terminal tools may not work"
 
 
 
+
