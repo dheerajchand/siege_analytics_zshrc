@@ -157,7 +157,8 @@
       "Bash(declare:*)",
       "Bash(spark_shell:*)",
       "Bash(pyspark_shell:*)",
-      "Read(//opt/homebrew/Cellar/pyenv/2.6.7/completions/**)"
+      "Read(//opt/homebrew/Cellar/pyenv/2.6.7/completions/**)",
+      "Bash(sudo mv:*)"
     ],
     "deny": [],
     "ask": []

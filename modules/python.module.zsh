@@ -10,6 +10,14 @@
 
 # Loading Python module silently
 
+# Fix pyenv completion issue by loading our fixed version first
+if command -v pyenv >/dev/null 2>&1; then
+    # Load our fixed pyenv completion that doesn't cause module path errors
+    if [[ -f "$ZSH_CONFIG_DIR/cache/completions/_pyenv" ]]; then
+        source "$ZSH_CONFIG_DIR/cache/completions/_pyenv"
+    fi
+fi
+
 # Load centralized variables
 [[ -f "$ZSH_CONFIG_DIR/config/variables.zsh" ]] && source "$ZSH_CONFIG_DIR/config/variables.zsh"
 
@@ -24,7 +32,8 @@ if [[ -d "$PYENV_ROOT" ]]; then
     if command -v pyenv >/dev/null 2>&1; then
         # Critical: Initialize pyenv with both --path and regular init for shims
         eval "$(pyenv init --path)"
-        eval "$(pyenv init -)"
+        # Initialize pyenv but exclude the problematic completion line
+        eval "$(pyenv init - | grep -v 'completions/pyenv.zsh')"
 
         # Initialize pyenv-virtualenv if available
         if command -v pyenv-virtualenv-init >/dev/null 2>&1; then

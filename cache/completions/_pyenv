@@ -1,0 +1,50 @@
+#!/usr/bin/env zsh
+# Fixed pyenv completion that doesn't cause module path errors
+
+# Check if we're in an interactive shell
+if [[ ! -o interactive ]]; then
+    return
+fi
+
+# Only set up completion if pyenv command exists
+if command -v pyenv >/dev/null 2>&1; then
+    # Use the newer completion system instead of compctl
+    # This avoids the module loading issues
+    if (( $+functions[_pyenv] )); then
+        return
+    fi
+
+    _pyenv() {
+        local context state line
+        typeset -A opt_args
+
+        _arguments \
+            '1: :->command' \
+            '*: :->args' && return 0
+
+        case $state in
+            command)
+                local commands
+                commands=(${(f)"$(pyenv commands 2>/dev/null)"})
+                _describe 'pyenv command' commands
+                ;;
+            args)
+                case $words[2] in
+                    install)
+                        local versions
+                        versions=(${(f)"$(pyenv install --list 2>/dev/null | sed 's/^  //')"})
+                        _describe 'python version' versions
+                        ;;
+                    uninstall|versions)
+                        local installed
+                        installed=(${(f)"$(pyenv versions --bare 2>/dev/null)"})
+                        _describe 'installed version' installed
+                        ;;
+                esac
+                ;;
+        esac
+    }
+
+    # Register the completion function
+    compdef _pyenv pyenv
+fi
