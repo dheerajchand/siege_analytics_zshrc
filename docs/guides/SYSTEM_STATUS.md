@@ -4,19 +4,23 @@
 
 ### Module Loading Status
 ```
-✅ All 12 modules loading successfully:
-  - shell-compat: Cross-shell compatibility layer
-  - core: Essential shell configuration  
-  - credentials: Credential management (stable version)
-  - database: Database integration
-  - environment: Platform detection
-  - jetbrains: IDE integration
-  - spark: Apache Spark management
-  - hadoop: Big data ecosystem
-  - docker: Container management
-  - backup-toggle: Auto-backup control
-  - status: System status functions
-  - help: Interactive documentation
+✅ All 12 modules loading successfully (7 primary + 5 hierarchical):
+
+Primary Modules (.module.zsh):
+  - utils: Essential utilities and backup system
+  - database: Database integration (PostgreSQL, MySQL, Snowflake)
+  - docker: Container management and development
+  - javascript: Node.js and web development tools
+  - jetbrains: IDE integration (PyCharm, DataSpell, IntelliJ)
+  - python: Python environment management (pyenv, UV, virtualenv)
+  - spark: Apache Spark and big data processing
+
+Hierarchical Modules:
+  - system.zsh: macOS system integration
+  - module-loader.zsh: Dynamic module discovery
+  - cross-shell.zsh: Cross-shell compatibility functions
+  - managers.zsh: Python environment switching utilities
+  - projects.zsh: Python project initialization tools
 ```
 
 ### Core Functions Status
