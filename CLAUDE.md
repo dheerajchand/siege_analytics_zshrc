@@ -10,6 +10,8 @@
 - ✅ **ZSH-Focused**: Optimized for zsh-only usage, no bash compatibility layer
 - ✅ **100% Test Success**: **Complete hostile testing pass rate (8/8) - systematic fixes applied**
 - ✅ **Big Data Ready**: Verified end-to-end Spark + Hadoop cluster functionality
+- ✅ **PyCharm Compatible**: Fixed pyenv completion errors and P10k instant prompt conflicts
+- ✅ **P10k Integration**: Configurable instant prompt (disabled by default for clean module loading)
 
 ## 📊 **Quick Commands**
 
@@ -286,6 +288,30 @@ tail ~/.config/zsh/logs/path-optimizer.log # Check logs
 ```bash
 zsh-system switch-full
 exec zsh
+```
+
+**PyCharm/JetBrains IDE Issues:**
+```bash
+# Pyenv completion errors (fixed)
+# These were caused by variable name collision in load_module function
+# Solution: Renamed local variable from 'module_path' to 'module_file'
+
+# P10k instant prompt warnings (fixed)
+# These were caused by console output during module loading
+# Solution: P10k instant prompt disabled by default
+export ENABLE_P10K_INSTANT_PROMPT=true && exec zsh  # To re-enable
+```
+
+**P10k Instant Prompt Configuration:**
+```bash
+# Check current setting
+echo "POWERLEVEL9K_INSTANT_PROMPT: $POWERLEVEL9K_INSTANT_PROMPT"
+
+# Enable instant prompt (may cause warnings with module loading)
+export ENABLE_P10K_INSTANT_PROMPT=true && exec zsh
+
+# Disable instant prompt (clean module loading, default)
+export ENABLE_P10K_INSTANT_PROMPT=false && exec zsh
 ```
 
 ## 🚀 **Repository Management**

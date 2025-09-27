@@ -158,7 +158,22 @@
       "Bash(spark_shell:*)",
       "Bash(pyspark_shell:*)",
       "Read(//opt/homebrew/Cellar/pyenv/2.6.7/completions/**)",
-      "Bash(sudo mv:*)"
+      "Bash(sudo mv:*)",
+      "Read(//usr/lib/zsh/5.9/zsh/**)",
+      "Bash(./hostile-pyenv-p10k-tests.zsh)",
+      "Bash(./simple-hostile-verification.zsh:*)",
+      "Read(//Applications/**)",
+      "Bash(printenv:*)",
+      "Bash([[ -d \"$PYENV_ROOT/bin\" ]])",
+      "Read(//Users/**)",
+      "Bash([[ -d \"$HOME/Library/Application Support/JetBrains/Toolbox\" ]])",
+      "Bash(mdfind:*)",
+      "Bash(jetbrains_status:*)",
+      "Bash(dataspell:*)",
+      "Bash(/usr/bin/tr:*)",
+      "Bash(/usr/bin/grep jetbrains)",
+      "Bash($HOME/.jetbrains/bin/dataspell --help)",
+      "Bash([[ -d \"$HOME/.jetbrains/bin\" ]])"
     ],
     "deny": [],
     "ask": []

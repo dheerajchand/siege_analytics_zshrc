@@ -10,24 +10,142 @@
 # =====================================================
 
 # =====================================================
-# INSTANT PROMPT (P10K)
-# =====================================================
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# =====================================================
-# ESSENTIAL ENVIRONMENT
+# ESSENTIAL ENVIRONMENT (BEFORE P10K)
 # =====================================================
 
 # Initialize FPATH for zsh modules and completions
 if [[ -z "$FPATH" ]]; then
     export FPATH="/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions"
 fi
-# =====================================================
 export EDITOR="${EDITOR:-zed}"
 export VISUAL="$EDITOR"
 export ZSH_CONFIG_DIR="$HOME/.config/zsh"
+
+# P10k instant prompt disabled by default due to module loading output
+export POWERLEVEL9K_INSTANT_PROMPT="${POWERLEVEL9K_INSTANT_PROMPT:-off}"
+
+# Custom toggle for user convenience
+export ENABLE_P10K_INSTANT_PROMPT="${ENABLE_P10K_INSTANT_PROMPT:-false}"
+
+# =====================================================
+# CLAUDE CODE ENVIRONMENT DETECTION (BEFORE P10K)
+# =====================================================
+detect_claude_environment() {
+    # Method 1: Environment variable (most reliable)
+    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
+        return 0
+    fi
+
+    # Method 2: Process tree walking
+    local current_pid=$$
+    local depth=0
+    local max_depth=10
+
+    while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
+        # Get process command line
+        local proc_cmdline=$(ps -p $current_pid -o args= 2>/dev/null || echo "")
+        if [[ "$proc_cmdline" == *"claude"* ]]; then
+            return 0  # Found claude in process tree
+        fi
+
+        # Get parent PID
+        current_pid=$(ps -p $current_pid -o ppid= 2>/dev/null | tr -d ' ' || echo "1")
+        ((depth++))
+    done
+
+    return 1
+}
+
+# =====================================================
+# MODULE LOADING SYSTEM (BEFORE P10K)
+# =====================================================
+load_module() {
+    local module="$1"
+    local module_file="$ZSH_CONFIG_DIR/modules/$module.module.zsh"
+
+    if [[ -f "$module_file" ]]; then
+        echo "📦 Loading $module module..."
+        source "$module_file"
+
+        # Track loaded modules
+        if [[ -z "$LOADED_MODULES" ]]; then
+            export LOADED_MODULES="$module"
+        else
+            export LOADED_MODULES="$LOADED_MODULES $module"
+        fi
+
+        # Get verification result (module-specific status)
+        local verification_result=""
+        case "$module" in
+            "utils") verification_result="✅ Backup system available" ;;
+            "python") verification_result="✅ Python $(python3 --version 2>/dev/null | cut -d' ' -f2 2>/dev/null || echo 'unknown') functional" ;;
+            "docker") verification_result="✅ Docker $(docker --version 2>/dev/null | cut -d' ' -f3 2>/dev/null | tr -d ',' || echo 'unknown') functional" ;;
+            "database") verification_result="✅ Database tools available" ;;
+            "spark") verification_result="✅ Spark tools available" ;;
+            "javascript") verification_result="✅ Node.js tools available" ;;
+            *) verification_result="✅ Module functional" ;;
+        esac
+        echo "✅ $module: $verification_result"
+    else
+        echo "❌ Module not found: $module"
+    fi
+}
+
+# =====================================================
+# MODULE AUTO-LOADING (BEFORE P10K)
+# =====================================================
+# Auto-load all modules in staggered mode (default for all environments)
+if [[ "$ZSH_MODE" != "light" ]]; then
+    if detect_claude_environment; then
+        echo "🤖 Claude Code environment detected - loading in staggered mode"
+    else
+        echo "🚀 Loading in staggered mode..."
+    fi
+
+    if [[ -d "$ZSH_CONFIG_DIR/modules" ]]; then
+        # Find .module.zsh files (primary modules)
+        primary_modules=($(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | xargs -n1 basename | sed 's/.module.zsh$//'))
+
+        # Find hierarchical modules in subdirectories
+        hierarchical_modules=($(find "$ZSH_CONFIG_DIR/modules" -name "*.zsh" ! -name "*.module.zsh" 2>/dev/null))
+
+        total_modules=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
+        echo "📦 Loading $total_modules modules systematically (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)..."
+
+        # Load utils first (dependency for others)
+        if [[ " ${primary_modules[*]} " =~ " utils " ]]; then
+            if load_module utils; then
+                true  # Success message handled by load_module
+            else
+                echo "❌ Utils module failed - continuing without backup system"
+            fi
+        fi
+
+        # Load remaining primary modules
+        for module in "${primary_modules[@]}"; do
+            [[ "$module" == "utils" ]] && continue  # Skip utils - already loaded
+            load_module "$module"  # Show functional status for each module
+        done
+
+        # Load hierarchical modules
+        for hierarchical_module in "${hierarchical_modules[@]}"; do
+            echo "📦 Loading hierarchical module: $(basename "$hierarchical_module")"
+            if source "$hierarchical_module"; then
+                echo "✅ Hierarchical module loaded: $(basename "$hierarchical_module")"
+            else
+                echo "❌ Hierarchical module failed: $(basename "$hierarchical_module")"
+            fi
+        done
+
+        total_loaded_count=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
+        echo "✅ ZSH ready - $total_loaded_count modules loaded (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)"
+    fi
+fi
+
+# P10k instant prompt loads early (before Oh-My-Zsh overrides)
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 # =====================================================
 # CORE PATH SETUP
@@ -38,6 +156,9 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # Add user binaries if they exist
 [[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
 [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+
+# Add JetBrains command line tools
+[[ -d "$HOME/.jetbrains/bin" ]] && export PATH="$HOME/.jetbrains/bin:$PATH"
 
 # =====================================================
 # OH-MY-ZSH MINIMAL SETUP
@@ -56,6 +177,17 @@ else
     alias ga='git add'
     alias gc='git commit'
     alias gp='git push'
+fi
+
+# =====================================================
+# P10K INSTANT PROMPT CONFIGURATION (AFTER OH-MY-ZSH)
+# =====================================================
+# Handle custom toggle - only override if user explicitly enables
+# This must come AFTER Oh-My-Zsh loading to override P10k defaults
+if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
+    export POWERLEVEL9K_INSTANT_PROMPT="verbose"
+else
+    export POWERLEVEL9K_INSTANT_PROMPT="off"
 fi
 
 # =====================================================
@@ -87,34 +219,7 @@ if [[ "$ZSH_MODE" == "light" ]]; then
     return 0  # Exit early, skip all module loading
 fi
 
-# =====================================================
-# CLAUDE CODE ENVIRONMENT DETECTION & FUNCTIONS
-# =====================================================
-detect_claude_environment() {
-    # Method 1: Environment variable (most reliable)
-    if [[ -n "$CLAUDE_CODE_SESSION" ]]; then
-        return 0
-    fi
-
-    # Method 2: Process tree walking
-    local current_pid=$$
-    local depth=0
-    local max_depth=10
-
-    while [[ $current_pid -gt 1 && $depth -lt $max_depth ]]; do
-        # Get process command line
-        local proc_cmdline=$(ps -p $current_pid -o args= 2>/dev/null || echo "")
-        if [[ "$proc_cmdline" == *"claude"* ]]; then
-            return 0  # Found claude in process tree
-        fi
-
-        # Get parent PID
-        current_pid=$(ps -p $current_pid -o ppid= 2>/dev/null | tr -d ' ' || echo "1")
-        ((depth++))
-    done
-
-    return 1
-}
+# Functions moved to before P10k instant prompt (lines 27-51)
 
 # Mode detection function (required by hostile tests)
 detect_zsh_mode() {
@@ -127,48 +232,7 @@ detect_zsh_mode() {
     fi
 }
 
-# =====================================================
-# ON-DEMAND MODULE SYSTEM
-# =====================================================
-load_module() {
-    local module="$1"
-    local module_path="$ZSH_CONFIG_DIR/modules/$module.module.zsh"
-
-    if [[ -f "$module_path" ]]; then
-        echo "📦 Loading $module module..."
-        source "$module_path"
-
-        # Track loaded modules
-        if [[ -z "$LOADED_MODULES" ]]; then
-            export LOADED_MODULES="$module"
-        else
-            export LOADED_MODULES="$LOADED_MODULES $module"
-        fi
-
-        # Get verification result (module-specific status)
-        local verification_result=""
-        case "$module" in
-            "utils") verification_result="✅ Backup system available" ;;
-            "python") verification_result="✅ Python $(python3 --version 2>/dev/null | cut -d' ' -f2 2>/dev/null || echo 'unknown') functional" ;;
-            "docker") verification_result="✅ Docker $(docker --version 2>/dev/null | cut -d' ' -f3 2>/dev/null | tr -d ',' || echo 'unknown') functional" ;;
-            "database") verification_result="✅ Database tools available" ;;
-            "spark") verification_result="✅ Spark tools available" ;;
-            "javascript") verification_result="✅ Node.js tools available" ;;
-            *) verification_result="✅ Module functional" ;;
-        esac
-        echo "✅ $module: $verification_result"
-
-        # Module loaded (output suppressed for clean startup)
-
-    else
-        echo "❌ Module not found: $module"
-        echo ""
-        echo "📦 Available modules:"
-        ls $ZSH_CONFIG_DIR/modules/*.zsh 2>/dev/null | xargs -n1 basename | sed 's/.zsh$//' | sed 's/^/  load-/'
-        echo ""
-        echo "💡 Use 'zsh-system modules' for detailed information"
-    fi
-}
+# load_module function moved to before P10k instant prompt (lines 56-86)
 
 # Show loaded modules
 show_loaded_modules() {
@@ -245,73 +309,7 @@ if detect_ide_environment && [[ "$ZSH_MODE" != "light" ]]; then
     esac
 fi
 
-# =====================================================
-# STAGGERED MODE AUTO-LOADING
-# =====================================================
-# Auto-load all modules in staggered mode (default for all environments)
-if [[ "$ZSH_MODE" != "light" ]]; then
-    if detect_claude_environment; then
-        echo "🤖 Claude Code environment detected - loading in staggered mode"
-    else
-        echo "🚀 Loading in staggered mode..."
-    fi
-
-    if [[ -d "$ZSH_CONFIG_DIR/modules" ]]; then
-        # Find .module.zsh files (primary modules)
-        primary_modules=($(ls "$ZSH_CONFIG_DIR/modules"/*.module.zsh 2>/dev/null | xargs -n1 basename | sed 's/.module.zsh$//'))
-
-        # Find hierarchical modules in subdirectories
-        hierarchical_modules=($(find "$ZSH_CONFIG_DIR/modules" -name "*.zsh" ! -name "*.module.zsh" 2>/dev/null))
-
-        total_modules=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
-        echo "📦 Loading $total_modules modules systematically (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)..."
-
-        # Load utils first (dependency for others)
-        if [[ " ${primary_modules[*]} " =~ " utils " ]]; then
-            if load_module utils; then
-                true  # Success message handled by load_module
-            else
-                echo "❌ Utils module failed - continuing without backup system"
-            fi
-        fi
-
-        # Load remaining primary modules
-        for module in "${primary_modules[@]}"; do
-            [[ "$module" == "utils" ]] && continue  # Skip utils - already loaded
-            load_module "$module"  # Show functional status for each module
-        done
-
-        # Load hierarchical modules
-        for hierarchical_module in "${hierarchical_modules[@]}"; do
-            echo "📦 Loading hierarchical module: $(basename "$hierarchical_module")"
-            source "$hierarchical_module" 2>/dev/null || echo "⚠️  Hierarchical module load warning: $(basename "$hierarchical_module")"
-        done
-
-        total_loaded_count=$((${#primary_modules[@]} + ${#hierarchical_modules[@]}))
-        echo "✅ ZSH ready - $total_loaded_count modules loaded (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)"
-
-        # Load IDE-specific integration after all modules
-        if [[ -n "$IDE_CATEGORY" ]]; then
-            case "$IDE_CATEGORY" in
-                "cursor")
-                    if [[ -f "$ZSH_CONFIG_DIR/cursor_integration.zsh" ]]; then
-                        echo "🎯 Loading Cursor IDE integration..."
-                        source "$ZSH_CONFIG_DIR/cursor_integration.zsh"
-                    fi
-                    ;;
-                "jetbrains")
-                    echo "🎯 JetBrains IDE integration loaded via module system"
-                    ;;
-                "vscode")
-                    if [[ -f "$ZSH_CONFIG_DIR/ide_helpers.zsh" ]]; then
-                        echo "🎯 Loading VS Code IDE integration..."
-                        source "$ZSH_CONFIG_DIR/ide_helpers.zsh"
-                    fi
-                    ;;
-            esac
-        fi
-    fi
-fi
+# Module loading moved to before P10k instant prompt (lines 89-133)
 
 # =====================================================
 # POWERLEVEL10K CONFIG
@@ -370,6 +368,10 @@ echo "🚀 3-Tier ZSH System loaded!"
 echo "💡 Type 'help' for module loading guide or 'modules' to see what's available"
 echo "📦 Quick start: load-python, load-docker, load-database, load-spark, load-jetbrains"
 echo ""
+if [[ "$POWERLEVEL9K_INSTANT_PROMPT" == "off" ]]; then
+    echo "ℹ️  P10k instant prompt disabled (POWERLEVEL9K_INSTANT_PROMPT=off)"
+    echo "   To enable: export ENABLE_P10K_INSTANT_PROMPT=true && exec zsh"
+fi
 
 # =====================================================
 # SDKMAN INITIALIZATION
@@ -382,3 +384,17 @@ export SDKMAN_DIR="$HOME/.sdkman"
 # COMPLETION
 # =====================================================
 export MINIMAL_ZSHRC_LOADED=true
+
+# =====================================================
+# FINAL P10K OVERRIDE (MUST BE LAST)
+# =====================================================
+# Override P10k instant prompt setting after all other initializations
+# This ensures our setting takes precedence over ~/.p10k.zsh
+if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
+    export POWERLEVEL9K_INSTANT_PROMPT="verbose"
+else
+    export POWERLEVEL9K_INSTANT_PROMPT="off"
+fi
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/dheerajchand/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
