@@ -173,7 +173,12 @@
       "Bash(/usr/bin/tr:*)",
       "Bash(/usr/bin/grep jetbrains)",
       "Bash($HOME/.jetbrains/bin/dataspell --help)",
-      "Bash([[ -d \"$HOME/.jetbrains/bin\" ]])"
+      "Bash([[ -d \"$HOME/.jetbrains/bin\" ]])",
+      "Bash(load-docker)",
+      "Bash(~/.config/zsh/final-hostile-verification.zsh)",
+      "Bash(git revert:*)",
+      "Bash(./final-hostile-verification.zsh)",
+      "Bash(TERM_PROGRAM=\"PyCharm\" ENABLE_P10K_INSTANT_PROMPT=\"true\" zsh -c 'source /Users/dheerajchand/.config/zsh/zshrc >/dev/null 2>&1; echo \"\"POWERLEVEL9K_INSTANT_PROMPT: $POWERLEVEL9K_INSTANT_PROMPT\"\"')"
     ],
     "deny": [],
     "ask": []

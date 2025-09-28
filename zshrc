@@ -10,6 +10,28 @@
 # =====================================================
 
 # =====================================================
+# VARIABLE COLLISION PROTECTION
+# =====================================================
+# Detect and handle known variable collisions that interfere with zsh system functions
+
+# Save original module_path if it exists and interferes with zsh module loading
+if [[ -n "${module_path+x}" ]] && [[ "${(t)module_path}" == "array" ]]; then
+    # Check if the module_path conflicts with system paths
+    if [[ "${module_path[*]}" != "/usr/lib/zsh/5.9" ]]; then
+        # Store original value and restore system default to prevent conflicts
+        typeset -a _SAVED_MODULE_PATH
+        _SAVED_MODULE_PATH=("${module_path[@]}")
+        typeset -a module_path
+        module_path=(/usr/lib/zsh/5.9)
+        _MODULE_PATH_COLLISION_DETECTED=true
+    else
+        _MODULE_PATH_COLLISION_DETECTED=false
+    fi
+else
+    _MODULE_PATH_COLLISION_DETECTED=false
+fi
+
+# =====================================================
 # ESSENTIAL ENVIRONMENT (BEFORE P10K)
 # =====================================================
 
@@ -113,7 +135,7 @@ if [[ "$ZSH_MODE" != "light" ]]; then
         echo "📦 Loading $total_modules modules systematically (${#primary_modules[@]} primary + ${#hierarchical_modules[@]} hierarchical)..."
 
         # Load utils first (dependency for others)
-        if [[ " ${primary_modules[*]} " =~ " utils " ]]; then
+        if [[ " ${primary_modules[*]} " == *" utils "* ]]; then
             if load_module utils; then
                 true  # Success message handled by load_module
             else
@@ -316,6 +338,14 @@ fi
 # =====================================================
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# P10K INSTANT PROMPT OVERRIDE (RIGHT AFTER P10K CONFIG)
+# This must be immediately after P10k config to override hardcoded settings
+if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
+    export POWERLEVEL9K_INSTANT_PROMPT="verbose"
+else
+    export POWERLEVEL9K_INSTANT_PROMPT="off"
+fi
+
 # =====================================================
 # HELP & USER GUIDANCE
 # =====================================================
@@ -389,12 +419,35 @@ export MINIMAL_ZSHRC_LOADED=true
 # FINAL P10K OVERRIDE (MUST BE LAST)
 # =====================================================
 # Override P10k instant prompt setting after all other initializations
-# This ensures our setting takes precedence over ~/.p10k.zsh
-if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
-    export POWERLEVEL9K_INSTANT_PROMPT="verbose"
-else
-    export POWERLEVEL9K_INSTANT_PROMPT="off"
+# This ensures our setting takes precedence over ~/.p10k.zsh and variable collisions
+
+# Function to apply P10k override
+_final_p10k_override() {
+    if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
+        export POWERLEVEL9K_INSTANT_PROMPT="verbose"
+    else
+        export POWERLEVEL9K_INSTANT_PROMPT="off"
+    fi
+}
+
+# Apply override immediately
+_final_p10k_override
+
+# Force final override using eval to run after ALL initialization
+eval 'typeset -g _P10K_FINAL_CHECK="$ENABLE_P10K_INSTANT_PROMPT"; [[ "$_P10K_FINAL_CHECK" == "true" ]] && export POWERLEVEL9K_INSTANT_PROMPT="verbose" || export POWERLEVEL9K_INSTANT_PROMPT="off"'
+
+# =====================================================
+# RESTORE COLLISION VARIABLES
+# =====================================================
+# Restore any variables that were temporarily removed to prevent system conflicts
+
+# Restore module_path if it was saved due to collision
+if [[ "$_MODULE_PATH_COLLISION_DETECTED" == "true" ]]; then
+    typeset -a module_path
+    module_path=("${_SAVED_MODULE_PATH[@]}")
+    unset _SAVED_MODULE_PATH _MODULE_PATH_COLLISION_DETECTED
 fi
+
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/dheerajchand/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
