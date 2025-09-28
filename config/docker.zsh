@@ -17,7 +17,8 @@ export DOCKER_MODULE_LOADED="true"
 # =====================================================
 
 # Set default container runtime (docker-desktop or rancher-desktop)
-export DEFAULT_CONTAINER_RUNTIME="${DEFAULT_CONTAINER_RUNTIME:-rancher-desktop}"
+# Docker Desktop is preferred by default (more stable, less admin issues)
+export DEFAULT_CONTAINER_RUNTIME="${DEFAULT_CONTAINER_RUNTIME:-docker-desktop}"
 
 switch_docker_context() {
     local context="${1:-$DEFAULT_CONTAINER_RUNTIME}"
@@ -731,3 +732,59 @@ if [[ "$MODULAR_ZSHRC_VERBOSE" == "true" ]] && command -v docker >/dev/null 2>&1
         echo "   📦 Running inside container"
     fi
 fi
+
+# =====================================================
+# RANCHER DESKTOP CONVENIENCE FUNCTIONS
+# =====================================================
+
+# Switch to Rancher Desktop when needed
+use_rancher() {
+    echo "🐄 Switching to Rancher Desktop..."
+    export DEFAULT_CONTAINER_RUNTIME="rancher-desktop"
+    switch_docker_context rancher-desktop
+
+    if [[ $? -eq 0 ]]; then
+        echo "✅ Rancher Desktop is now active"
+        echo "💡 To switch back to Docker Desktop: use_docker"
+    else
+        echo "❌ Failed to switch to Rancher Desktop"
+        return 1
+    fi
+}
+
+# Switch back to Docker Desktop (default)
+use_docker() {
+    echo "🐳 Switching to Docker Desktop..."
+    export DEFAULT_CONTAINER_RUNTIME="docker-desktop"
+    switch_docker_context docker-desktop
+
+    if [[ $? -eq 0 ]]; then
+        echo "✅ Docker Desktop is now active"
+        echo "💡 This is the default runtime"
+    else
+        echo "❌ Failed to switch to Docker Desktop"
+        return 1
+    fi
+}
+
+# Show current Docker runtime
+docker_runtime_status() {
+    echo "🔍 Current Docker Runtime Status"
+    echo "================================"
+    echo "Default Runtime: $DEFAULT_CONTAINER_RUNTIME"
+    echo "Current Context: ${CURRENT_DOCKER_CONTEXT:-unknown}"
+    echo "Docker Binary: $(which docker)"
+    echo ""
+
+    if docker info >/dev/null 2>&1; then
+        echo "✅ Docker is running"
+        docker context show 2>/dev/null && echo "Active Context: $(docker context show)"
+    else
+        echo "❌ Docker is not running"
+    fi
+
+    echo ""
+    echo "💡 Commands:"
+    echo "  use_rancher  # Switch to Rancher Desktop"
+    echo "  use_docker   # Switch to Docker Desktop (default)"
+}

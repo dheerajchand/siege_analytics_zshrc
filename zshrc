@@ -395,6 +395,12 @@ if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
 else
     export POWERLEVEL9K_INSTANT_PROMPT="off"
 fi
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/dheerajchand/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+# =====================================================
+# RANCHER DESKTOP PATH (DISABLED BY DEFAULT)
+# =====================================================
+# Rancher Desktop PATH is disabled by default to prefer Docker Desktop
+# To enable Rancher Desktop, use the 'use_rancher' command
+#
+# ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+# export PATH="/Users/dheerajchand/.rd/bin:$PATH"
+# ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
