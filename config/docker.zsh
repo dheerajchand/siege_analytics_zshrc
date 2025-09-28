@@ -18,7 +18,8 @@ export DOCKER_MODULE_LOADED="true"
 
 # Set default container runtime (docker-desktop or rancher-desktop)
 # Docker Desktop is preferred by default (more stable, less admin issues)
-export DEFAULT_CONTAINER_RUNTIME="${DEFAULT_CONTAINER_RUNTIME:-docker-desktop}"
+# Force override any existing setting to ensure Docker Desktop is default
+export DEFAULT_CONTAINER_RUNTIME="docker-desktop"
 
 switch_docker_context() {
     local context="${1:-$DEFAULT_CONTAINER_RUNTIME}"
