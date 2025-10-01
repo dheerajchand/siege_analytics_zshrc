@@ -21,34 +21,42 @@ This document explains the complete 3-tier ZSH configuration system architecture
 
 ## 🏗️ **3-Tier Architecture Details**
 
-### **Tier 1: Minimal Core (`zshrc.minimal`)**
+### **Tier 1: Minimal Core (`zshrc`)**
 ```
 Purpose: Essential shell functionality only
-Size: ~100 lines (vs 2400+ original)
+Size: ~200 lines (vs 2400+ original)
 Startup: <0.5s target (tested: 0.007s)
 Always loaded: Yes
-Security: A+ grade input validation
+Security: A+ grade input validation with hostile testing
 Performance: Optimized subprocess elimination
+Credential System: Integrated secure credential management
 ```
 
 **Core Components:**
 - Basic PATH setup (clean, minimal)
 - Oh-My-Zsh integration (with graceful fallback)
 - Essential aliases and functions
-- Module loading system
+- Module loading system with collision protection
 - User guidance and help
+- **NEW**: Integrated credential management system
+- **NEW**: Hostile testing framework integration
 
-**🔒 A+ Security Features (2024 Update):**
+**🔒 A+ Security Features (2025 Update):**
 - **Directory Traversal Prevention**: All path operations validate against `..` sequences
 - **Input Validation**: Comprehensive validation for all user inputs and environment variables
 - **Safe File Operations**: Proper quoting and sanitization for all file system operations
 - **Constants Management**: All magic numbers replaced with named constants
+- **Credential Security**: Multi-backend credential system with injection protection
+- **Information Disclosure Prevention**: Zero credential leakage in error messages
+- **Hostile Testing**: Automated adversarial security testing framework
 
-**⚡ A+ Performance Features (2024 Update):**
+**⚡ A+ Performance Features (2025 Update):**
 - **Subprocess Pipeline Elimination**: Removed all performance-killing subprocess chains
 - **Modular Helper Functions**: 176-line monolithic functions split into focused helpers
 - **Optimized PATH Management**: Smart duplicate prevention and cleanup algorithms
 - **Lazy Loading**: Critical components loaded only when needed
+- **Variable Collision Protection**: Prevents pyenv module_path conflicts
+- **Resource Constraint Handling**: Graceful degradation under memory/CPU pressure
 
 **Critical Design Decisions:**
 - **Clean PATH first**: Prevents cascading issues
@@ -69,11 +77,25 @@ Tracking: Each module reports loading status
 **Module Structure:**
 ```bash
 modules/
-├── python.zsh      # Python environments (pyenv, UV, virtualenv)
-├── docker.zsh     # Docker management & quick starts
-├── database.zsh   # PostgreSQL integration
-├── spark.zsh      # Apache Spark & Hadoop
-└── jetbrains.zsh  # IDE integration with project detection
+├── python.module.zsh      # Python environments (pyenv, UV, virtualenv)
+├── docker.module.zsh     # Docker management & quick starts
+├── database.module.zsh   # PostgreSQL integration
+├── spark.module.zsh      # Apache Spark & Hadoop
+├── jetbrains.module.zsh  # IDE integration with project detection
+├── javascript.module.zsh # Node.js and web development
+└── utils.module.zsh      # Core utilities and backup system
+
+config/
+├── credentials.zsh        # Secure credential management system
+├── environment.zsh        # Environment variable management
+├── variables.zsh          # System configuration variables
+└── shell-compat.zsh      # Cross-shell compatibility
+
+tests/
+├── hostile-critical-functions.zsh      # Adversarial function testing
+├── hostile-security-comprehensive.zsh  # Security vulnerability testing
+├── hostile-comprehensive-final.zsh     # Production readiness testing
+└── hostile-credential-testing.zsh      # Credential system security testing
 ```
 
 **Module Loading Protocol:**
@@ -97,6 +119,39 @@ services/
 ├── path-optimizer.zsh    # Automatic PATH cleanup (prevents Finder issues)
 └── environment-setup.zsh # Environment caching for faster loading
 ```
+
+### **Tier 4: Security & Testing Layer (NEW)**
+```
+Purpose: Security-first development and production safety
+Coverage: 100% adversarial testing with automated security validation
+Testing: Hostile testing framework with injection attack simulation
+Credential Management: Multi-backend secure credential storage
+Production Gate: All systems must pass hostile testing for deployment
+```
+
+**Security Components:**
+```bash
+config/credentials.zsh              # Multi-backend credential management
+├── get_credential()                # Secure credential retrieval
+├── store_credential()              # Dual-storage credential storage
+├── credential_backend_status()     # Backend health monitoring
+├── ga_get_service_account()        # Google Analytics integration
+└── test_credential_system()        # Self-validation testing
+
+tests/hostile-*.zsh               # Adversarial testing framework
+├── Injection attack simulation   # Command, path, environment injection
+├── Information disclosure tests  # Credential leakage prevention
+├── Resource exhaustion tests     # Memory/CPU abuse resistance
+├── Concurrent access validation  # Race condition prevention
+└── Error recovery verification   # Graceful degradation testing
+```
+
+**Security Architecture:**
+- **Multi-Backend Priority**: 1Password → macOS Keychain → Environment Variables
+- **Injection Protection**: Comprehensive input sanitization and validation
+- **Zero Information Disclosure**: No sensitive data in error messages
+- **Hostile Testing Gates**: Production deployment requires 100% test pass rate
+- **Automated Security Validation**: Continuous adversarial testing integration
 
 **Service Control Flow:**
 - Start/stop/restart via `zsh-system service <action> <service>`
