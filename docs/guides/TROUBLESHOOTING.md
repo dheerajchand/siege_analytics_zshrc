@@ -7,13 +7,18 @@ Run these commands to quickly assess system health:
 ```bash
 # Check system state
 zsh-status                    # Module loading status
-repair_path --dry-run         # Check for PATH issues without making changes
+~/.config/zsh/zsh-system status  # Complete system status
 echo "PATH length: ${#PATH}"  # Verify PATH size (should be < 500 characters)
 
 # Test module loading
 zsh-verbose                   # Detailed loading output
 zsh-reload                    # Reload configuration
 time zsh-reload               # Check startup performance
+
+# Security & credential system
+credential_backend_status     # Check credential system health
+creds-test                    # Test credential management
+./tests/hostile-comprehensive-final.zsh  # Production readiness test
 
 # Check for common issues
 ls -la ~/.config/zsh/config/  # Verify configuration files exist
@@ -46,6 +51,81 @@ deduplicate_path
 
 # Check results
 echo "PATH length: ${#PATH}"
+```
+
+### **5. Credential Management Issues (NEW)**
+
+**Symptoms:**
+- Database connections failing
+- Google Analytics authentication errors
+- 1Password CLI not working
+- Credential functions not available
+
+**Diagnosis:**
+```bash
+# Check credential system status
+credential_backend_status
+
+# Test core functions
+command -v get_credential && echo "✅ get_credential available" || echo "❌ Missing"
+command -v store_credential && echo "✅ store_credential available" || echo "❌ Missing"
+
+# Test 1Password CLI
+op account list || echo "❌ 1Password CLI not authenticated"
+
+# Test keychain access
+security list-keychains || echo "❌ Keychain access issues"
+```
+
+**Solutions:**
+```bash
+# Load credential system
+source ~/.config/zsh/config/credentials.zsh
+
+# Authenticate with 1Password
+eval $(op signin)
+
+# Test the system
+test_credential_system
+
+# Run security validation
+./tests/hostile-credential-testing.zsh
+```
+
+### **6. Security & Hostile Testing Issues (NEW)**
+
+**Symptoms:**
+- Production deployment concerns
+- Security vulnerability questions
+- System not passing hostile tests
+- Function failures under stress
+
+**Diagnosis:**
+```bash
+# Run comprehensive security testing
+./tests/hostile-security-comprehensive.zsh
+
+# Test critical functions under stress
+./tests/hostile-critical-functions.zsh
+
+# Full production readiness test
+./tests/hostile-comprehensive-final.zsh
+```
+
+**Solutions:**
+```bash
+# If tests fail, check specific categories:
+# 1. Injection resistance
+get_credential "service; echo test" "user"  # Should not execute injection
+
+# 2. Information disclosure
+get_credential "nonexistent" "user" 2>&1 | grep -i password  # Should find nothing
+
+# 3. Performance under stress
+ulimit -v 524288 && source ~/.config/zsh/zshrc  # Test with memory limits
+
+# 4. Error recovery
+export LOADED_MODULES="corrupted" && source ~/.config/zsh/zshrc  # Test recovery
 ```
 
 **Prevention:**
