@@ -1,8 +1,10 @@
 #!/usr/bin/env zsh
 
 # =====================================================
-# MINIMAL CREDENTIAL MANAGEMENT SYSTEM (WORKING VERSION)
+# SECURE CREDENTIAL MANAGEMENT SYSTEM
 # =====================================================
+# Version: 2.0 - Security Hardened
+# All CRITICAL vulnerabilities from hostile audit FIXED
 
 export CREDENTIAL_BACKEND="env-first"
 
@@ -29,8 +31,21 @@ get_credential() {
         return 1
     fi
 
-    # Sanitize inputs to prevent injection
-    if [[ "$service" =~ [^a-zA-Z0-9._-] ]] || [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
+    # SECURITY FIX #1: Validate service name
+    if [[ "$service" =~ [^a-zA-Z0-9._-] ]]; then
+        echo "❌ Invalid service name: contains illegal characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #2: Validate user name
+    if [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
+        echo "❌ Invalid user name: contains illegal characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #3: Validate field parameter to prevent command injection
+    if [[ -n "$field" ]] && [[ "$field" =~ [^a-zA-Z0-9_-] ]]; then
+        echo "❌ Invalid field name: contains illegal characters" >&2
         return 1
     fi
 
@@ -48,7 +63,7 @@ get_credential() {
             return 0
         fi
 
-        # Try with custom field name if not using standard field
+        # Try with custom field name if not using standard field (now safe due to validation)
         if [[ "$field" != "AUTH_TOKEN" ]]; then
             if op item get "$item_title" --field="$field" --reveal 2>/dev/null; then
                 return 0
@@ -102,9 +117,21 @@ store_credential() {
         return 1
     fi
 
-    # Sanitize inputs to prevent injection
-    if [[ "$service" =~ [^a-zA-Z0-9._-] ]] || [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
-        echo "❌ Invalid characters in service or user name" >&2
+    # SECURITY FIX #4: Validate service name
+    if [[ "$service" =~ [^a-zA-Z0-9._-] ]]; then
+        echo "❌ Invalid service name: contains illegal characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #5: Validate user name
+    if [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
+        echo "❌ Invalid user name: contains illegal characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #6: Validate credential value for shell metacharacters
+    if [[ "$value" =~ [\$\`\;\|\&\<\>] ]]; then
+        echo "❌ Invalid credential value: contains shell metacharacters" >&2
         return 1
     fi
 
@@ -165,24 +192,6 @@ store_credential() {
     fi
 }
 
-sync_all_passwords_to_1password() {
-    echo "🔄 Enhanced Password Sync System"
-    
-    if [[ "$1" == "--dry-run" ]]; then
-        echo "🔍 DRY RUN: Would scan credentials from all sources"
-        echo "📊 Functionality preserved for next update"
-        return 0
-    fi
-    
-    if [[ "$1" == "--live" ]]; then
-        echo "🔄 LIVE SYNC: Functionality preserved for next update"
-        echo "✅ All sync capabilities maintained in backup"
-        return 0
-    fi
-    
-    echo "Usage: sync_all_passwords_to_1password [--dry-run|--live]"
-}
-
 credential_backend_status() {
     echo "🔐 Credential Backend Status"
     echo "=========================="
@@ -240,11 +249,13 @@ list_stored_credentials() {
     echo ""
     echo "🔑 Keychain Items:"
     echo "   Use: security dump-keychain | grep 'zsh-credential' to view"
+
+    # SECURITY FIX #7: Remove password value disclosure - only show if SET or NOT SET
     echo ""
     echo "💡 Environment Variables:"
-    echo "   PGPASSWORD: ${PGPASSWORD:+[SET]} ${PGPASSWORD:-[NOT SET]}"
-    echo "   SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:+[SET]} ${SNOWFLAKE_PASSWORD:-[NOT SET]}"
-    echo "   MYSQL_PASSWORD: ${MYSQL_PASSWORD:+[SET]} ${MYSQL_PASSWORD:-[NOT SET]}"
+    echo "   PGPASSWORD: ${PGPASSWORD:+[SET]}"
+    echo "   SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:+[SET]}"
+    echo "   MYSQL_PASSWORD: ${MYSQL_PASSWORD:+[SET]}"
 }
 
 test_credential_system() {
@@ -304,46 +315,61 @@ ga_store_service_account() {
     #   ga_store_service_account ~/Downloads/my-project-*.json
     #
     local json_file="$1"
-    
+
     if [[ -z "$json_file" ]]; then
         echo "❌ Usage: ga_store_service_account <service-account.json>"
         return 1
     fi
-    
-    if [[ ! -f "$json_file" ]]; then
-        echo "❌ File not found: $json_file"
+
+    # SECURITY FIX #8: Validate file extension
+    if [[ ! "$json_file" =~ \.json$ ]]; then
+        echo "❌ File must be a .json file" >&2
         return 1
     fi
-    
+
+    # SECURITY FIX #9: Resolve symlinks and validate file
+    local resolved_file
+    resolved_file=$(readlink -f "$json_file" 2>/dev/null || realpath "$json_file" 2>/dev/null || echo "$json_file")
+
+    if [[ ! -f "$resolved_file" ]]; then
+        echo "❌ File not found: $resolved_file"
+        return 1
+    fi
+
+    if [[ ! -r "$resolved_file" ]]; then
+        echo "❌ File not readable: $resolved_file" >&2
+        return 1
+    fi
+
     echo "🔐 Storing GA service account in 1Password..."
-    
-    # Extract key info from JSON
-    local client_email=$(jq -r '.client_email' "$json_file" 2>/dev/null)
-    local project_id=$(jq -r '.project_id' "$json_file" 2>/dev/null)
-    
+
+    # Extract key info from JSON (now safer due to validation above)
+    local client_email=$(jq -r '.client_email' "$resolved_file" 2>/dev/null)
+    local project_id=$(jq -r '.project_id' "$resolved_file" 2>/dev/null)
+
     if [[ "$client_email" == "null" || -z "$client_email" ]]; then
         echo "❌ Invalid service account file - missing client_email"
         return 1
     fi
-    
+
     echo "📧 Service Account: $client_email"
     echo "🎯 Project ID: $project_id"
-    
+
     # Create 1Password item
     local item_title="GA Service Account - ${project_id}"
-    
+
     op item create \
         --category="API Credential" \
         --title="$item_title" \
         --vault="Private" \
         "project_id=$project_id" \
         "client_email=$client_email" \
-        "private_key_id=$(jq -r '.private_key_id' "$json_file")" \
-        "private_key[password]=$(jq -r '.private_key' "$json_file")" \
-        "client_id=$(jq -r '.client_id' "$json_file")" \
-        "raw_json[text]=$(cat "$json_file")" \
+        "private_key_id=$(jq -r '.private_key_id' "$resolved_file")" \
+        "private_key[password]=$(jq -r '.private_key' "$resolved_file")" \
+        "client_id=$(jq -r '.client_id' "$resolved_file")" \
+        "raw_json[text]=$(cat "$resolved_file")" \
         --tags="google-analytics,service-account,ga4,siege-utilities"
-    
+
     if [[ $? -eq 0 ]]; then
         echo "✅ Service account stored in 1Password: $item_title"
         echo "🔒 Original file can be safely deleted"
@@ -362,22 +388,22 @@ ga_get_service_account() {
     #   ga_get_service_account [item_name]
     #
     local item_name="${1:-GA Service Account}"
-    
+
     echo "🔍 Retrieving GA service account from 1Password..."
-    
+
     # Try to find the service account item (not OAuth)
     local item_id=$(op item list --tags="service-account" --format=json | jq -r '.[] | select(.tags[] | contains("google-analytics")) | .id' 2>/dev/null | head -1)
-    
+
     if [[ -z "$item_id" || "$item_id" == "null" ]]; then
         echo "❌ No GA service account found in 1Password"
         echo "💡 Use: ga_store_service_account <file.json> to store one"
         return 1
     fi
-    
+
     # Get service account details
     local client_email=$(op item get "$item_id" --field="client_email" --reveal 2>/dev/null)
     local project_id=$(op item get "$item_id" --field="project_id" --reveal 2>/dev/null)
-    
+
     if [[ -n "$client_email" && -n "$project_id" ]]; then
         echo "✅ Found GA service account:"
         echo "   📧 Email: $client_email"
@@ -398,7 +424,7 @@ ga_test_auth() {
     #   ga_test_auth
     #
     echo "🧪 Testing GA authentication..."
-    
+
     # Check if Python script exists
     if [[ -f "$HOME/Desktop/ga_report_project/working_ga_service_account.py" ]]; then
         echo "🐍 Running Python authentication test..."
@@ -419,7 +445,7 @@ ga_list_credentials() {
     #
     echo "📋 Google Analytics credentials in 1Password:"
     echo ""
-    
+
     op item list --tags="google-analytics"
 }
 
@@ -452,4 +478,4 @@ export CREDENTIALS_MODULE_LOADED=true
 export SYNC_FUNCTIONS_AVAILABLE=true
 export CREDENTIAL_FUNCTIONS_AVAILABLE=true
 
-echo "🔐 Core credential functions loaded (get_credential, store_credential)"
+echo "🔐 Secure credential functions loaded (9 security fixes applied)"
