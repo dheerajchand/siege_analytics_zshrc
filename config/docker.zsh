@@ -17,22 +17,53 @@ export DOCKER_MODULE_LOADED="true"
 # =====================================================
 
 # Set default container runtime (docker-desktop or rancher-desktop)
-export DEFAULT_CONTAINER_RUNTIME="${DEFAULT_CONTAINER_RUNTIME:-rancher-desktop}"
+# Changed to docker-desktop as default per user preference
+export DEFAULT_CONTAINER_RUNTIME="${DEFAULT_CONTAINER_RUNTIME:-docker-desktop}"
+
+# Rancher Desktop administrator mode (requires elevated privileges for some features)
+# Set to "true" to always run Rancher with admin privileges
+export RANCHER_ADMIN_MODE="${RANCHER_ADMIN_MODE:-true}"
+
+start_rancher_desktop() {
+    # Start Rancher Desktop with optional administrator privileges
+    # Usage: start_rancher_desktop [admin]
+
+    local use_admin="${1:-$RANCHER_ADMIN_MODE}"
+
+    if [[ "$use_admin" == "true" ]]; then
+        echo "🔐 Starting Rancher Desktop with administrator privileges..."
+        echo "   (You may be prompted for your password)"
+
+        # Start Rancher Desktop with sudo to grant elevated privileges
+        # This allows Rancher to manage system-level networking and volumes
+        sudo -b open -a "Rancher Desktop" 2>/dev/null
+
+        if [[ $? -eq 0 ]]; then
+            echo "✅ Rancher Desktop started with admin privileges"
+        else
+            echo "⚠️  Admin start failed, trying normal mode..."
+            open -a "Rancher Desktop" 2>/dev/null
+        fi
+    else
+        echo "🐄 Starting Rancher Desktop (normal mode)..."
+        open -a "Rancher Desktop" 2>/dev/null
+    fi
+}
 
 switch_docker_context() {
     local context="${1:-$DEFAULT_CONTAINER_RUNTIME}"
-    
+
     case "$context" in
         "rancher-desktop"|"rancher")
             echo "🐄 Switching to Rancher Desktop..."
             docker context use rancher-desktop 2>/dev/null
-            
+
             if docker info >/dev/null 2>&1; then
                 echo "✅ Rancher Desktop is ready"
                 export CURRENT_DOCKER_CONTEXT="rancher-desktop"
             else
                 echo "⚠️  Rancher Desktop not ready, attempting to start..."
-                open -a "Rancher Desktop" 2>/dev/null
+                start_rancher_desktop
                 
                 # Wait for Rancher Desktop to start
                 local timeout=30
