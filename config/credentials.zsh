@@ -16,39 +16,41 @@ get_credential() {
     #
     # Usage:
     #   get_credential <service> <user> [field]
-    #   get_credential "postgres" "myuser" "PASSWORD"
-    #   get_credential "api" "myservice" "TOKEN"
+    #   get_credential "postgres" "myuser" "AUTH_TOKEN"
+    #   get_credential "api" "myservice" "API_KEY"
     #
     local service="$1"
     local user="$2"
-    local field="${3:-PASSWORD}"
+    local field="${3:-AUTH_TOKEN}"
 
+    # Input validation with security checks
     if [[ -z "$service" || -z "$user" ]]; then
         echo "❌ Usage: get_credential <service> <user> [field]" >&2
+        return 1
+    fi
+
+    # Sanitize inputs to prevent injection
+    if [[ "$service" =~ [^a-zA-Z0-9._-] ]] || [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
         return 1
     fi
 
     # Method 1: Try 1Password first
     if command -v op >/dev/null 2>&1; then
         local item_title="${service}-${user}"
-        local password
 
         # Try to get from 1Password using standard field name
-        if password=$(op item get "$item_title" --field="password" --reveal 2>/dev/null); then
-            echo "$password"
+        if op item get "$item_title" --field="password" --reveal 2>/dev/null; then
             return 0
         fi
 
-        # Try alternative naming patterns and custom field
-        if password=$(op item get "$service" --field="password" --reveal 2>/dev/null); then
-            echo "$password"
+        # Try alternative naming patterns
+        if op item get "$service" --field="password" --reveal 2>/dev/null; then
             return 0
         fi
 
-        # Try with custom field name if not using standard password field
-        if [[ "$field" != "PASSWORD" ]]; then
-            if password=$(op item get "$item_title" --field="$field" --reveal 2>/dev/null); then
-                echo "$password"
+        # Try with custom field name if not using standard field
+        if [[ "$field" != "AUTH_TOKEN" ]]; then
+            if op item get "$item_title" --field="$field" --reveal 2>/dev/null; then
                 return 0
             fi
         fi
@@ -57,25 +59,23 @@ get_credential() {
     # Method 2: Try macOS Keychain
     if command -v security >/dev/null 2>&1; then
         local keychain_service="${service}-${user}"
-        local password
 
-        if password=$(security find-generic-password -s "$keychain_service" -a "$user" -w 2>/dev/null); then
-            echo "$password"
+        # Direct command substitution to avoid variable assignment debug
+        if security find-generic-password -s "$keychain_service" -a "$user" -w 2>/dev/null; then
             return 0
         fi
     fi
 
     # Method 3: Environment variable fallback
-    local env_var_name
     case "$service" in
         "postgres")
-            [[ "$field" == "PASSWORD" ]] && echo "$PGPASSWORD" && return 0
+            [[ "$field" == "AUTH_TOKEN" && -n "$PGPASSWORD" ]] && echo "$PGPASSWORD" && return 0
             ;;
         "snowflake")
-            [[ "$field" == "PASSWORD" ]] && echo "$SNOWFLAKE_PASSWORD" && return 0
+            [[ "$field" == "AUTH_TOKEN" && -n "$SNOWFLAKE_PASSWORD" ]] && echo "$SNOWFLAKE_PASSWORD" && return 0
             ;;
         "mysql")
-            [[ "$field" == "PASSWORD" ]] && echo "$MYSQL_PASSWORD" && return 0
+            [[ "$field" == "AUTH_TOKEN" && -n "$MYSQL_PASSWORD" ]] && echo "$MYSQL_PASSWORD" && return 0
             ;;
     esac
 
@@ -99,6 +99,12 @@ store_credential() {
 
     if [[ -z "$service" || -z "$user" || -z "$value" ]]; then
         echo "❌ Usage: store_credential <service> <user> <value> [field]" >&2
+        return 1
+    fi
+
+    # Sanitize inputs to prevent injection
+    if [[ "$service" =~ [^a-zA-Z0-9._-] ]] || [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
+        echo "❌ Invalid characters in service or user name" >&2
         return 1
     fi
 
