@@ -126,14 +126,39 @@ detect_zsh_mode() {
 # =====================================================
 load_module() {
     local module="$1"
+
+    # SECURITY FIX #10: Validate module name to prevent path traversal
+    if [[ -z "$module" ]]; then
+        echo "❌ Module name required" >&2
+        return 1
+    fi
+
+    # Only allow alphanumeric, dash, and underscore in module names
+    if [[ ! "$module" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "❌ Invalid module name: $module" >&2
+        return 1
+    fi
+
     local module_path="$ZSH_CONFIG_DIR/modules/$module.module.zsh"
+
+    # SECURITY FIX #11: Verify resolved path is within modules directory
+    local resolved_path=$(cd "$(dirname "$module_path")" 2>/dev/null && pwd)/$(basename "$module_path")
+    local modules_dir=$(cd "$ZSH_CONFIG_DIR/modules" 2>/dev/null && pwd)
+
+    if [[ ! "$resolved_path" =~ ^"$modules_dir"/ ]]; then
+        echo "❌ Security: Module path outside modules directory" >&2
+        return 1
+    fi
 
     if [[ -f "$module_path" ]]; then
         echo "📦 Loading $module module..."
         source "$module_path"
 
-        # Track loaded modules
-        if [[ -z "$LOADED_MODULES" ]]; then
+        # SECURITY FIX #12: Sanitize LOADED_MODULES before appending
+        # Reset if contains shell metacharacters
+        if [[ "$LOADED_MODULES" =~ [\$\`\;\|\&\<\>\(\)] ]]; then
+            export LOADED_MODULES="$module"
+        elif [[ -z "$LOADED_MODULES" ]]; then
             export LOADED_MODULES="$module"
         else
             export LOADED_MODULES="$LOADED_MODULES $module"
