@@ -178,7 +178,17 @@
       "Bash(~/.config/zsh/final-hostile-verification.zsh)",
       "Bash(git revert:*)",
       "Bash(./final-hostile-verification.zsh)",
-      "Bash(TERM_PROGRAM=\"PyCharm\" ENABLE_P10K_INSTANT_PROMPT=\"true\" zsh -c 'source /Users/dheerajchand/.config/zsh/zshrc >/dev/null 2>&1; echo \"\"POWERLEVEL9K_INSTANT_PROMPT: $POWERLEVEL9K_INSTANT_PROMPT\"\"')"
+      "Bash(TERM_PROGRAM=\"PyCharm\" ENABLE_P10K_INSTANT_PROMPT=\"true\" zsh -c 'source /Users/dheerajchand/.config/zsh/zshrc >/dev/null 2>&1; echo \"\"POWERLEVEL9K_INSTANT_PROMPT: $POWERLEVEL9K_INSTANT_PROMPT\"\"')",
+      "Bash(\"/Applications/MuseScore 4.app/Contents/MacOS/mscore\" --version)",
+      "Bash(log show:*)",
+      "Bash(brew list:*)",
+      "Bash(brew info:*)",
+      "Bash(brew:*)",
+      "Bash(security)",
+      "Bash(credential_backend_status)",
+      "Bash(test_credential_system)",
+      "Bash(get_credential:*)",
+      "Bash(op:*)"
     ],
     "deny": [],
     "ask": []
