@@ -10,10 +10,13 @@
 # =====================================================
 
 # =====================================================
-# INSTANT PROMPT (P10K)
+# INSTANT PROMPT (P10K) - CONTROLLED BY TOGGLE
 # =====================================================
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# Configure instant prompt based on ENABLE_P10K_INSTANT_PROMPT toggle
+if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
 fi
 
 # =====================================================
@@ -36,9 +39,16 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # =====================================================
 # OH-MY-ZSH MINIMAL SETUP
 # =====================================================
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH="$HOME/.dotfiles/oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git)
+
+# Initialize completion system first
+autoload -Uz compinit
+compinit
+
+# Load required completion modules
+zmodload zsh/compctl 2>/dev/null || true
 
 # Load Oh My Zsh if available
 if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then

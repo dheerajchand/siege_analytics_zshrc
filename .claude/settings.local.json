@@ -204,7 +204,13 @@
       "Bash(~/.config/zsh/zsh-system service status environment-setup)",
       "Bash(time:*)",
       "Bash(top:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Read(//opt/homebrew/Cellar/pyenv/2.6.8/completions/**)",
+      "Read(//opt/homebrew/Cellar/pyenv/2.6.8/**)",
+      "Read(//opt/homebrew/**)",
+      "WebFetch(domain:github.com)",
+      "Bash(zmodload:*)",
+      "Bash(autoload -U compctl)"
     ],
     "deny": [],
     "ask": []
