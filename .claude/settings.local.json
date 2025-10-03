@@ -210,7 +210,12 @@
       "Read(//opt/homebrew/**)",
       "WebFetch(domain:github.com)",
       "Bash(zmodload:*)",
-      "Bash(autoload -U compctl)"
+      "Bash(autoload -U compctl)",
+      "Bash(/Users/dheerajchand/.config/zsh/tests/hostile-security-comprehensive.zsh)",
+      "Bash(if [[ -d \"$HOME/.dotfiles/oh-my-zsh\" ]])",
+      "Bash(then echo \"✅ Oh My Zsh path exists\")",
+      "Bash(else echo \"❌ Oh My Zsh path does NOT exist\")",
+      "Bash(/Users/dheerajchand/.config/zsh/final-hostile-verification.zsh)"
     ],
     "deny": [],
     "ask": []

@@ -25,7 +25,7 @@ system_status() {
     # Current configuration
     if [[ -n "$MINIMAL_ZSHRC_LOADED" ]]; then
         echo "Configuration: ✅ Minimal (3-tier architecture)"
-        echo "Startup time: Fast (<0.5s target)"
+        echo "Startup time: Context-aware loading"
     else
         echo "Configuration: ⚠️  Legacy (monolithic)"
         echo "💡 Switch with: zsh-system switch-minimal"

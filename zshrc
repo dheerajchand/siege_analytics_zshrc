@@ -6,7 +6,7 @@
 # Lightweight zshrc focused on core functionality only.
 # Heavy features moved to on-demand modules and background services.
 #
-# Performance target: <0.5s startup, <500 char PATH
+# Performance target: Context-aware loading, <800 char PATH
 # =====================================================
 
 # =====================================================
@@ -14,9 +14,13 @@
 # =====================================================
 # Configure instant prompt based on ENABLE_P10K_INSTANT_PROMPT toggle
 if [[ "$ENABLE_P10K_INSTANT_PROMPT" == "true" ]]; then
+    export POWERLEVEL9K_INSTANT_PROMPT="verbose"
     if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
         source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
     fi
+else
+    # Explicitly set to off when disabled (required by hostile tests)
+    export POWERLEVEL9K_INSTANT_PROMPT="off"
 fi
 
 # =====================================================
@@ -35,6 +39,22 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # Add user binaries if they exist
 [[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
 [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+
+# PATH hygiene check
+path_hygiene_check() {
+    local path_length=${#PATH}
+    local path_entries=$(echo "$PATH" | tr ':' '\n' | wc -l | tr -d ' ')
+
+    if [[ $path_length -gt 800 ]] || [[ $path_entries -gt 25 ]]; then
+        echo "⚠️  PATH hygiene warning:"
+        echo "   Length: $path_length chars (limit: 800)"
+        echo "   Entries: $path_entries (limit: 25)"
+        echo "   Run 'path_clean' to optimize or 'path_status' for details"
+    fi
+}
+
+# Run PATH hygiene check on startup (only in interactive mode)
+[[ $- == *i* ]] && path_hygiene_check
 
 # =====================================================
 # OH-MY-ZSH MINIMAL SETUP

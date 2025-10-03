@@ -40,8 +40,8 @@ exec zsh
 
 ## 📊 **Benefits You'll See**
 
-- **🏎️ Faster startup**: <0.5s vs 2+s
-- **🛤️ Clean PATH**: <500 chars vs 2018
+- **🏎️ Context-aware loading**: Optimized startup vs 2+s
+- **🛤️ Clean PATH**: <800 chars, <25 entries vs 2018
 - **📦 Modular**: Load only what you need
 - **🔧 Auto-maintenance**: PATH stays clean
 

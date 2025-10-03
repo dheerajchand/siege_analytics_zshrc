@@ -2,9 +2,9 @@
 # =====================================================
 # SIMPLE HOSTILE VERIFICATION FOR SYSTEMATIC FIXES
 # =====================================================
-# Purpose: Verify the two critical fixes work correctly
-# 1. Pyenv completion fix (module_path → module_file)
-# 2. P10k instant prompt fix (POWERLEVEL9K_INSTANT_PROMPT=off)
+# Purpose: Verify pyenv completion and P10k integration work correctly
+# 1. Pyenv completion functionality
+# 2. P10k instant prompt configuration
 # =====================================================
 
 echo "🔥 HOSTILE VERIFICATION - SYSTEMATIC FIXES"

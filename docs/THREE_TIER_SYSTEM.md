@@ -7,7 +7,7 @@ The three-tier ZSH configuration system provides intelligent, context-aware shel
 ## Modes
 
 ### 🚀 Light Mode
-**Purpose**: Minimal configuration for fast startup
+**Purpose**: Minimal configuration for context-aware loading
 **Use Cases**: CI/CD environments, slow connections, resource-constrained environments
 **Loading**: Essential modules only (core, environment)
 **Startup Time**: ~0.1 seconds
@@ -31,7 +31,7 @@ The system automatically detects the appropriate mode based on:
 ### JetBrains IDEs → Staggered Mode
 - **Environment Variables**: `JETBRAINS_IDE`, `PYCHARM_HOSTED`, `DATASPELL_IDE`, `TERM_PROGRAM`
 - **Parent Process Detection**: Checks for `pycharm`, `dataspell`, `intellij`, `webstorm`, `clion`, `goland`
-- **Rationale**: IDEs need fast startup but benefit from progressive enhancement
+- **Rationale**: IDEs need context-aware loading but benefit from progressive enhancement
 
 ### CI/CD Environments → Light Mode
 - **Environment Variables**: `CI`, `GITHUB_ACTIONS`, `JENKINS_URL`
@@ -105,7 +105,7 @@ upgrade_jetbrains_shell  # Load full configuration immediately
 - **Consistent Interface**: Same commands work in all modes
 
 ### Development Workflow
-- **IDE Optimization**: JetBrains IDEs get fast startup + full functionality
+- **IDE Optimization**: JetBrains IDEs get context-aware loading + full functionality
 - **CI/CD Friendly**: Light mode for automated environments
 - **Flexible**: Easy to customize for different use cases
 
@@ -157,7 +157,7 @@ fi
 
 ## Future Enhancements
 
-- **Smart Caching**: Cache loaded modules for faster subsequent startups
+- **Smart Caching**: Cache loaded modules for optimized subsequent loading
 - **Adaptive Loading**: Adjust loading based on system performance
 - **Plugin System**: Allow third-party mode definitions
 - **Metrics**: Track startup times and optimize accordingly

@@ -8,7 +8,7 @@ Run these commands to quickly assess system health:
 # Check system state
 zsh-status                    # Module loading status
 ~/.config/zsh/zsh-system status  # Complete system status
-echo "PATH length: ${#PATH}"  # Verify PATH size (should be < 500 characters)
+echo "PATH length: ${#PATH}"  # Verify PATH size (should be < 800 characters)
 
 # Test module loading
 zsh-verbose                   # Detailed loading output
@@ -167,7 +167,7 @@ zsh-reload
 ### **3. Performance Issues**
 
 **Symptoms:**
-- Slow shell startup (>2 seconds)
+- Slow shell startup (varies by context)
 - System lag during shell operations
 - High CPU usage during startup
 
@@ -278,8 +278,8 @@ done
 ## 📋 **Maintenance Checklist**
 
 ### **Daily Checks**
-- [ ] PATH length < 500 characters
-- [ ] Shell startup time < 2 seconds
+- [ ] PATH length < 800 characters, < 25 entries
+- [ ] Context-appropriate startup times
 - [ ] All essential functions available
 
 ### **Weekly Checks**

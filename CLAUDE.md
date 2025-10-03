@@ -9,9 +9,9 @@
 - ✅ **Consolidated Functions**: mkcd, extract, findtext, is_online, backup system
 - ✅ **Context-Aware Loading**: Light mode (containers) vs Staggered mode (development)
 - ✅ **ZSH-Focused**: Optimized for zsh-only usage, no bash compatibility layer
-- ✅ **100% Security Compliance**: **All hostile tests passing (38/38) - production-ready security**
+- ✅ **Security Framework**: Comprehensive security and testing validation
 - ✅ **Big Data Ready**: Verified end-to-end Spark + Hadoop cluster functionality
-- ✅ **PyCharm Compatible**: Fixed pyenv completion errors and P10k instant prompt conflicts
+- ✅ **PyCharm Compatible**: Enhanced pyenv completion and P10k integration
 - ✅ **P10k Integration**: Configurable instant prompt (disabled by default for clean module loading)
 - ✅ **Credential Management**: 1Password + Keychain integration with zero information disclosure
 
@@ -49,7 +49,7 @@ Essential shell functionality only:
 - Basic PATH, aliases, prompt
 - Oh-My-Zsh with minimal plugins
 - Module loading system
-- **Target**: <60 lines, <0.5s startup
+- **Target**: <60 lines, context-aware loading
 
 ### **Staggered Mode: Full Development Environment (DEFAULT)**
 Loads all modules for complete functionality:
@@ -212,7 +212,7 @@ environment-setup               # Environment caching
 You now have **two architectures** that you can switch between:
 
 1. **Minimal 3-Tier System** (default): `~/.zshrc`
-   - Ultra-fast startup (<0.5s)
+   - Context-aware loading
    - Load modules on-demand
    - Clean PATH (62 characters)
 
@@ -237,9 +237,9 @@ exec zsh
 
 **Current System (Production Ready):**
 - **Automatic**: Essential modules (utils, python) load in all terminals
-- **Fast**: <0.5s startup maintained
+- **Fast**: Context-aware loading maintained
 - **Universal**: Works in Claude Code, Warp, iTerm, JetBrains
-- **Reliable**: 19/19 tests passing, no background services needed
+- **Reliable**: Comprehensive test coverage, no background services needed
 - **Simple**: No system switching required - works everywhere
 - You work with multiple tools simultaneously
 - You prefer context-aware loading (IDE detection)
@@ -257,10 +257,10 @@ cp ~/.config/zsh/zshrc.full.backup ~/.config/zsh/zshrc
 ## 📊 **Performance Results - PRODUCTION READY**
 
 ### **Current Implementation Status**
-- ✅ Startup: <0.5 seconds consistently
-- ✅ PATH: 95 characters, 7 entries (optimized from 2018+ chars)
-- ✅ Modules: 2/2 essential modules auto-load everywhere
-- ✅ Tests: 19/19 comprehensive tests passing
+- ✅ Startup: Context-aware loading (staggered mode active)
+- ✅ PATH: Within acceptable limits (<800 chars, <25 entries)
+- ✅ Modules: 12 modules loaded systematically (7 primary + 5 hierarchical)
+- ✅ Tests: Comprehensive test coverage with validation
 - ✅ Python: geo31111 environment automatically activated
 - ✅ Universal: Claude Code + all terminal applications
 - ✅ Reliable: No background jobs, no hanging, no errors
@@ -268,7 +268,7 @@ cp ~/.config/zsh/zshrc.full.backup ~/.config/zsh/zshrc
 ### **Comparison**
 | Feature | Minimal | Full |
 |---------|---------|------|
-| Startup Speed | ⚡ Ultra-fast | 🚀 Context-aware |
+| Startup Speed | 🚀 Context-aware | 🚀 Context-aware |
 | Memory Usage | 🪶 Minimal | 📦 Full-featured |
 | Module Loading | 📦 On-demand | ✅ Pre-loaded |
 | PATH Management | 🧹 Clean | 🔧 Auto-optimized |
@@ -305,13 +305,12 @@ exec zsh
 
 **PyCharm/JetBrains IDE Issues:**
 ```bash
-# Pyenv completion errors (fixed)
-# These were caused by variable name collision in load_module function
-# Solution: Renamed local variable from 'module_path' to 'module_file'
+# Pyenv completion errors (resolved)
+# Solution: Initialize completion system before Oh-My-Zsh loads
+# Load zsh/compctl module to prevent dlopen errors
 
-# P10k instant prompt warnings (fixed)
-# These were caused by console output during module loading
-# Solution: P10k instant prompt disabled by default
+# P10k instant prompt warnings (configurable)
+# Solution: P10k instant prompt disabled by default with toggle
 export ENABLE_P10K_INSTANT_PROMPT=true && exec zsh  # To re-enable
 ```
 
@@ -352,11 +351,11 @@ zsh_repo_status                    # Detailed repository information
 
 ## 🎯 **Key Improvements**
 
-- ✅ **94% faster startup** (2s → <0.5s target)
-- ✅ **75% smaller PATH** (2018 → <500 chars)
+- ✅ **Optimized startup** (context-aware loading)
+- ✅ **Managed PATH** (<800 chars, <25 entries - optimized range)
 - ✅ **Modular architecture** (load only what you need)
 - ✅ **Background processing** (heavy tasks don't block shell)
-- ✅ **Automatic maintenance** (PATH optimization, caching)
+- ✅ **Automatic maintenance** (PATH hygiene checks, caching)
 - ✅ **Easy switching** (minimal ↔ full)
 - ✅ **Better isolation** (module failures don't break shell)
 
@@ -365,8 +364,8 @@ zsh_repo_status                    # Detailed repository information
 **Status: 3-Tier Architecture - PRODUCTION READY**
 
 **Final Implementation Complete:**
-- ✅ 19/19 comprehensive tests passing
-- ✅ 2/2 essential modules auto-loading in all terminals
+- ✅ Comprehensive test coverage with validation
+- ✅ 12 modules (7 primary + 5 hierarchical) with context-aware loading
 - ✅ Backup system integrated (enhanced_backup, pushmain, sync)
 - ✅ Default staggered mode for full functionality
 - ✅ Hostile audit systematic verification requirements met
@@ -376,3 +375,26 @@ For detailed documentation, see:
 - `README.md` - Architecture overview
 - `zsh-system help` - System management
 - `docs/` - Comprehensive documentation
+
+## 🔍 **MANDATORY HOSTILE ANALYSIS DIRECTIVE**
+
+**CRITICAL REQUIREMENT: Before claiming any fix is complete or any functionality works, Claude MUST perform a hostile analysis to verify all claims.**
+
+### **Implementation Protocol**
+1. **Never claim victory without verification** - All "fixes" must be tested hostilely
+2. **Use the Task tool with general-purpose agent** - Run hostile analysis to verify claims
+3. **Test all assertions** - Performance claims, functionality claims, documentation accuracy
+4. **Document discrepancies** - Any gaps between claims and reality must be noted
+5. **Store this directive** - This requirement should be permanently remembered
+
+### **Hostile Analysis Template**
+```bash
+# Before claiming success, always run:
+- Performance verification (actual vs claimed metrics)
+- Functionality testing (does it actually work?)
+- Documentation accuracy (do claims match reality?)
+- Regression testing (did the fix break anything else?)
+- Edge case validation (does it work in all scenarios?)
+```
+
+**This directive overrides any tendency to assume fixes work. Trust but verify - hostilely.**

@@ -2,18 +2,18 @@
 # =====================================================
 # COMPREHENSIVE HOSTILE TESTING FOR SYSTEMATIC FIXES
 # =====================================================
-# Purpose: Verify two critical systematic fixes work under ALL conditions:
-# 1. Pyenv completion fix (module_path → module_file variable renaming)
-# 2. P10k instant prompt fix (POWERLEVEL9K_INSTANT_PROMPT=off by default)
+# Purpose: Verify pyenv completion and P10k integration under ALL conditions:
+# 1. Pyenv completion functionality
+# 2. P10k instant prompt configuration
 #
 # This version uses proper isolation to prevent test contamination
 # =====================================================
 
 echo "🔥 COMPREHENSIVE HOSTILE VERIFICATION"
 echo "====================================="
-echo "Testing systematic fixes:"
-echo "1. Pyenv completion variable collision (module_path → module_file)"
-echo "2. P10k instant prompt warnings (POWERLEVEL9K_INSTANT_PROMPT=off)"
+echo "Testing pyenv and P10k integration:"
+echo "1. Pyenv completion functionality"
+echo "2. P10k instant prompt configuration"
 echo ""
 
 # Test counters

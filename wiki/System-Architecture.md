@@ -254,17 +254,17 @@ sequenceDiagram
 
 ### **Module Loading Priority Matrix**
 
-| Priority | Module | Load Condition | Dependencies | Startup Time |
-|----------|--------|----------------|--------------|--------------|
-| **P0** | `core.zsh` | Always | None | ~5ms |
-| **P0** | `environment.zsh` | Always | None | ~3ms |
-| **P0** | `utilities.zsh` | Always | None | ~8ms |
-| **P1** | `spark.zsh` | If Spark available | Java, Spark | ~15ms |
-| **P1** | `hadoop.zsh` | If Hadoop available | Java, Hadoop | ~12ms |
-| **P1** | `docker.zsh` | If Docker available | Docker CLI | ~5ms |
-| **P2** | `notebooks.zsh` | If Jupyter available | Python, Jupyter | ~10ms |
-| **P3** | `backup-system.zsh` | Manual activation | Git | ~3ms |
-| **P3** | `auto-setup.zsh` | Manual activation | Core modules | ~5ms |
+| Priority | Module | Load Condition | Dependencies | Context |
+|----------|--------|----------------|--------------|----------|
+| **P0** | `core.zsh` | Always | None | All |
+| **P0** | `environment.zsh` | Always | None | All |
+| **P0** | `utilities.zsh` | Always | None | All |
+| **P1** | `spark.zsh` | If Spark available | Java, Spark | Development |
+| **P1** | `hadoop.zsh` | If Hadoop available | Java, Hadoop | Development |
+| **P1** | `docker.zsh` | If Docker available | Docker CLI | Development |
+| **P2** | `notebooks.zsh` | If Jupyter available | Python, Jupyter | Development |
+| **P3** | `backup-system.zsh` | Manual activation | Git | All |
+| **P3** | `auto-setup.zsh` | Manual activation | Core modules | All |
 
 ## 📊 **Function Architecture & Dependencies**
 
@@ -456,12 +456,12 @@ graph LR
 
 ### **Startup Performance Metrics**
 
-| Component | Baseline | Optimized | Improvement | Notes |
-|-----------|----------|-----------|-------------|-------|
-| **Core modules** | 25ms | 16ms | 36% | Lazy loading |
-| **Feature modules** | 45ms | 28ms | 38% | Conditional loading |
-| **System modules** | 15ms | 8ms | 47% | Manual activation |
-| **Total startup** | 85ms | 52ms | 39% | Overall improvement |
+| Component | Context | Performance | Notes |
+|-----------|---------|-------------|-------|
+| **Core modules** | All contexts | Fast loading | Essential modules |
+| **Feature modules** | Development | Context-dependent | Conditional loading |
+| **System modules** | Heavy mode | Manual activation | Full functionality |
+| **Total startup** | Varies | Context-optimized | Environment-aware |
 
 ### **Memory Usage Profile**
 

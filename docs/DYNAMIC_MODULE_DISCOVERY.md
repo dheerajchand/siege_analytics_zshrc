@@ -28,7 +28,7 @@ MODULES_HEAVY=($(printf '%s\n' "${ALL_MODULES[@]}" "${MODULES_LIGHT[@]}" | sort 
 ## Shell Modes
 
 ### Light Mode
-- **Purpose**: Minimal configuration for fast startup
+- **Purpose**: Minimal configuration for context-aware loading
 - **Modules**: Only manually specified modules (`core`, `environment`, `paths`)
 - **Use Case**: CI/CD, remote servers, minimal environments
 
@@ -86,7 +86,7 @@ The system respects Powerlevel10k's instant prompt mode and suppresses console o
 - Self-maintaining system
 
 ### ✅ Performance Optimized
-- Light mode: minimal modules for fast startup
+- Light mode: minimal modules for context-aware loading
 - Staggered mode: progressive loading for IDEs
 - Heavy mode: full functionality when needed
 
