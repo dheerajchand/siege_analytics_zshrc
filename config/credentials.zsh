@@ -31,21 +31,27 @@ get_credential() {
         return 1
     fi
 
-    # SECURITY FIX #1: Validate service name
-    if [[ "$service" =~ [^a-zA-Z0-9._-] ]]; then
+    # SECURITY FIX #1: Strict validation for service name - alphanumeric, dots, underscores, hyphens only
+    if [[ ! "$service" =~ ^[a-zA-Z0-9._-]+$ ]]; then
         echo "❌ Invalid service name: contains illegal characters" >&2
         return 1
     fi
 
-    # SECURITY FIX #2: Validate user name
-    if [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
+    # SECURITY FIX #2: Strict validation for user name - alphanumeric, dots, underscores, at signs, hyphens only
+    if [[ ! "$user" =~ ^[a-zA-Z0-9._@-]+$ ]]; then
         echo "❌ Invalid user name: contains illegal characters" >&2
         return 1
     fi
 
-    # SECURITY FIX #3: Validate field parameter to prevent command injection
-    if [[ -n "$field" ]] && [[ "$field" =~ [^a-zA-Z0-9_-] ]]; then
+    # SECURITY FIX #3: Strict validation for field parameter to prevent command injection
+    if [[ -n "$field" ]] && [[ ! "$field" =~ ^[a-zA-Z0-9_-]+$ ]]; then
         echo "❌ Invalid field name: contains illegal characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #4: Validate input length to prevent buffer overflow attacks
+    if [[ ${#service} -gt 64 || ${#user} -gt 64 || ${#field} -gt 64 ]]; then
+        echo "❌ Input too long: maximum 64 characters allowed" >&2
         return 1
     fi
 
@@ -81,16 +87,49 @@ get_credential() {
         fi
     fi
 
-    # Method 3: Environment variable fallback
+    # Method 3: Environment variable fallback (with security validation)
     case "$service" in
         "postgres")
-            [[ "$field" == "AUTH_TOKEN" && -n "$PGPASSWORD" ]] && echo "$PGPASSWORD" && return 0
+            if [[ "$field" == "AUTH_TOKEN" && -n "$PGPASSWORD" ]]; then
+                # SECURITY FIX #9: Validate environment variable content before returning
+                if [[ "$PGPASSWORD" == *'$'* || "$PGPASSWORD" == *'`'* || "$PGPASSWORD" == *';'* ||
+                      "$PGPASSWORD" == *'|'* || "$PGPASSWORD" == *'&'* || "$PGPASSWORD" == *'<'* ||
+                      "$PGPASSWORD" == *'>'* || "$PGPASSWORD" == *"'"* || "$PGPASSWORD" == *'"'* ||
+                      "$PGPASSWORD" == *'\'* || "$PGPASSWORD" == *'('* || "$PGPASSWORD" == *')'* ]]; then
+                    echo "❌ Environment variable contains dangerous characters" >&2
+                    return 1
+                fi
+                printf '%s' "$PGPASSWORD"
+                return 0
+            fi
             ;;
         "snowflake")
-            [[ "$field" == "AUTH_TOKEN" && -n "$SNOWFLAKE_PASSWORD" ]] && echo "$SNOWFLAKE_PASSWORD" && return 0
+            if [[ "$field" == "AUTH_TOKEN" && -n "$SNOWFLAKE_PASSWORD" ]]; then
+                # SECURITY FIX #10: Validate environment variable content before returning
+                if [[ "$SNOWFLAKE_PASSWORD" == *'$'* || "$SNOWFLAKE_PASSWORD" == *'`'* || "$SNOWFLAKE_PASSWORD" == *';'* ||
+                      "$SNOWFLAKE_PASSWORD" == *'|'* || "$SNOWFLAKE_PASSWORD" == *'&'* || "$SNOWFLAKE_PASSWORD" == *'<'* ||
+                      "$SNOWFLAKE_PASSWORD" == *'>'* || "$SNOWFLAKE_PASSWORD" == *"'"* || "$SNOWFLAKE_PASSWORD" == *'"'* ||
+                      "$SNOWFLAKE_PASSWORD" == *'\'* || "$SNOWFLAKE_PASSWORD" == *'('* || "$SNOWFLAKE_PASSWORD" == *')'* ]]; then
+                    echo "❌ Environment variable contains dangerous characters" >&2
+                    return 1
+                fi
+                printf '%s' "$SNOWFLAKE_PASSWORD"
+                return 0
+            fi
             ;;
         "mysql")
-            [[ "$field" == "AUTH_TOKEN" && -n "$MYSQL_PASSWORD" ]] && echo "$MYSQL_PASSWORD" && return 0
+            if [[ "$field" == "AUTH_TOKEN" && -n "$MYSQL_PASSWORD" ]]; then
+                # SECURITY FIX #11: Validate environment variable content before returning
+                if [[ "$MYSQL_PASSWORD" == *'$'* || "$MYSQL_PASSWORD" == *'`'* || "$MYSQL_PASSWORD" == *';'* ||
+                      "$MYSQL_PASSWORD" == *'|'* || "$MYSQL_PASSWORD" == *'&'* || "$MYSQL_PASSWORD" == *'<'* ||
+                      "$MYSQL_PASSWORD" == *'>'* || "$MYSQL_PASSWORD" == *"'"* || "$MYSQL_PASSWORD" == *'"'* ||
+                      "$MYSQL_PASSWORD" == *'\'* || "$MYSQL_PASSWORD" == *'('* || "$MYSQL_PASSWORD" == *')'* ]]; then
+                    echo "❌ Environment variable contains dangerous characters" >&2
+                    return 1
+                fi
+                printf '%s' "$MYSQL_PASSWORD"
+                return 0
+            fi
             ;;
     esac
 
@@ -117,21 +156,36 @@ store_credential() {
         return 1
     fi
 
-    # SECURITY FIX #4: Validate service name
-    if [[ "$service" =~ [^a-zA-Z0-9._-] ]]; then
+    # SECURITY FIX #4: Strict validation for service name
+    if [[ ! "$service" =~ ^[a-zA-Z0-9._-]+$ ]]; then
         echo "❌ Invalid service name: contains illegal characters" >&2
         return 1
     fi
 
-    # SECURITY FIX #5: Validate user name
-    if [[ "$user" =~ [^a-zA-Z0-9._@-] ]]; then
+    # SECURITY FIX #5: Strict validation for user name
+    if [[ ! "$user" =~ ^[a-zA-Z0-9._@-]+$ ]]; then
         echo "❌ Invalid user name: contains illegal characters" >&2
         return 1
     fi
 
-    # SECURITY FIX #6: Validate credential value for shell metacharacters
-    if [[ "$value" =~ [\$\`\;\|\&\<\>] ]]; then
-        echo "❌ Invalid credential value: contains shell metacharacters" >&2
+    # SECURITY FIX #6: Validate input length to prevent buffer overflow attacks
+    if [[ ${#service} -gt 64 || ${#user} -gt 64 || ${#value} -gt 256 || ${#field} -gt 64 ]]; then
+        echo "❌ Input too long: maximum lengths exceeded" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #7: Validate field parameter if provided
+    if [[ -n "$field" ]] && [[ ! "$field" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "❌ Invalid field name: contains illegal characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #8: Validate credential value for dangerous characters
+    if [[ "$value" == *'$'* || "$value" == *'`'* || "$value" == *';'* ||
+          "$value" == *'|'* || "$value" == *'&'* || "$value" == *'<'* ||
+          "$value" == *'>'* || "$value" == *"'"* || "$value" == *'"'* ||
+          "$value" == *'\'* || "$value" == *'('* || "$value" == *')'* ]]; then
+        echo "❌ Invalid credential value: contains dangerous shell metacharacters" >&2
         return 1
     fi
 
@@ -282,7 +336,8 @@ test_credential_system() {
                 echo "   ✅ Get function works correctly"
                 echo "   ✅ Round-trip test passed"
             else
-                echo "   ❌ Retrieved value doesn't match: '$retrieved_value' != '$test_value'"
+                # SECURITY FIX #12: Never log actual credential values in error messages
+                echo "   ❌ Retrieved value doesn't match expected value"
             fi
         else
             echo "   ❌ Get function failed"
@@ -321,15 +376,35 @@ ga_store_service_account() {
         return 1
     fi
 
-    # SECURITY FIX #8: Validate file extension
+    # SECURITY FIX #8: Validate file extension and path
     if [[ ! "$json_file" =~ \.json$ ]]; then
         echo "❌ File must be a .json file" >&2
         return 1
     fi
 
-    # SECURITY FIX #9: Resolve symlinks and validate file
+    # SECURITY FIX #9: Validate file path for dangerous characters
+    if [[ "$json_file" == *'$'* || "$json_file" == *'`'* || "$json_file" == *';'* ||
+          "$json_file" == *'|'* || "$json_file" == *'&'* || "$json_file" == *'<'* ||
+          "$json_file" == *'>'* || "$json_file" == *"'"* || "$json_file" == *'"'* ||
+          "$json_file" == *'\'* || "$json_file" == *'('* || "$json_file" == *')'* ]]; then
+        echo "❌ File path contains dangerous characters" >&2
+        return 1
+    fi
+
+    # SECURITY FIX #10: Resolve symlinks and validate file (with path validation)
     local resolved_file
-    resolved_file=$(readlink -f "$json_file" 2>/dev/null || realpath "$json_file" 2>/dev/null || echo "$json_file")
+    if command -v readlink >/dev/null 2>&1; then
+        resolved_file=$(readlink -f "$json_file" 2>/dev/null)
+    elif command -v realpath >/dev/null 2>&1; then
+        resolved_file=$(realpath "$json_file" 2>/dev/null)
+    else
+        resolved_file="$json_file"
+    fi
+
+    # Fallback if resolution failed
+    if [[ -z "$resolved_file" ]]; then
+        resolved_file="$json_file"
+    fi
 
     if [[ ! -f "$resolved_file" ]]; then
         echo "❌ File not found: $resolved_file"
@@ -343,12 +418,26 @@ ga_store_service_account() {
 
     echo "🔐 Storing GA service account in 1Password..."
 
-    # Extract key info from JSON (now safer due to validation above)
-    local client_email=$(jq -r '.client_email' "$resolved_file" 2>/dev/null)
-    local project_id=$(jq -r '.project_id' "$resolved_file" 2>/dev/null)
+    # SECURITY FIX #11: Verify jq is available before proceeding
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq command not found - required for JSON processing" >&2
+        return 1
+    fi
 
-    if [[ "$client_email" == "null" || -z "$client_email" ]]; then
-        echo "❌ Invalid service account file - missing client_email"
+    # Extract key info from JSON (now safer due to validation above)
+    local client_email
+    local project_id
+    client_email=$(jq -r '.client_email' "$resolved_file" 2>/dev/null)
+    project_id=$(jq -r '.project_id' "$resolved_file" 2>/dev/null)
+
+    # SECURITY FIX #12: Validate extracted values
+    if [[ -z "$client_email" || "$client_email" == "null" ]]; then
+        echo "❌ Invalid service account file - missing or invalid client_email" >&2
+        return 1
+    fi
+
+    if [[ -z "$project_id" || "$project_id" == "null" ]]; then
+        echo "❌ Invalid service account file - missing or invalid project_id" >&2
         return 1
     fi
 
@@ -478,4 +567,4 @@ export CREDENTIALS_MODULE_LOADED=true
 export SYNC_FUNCTIONS_AVAILABLE=true
 export CREDENTIAL_FUNCTIONS_AVAILABLE=true
 
-echo "🔐 Secure credential functions loaded (9 security fixes applied)"
+echo "🔐 Secure credential functions loaded (12 critical security fixes applied)"

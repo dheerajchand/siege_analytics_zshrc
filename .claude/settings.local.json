@@ -226,7 +226,8 @@
       "Bash(hdfs:*)",
       "Bash(yarn version)",
       "Bash(default_spark_submit:*)",
-      "Bash(yarn_application_list:*)"
+      "Bash(yarn_application_list:*)",
+      "Bash(./tests/hostile-security-comprehensive.zsh)"
     ],
     "deny": [],
     "ask": []
