@@ -215,7 +215,18 @@
       "Bash(if [[ -d \"$HOME/.dotfiles/oh-my-zsh\" ]])",
       "Bash(then echo \"✅ Oh My Zsh path exists\")",
       "Bash(else echo \"❌ Oh My Zsh path does NOT exist\")",
-      "Bash(/Users/dheerajchand/.config/zsh/final-hostile-verification.zsh)"
+      "Bash(/Users/dheerajchand/.config/zsh/final-hostile-verification.zsh)",
+      "Bash(ZSH_CONFIG_DIR=/Users/dheerajchand/.config/zsh source modules/spark.module.zsh)",
+      "Bash(spark_test_simple:*)",
+      "Bash(spark_status)",
+      "Bash(spark_start:*)",
+      "Bash(/Users/dheerajchand/.sdkman/candidates/spark/current/sbin/start-master.sh:*)",
+      "Bash(nc:*)",
+      "Bash(hadoop:*)",
+      "Bash(hdfs:*)",
+      "Bash(yarn version)",
+      "Bash(default_spark_submit:*)",
+      "Bash(yarn_application_list:*)"
     ],
     "deny": [],
     "ask": []

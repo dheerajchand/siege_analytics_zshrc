@@ -10,7 +10,7 @@
 - ✅ **Context-Aware Loading**: Light mode (containers) vs Staggered mode (development)
 - ✅ **ZSH-Focused**: Optimized for zsh-only usage, no bash compatibility layer
 - ✅ **Security Framework**: Comprehensive security and testing validation
-- ✅ **Big Data Ready**: Verified end-to-end Spark + Hadoop cluster functionality
+- ✅ **Big Data Development**: Spark 3.5.3 + Hadoop 3.3.6 installed for local development
 - ✅ **PyCharm Compatible**: Enhanced pyenv completion and P10k integration
 - ✅ **P10k Integration**: Configurable instant prompt (disabled by default for clean module loading)
 - ✅ **Credential Management**: 1Password + Keychain integration with zero information disclosure
@@ -28,7 +28,7 @@
 load-python                    # Python environments
 load-docker                    # Docker management
 load-database                  # PostgreSQL integration
-load-spark                     # Apache Spark & Hadoop
+load-spark                     # Apache Spark & Hadoop (development)
 load-jetbrains                 # IDE integration
 
 # Quick help
@@ -61,7 +61,7 @@ Loads all modules for complete functionality:
 ✅ docker     # Docker 28.4.0 management and development
 ✅ javascript # Node.js/npm/yarn environment
 ✅ python     # Python 3.11.11 with pyenv, UV, virtualenv
-✅ spark      # Apache Spark & Hadoop for big data processing
+✅ spark      # Apache Spark 3.5.3 & Hadoop 3.3.6 for development and learning
 
 # NEW: Security & Configuration Layer (automatically loaded)
 ✅ credentials.zsh   # Multi-backend credential management (1Password + Keychain)
@@ -103,7 +103,7 @@ load-python                     # Quick alias
 load-python                     # Python environments
 load-docker                     # Docker management
 load-database                   # Database tools
-load-spark                      # Big Data stack
+load-spark                      # Big Data development stack
 load-jetbrains                  # IDE integration
 ```
 
