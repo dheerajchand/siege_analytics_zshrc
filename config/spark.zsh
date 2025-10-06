@@ -37,37 +37,44 @@ spark_worker_running() {
 ensure_spark_available() {
     # Smart function to ensure Spark is available
     # Default: Use SDKMAN for installation (preferred method)
-    
+
+    # First check if Spark is already available
+    if command -v spark-submit >/dev/null 2>&1; then
+        return 0
+    fi
+
     # Check if Spark is available via SDKMAN
     if [[ -n "$SDKMAN_DIR" ]] && [[ -f "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
-        if ! sdk list spark 2>/dev/null | grep -q "installed"; then
-            echo "🔄 Installing Spark via SDKMAN (default method)..."
-            sdk install spark
-            if [[ $? -eq 0 ]]; then
-                echo "✅ Spark installed via SDKMAN"
-                # Reinitialize SDKMAN to pick up new installation
-                source "$SDKMAN_DIR/bin/sdkman-init.sh"
+        # Ensure SDKMAN is properly initialized
+        source "$SDKMAN_DIR/bin/sdkman-init.sh" 2>/dev/null
+
+        # Check if we have a current Spark version
+        if [[ -d "$SDKMAN_DIR/candidates/spark/current" ]]; then
+            export SPARK_HOME="$SDKMAN_DIR/candidates/spark/current"
+            return 0
+        fi
+
+        # Check installed versions
+        if sdk list spark 2>/dev/null | grep -q "installed"; then
+            # Get the current version
+            local current_spark=$(sdk current spark 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n1)
+            if [[ -n "$current_spark" ]]; then
+                export SPARK_HOME="$SDKMAN_DIR/candidates/spark/$current_spark"
                 return 0
-            else
-                echo "❌ Spark installation failed"
             fi
         fi
     else
         # Fallback: Try Homebrew on macOS
         if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
-            if ! brew list apache-spark >/dev/null 2>&1; then
-                echo "🔄 Installing Spark via Homebrew..."
-                brew install apache-spark
-                if [[ $? -eq 0 ]]; then
-                    echo "✅ Spark installed via Homebrew"
-                    export SPARK_HOME="$(brew --prefix apache-spark)/libexec"
-                    return 0
-                fi
+            if brew list apache-spark >/dev/null 2>&1; then
+                export SPARK_HOME="$(brew --prefix apache-spark)/libexec"
+                return 0
             fi
         fi
     fi
-    
-    return 0
+
+    echo "❌ Spark not found. Install via: sdk install spark"
+    return 1
 }
 
 start_spark_cluster() {

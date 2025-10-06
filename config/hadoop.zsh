@@ -452,10 +452,16 @@ hadoop_status() {
 # =====================================================
 
 yarn_application_list() {
-    # List all YARN applications
+    # List all YARN applications with timeout
     echo "📊 YARN Applications:"
     if command -v yarn >/dev/null 2>&1; then
-        yarn application -list -appStates ALL 2>/dev/null || echo "❌ YARN not accessible"
+        # Use timeout to prevent hanging
+        if command -v timeout >/dev/null 2>&1; then
+            timeout 10s yarn application -list -appStates ALL 2>/dev/null || echo "❌ YARN not accessible (timeout or connection failed)"
+        else
+            # Fallback for systems without timeout command
+            yarn application -list -appStates ALL 2>/dev/null || echo "❌ YARN not accessible"
+        fi
     else
         echo "❌ YARN command not available"
     fi
