@@ -237,7 +237,9 @@
       "Bash(/tmp/claude/comprehensive_hostile_test.zsh)",
       "Bash(/tmp/claude/comprehensive_hostile_test_simple.zsh)",
       "Bash(/tmp/claude/code_quality_hostile_test.zsh)",
-      "Bash(/tmp/claude/advanced_code_quality_test.zsh:*)"
+      "Bash(/tmp/claude/advanced_code_quality_test.zsh:*)",
+      "Bash(test_system_health)",
+      "Bash(/tmp/claude/hostile_directory_safety_test.zsh)"
     ],
     "deny": [],
     "ask": []
