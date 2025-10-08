@@ -6,7 +6,8 @@
     "ATOMANTIC_FORBIDDEN": "NEVER edit or reference ~/.dotfiles/ or any atomantic files. Always use ~/.config/zsh/ Siege Analytics system.",
     "ZSHRC_IS_SYMLINK": "~/.zshrc is a symlink to ~/.config/zsh/zshrc - do not modify the symlink, edit the target file",
     "OH_MY_ZSH_PATH": "~/.config/zsh/oh-my-zsh (Siege Analytics controlled, not ~/.dotfiles/oh-my-zsh)",
-    "DEBUGGING_DIRECTIVE": "ALWAYS investigate root causes systematically. Before fixing any issue: 1) Ask 'WHY is this happening?' not 'HOW do I fix this symptom?' 2) Trace the problem to its fundamental source 3) Fix the root cause, not symptoms 4) Verify the fix addresses the underlying issue. NEVER declare victory after fixing surface-level symptoms."
+    "DEBUGGING_DIRECTIVE": "ALWAYS investigate root causes systematically. Before fixing any issue: 1) Ask 'WHY is this happening?' not 'HOW do I fix this symptom?' 2) Trace the problem to its fundamental source 3) Fix the root cause, not symptoms 4) Verify the fix addresses the underlying issue. NEVER declare victory after fixing surface-level symptoms.",
+    "HOSTILE_TESTING_DIRECTIVE": "HOSTILE TESTING has three mandatory components: 1) BREAK THE ENVIRONMENT - Test with broken PATH, corrupted files, missing dependencies, exhausted resources, malicious environment variables 2) ASSUME THE DEVELOPER IS AN IDIOT - Test for command injection, path traversal, buffer overflows, missing input validation, race conditions, resource leaks, silent failures 3) WRITE LIKE A VP ENGINEERING TRYING TO FIRE THE DEVELOPER - Be ruthless in finding ANY excuse. Look for security vulnerabilities, performance issues, poor error handling, inconsistent state management, timing attacks, memory corruption. Test edge cases developers always forget. The goal is to expose every possible failure mode and coding mistake."
   },
   "permissions": {
     "allow": [
@@ -227,7 +228,16 @@
       "Bash(yarn version)",
       "Bash(default_spark_submit:*)",
       "Bash(yarn_application_list:*)",
-      "Bash(./tests/hostile-security-comprehensive.zsh)"
+      "Bash(./tests/hostile-security-comprehensive.zsh)",
+      "Bash(/tmp/claude/intensive_break_test.zsh:*)",
+      "Bash(/tmp/claude/fundamental_system_break_test.zsh)",
+      "Bash(/usr/bin/head:*)",
+      "Bash(/usr/bin/id:*)",
+      "Bash(/usr/bin/test:*)",
+      "Bash(/tmp/claude/comprehensive_hostile_test.zsh)",
+      "Bash(/tmp/claude/comprehensive_hostile_test_simple.zsh)",
+      "Bash(/tmp/claude/code_quality_hostile_test.zsh)",
+      "Bash(/tmp/claude/advanced_code_quality_test.zsh:*)"
     ],
     "deny": [],
     "ask": []

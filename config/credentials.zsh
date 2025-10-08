@@ -230,7 +230,7 @@ store_credential() {
 
         # Add new entry
         if security add-generic-password -s "$keychain_service" -a "$user" -w "$value" 2>/dev/null; then
-            echo "✅ Stored credential in Keychain: $keychain_service"
+            echo "✅ Stored credential in Keychain"
             success_count=$((success_count + 1))
         else
             echo "⚠️  Failed to store credential in Keychain" >&2
