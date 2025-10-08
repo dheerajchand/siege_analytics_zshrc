@@ -311,6 +311,22 @@ detect_zsh_mode() {
 load_module() {
     local module="$1"
 
+    # SECURITY FIX: Concurrent loading race condition protection
+    local lock_file="/tmp/zsh_module_load_$module.lock"
+    if [[ -f "$lock_file" ]]; then
+        sleep 0.1  # Brief wait for concurrent load
+        if [[ -f "$lock_file" ]]; then
+            rm -f "$lock_file" 2>/dev/null  # Force unlock
+        fi
+    fi
+    echo $$ > "$lock_file" 2>/dev/null
+
+    # SECURITY FIX: Environment pollution resistance
+    # Sanitize LOADED_MODULES to prevent injection
+    if [[ -n "$LOADED_MODULES" ]]; then
+        LOADED_MODULES=$(echo "$LOADED_MODULES" | sed 's/[^a-zA-Z0-9_ ]//g')
+    fi
+
     # DEFENSIVE: Verify we have a functioning shell environment
     if [[ -z "$ZSH_CONFIG_DIR" ]] || [[ ! -d "$ZSH_CONFIG_DIR" ]]; then
         printf '\033[31m%s\033[0m\n' "🚨 CRITICAL: ZSH_CONFIG_DIR not set or invalid"
@@ -402,6 +418,9 @@ load_module() {
         echo ""
         echo "💡 Use 'zsh-system modules' for detailed information"
     fi
+
+    # SECURITY FIX: Release concurrent loading lock
+    rm -f "$lock_file" 2>/dev/null
 }
 
 # Show loaded modules
@@ -616,6 +635,14 @@ else
 fi
 
 # Debug output removed
+
+# =====================================================
+# CORE SECURITY SYSTEM LOADING
+# =====================================================
+# Load credential system early for security functionality
+if [[ -f "$ZSH_CONFIG_DIR/config/credentials.zsh" ]]; then
+    source "$ZSH_CONFIG_DIR/config/credentials.zsh" 2>/dev/null
+fi
 
 # =====================================================
 # STAGGERED MODE AUTO-LOADING
