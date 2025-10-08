@@ -11,8 +11,8 @@
 echo "⚡ Loading Spark module..."
 
 # Load critical function guard (silently)
-if [[ -f "$ZSH_CONFIG_DIR/CRITICAL_FUNCTION_GUARD.zsh" ]]; then
-    source "$ZSH_CONFIG_DIR/CRITICAL_FUNCTION_GUARD.zsh" >/dev/null 2>&1
+if [[ -f "$ZSH_CONFIG_DIR/docs/security/CRITICAL_FUNCTION_GUARD.zsh" ]]; then
+    source "$ZSH_CONFIG_DIR/docs/security/CRITICAL_FUNCTION_GUARD.zsh" >/dev/null 2>&1
 fi
 
 # Load Spark configuration and functions
