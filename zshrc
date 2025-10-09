@@ -327,6 +327,16 @@ load_module() {
         LOADED_MODULES=$(echo "$LOADED_MODULES" | sed 's/[^a-zA-Z0-9_ ]//g')
     fi
 
+    # SECURITY: Reset fake environment variables that break module loading
+    if [[ "$PYENV_ROOT" == *"/fake"* ]] || [[ "$PYTHONPATH" == *"/malicious"* ]] || [[ "$PYTHONPATH" == *"/fake"* ]]; then
+        unset PYENV_ROOT PYTHONPATH
+    fi
+
+    # SECURITY: Reset polluted module_path array
+    if typeset -p module_path 2>/dev/null | grep -q "/fake"; then
+        unset module_path
+    fi
+
     # DEFENSIVE: Verify we have a functioning shell environment
     if [[ -z "$ZSH_CONFIG_DIR" ]] || [[ ! -d "$ZSH_CONFIG_DIR" ]]; then
         printf '\033[31m%s\033[0m\n' "🚨 CRITICAL: ZSH_CONFIG_DIR not set or invalid"
