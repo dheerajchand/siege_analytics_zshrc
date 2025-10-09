@@ -239,7 +239,8 @@
       "Bash(/tmp/claude/code_quality_hostile_test.zsh)",
       "Bash(/tmp/claude/advanced_code_quality_test.zsh:*)",
       "Bash(test_system_health)",
-      "Bash(/tmp/claude/hostile_directory_safety_test.zsh)"
+      "Bash(/tmp/claude/hostile_directory_safety_test.zsh)",
+      "Bash(create_move_plan_template cleanup_plan.txt)"
     ],
     "deny": [],
     "ask": []

@@ -467,7 +467,7 @@ function sync_documentation_between_repos {
     
     # List of key files to sync
     local key_files=(
-        "README.md"
+        "docs/MAIN_README.md"
         "docs/"
         "help-module.zsh"
         "backup-system.zsh"

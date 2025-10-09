@@ -39,6 +39,12 @@ All testing follows the three-tier hostile testing requirements:
   - Function redefinition protection
   - Signal interruption handling
 
+- `hostile-pyenv-p10k-tests.zsh` - **PyEnv & P10k integration testing**
+  - PyEnv completion functionality verification
+  - P10k instant prompt configuration testing
+  - Adversarial condition resistance
+  - Integration failure recovery
+
 - `intensive_break_test.zsh` - **Intensive attack simulation**
   - Simultaneous hostile module loading
   - Massive credential system abuse

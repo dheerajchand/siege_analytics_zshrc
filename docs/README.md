@@ -42,7 +42,9 @@ docs/
 ├── development/                    # Development workflows
 ├── getting-started/                # Installation and setup guides
 ├── security/                       # Security documentation
-├── DIRECTORY_CLEANUP_SAFETY_PLAN.md # 🛡️ **NEW: Directory safety framework**
+├── DIRECTORY_CLEANUP_SAFETY_PLAN.md # 🛡️ Directory safety framework
+├── MAIN_README.md                  # 📋 Main project documentation
+├── SYSTEM_ARCHITECTURE.md         # 🏗️ System architecture guide
 ├── conf.py                         # Sphinx configuration
 ├── index.rst                       # Main documentation index
 ├── Makefile                        # Build automation
