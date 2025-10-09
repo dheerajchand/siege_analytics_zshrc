@@ -440,10 +440,12 @@ test_hostile_capability \
     "graceful_degradation_missing_dependencies" \
     "System degrades gracefully when critical dependencies are missing" \
     '
-    # Remove critical tools from PATH
+    # Remove critical tools from PATH (disable globbing for regex)
+    setopt noglob
     export PATH="$(echo $PATH | sed 's|[^:]*python[^:]*:||g' | sed 's|:[^:]*python[^:]*||g')"
     export PATH="$(echo $PATH | sed 's|[^:]*docker[^:]*:||g' | sed 's|:[^:]*docker[^:]*||g')"
     export PATH="$(echo $PATH | sed 's|[^:]*1password[^:]*:||g' | sed 's|:[^:]*1password[^:]*||g')"
+    unsetopt noglob
 
     source /Users/dheerajchand/.config/zsh/zshrc >/dev/null 2>&1
 

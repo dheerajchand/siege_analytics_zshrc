@@ -187,7 +187,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 # Add user binaries if they exist
 # SECURITY FIX: Validate HOME before adding to PATH to prevent injection
-if [[ -n "$HOME" ]] && [[ "$HOME" == "/"* ]] && [[ ! "$HOME" =~ \.\. ]] && [[ -d "$HOME" ]]; then
+if [[ -n "$HOME" ]] && [[ "$HOME" == "/"* ]] && [[ ! "$HOME" =~ "/\.\." ]] && [[ -d "$HOME" ]]; then
     [[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
     [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
 else
