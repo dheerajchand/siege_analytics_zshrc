@@ -248,7 +248,12 @@
       "Bash([[ \"/Users/../etc/passwd\" =~ \"/\\.\\.\" ]])",
       "Bash(setopt noglob)",
       "Bash(unsetopt noglob)",
-      "Read(///**)"
+      "Read(///**)",
+      "Bash(./tests/hostile-comprehensive-final.zsh)",
+      "Bash(test_information_disclosure)",
+      "Bash(if [[ -f \"/Users/dheerajchand/.config/zsh/config/credentials.zsh\" ]])",
+      "Bash(then)",
+      "Bash(else)"
     ],
     "deny": [],
     "ask": []
