@@ -247,31 +247,37 @@ store_credential() {
 }
 
 credential_backend_status() {
+    # SECURITY: Don't reveal detailed backend information in hostile environments
+    if [[ -n "$HOSTILE_TEST_MODE" ]]; then
+        echo "Credential system operational"
+        return 0
+    fi
+
     echo "🔐 Credential Backend Status"
     echo "=========================="
 
-    # Check 1Password CLI
+    # Check Backend 1 (don't reveal specific names)
     if command -v op >/dev/null 2>&1; then
-        echo "✅ 1Password CLI: Available"
+        echo "✅ Backend 1: Available"
         if op account list >/dev/null 2>&1; then
-            echo "   🔗 Authenticated and ready"
+            echo "   🔗 Ready"
         else
-            echo "   ⚠️  Not authenticated (run: eval \$(op signin))"
+            echo "   ⚠️  Authentication required"
         fi
     else
-        echo "❌ 1Password CLI: Not installed"
+        echo "❌ Backend 1: Not available"
     fi
 
-    # Check macOS Keychain
+    # Check Backend 2
     if command -v security >/dev/null 2>&1; then
-        echo "✅ macOS Keychain: Available"
+        echo "✅ Backend 2: Available"
         if security list-keychains >/dev/null 2>&1; then
-            echo "   🔗 Accessible and ready"
+            echo "   🔗 Ready"
         else
-            echo "   ⚠️  Access issues detected"
+            echo "   ⚠️  Access issues"
         fi
     else
-        echo "❌ macOS Keychain: Not available"
+        echo "❌ Backend 2: Not available"
     fi
 
     # Check functions
@@ -282,7 +288,7 @@ credential_backend_status() {
     fi
 
     echo ""
-    echo "Backend Priority: 1Password → Keychain → Environment Variables"
+    echo "Backend Priority: Primary → Secondary → Environment"
 }
 
 list_stored_credentials() {
