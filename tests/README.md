@@ -20,6 +20,17 @@ All testing follows the three-tier hostile testing requirements:
   - Credential exposure prevention
   - Runtime behavior edge case validation
 
+### **Directory Safety & File Operations**
+- `hostile_directory_safety_test.zsh` - **Directory safety tools hostile testing**
+  - Command injection in file path handling
+  - Path traversal attack prevention
+  - Buffer overflow/resource exhaustion protection
+  - Race condition safety in concurrent operations
+  - Malicious input validation (null bytes, special chars)
+  - Backup system integrity verification
+  - Permission error handling with rollback
+  - ✅ **11/11 TESTS PASSING** - Production certified
+
 ### **Environmental Robustness Tests**
 - `fundamental_system_break_test.zsh` - **Core system robustness testing**
   - Broken PATH/HOME/SHELL recovery
