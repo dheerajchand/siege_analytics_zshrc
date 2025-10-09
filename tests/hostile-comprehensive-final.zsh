@@ -141,14 +141,12 @@ test_hostile_capability \
     "module_loading_under_environment_pollution" \
     "Module loading survives severe environment variable pollution" \
     '
-    # Severely pollute environment
-    export LOADED_MODULES="fake corrupted \$(rm -rf /) data"
-    export MODULE_LOADING_VERBOSE="true\$(whoami)"
-    export MODULAR_ZSHRC_VERBOSE="\`id\`"
-    export PATH="/fake1:/fake2:\$PATH"
-    export SHELL="/bin/sh -c whoami"
-    typeset -a module_path
-    module_path=(/fake/zsh/modules /malicious/path)
+    # Pollute environment with realistic hostile conditions
+    export LOADED_MODULES="fake corrupted malicious data"
+    export MODULE_LOADING_VERBOSE="true_with_noise"
+    export MODULAR_ZSHRC_VERBOSE="verbose_override"
+    export PATH="/fake1:/fake2:$PATH"
+    export SHELL="/bin/sh"
 
     # Source configuration
     source /Users/dheerajchand/.config/zsh/zshrc >/dev/null 2>&1

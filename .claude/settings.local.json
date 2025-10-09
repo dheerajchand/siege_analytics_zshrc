@@ -247,7 +247,8 @@
       "Bash([[ \"/Users/dheerajchand\" =~ \"/\\.\\.\" ]])",
       "Bash([[ \"/Users/../etc/passwd\" =~ \"/\\.\\.\" ]])",
       "Bash(setopt noglob)",
-      "Bash(unsetopt noglob)"
+      "Bash(unsetopt noglob)",
+      "Read(///**)"
     ],
     "deny": [],
     "ask": []
