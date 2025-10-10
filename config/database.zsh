@@ -113,8 +113,71 @@ pg_test_connection() {
     fi
 }
 
+pg_connect() {
+    # Establish PostgreSQL connection with automatic credential setup and connection testing
+    #
+    # Usage:
+    #   pg_connect [database] [--test]
+    #
+    # Args:
+    #     database (str, optional): Database name (default: PGDATABASE)
+    #     --test: Test connection without opening psql
+    #
+    # Examples:
+    #     pg_connect
+    #     pg_connect analytics
+    #     pg_connect --test
+    local database="$1"
+    local test_mode=false
+
+    # Parse arguments
+    if [[ "$1" == "--test" ]] || [[ "$2" == "--test" ]]; then
+        test_mode=true
+        [[ "$1" == "--test" ]] && database="$PGDATABASE" || database="${1:-$PGDATABASE}"
+    else
+        database="${1:-$PGDATABASE}"
+    fi
+
+    # Ensure credentials are set up
+    if [[ -z "$PGPASSWORD" ]]; then
+        setup_postgres_credentials >/dev/null 2>&1
+    fi
+
+    if [[ "$test_mode" == true ]]; then
+        echo "🐘 Testing PostgreSQL connection..."
+        echo "🔗 Host: $PGHOST:$PGPORT"
+        echo "👤 User: $PGUSER"
+        echo "🗄️ Database: $database"
+
+        if command -v psql >/dev/null 2>&1; then
+            if PGDATABASE="$database" psql -c "SELECT version();" >/dev/null 2>&1; then
+                echo "✅ Connection successful!"
+                return 0
+            else
+                echo "❌ Connection failed"
+                echo "💡 Available databases:"
+                PGDATABASE="postgres" psql -t -c "SELECT datname FROM pg_database WHERE datistemplate = false;" 2>/dev/null | grep -v '^$' | sed 's/^/   • /' || echo "   Unable to list databases"
+                return 1
+            fi
+        else
+            echo "❌ psql command not found"
+            echo "💡 Install PostgreSQL client tools"
+            return 1
+        fi
+    else
+        echo "🐘 Connecting to PostgreSQL..."
+        if [[ -n "$database" && "$database" != "$PGDATABASE" ]]; then
+            echo "🔗 Connection: $PGUSER@$PGHOST:$PGPORT/$database"
+            PGDATABASE="$database" psql
+        else
+            echo "🔗 Connection: $PGUSER@$PGHOST:$PGPORT/$PGDATABASE"
+            psql
+        fi
+    fi
+}
+
 psql_quick() {
-    # Quick psql connection with current settings
+    # Quick psql connection with current settings (legacy function)
     #
     # Args:
     #     database (str, optional): Database name (default: PGDATABASE)
@@ -122,6 +185,9 @@ psql_quick() {
     # Examples:
     #     psql_quick
     #     psql_quick mydb
+    #
+    # Note: Use pg_connect() for new code
+    pg_connect "$@"
     local database="${1:-$PGDATABASE}"
     
     # Ensure credentials are set up
@@ -418,8 +484,8 @@ migrate_to_secure_credentials() {
 # =====================================================
 
 # PostgreSQL shortcuts
-alias pg='psql_quick'
-alias pgtest='pg_test_connection'
+alias pg='pg_connect'
+alias pgtest='pg_connect --test'
 alias pgsetup='setup_postgres_credentials --interactive'
 
 # MySQL shortcuts  

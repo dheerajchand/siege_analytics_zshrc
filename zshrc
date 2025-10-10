@@ -775,7 +775,6 @@ alias modules='show_loaded_modules'
 # Welcome message for new users
 echo "🚀 3-Tier ZSH System loaded!"
 echo "💡 Type 'help' for module loading guide or 'modules' to see what's available"
-echo "📦 Quick start: load-python, load-docker, load-database, load-spark, load-jetbrains"
 echo ""
 
 # =====================================================
@@ -792,3 +791,5 @@ export MINIMAL_ZSHRC_LOADED=true
 
 # Mark loading as complete and clean up signal handlers
 __mark_loading_complete
+# FEC API Key for verification
+export FEC_API_KEY="37J9ykQjEo7xjA0I8Zb0vC0H8AwCQhIcsGlWYDZv"

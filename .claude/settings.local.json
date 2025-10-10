@@ -253,7 +253,11 @@
       "Bash(test_information_disclosure)",
       "Bash(if [[ -f \"/Users/dheerajchand/.config/zsh/config/credentials.zsh\" ]])",
       "Bash(then)",
-      "Bash(else)"
+      "Bash(else)",
+      "Bash(load_module database)",
+      "Bash(pg_connect:*)",
+      "Bash(/tmp/comprehensive_system_test.zsh:*)",
+      "Bash(/tmp/zsh_config_test.zsh:*)"
     ],
     "deny": [],
     "ask": []

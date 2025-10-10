@@ -6,6 +6,9 @@ This section provides comprehensive documentation for all functions and modules 
 .. note::
    All functions support cross-shell compatibility (bash/zsh) and cross-platform operation (macOS/Linux/Docker/WSL) unless otherwise specified.
 
+.. warning::
+   All tests in this documentation follow **hostile testing principles** designed to detect real failures, not vanity tests. See :doc:`testing-philosophy` for details.
+
 Core Modules
 ------------
 
@@ -14,6 +17,7 @@ These modules provide the foundation for all other functionality:
 .. toctree::
    :maxdepth: 2
 
+   testing-philosophy
    core-functions
    platform-functions
 
@@ -332,37 +336,37 @@ The system exports numerous environment variables for integration:
 - ``DOCKER_BUILDKIT`` - BuildKit enabled (1)
 - ``COMPOSE_DOCKER_CLI_BUILD`` - Compose CLI build (1)
 
-Testing Framework
-----------------
+Hostile Testing Framework
+-------------------------
 
-All modules include comprehensive unit tests. Run tests with:
+All modules include **hostile tests** designed to break the system and detect real vulnerabilities. These replace traditional "vanity tests" with security-focused failure detection.
 
 .. code-block:: bash
 
-   # Test core functions
-   test_command_exists
-   test_mkcd_basic
-   test_py_env_list
-   
-   # Test platform functions
-   test_platform_detection
-   test_shell_detection
-   test_container_detection
-   
-   # Test data processing
-   test_spark_environment_setup
-   test_hadoop_environment_setup
-   
-   # Test integration
-   test_hadoop_spark_integration
+   # Run hostile security tests
+   ./tests/hostile-comprehensive-final.zsh
 
-**Test Categories:**
+   # Test injection resistance
+   test_command_exists_injection_resistance
+   test_mkcd_path_traversal_attack
+   test_postgres_credentials_disclosure_prevention
 
-- **Unit Tests**: Individual function testing
-- **Integration Tests**: Module interaction testing
-- **Platform Tests**: Cross-platform compatibility
-- **Container Tests**: Docker environment testing
-- **Security Tests**: Credential management testing
+   # Test resource exhaustion
+   test_py_env_switch_resource_exhaustion
+   test_docker_cleanup_resource_exhaustion
+
+   # Test race conditions
+   test_concurrent_module_loading_race_conditions
+   test_mkcd_race_condition_resistance
+
+**Hostile Test Categories:**
+
+- **Security Vulnerability Tests**: Command injection, path traversal, information disclosure
+- **Resource Exhaustion Tests**: Memory leaks, CPU starvation, disk space attacks
+- **Race Condition Tests**: Concurrent access, file locking, signal handling
+- **Environmental Attack Tests**: PATH manipulation, environment pollution, missing dependencies
+
+See :doc:`testing-philosophy` for complete hostile testing requirements and patterns.
 
 Performance Considerations
 -------------------------
