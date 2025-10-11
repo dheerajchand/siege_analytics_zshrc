@@ -126,6 +126,34 @@ _is_positive_integer() {
 # SYSTEM DIAGNOSTIC FUNCTIONS
 # =====================================================
 
+# Purpose: Check system file descriptor limits and warn if too low
+# Arguments: None
+# Returns: 0 if OK, 1 if limits are dangerously low
+# Usage: check_file_limits
+check_file_limits() {
+    local current_limit=$(launchctl limit maxfiles 2>/dev/null | awk '{print $2}')
+
+    if [[ -z "$current_limit" ]]; then
+        echo "⚠️  Unable to check file limits"
+        return 1
+    fi
+
+    if [[ "$current_limit" -lt 1024 ]]; then
+        echo "🚨 WARNING: System file limit is dangerously low: $current_limit"
+        echo "   This may cause apps like Obsidian/Finder to timeout"
+        echo "   Current: $current_limit"
+        echo "   Recommended: 65536"
+        echo "   Fix: sudo launchctl limit maxfiles 65536 200000"
+        return 1
+    elif [[ "$current_limit" -lt 4096 ]]; then
+        echo "⚠️  System file limit is low: $current_limit (recommended: 65536)"
+        return 0
+    else
+        echo "✅ System file limit OK: $current_limit"
+        return 0
+    fi
+}
+
 # Purpose: Display comprehensive system information
 # Arguments: None
 # Returns: 0 always
