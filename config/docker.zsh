@@ -124,8 +124,8 @@ switch_docker_context() {
                 else
                     echo "❌ Docker Desktop failed to start, trying Rancher Desktop..."
                     docker context use rancher-desktop 2>/dev/null
-                    open -a "Rancher Desktop" 2>/dev/null
-                    
+                    start_rancher_desktop
+
                     # Wait for Rancher Desktop to start
                     timeout=30
                     while ! docker info >/dev/null 2>&1 && [[ $timeout -gt 0 ]]; do
@@ -133,7 +133,7 @@ switch_docker_context() {
                         ((timeout--))
                         echo "⏳ Waiting for Rancher Desktop to start... ($timeout seconds remaining)"
                     done
-                    
+
                     if docker info >/dev/null 2>&1; then
                         echo "✅ Rancher Desktop started successfully"
                         export CURRENT_DOCKER_CONTEXT="rancher-desktop"
@@ -197,7 +197,7 @@ ensure_docker_available() {
                     case "$DEFAULT_CONTAINER_RUNTIME" in
                         "rancher-desktop")
                             echo "🐄 Starting Rancher Desktop..."
-                            open -a "Rancher Desktop" 2>/dev/null || echo "⚠️  Rancher Desktop not found"
+                            start_rancher_desktop || echo "⚠️  Rancher Desktop not found"
                             ;;
                         "docker-desktop"|*)
                             echo "🐳 Starting Docker Desktop..."
