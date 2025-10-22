@@ -5,74 +5,222 @@
 
 ---
 
-## 🚀 Quick Deployment
+## 🚀 Deployment to Current Machine
 
-### On This Machine (Already Fixed)
+### Option 1: Test First (Recommended)
 
 ```bash
+# Already on clean-rebuild branch
+cd ~/.config/zsh
+
+# Test in a new shell without changing default
+zsh -c 'source ~/.config/zsh/clean/zshrc; python_status; which hdfs'
+
+# Run full test suite
+./clean/complete_function_test.zsh
+
+# If all tests pass (14/14), deploy:
+cp ~/.config/zsh/zshrc ~/.config/zsh/zshrc.backup.$(date +%Y%m%d)
+cp ~/.config/zsh/clean/zshrc ~/.config/zsh/zshrc
+
+# Restart your shell
+exec zsh
+```
+
+### Option 2: Direct Deploy
+
+```bash
+cd ~/.config/zsh
+
+# Backup
+cp zshrc zshrc.old
+
+# Deploy
+cp clean/zshrc zshrc
+
+# Copy modules
+cp clean/*.zsh ~/.config/zsh/clean/
+
+# Restart shell
+exec zsh
+```
+
+---
+
+## 🖥️ Fresh Installation on New Machine
+
+### Prerequisites
+
+Before installing the zsh config, install these in order:
+
+#### 1. Install SDKMAN
+
+```bash
+# Install SDKMAN
+curl -s "https://get.sdkman.io" | bash
+
+# Initialize in current shell
+source ~/.sdkman/bin/sdkman-init.sh
+
+# Verify
+sdk version
+```
+
+#### 2. Install Java, Spark, Hadoop
+
+```bash
+# Install Java 17
+sdk install java 17.0.15-tem
+sdk default java 17.0.15-tem
+
+# Install Spark 3.5.0
+sdk install spark 3.5.0
+sdk default spark 3.5.0
+
+# Install Hadoop 3.3.6
+sdk install hadoop 3.3.6
+sdk default hadoop 3.3.6
+
+# Verify
+java -version
+spark-submit --version
+hadoop version
+```
+
+#### 3. Install pyenv
+
+```bash
+# macOS
+brew install pyenv pyenv-virtualenv
+
+# Ubuntu
+curl https://pyenv.run | bash
+
+# Add to temporary PATH for next step
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init --path)"
+```
+
+#### 4. Install Python
+
+```bash
+# Install Python 3.11
+pyenv install 3.11.11
+
+# Create virtual environment for data science
+pyenv virtualenv 3.11.11 geo31111
+
+# Set as global default
+pyenv global geo31111
+
+# Verify
+python --version  # Should show 3.11.11
+```
+
+#### 5. Install Optional Tools
+
+```bash
+# Docker (if not already installed)
+# macOS: Download Docker Desktop
+# Ubuntu: sudo apt-get install docker.io
+
+# PostgreSQL (if needed)
+# macOS: brew install postgresql
+# Ubuntu: sudo apt-get install postgresql
+
+# 1Password CLI (for credentials)
+# macOS: brew install 1password-cli
+# Ubuntu: See 1Password docs
+```
+
+### Deploy ZSH Configuration
+
+```bash
+# 1. Clone the config repository
+git clone https://github.com/dheerajchand/siege_analytics_zshrc.git ~/.config/zsh
 cd ~/.config/zsh
 git checkout clean-rebuild
 
-# Backup current config
-cp ~/.config/zsh/zshrc ~/.config/zsh/zshrc.old.$(date +%Y%m%d)
+# 2. Deploy
+cp clean/zshrc ~/.zshrc
 
-# Deploy clean build
-cp ~/.config/zsh/clean/zshrc ~/.config/zsh/zshrc
-
-# Test in new shell
+# 3. Start new shell
 zsh
 
-# If everything works, merge to main
-git checkout main
-git merge clean-rebuild
-git push
+# 4. Verify installation
+./clean/complete_function_test.zsh
+
+# Expected: 14/14 tests passing
 ```
 
-### On Mac Mini Server
+### Post-Installation Configuration
+
+#### Configure Hadoop Data Directories
 
 ```bash
-# 1. Clone or pull latest config
-cd ~/.config/zsh
-git pull origin main
+# Create Hadoop data directories
+mkdir -p ~/hadoop-data/namenode
+mkdir -p ~/hadoop-data/datanode
+mkdir -p ~/hadoop-data/tmp
 
-# 2. Ensure SDKMAN is installed
-curl -s "https://get.sdkman.io" | bash
-source ~/.sdkman/bin/sdkman-init.sh
+# These paths are already configured in hdfs-site.xml via the config
+```
 
-# 3. Install Java, Spark, Hadoop via SDKMAN
-sdk install java 17.0.15-tem
-sdk install spark 3.5.0
-sdk install hadoop 3.3.6
+#### First-Time Hadoop Start
 
-# 4. Install pyenv
-curl https://pyenv.run | bash
+```bash
+# Start Hadoop (will auto-format HDFS on first run)
+start_hadoop
 
-# 5. Install Python version
-pyenv install 3.11.11
-pyenv global 3.11.11
+# Wait for services
+sleep 15
 
-# 6. Deploy config
-cp ~/.config/zsh/clean/zshrc ~/.config/zsh/zshrc
+# Verify all services running
+jps | grep -E "(NameNode|DataNode|ResourceManager|NodeManager)"
+# Should show all 4
 
-# 7. Start new shell
-zsh
+# Check web UIs
+# HDFS: http://localhost:9870
+# YARN: http://localhost:8088
+```
 
-# 8. Verify
-python_status
+#### First-Time Spark Start
+
+```bash
+# Start Spark (will auto-configure Python)
 spark_start
-hadoop_status
+
+# Wait for startup
+sleep 5
+
+# Verify
+jps | grep -E "(Master|Worker)"
+# Should show both
+
+# Check web UI
+# Spark: http://localhost:8080
 ```
 
-### On Ubuntu Server
+### Platform-Specific Notes
 
-```bash
-# Same steps as Mac Mini, but:
-# - SDKMAN paths will be same
-# - Hadoop daemon mode works identically
-# - No macOS-specific issues
+#### macOS
 
-# Everything will work out of the box
-```
+- ✅ All features work
+- ✅ Daemon mode handles HDFS correctly
+- ✅ No special configuration needed
+
+#### Ubuntu/Linux
+
+- ✅ All features work identically
+- ✅ May need to install `jps` separately: `sudo apt-get install openjdk-17-jdk`
+- ✅ Daemon mode is standard on Linux
+
+#### Both Platforms
+
+- Uses same paths (`~/.sdkman/candidates/`)
+- Uses same commands
+- Configuration is identical
+- Tests verify everything works
 
 ---
 
