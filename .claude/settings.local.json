@@ -257,7 +257,20 @@
       "Bash(load_module database)",
       "Bash(pg_connect:*)",
       "Bash(/tmp/comprehensive_system_test.zsh:*)",
-      "Bash(/tmp/zsh_config_test.zsh:*)"
+      "Bash(/tmp/zsh_config_test.zsh:*)",
+      "Bash(launchctl getenv:*)",
+      "Bash(defaults read:*)",
+      "Bash(path_status)",
+      "Bash(path_hygiene_check)",
+      "Bash(ulimit:*)",
+      "Bash(mount)",
+      "Bash(mdutil:*)",
+      "Bash(sysctl:*)",
+      "Bash(launchctl limit:*)",
+      "Bash(sudo launchctl limit:*)",
+      "Bash(killall:*)",
+      "Read(//Library/LaunchDaemons/**)",
+      "Bash(check_file_limits)"
     ],
     "deny": [],
     "ask": []
