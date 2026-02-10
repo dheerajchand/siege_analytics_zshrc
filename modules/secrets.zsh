@@ -85,14 +85,7 @@ _secrets_export_kv() {
         local key="${line%%=*}"
         local val="${line#*=}"
         key="${key## }"; key="${key%% }"
-        # Strip surrounding quotes only when fully quoted
-        if [[ "$val" == '"'*'"' ]]; then
-            val="${val#\"}"
-            val="${val%\"}"
-        elif [[ "$val" == "'"*"'" ]]; then
-            val="${val#\'}"
-            val="${val%\'}"
-        fi
+        val="$(_secrets_normalize_value "$val")"
         if [[ "$key" == "ZSH_SECRETS_MODE" ]]; then
             val="$(_secrets_trim_value "$val")"
         fi
@@ -102,17 +95,52 @@ _secrets_export_kv() {
 
 _secrets_normalize_mode() {
     if [[ -n "${ZSH_SECRETS_MODE:-}" ]]; then
-        export ZSH_SECRETS_MODE="$(_secrets_trim_value "$ZSH_SECRETS_MODE")"
+        export ZSH_SECRETS_MODE="$(_secrets_normalize_value "$ZSH_SECRETS_MODE")"
     fi
 }
 
 _secrets_trim_value() {
     local val="$1"
+    val="$(_secrets_strip_crlf "$val")"
+    val="$(_secrets_trim_ws "$val")"
+    val="${val%\"}"
+    echo "$val"
+}
+
+_secrets_strip_crlf() {
+    local val="$1"
     val="${val%$'\r'}"
+    echo "$val"
+}
+
+_secrets_trim_ws() {
+    local val="$1"
     while [[ "$val" == *[[:space:]] ]]; do
         val="${val%[[:space:]]}"
     done
-    val="${val%\"}"
+    while [[ "$val" == [[:space:]]* ]]; do
+        val="${val#[[:space:]]}"
+    done
+    echo "$val"
+}
+
+_secrets_strip_quotes() {
+    local val="$1"
+    if [[ "$val" == \"*\" ]]; then
+        val="${val#\"}"
+        val="${val%\"}"
+    elif [[ "$val" == \'*\' ]]; then
+        val="${val#\'}"
+        val="${val%\'}"
+    fi
+    echo "$val"
+}
+
+_secrets_normalize_value() {
+    local val="$1"
+    val="$(_secrets_strip_crlf "$val")"
+    val="$(_secrets_trim_ws "$val")"
+    val="$(_secrets_strip_quotes "$val")"
     echo "$val"
 }
 
@@ -184,11 +212,7 @@ op_accounts_sanitize() {
     local issues=0
     while IFS= read -r line || [[ -n "$line" ]]; do
         local original="$line"
-        line="${line%$'\r'}"
-        while [[ "$line" == *[[:space:]] ]]; do
-            line="${line%[[:space:]]}"
-        done
-        line="${line%\"}"
+        line="$(_secrets_normalize_value "$line")"
         if [[ "$line" != "$original" ]]; then
             issues=1
         fi
@@ -1547,16 +1571,8 @@ secrets_map_sanitize() {
     local issues=0
     while IFS= read -r line || [[ -n "$line" ]]; do
         local original="$line"
-        # Strip CRLF
-        line="${line%$'\r'}"
-        # Remove trailing quote on op:// mapping lines (allow trailing spaces)
-        local trimmed="$line"
-        while [[ "$trimmed" == *[[:space:]] ]]; do
-            trimmed="${trimmed%[[:space:]]}"
-        done
-        if [[ "$trimmed" == *"op://"* && "$trimmed" == *\" ]]; then
-            line="${trimmed%\"}"
-        fi
+        # Normalize whitespace and surrounding quotes
+        line="$(_secrets_normalize_value "$line")"
         if [[ "$line" != "$original" ]]; then
             issues=1
         fi

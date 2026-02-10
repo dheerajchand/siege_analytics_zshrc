@@ -140,6 +140,12 @@ test_secrets_trim_value_strips_space_quote() {
     assert_equal "both" "$out" "should trim whitespace and trailing quote"
 }
 
+test_secrets_normalize_value_trims_and_strips_quotes() {
+    local out
+    out="$(_secrets_normalize_value '  "abc"  ')"
+    assert_equal "abc" "$out" "normalize should trim and strip surrounding quotes"
+}
+
 test_secrets_extract_item_value_notes_plain() {
     local json='{"notesPlain":"hello","fields":[]}'
     local value="$(_secrets_extract_item_value_from_json "$json")"
@@ -1322,6 +1328,7 @@ register_test "test_secrets_push_uses_1password_when_available" "test_secrets_pu
 register_test "test_secrets_pull_prefers_rsync_when_host_provided" "test_secrets_pull_prefers_rsync_when_host_provided"
 register_test "test_secrets_normalize_mode_strips_quote" "test_secrets_normalize_mode_strips_quote"
 register_test "test_secrets_trim_value_strips_space_quote" "test_secrets_trim_value_strips_space_quote"
+register_test "test_secrets_normalize_value_trims_and_strips_quotes" "test_secrets_normalize_value_trims_and_strips_quotes"
 register_test "test_op_group_item_ids_by_title_orders" "test_op_group_item_ids_by_title_orders"
 register_test "test_secrets_pull_prefers_item_with_content" "test_secrets_pull_prefers_item_with_content"
 register_test "test_secrets_missing_from_1p_reports_missing" "test_secrets_missing_from_1p_reports_missing"
