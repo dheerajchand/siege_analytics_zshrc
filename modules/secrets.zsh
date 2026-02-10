@@ -859,9 +859,9 @@ secrets_load_op() {
                 fi
 
                 # Fallback: parse op://vault/item/field and use item get.
-                local path="${rhs#op://}"
-                local vault="${path%%/*}"
-                local rest="${path#*/}"
+                local op_path="${rhs#op://}"
+                local vault="${op_path%%/*}"
+                local rest="${op_path#*/}"
                 local item="${rest%%/*}"
                 local fld="${rest#*/}"
                 if [[ -n "$item" && -n "$fld" ]]; then
