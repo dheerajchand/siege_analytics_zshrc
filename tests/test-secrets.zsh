@@ -525,6 +525,54 @@ EOF
     rm -rf "$tmp"
 }
 
+test_secrets_missing_from_1p_reports_missing() {
+    local tmp bin map old_path old_map old_mode old_account old_vault out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    cat > "$bin/op" <<'OP'
+#!/usr/bin/env zsh
+case "$1 $2" in
+  "account list")
+    exit 0
+    ;;
+  "read")
+    exit 1
+    ;;
+  "item get")
+    exit 1
+    ;;
+esac
+exit 1
+OP
+    chmod +x "$bin/op"
+    map="$tmp/secrets.1p"
+    cat > "$map" <<'EOF'
+GITLAB_TOKEN=op://Private/gitlab personal access token/password
+EOF
+    old_path="$PATH"
+    old_map="$ZSH_SECRETS_MAP"
+    old_mode="$ZSH_SECRETS_MODE"
+    old_account="${OP_ACCOUNT-}"
+    old_vault="${OP_VAULT-}"
+    PATH="$bin:/usr/bin:/bin"
+    unalias op 2>/dev/null || true
+    unfunction op 2>/dev/null || true
+    op() { "$bin/op" "$@"; }
+    export ZSH_SECRETS_MAP="$map"
+    export OP_ACCOUNT="acct"
+    export OP_VAULT="Private"
+    out="$(secrets_missing_from_1p 2>&1 || true)"
+    assert_contains "$out" "Missing: GITLAB_TOKEN" "should report missing op:// entry"
+    PATH="$old_path"
+    export ZSH_SECRETS_MAP="$old_map"
+    export ZSH_SECRETS_MODE="$old_mode"
+    export OP_ACCOUNT="$old_account"
+    export OP_VAULT="$old_vault"
+    unset -f op 2>/dev/null || true
+    rm -rf "$tmp"
+}
+
 test_secrets_push_uses_1password_when_available() {
     local tmp bin old_path old_bin out
     tmp="$(mktemp -d)"
@@ -1229,6 +1277,7 @@ register_test "test_secrets_normalize_mode_strips_quote" "test_secrets_normalize
 register_test "test_secrets_trim_value_strips_space_quote" "test_secrets_trim_value_strips_space_quote"
 register_test "test_op_group_item_ids_by_title_orders" "test_op_group_item_ids_by_title_orders"
 register_test "test_secrets_pull_prefers_item_with_content" "test_secrets_pull_prefers_item_with_content"
+register_test "test_secrets_missing_from_1p_reports_missing" "test_secrets_missing_from_1p_reports_missing"
 register_test "test_op_resolve_account_uuid_from_alias" "test_op_resolve_account_uuid_from_alias"
 register_test "test_op_account_alias_trims_quote" "test_op_account_alias_trims_quote"
 register_test "test_op_latest_item_id_uses_op_bin" "test_op_latest_item_id_uses_op_bin"

@@ -292,6 +292,7 @@ help() {
     echo "  secrets_push [host]     - Push secrets (to 1Password + optional host)"
     echo "  secrets_pull [host]     - Pull secrets (from 1Password or host)"
     echo "  secrets_sync_status     - Show sync status and quick workflow"
+    echo "  secrets_missing_from_1p - List missing 1Password items"
     echo "  secrets_rsync_to_host   - Rsync secrets files to host"
     echo "  secrets_rsync_from_host - Rsync secrets files from host"
     echo "  secrets_rsync_to_cyberpower   - Rsync secrets to cyberpower"

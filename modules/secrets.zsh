@@ -889,6 +889,79 @@ secrets_load_op() {
     fi
 }
 
+_secrets_extract_op_url_parts() {
+    local rhs="$1"
+    local path="${rhs#op://}"
+    local vault="${path%%/*}"
+    local rest="${path#*/}"
+    local item="${rest%%/*}"
+    local field="${rest#*/}"
+    printf '%s\t%s\t%s' "$vault" "$item" "$field"
+}
+
+secrets_missing_from_1p() {
+    local account_arg="${1:-${OP_ACCOUNT-}}"
+    local vault_arg="${2:-${OP_VAULT-}}"
+    if [[ -n "$vault_arg" && -z "$account_arg" ]]; then
+        _secrets_warn "Vault specified without account; refusing to check"
+        return 1
+    fi
+    [[ -f "$ZSH_SECRETS_MAP" ]] || return 1
+    if ! command -v op >/dev/null 2>&1; then
+        _secrets_warn "op not found; cannot check 1Password"
+        return 1
+    fi
+    if ! _op_cmd account list >/dev/null 2>&1; then
+        _secrets_warn "1Password auth required (run: op signin)"
+        return 1
+    fi
+    local missing=0
+    local line envvar service user field vault_override
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -z "$line" ]] && continue
+        [[ "$line" == \#* ]] && continue
+        vault_override=""
+
+        if [[ "$line" == *"="* ]]; then
+            envvar="${line%%=*}"
+            local rhs="${line#*=}"
+            envvar="${envvar## }"; envvar="${envvar%% }"
+            rhs="${rhs## }"; rhs="${rhs%% }"
+            if [[ -n "$envvar" && "$rhs" == op://* ]]; then
+                local vault item fld
+                local parts
+                parts="$(_secrets_extract_op_url_parts "$rhs")"
+                vault="${parts%%$'\t'*}"
+                item="${parts#*$'\t'}"; item="${item%%$'\t'*}"
+                fld="${parts##*$'\t'}"
+                if ! _op_cmd read "$rhs" ${account_arg:+--account="$account_arg"} >/dev/null 2>&1; then
+                    _secrets_warn "Missing: $envvar (op://$vault/$item/$fld)"
+                    missing=1
+                fi
+                continue
+            else
+                read -r envvar service user field <<<"$line"
+            fi
+        else
+            read -r envvar service user field <<<"$line"
+        fi
+        [[ -z "$envvar" ]] && continue
+        [[ -z "$service" || -z "$field" ]] && continue
+        local vault_to_use="${vault_override:-$vault_arg}"
+        local ok=""
+        if [[ "$user" == "-" || -z "$user" ]]; then
+            ok="$(_op_cmd item get "$service" ${account_arg:+--account="$account_arg"} ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} --field="$field" --reveal 2>/dev/null || true)"
+        else
+            ok="$(_op_cmd item get "$service" ${account_arg:+--account="$account_arg"} ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} --fields label=="$field" --reveal 2>/dev/null || true)"
+        fi
+        if [[ -z "$ok" ]]; then
+            _secrets_warn "Missing: $envvar (item=$service field=$field)"
+            missing=1
+        fi
+    done < "$ZSH_SECRETS_MAP"
+    return $missing
+}
+
 load_secrets() {
     _secrets_normalize_mode
     case "$ZSH_SECRETS_MODE" in
