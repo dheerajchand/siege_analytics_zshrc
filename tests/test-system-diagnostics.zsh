@@ -5,6 +5,10 @@ source "$ROOT_DIR/tests/test-framework.zsh"
 source "$ROOT_DIR/modules/system_diagnostics.zsh"
 
 test_icloud_status_missing_tools() {
+    if [[ "$OSTYPE" != darwin* ]]; then
+        # icloud_status guards with _is_macos; skip on non-macOS
+        return 0
+    fi
     local old_path="$PATH"
     local tmp
     tmp="$(mktemp -d)"
@@ -18,6 +22,9 @@ test_icloud_status_missing_tools() {
 }
 
 test_icloud_preflight_no_brctl() {
+    if [[ "$OSTYPE" != darwin* ]]; then
+        return 0
+    fi
     local old_path="$PATH"
     local tmp
     tmp="$(mktemp -d)"
@@ -32,6 +39,9 @@ test_icloud_preflight_no_brctl() {
 }
 
 test_icloud_reset_state_non_interactive() {
+    if [[ "$OSTYPE" != darwin* ]]; then
+        return 0
+    fi
     local old_ps1="${PS1-}"
     unset PS1
     local out
@@ -43,6 +53,9 @@ test_icloud_reset_state_non_interactive() {
 }
 
 test_dropbox_restart_test_mode() {
+    if [[ "$OSTYPE" != darwin* ]]; then
+        return 0
+    fi
     ZSH_TEST_MODE=1
     local out
     out="$(dropbox_restart 2>/dev/null || true)"
@@ -53,6 +66,10 @@ test_dropbox_restart_test_mode() {
 }
 
 test_linux_system_status_non_linux() {
+    if [[ "$OSTYPE" == linux-gnu* ]]; then
+        # On Linux, the function runs real diagnostics; skip non-Linux test
+        return 0
+    fi
     local out
     out="$(linux_system_status 2>/dev/null || true)"
     assert_contains "$out" "Linux diagnostics are Linux-only." "should warn on non-linux"
