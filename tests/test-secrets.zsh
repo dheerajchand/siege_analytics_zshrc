@@ -136,8 +136,14 @@ test_secrets_normalize_mode_strips_quote() {
 
 test_secrets_trim_value_strips_space_quote() {
     local out
-    out="$(_secrets_trim_value 'both"   ')"
+    out="$(_secrets_normalize_value 'both"   ')"
     assert_equal "both" "$out" "should trim whitespace and trailing quote"
+}
+
+test_secrets_normalize_value_trims_and_strips_quotes() {
+    local out
+    out="$(_secrets_normalize_value '  "abc"  ')"
+    assert_equal "abc" "$out" "normalize should trim and strip surrounding quotes"
 }
 
 test_secrets_extract_item_value_notes_plain() {
@@ -525,6 +531,135 @@ EOF
     rm -rf "$tmp"
 }
 
+test_secrets_missing_from_1p_reports_missing() {
+    local tmp bin map old_path old_map old_mode old_account old_vault out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    cat > "$bin/op" <<'OP'
+#!/usr/bin/env zsh
+case "$1 $2" in
+  "account list")
+    exit 0
+    ;;
+  "read")
+    exit 1
+    ;;
+  "item get")
+    exit 1
+    ;;
+esac
+exit 1
+OP
+    chmod +x "$bin/op"
+    map="$tmp/secrets.1p"
+    cat > "$map" <<'EOF'
+GITLAB_TOKEN=op://Private/gitlab personal access token/password
+EOF
+    old_path="$PATH"
+    old_map="$ZSH_SECRETS_MAP"
+    old_mode="$ZSH_SECRETS_MODE"
+    old_account="${OP_ACCOUNT-}"
+    old_vault="${OP_VAULT-}"
+    PATH="$bin:/usr/bin:/bin"
+    unalias op 2>/dev/null || true
+    unfunction op 2>/dev/null || true
+    op() { "$bin/op" "$@"; }
+    export ZSH_SECRETS_MAP="$map"
+    export OP_ACCOUNT="acct"
+    export OP_VAULT="Private"
+    out="$(secrets_missing_from_1p 2>&1 || true)"
+    assert_contains "$out" "Missing: GITLAB_TOKEN" "should report missing op:// entry"
+    PATH="$old_path"
+    export ZSH_SECRETS_MAP="$old_map"
+    export ZSH_SECRETS_MODE="$old_mode"
+    export OP_ACCOUNT="$old_account"
+    export OP_VAULT="$old_vault"
+    unset -f op 2>/dev/null || true
+    rm -rf "$tmp"
+}
+
+test_secrets_missing_from_1p_json_and_fix() {
+    local tmp bin map old_path old_map old_account old_vault out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    cat > "$bin/op" <<'OP'
+#!/usr/bin/env zsh
+case "$1 $2" in
+  "account list")
+    exit 0
+    ;;
+  "read")
+    exit 1
+    ;;
+  "item get")
+    exit 1
+    ;;
+esac
+exit 1
+OP
+    chmod +x "$bin/op"
+    map="$tmp/secrets.1p"
+    cat > "$map" <<'EOF'
+GITLAB_TOKEN=op://Private/gitlab personal access token/password
+EOF
+    old_path="$PATH"
+    old_map="$ZSH_SECRETS_MAP"
+    old_account="${OP_ACCOUNT-}"
+    old_vault="${OP_VAULT-}"
+    PATH="$bin:/usr/bin:/bin"
+    unalias op 2>/dev/null || true
+    unfunction op 2>/dev/null || true
+    op() { "$bin/op" "$@"; }
+    export ZSH_SECRETS_MAP="$map"
+    export OP_ACCOUNT="acct"
+    export OP_VAULT="Private"
+    out="$(secrets_missing_from_1p --json --fix 2>/dev/null || true)"
+    assert_contains "$out" "\"env\":\"GITLAB_TOKEN\"" "json output should include env name"
+    assert_contains "$(cat "$map")" "# MISSING:" "fix should comment missing entry"
+    PATH="$old_path"
+    export ZSH_SECRETS_MAP="$old_map"
+    export OP_ACCOUNT="$old_account"
+    export OP_VAULT="$old_vault"
+    unset -f op 2>/dev/null || true
+    rm -rf "$tmp"
+}
+
+test_secrets_push_uses_1password_when_available() {
+    local tmp bin old_path old_bin out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    cat > "$bin/op" <<'OP'
+#!/usr/bin/env zsh
+if [[ "$1 $2" == "account list" ]]; then
+  exit 0
+fi
+exit 1
+OP
+    chmod +x "$bin/op"
+    old_bin="${OP_BIN-}"
+    old_path="$PATH"
+    OP_BIN="$bin/op"
+    PATH="$bin:/usr/bin:/bin"
+    secrets_sync_all_to_1p() { echo "SYNCED"; }
+    out="$(secrets_push 2>&1)"
+    assert_contains "$out" "1Password: synced" "secrets_push should attempt 1Password sync"
+    unset -f secrets_sync_all_to_1p 2>/dev/null || true
+    OP_BIN="$old_bin"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
+test_secrets_pull_prefers_rsync_when_host_provided() {
+    local out
+    secrets_rsync_from_host() { echo "RSYNCED"; return 0; }
+    out="$(secrets_pull host 2>&1)"
+    assert_contains "$out" "rsync" "secrets_pull should prefer rsync when host provided"
+    unset -f secrets_rsync_from_host 2>/dev/null || true
+}
+
 test_machine_profile_default() {
     local profile
     local old_profile="${ZSH_ENV_PROFILE-}"
@@ -895,7 +1030,7 @@ case "$1 $2" in
 esac
 OP
     chmod +x "$bin/op"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source /Users/dheerajchand/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; op_list_items' 2>&1)"
+    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; op_list_items' 2>&1)"
     rc=$?
     assert_not_equal "0" "$rc" "op_list_items should fail on empty list"
     assert_contains "$out" "No items found" "op_list_items should warn on empty list"
@@ -926,10 +1061,10 @@ case "$1 $2" in
 esac
 OP
     chmod +x "$bin/op"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source /Users/dheerajchand/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
+    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
     rc=$?
     assert_not_equal "0" "$rc" "secrets_pull_from_1p should fail on empty field"
-    assert_contains "$out" "No secrets_file field" "secrets_pull_from_1p should warn on empty field"
+    assert_contains "$out" "No secrets_file/notes found" "secrets_pull_from_1p should warn on empty field"
     rm -rf "$tmp"
 }
 
@@ -966,7 +1101,7 @@ OP
     chmod +x "$bin/op"
     old_file="$ZSH_SECRETS_FILE"
     export ZSH_SECRETS_FILE="$tmp/secrets.env"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; source /Users/dheerajchand/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
+    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
     rc=$?
     assert_equal "0" "$rc" "should pull from notesPlain"
     assert_contains "$(cat "$tmp/secrets.env")" "HELLO=world" "should write notesPlain content"
@@ -1023,9 +1158,11 @@ test_secrets_profiles_output() {
 }
 
 test_secrets_bootstrap_requires_op() {
-    local old_path out rc
+    local old_path old_bin out rc
     old_path="$PATH"
+    old_bin="${OP_BIN:-}"
     PATH="/usr/bin:/bin"
+    export OP_BIN="/nonexistent/op"
     unalias op 2>/dev/null || true
     unfunction op 2>/dev/null || true
     out="$(secrets_bootstrap_from_1p 2>&1)"
@@ -1033,6 +1170,7 @@ test_secrets_bootstrap_requires_op() {
     assert_not_equal "0" "$rc" "bootstrap should fail without op"
     assert_contains "$out" "op not found" "should warn without op"
     PATH="$old_path"
+    if [[ -n "$old_bin" ]]; then export OP_BIN="$old_bin"; else unset OP_BIN; fi
 }
 
 test_secrets_profile_switch_sets_profile() {
@@ -1189,10 +1327,15 @@ test_vault_without_account_warns() {
 register_test "test_secrets_load_file" "test_secrets_load_file"
 register_test "test_secrets_load_op" "test_secrets_load_op"
 register_test "test_secrets_load_op_supports_op_url_mapping" "test_secrets_load_op_supports_op_url_mapping"
+register_test "test_secrets_push_uses_1password_when_available" "test_secrets_push_uses_1password_when_available"
+register_test "test_secrets_pull_prefers_rsync_when_host_provided" "test_secrets_pull_prefers_rsync_when_host_provided"
 register_test "test_secrets_normalize_mode_strips_quote" "test_secrets_normalize_mode_strips_quote"
 register_test "test_secrets_trim_value_strips_space_quote" "test_secrets_trim_value_strips_space_quote"
+register_test "test_secrets_normalize_value_trims_and_strips_quotes" "test_secrets_normalize_value_trims_and_strips_quotes"
 register_test "test_op_group_item_ids_by_title_orders" "test_op_group_item_ids_by_title_orders"
 register_test "test_secrets_pull_prefers_item_with_content" "test_secrets_pull_prefers_item_with_content"
+register_test "test_secrets_missing_from_1p_reports_missing" "test_secrets_missing_from_1p_reports_missing"
+register_test "test_secrets_missing_from_1p_json_and_fix" "test_secrets_missing_from_1p_json_and_fix"
 register_test "test_op_resolve_account_uuid_from_alias" "test_op_resolve_account_uuid_from_alias"
 register_test "test_op_account_alias_trims_quote" "test_op_account_alias_trims_quote"
 register_test "test_op_latest_item_id_uses_op_bin" "test_op_latest_item_id_uses_op_bin"

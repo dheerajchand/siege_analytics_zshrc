@@ -73,7 +73,7 @@ PY3
     chmod +x "$bin/python3"
     old_path="$PATH"
     PATH="$bin:/usr/bin:/bin"
-    out="$(ZSH_TEST_MODE=1 zsh -fc 'source /Users/dheerajchand/.config/zsh/modules/python.zsh; python_status')"
+    out="$(ZSH_TEST_MODE=1 zsh -fc 'source $HOME/.config/zsh/modules/python.zsh; python_status')"
     assert_contains "$out" "Python: Python 3.12.3" "should use python3 shim"
     PATH="$old_path"
     rm -rf "$tmp"
@@ -106,7 +106,7 @@ test_python_config_status_defined() {
 
 test_pyenv_default_venv_variable() {
     local out
-    out="$(PYENV_DEFAULT_VENV=geo31111 ZSH_TEST_MODE=1 zsh -fc 'source /Users/dheerajchand/.config/zsh/modules/python.zsh; python_config_status')"
+    out="$(PYENV_DEFAULT_VENV=geo31111 ZSH_TEST_MODE=1 zsh -fc 'source $HOME/.config/zsh/modules/python.zsh; python_config_status')"
     assert_contains "$out" "Default venv: geo31111" "should show default venv"
 }
 
