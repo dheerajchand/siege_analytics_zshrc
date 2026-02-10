@@ -124,7 +124,11 @@ _secrets_strip_quotes() {
         val="${val#\'}"
         val="${val%\'}"
     fi
-    # Also strip unmatched trailing quote (common copy-paste artifact)
+    # POLICY: Also strip unmatched trailing quote.  This is intentionally
+    # defensive against copy-paste artifacts in env files (e.g. KEY=UUID").
+    # Values that legitimately end with a quote char are not expected in
+    # secrets.env / op-accounts.env.  If that assumption changes, gate
+    # this behind an opt-in flag.
     val="${val%\"}"
     val="${val%\'}"
     echo "$val"
@@ -1010,11 +1014,13 @@ secrets_missing_from_1p() {
         printf '[%s]\n' "$(IFS=,; echo "${missing_json[*]}")"
     fi
     if [[ "$fix" == "1" && "$missing" -ne 0 ]]; then
+        local bak="${ZSH_SECRETS_MAP}.bak"
+        cp "$ZSH_SECRETS_MAP" "$bak"
         local tmp
         tmp="$(mktemp)"
         printf '%s\n' "${updated_lines[@]}" > "$tmp"
         mv "$tmp" "$ZSH_SECRETS_MAP"
-        _secrets_info "Updated $ZSH_SECRETS_MAP (commented missing entries)"
+        _secrets_info "Updated $ZSH_SECRETS_MAP (commented missing entries; backup: $bak)"
     fi
     return $missing
 }

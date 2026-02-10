@@ -111,3 +111,5 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 - `secrets_rsync_*` is the supported fallback for headless servers without op GUI.
 - `secrets_missing_from_1p --json` returns JSON array; `--fix` comments missing entries in `secrets.1p`.
 - `secrets_sync_to_1p` writes content to both `secrets_file` field and secure note `notes`/`notesPlain` for compatibility; `secrets_pull_from_1p` will read either.
+- **Quote stripping policy:** `_secrets_strip_quotes` strips matched surrounding quotes (`"val"` → `val`) AND unmatched trailing quotes (`val"` → `val`). This is intentionally defensive against copy-paste artifacts in env files. Values that legitimately end with a quote character are not expected.
+- `secrets_missing_from_1p --fix` creates a `.bak` backup before rewriting the map file.
