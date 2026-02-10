@@ -85,6 +85,14 @@ _secrets_export_kv() {
         local key="${line%%=*}"
         local val="${line#*=}"
         key="${key## }"; key="${key%% }"
+        # Strip surrounding double quotes
+        val="${val#\"}"
+        val="${val%\"}"
+        # Strip surrounding single quotes
+        if [[ "$val" == \'*\' ]]; then
+            val="${val#\'}"
+            val="${val%\'}"
+        fi
         if [[ "$key" == "ZSH_SECRETS_MODE" ]]; then
             val="$(_secrets_trim_value "$val")"
         fi
@@ -673,7 +681,7 @@ _secrets_rsync_parse_args() {
 
 secrets_rsync_to_host() {
     local parsed remote remote_path
-    parsed="$(_secrets_rsync_parse_args secrets_rsync_to_host "$@")" || {
+    parsed="$(_secrets_rsync_parse_args "$@")" || {
         echo "Usage: secrets_rsync_to_host [--user <user>] --host <host> [--path <path>] | <user@host> [remote_path]" >&2
         return 1
     }
@@ -700,7 +708,7 @@ secrets_rsync_to_host() {
 
 secrets_rsync_from_host() {
     local parsed remote remote_path
-    parsed="$(_secrets_rsync_parse_args secrets_rsync_from_host "$@")" || {
+    parsed="$(_secrets_rsync_parse_args "$@")" || {
         echo "Usage: secrets_rsync_from_host [--user <user>] --host <host> [--path <path>] | <user@host> [remote_path]" >&2
         return 1
     }
@@ -738,7 +746,7 @@ secrets_rsync_from_cyberpower() {
 
 secrets_rsync_verify() {
     local parsed remote remote_path
-    parsed="$(_secrets_rsync_parse_args secrets_rsync_verify "$@")" || {
+    parsed="$(_secrets_rsync_parse_args "$@")" || {
         echo "Usage: secrets_rsync_verify [--user <user>] --host <host> [--path <path>] | <user@host> [remote_path]" >&2
         return 1
     }
@@ -802,6 +810,7 @@ secrets_load_op() {
         account_arg="$(_op_resolve_account_arg "$account_arg")"
     fi
 
+    local _loaded=0 _failed=0 _failed_vars=()
     local line envvar service user field vault_override
     while IFS= read -r line || [[ -n "$line" ]]; do
         [[ -z "$line" ]] && continue
@@ -826,6 +835,7 @@ secrets_load_op() {
                 fi
                 if [[ -n "$value" ]]; then
                     export "$envvar=$value"
+                    (( _loaded++ ))
                     continue
                 fi
 
@@ -864,9 +874,19 @@ secrets_load_op() {
                 ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} \
                 --field="$field" --reveal 2>/dev/null || true)"
         fi
-        [[ -n "$value" ]] && export "$envvar=$value"
+        if [[ -n "$value" ]]; then
+            export "$envvar=$value"
+            (( _loaded++ ))
+        else
+            (( _failed++ ))
+            _failed_vars+=("$envvar")
+        fi
     done < "$ZSH_SECRETS_MAP"
-    _secrets_info "Loaded secrets from 1Password map"
+    if (( _failed > 0 )); then
+        _secrets_warn "1Password: loaded $_loaded, failed $_failed (${_failed_vars[*]})"
+    else
+        _secrets_info "Loaded $_loaded secrets from 1Password"
+    fi
 }
 
 load_secrets() {
@@ -2100,6 +2120,92 @@ machine_profile() {
         return 0
     fi
     echo "unknown-host"
+}
+
+secrets_push() {
+    local host="${1:-}"
+    echo "🔐 Pushing secrets..."
+
+    # Always sync to 1Password if available and authenticated
+    if command -v op >/dev/null 2>&1 && _op_cmd account list >/dev/null 2>&1; then
+        secrets_sync_all_to_1p && echo "  ✅ 1Password: synced" || echo "  ❌ 1Password: failed"
+    else
+        echo "  ⏭️  1Password: skipped (not authenticated)"
+    fi
+
+    # If host specified, rsync to it
+    if [[ -n "$host" ]]; then
+        secrets_rsync_to_host "$host" && echo "  ✅ rsync → $host: synced" || echo "  ❌ rsync → $host: failed"
+    fi
+
+    echo "Done."
+}
+
+secrets_pull() {
+    local host="${1:-}"
+    echo "🔐 Pulling secrets..."
+
+    if [[ -n "$host" ]]; then
+        # Pull from remote host via rsync
+        secrets_rsync_from_host "$host" && echo "  ✅ rsync ← $host: synced" || echo "  ❌ rsync ← $host: failed"
+    elif command -v op >/dev/null 2>&1 && _op_cmd account list >/dev/null 2>&1; then
+        secrets_pull_all_from_1p && echo "  ✅ 1Password: pulled" || echo "  ❌ 1Password: failed"
+    else
+        _secrets_warn "No source specified and 1Password not authenticated"
+        echo "Usage: secrets_pull [user@host]  OR  authenticate 1Password first"
+        return 1
+    fi
+
+    # Reload
+    load_secrets
+    echo "Done. Secrets reloaded."
+}
+
+secrets_sync_status() {
+    echo "🔐 Secrets Sync Status"
+    echo "======================"
+    echo ""
+
+    # Local files
+    echo "Local files:"
+    local f
+    for f in secrets.env secrets.1p op-accounts.env codex-sessions.env; do
+        local path="$(_secrets_local_path_default)/$f"
+        if [[ -f "$path" ]]; then
+            local age_s=$(( $(date +%s) - $(stat -c %Y "$path" 2>/dev/null || stat -f %m "$path" 2>/dev/null || echo 0) ))
+            local age_h=$(( age_s / 3600 ))
+            echo "  ✅ $f (modified ${age_h}h ago)"
+        else
+            echo "  ❌ $f (missing)"
+        fi
+    done
+    echo ""
+
+    # 1Password
+    echo "1Password:"
+    if command -v op >/dev/null 2>&1; then
+        if _op_cmd account list >/dev/null 2>&1; then
+            if op whoami >/dev/null 2>&1; then
+                echo "  ✅ Authenticated (session active)"
+            else
+                echo "  ⚠️  Accounts configured but session expired (run: eval \"\$(op signin)\")"
+            fi
+        else
+            echo "  ❌ Not configured (run: op account add)"
+        fi
+    else
+        echo "  ❌ CLI not installed"
+    fi
+    echo "  Source: ${ZSH_OP_SOURCE_ACCOUNT:-unset} / ${ZSH_OP_SOURCE_VAULT:-unset}"
+    echo ""
+
+    # Quick workflow guide
+    echo "Quick workflow:"
+    echo "  secrets_push              → sync to 1Password"
+    echo "  secrets_push user@host    → sync to 1Password + rsync to host"
+    echo "  secrets_pull              → pull from 1Password"
+    echo "  secrets_pull user@host    → pull from host via rsync"
+    echo ""
 }
 
 # Auto-load secrets unless disabled or in test mode
