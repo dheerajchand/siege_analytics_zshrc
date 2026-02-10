@@ -88,21 +88,21 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 | `secrets_map_sanitize` | Validate/clean secrets.1p | `mktemp` | File writable |
 | `secrets_sync_to_1p` | Sync file to 1Password | `op` | Logged in |
 | `secrets_pull_from_1p` | Pull file from 1Password | `op` | Logged in |
-| `secrets_sync_codex_sessions_to_1p` | Sync codex sessions | `op` | Logged in |
-| `secrets_pull_codex_sessions_from_1p` | Pull codex sessions | `op` | Logged in |
+| `secrets_sync_codex_sessions_to_1p` | **Deprecated** → `secrets_sync_all_to_1p` | `op` | Logged in |
+| `secrets_pull_codex_sessions_from_1p` | **Deprecated** → `secrets_pull_all_from_1p` | `op` | Logged in |
 | `secrets_sync_all_to_1p` | Sync all secrets files | `op` | Logged in |
 | `secrets_pull_all_from_1p` | Pull all secrets files | `op` | Logged in |
 | `secrets_prune_duplicates_1p` | Delete older duplicate sync items | `op` | Logged in |
 | `secrets_missing_from_1p` | Report missing items in secrets.1p | `op` | Logged in |
-| `op_find_item_across_accounts` | Find item title across accounts | `op`, `python` | Logged in |
+| `op_find_item_across_accounts` | Find item title across accounts | `op`, `jq`/`python` | Logged in |
 | `secrets_profile_switch` | Set profile + reload | `load_secrets` | Valid profile |
 | `op_list_items` | List items in vault | `op` | Logged in |
 | `op_signin_account` | Sign in by alias | `op` | Alias configured |
 | `op_signin_all` | Sign in all aliases | `op` | Accounts configured |
-| `op_login_headless` | Headless sign‑in flow | `op` | Interactive shell |
+| `op_login_headless` | **Deprecated** → `op_signin_all` | `op` | Accounts configured |
 | `secrets_profiles` | List profiles + desc | None | Profiles configured |
 | `secrets_bootstrap_from_1p` | Pull all secrets files | `op` | Logged in |
-| `op_signin_account_uuid` | Sign in with UUID | `op` | UUID configured |
+| `op_signin_account_uuid` | **Deprecated** → `op_signin_account` | `op` | Alias configured |
 | `op_set_default_alias` | Set default by alias | None | Alias configured |
 | `machine_profile` | Resolve profile | `hostname` | Hostname available |
 

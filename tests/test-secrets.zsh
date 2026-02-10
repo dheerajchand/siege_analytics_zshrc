@@ -1265,7 +1265,7 @@ test_op_signin_account_usage() {
 test_op_signin_account_uuid_usage() {
     local out
     out="$(op_signin_account_uuid 2>&1 || true)"
-    assert_contains "$out" "Usage: op_signin_account_uuid" "should show usage"
+    assert_contains "$out" "Usage: op_signin_account" "should show usage (delegates to op_signin_account)"
 }
 
 test_op_signin_all_missing_accounts_file() {
