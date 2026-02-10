@@ -11,6 +11,7 @@ Secrets loading, 1Password integration, profiles, and rsync fallbacks.
 - `OP_ACCOUNT`, `OP_VAULT`
 - `OP_ACCOUNTS_FILE`
 - `ZSH_OP_SOURCE_ACCOUNT`, `ZSH_OP_SOURCE_VAULT` (source of truth)
+- `ZSH_STRIP_UNMATCHED_QUOTES` (`1` default, `0` to disable trailing quote stripping)
 
 ## Mapping formats (`secrets.1p`)
 Two formats are supported:
@@ -105,11 +106,57 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 | `op_set_default_alias` | Set default by alias | None | Alias configured |
 | `machine_profile` | Resolve profile | `hostname` | Hostname available |
 
+## Diagnostics & Recovery
+
+### Setting the source of truth
+The source account/vault determine where `secrets_sync_all_to_1p` and `secrets_pull_all_from_1p` read/write.
+On headless machines where `OP_ACCOUNT` may not be set, these functions fall back to the source values automatically.
+
+```bash
+# Set source (persisted in secrets.env)
+secrets_source_set Dheeraj_Chand_Family Private
+
+# Verify current source
+secrets_source_status
+```
+
+### Checking for missing 1Password items
+```bash
+# Report which secrets.1p entries have no matching 1Password item
+secrets_missing_from_1p
+
+# JSON output for scripting
+secrets_missing_from_1p --json
+
+# Comment out missing entries (creates .bak backup first)
+secrets_missing_from_1p --fix
+```
+
+### Syncing secrets
+```bash
+# Push all local files to 1Password
+secrets_push
+
+# Pull all files from 1Password (reloads secrets after)
+secrets_pull
+
+# Push/pull to a specific host via rsync (fallback for machines without op)
+secrets_push user@hostname
+secrets_pull user@hostname
+
+# Check sync status (local file ages + 1Password item ages)
+secrets_sync_status
+```
+
+### When to use rsync vs 1Password
+- **1Password** (`secrets_push`/`secrets_pull` with no host): preferred when `op` CLI is installed and authenticated.
+- **rsync** (`secrets_push user@host` / `secrets_pull user@host`): use for headless servers without `op` GUI, or when 1Password auth is unavailable. Requires SSH access to the target host.
+
 ## Notes
 - `op_login_headless` sets `OP_SESSION_<alias>` tokens.
 - `op` CLI wrapper rewrites `--account` aliases to UUIDs. Disable with `OP_ALIAS_SHIM_DISABLE=1`.
 - `secrets_rsync_*` is the supported fallback for headless servers without op GUI.
 - `secrets_missing_from_1p --json` returns JSON array; `--fix` comments missing entries in `secrets.1p`.
 - `secrets_sync_to_1p` writes content to both `secrets_file` field and secure note `notes`/`notesPlain` for compatibility; `secrets_pull_from_1p` will read either.
-- **Quote stripping policy:** `_secrets_strip_quotes` strips matched surrounding quotes (`"val"` → `val`) AND unmatched trailing quotes (`val"` → `val`). This is intentionally defensive against copy-paste artifacts in env files. Values that legitimately end with a quote character are not expected.
+- **Quote stripping policy:** `_secrets_strip_quotes` strips matched surrounding quotes (`"val"` → `val`) AND unmatched trailing quotes (`val"` → `val`). This is intentionally defensive against copy-paste artifacts in env files. Disable with `ZSH_STRIP_UNMATCHED_QUOTES=0` if you have values that legitimately end with a quote character.
 - `secrets_missing_from_1p --fix` creates a `.bak` backup before rewriting the map file.

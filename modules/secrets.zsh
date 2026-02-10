@@ -127,10 +127,11 @@ _secrets_strip_quotes() {
     # POLICY: Also strip unmatched trailing quote.  This is intentionally
     # defensive against copy-paste artifacts in env files (e.g. KEY=UUID").
     # Values that legitimately end with a quote char are not expected in
-    # secrets.env / op-accounts.env.  If that assumption changes, gate
-    # this behind an opt-in flag.
-    val="${val%\"}"
-    val="${val%\'}"
+    # secrets.env / op-accounts.env.  Disable with ZSH_STRIP_UNMATCHED_QUOTES=0.
+    if [[ "${ZSH_STRIP_UNMATCHED_QUOTES:-1}" != "0" ]]; then
+        val="${val%\"}"
+        val="${val%\'}"
+    fi
     echo "$val"
 }
 
