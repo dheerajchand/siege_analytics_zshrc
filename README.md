@@ -119,9 +119,9 @@ op_login_headless
 ```
 `op_verify_accounts` redacts suspicious item titles (e.g., long or key=value).
 
-Alias helpers (UUID-based):
+Alias helpers:
 ```bash
-op_signin_account_uuid Dheeraj_Chand_Family
+op_signin_account Dheeraj_Chand_Family
 op_set_default_alias Dheeraj_Chand_Family Private
 ```
 

@@ -16,6 +16,16 @@
 : "${ZSH_OP_SOURCE_VAULT:=Private}"
 _SECRETS_SYNC_FILES=(op-accounts.env secrets.env secrets.1p codex-sessions.env)
 
+# Resolve JSON tool once: prefer jq, fall back to python3, then python
+_SECRETS_JSON_CMD=""
+if command -v jq >/dev/null 2>&1; then
+    _SECRETS_JSON_CMD="jq"
+elif command -v python3 >/dev/null 2>&1; then
+    _SECRETS_JSON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+    _SECRETS_JSON_CMD="python"
+fi
+
 _secrets_warn() {
     echo "⚠️  $*" >&2
 }
@@ -44,7 +54,18 @@ _secrets_update_env_file() {
         _secrets_warn "Failed to create temp file for secrets update"
         return 1
     fi
-    if ! python - "$file" "$tmp" "$key" "$value" <<'PY'
+    local _py_cmd=""
+    if [[ "$_SECRETS_JSON_CMD" == "python3" || "$_SECRETS_JSON_CMD" == "python" ]]; then
+        _py_cmd="$_SECRETS_JSON_CMD"
+    elif command -v python3 >/dev/null 2>&1; then
+        _py_cmd="python3"
+    elif command -v python >/dev/null 2>&1; then
+        _py_cmd="python"
+    else
+        _secrets_warn "python not found; cannot update secrets file"
+        return 1
+    fi
+    if ! "$_py_cmd" - "$file" "$tmp" "$key" "$value" <<'PY'
 import sys
 src, dst, key, val = sys.argv[1:5]
 found = False
@@ -263,32 +284,28 @@ _op_account_uuid_configured() {
     local uuid="${1:-}"
     local json="${2:-}"
     [[ -z "$uuid" || -z "$json" ]] && return 1
-    local py_cmd=""
-    if command -v python3 >/dev/null 2>&1; then
-        py_cmd="python3"
-    elif command -v python >/dev/null 2>&1; then
-        py_cmd="python"
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+        printf '%s' "$json" | jq -e --arg u "$uuid" 'any(.[]; .account_uuid == $u)' >/dev/null 2>&1
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        printf '%s' "$json" | "$_SECRETS_JSON_CMD" -c 'import json,sys; data=json.load(sys.stdin); u=sys.argv[1];
+sys.exit(0 if any((a.get("account_uuid") or "")==u for a in data) else 1)' "$uuid" 2>/dev/null
     else
         return 1
     fi
-    printf '%s' "$json" | "$py_cmd" -c 'import json,sys; data=json.load(sys.stdin); u=sys.argv[1]; 
-print("1" if any((a.get("account_uuid") or "")==u for a in data) else "0")' "$uuid" 2>/dev/null | grep -q '^1$'
 }
 
 _op_account_shorthand_configured() {
     local shorthand="${1:-}"
     local json="${2:-}"
     [[ -z "$shorthand" || -z "$json" ]] && return 1
-    local py_cmd=""
-    if command -v python3 >/dev/null 2>&1; then
-        py_cmd="python3"
-    elif command -v python >/dev/null 2>&1; then
-        py_cmd="python"
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+        printf '%s' "$json" | jq -e --arg s "$shorthand" 'any(.[]; .shorthand == $s)' >/dev/null 2>&1
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        printf '%s' "$json" | "$_SECRETS_JSON_CMD" -c 'import json,sys; data=json.load(sys.stdin); s=sys.argv[1];
+sys.exit(0 if any((a.get("shorthand") or "")==s for a in data) else 1)' "$shorthand" 2>/dev/null
     else
         return 1
     fi
-    printf '%s' "$json" | "$py_cmd" -c 'import json,sys; data=json.load(sys.stdin); s=sys.argv[1]; 
-print("1" if any((a.get("shorthand") or "")==s for a in data) else "0")' "$shorthand" 2>/dev/null | grep -q '^1$'
 }
 
 _op_cmd() {
@@ -327,7 +344,14 @@ secrets_find_account_for_item() {
     fi
     local uuids="${OP_ACCOUNT_UUIDS:-}"
     if [[ -z "$uuids" ]]; then
-        uuids="$(printf '%s' "$accounts_json" | python -c 'import json,sys; data=json.load(sys.stdin); print(\" \".join([a.get(\"account_uuid\",\"\") for a in data if a.get(\"account_uuid\")]))' 2>/dev/null || true)"
+        if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+            uuids="$(printf '%s' "$accounts_json" | jq -r '[.[].account_uuid // empty] | join(" ")' 2>/dev/null || true)"
+        elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+            uuids="$(printf '%s' "$accounts_json" | "$_SECRETS_JSON_CMD" -c 'import json,sys; data=json.load(sys.stdin); print(" ".join([a.get("account_uuid","") for a in data if a.get("account_uuid")]))' 2>/dev/null || true)"
+        else
+            _secrets_warn "No JSON tool (jq/python) available"
+            return 1
+        fi
     fi
     local matches=()
     for uuid in $uuids; do
@@ -429,19 +453,15 @@ _op_resolve_account_uuid() {
         accounts_json="$(_op_cmd account list --format=json 2>/dev/null || true)"
     fi
     if [[ -n "$accounts_json" ]]; then
-        if command -v python3 >/dev/null 2>&1; then
-            python3 - <<'PY' "$accounts_json" "$account" 2>/dev/null && return 0
-import json,sys
-data=json.loads(sys.argv[1])
-name=sys.argv[2]
-for a in data:
-    if (a.get("shorthand") or "") == name:
-        print(a.get("account_uuid",""))
-        sys.exit(0)
-sys.exit(1)
-PY
-        elif command -v python >/dev/null 2>&1; then
-            python - <<'PY' "$accounts_json" "$account" 2>/dev/null && return 0
+        if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+            local jq_result
+            jq_result="$(printf '%s' "$accounts_json" | jq -r --arg n "$account" '.[] | select(.shorthand == $n) | .account_uuid // empty' 2>/dev/null)"
+            if [[ -n "$jq_result" ]]; then
+                echo "$jq_result"
+                return 0
+            fi
+        elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+            "$_SECRETS_JSON_CMD" - <<'PY' "$accounts_json" "$account" 2>/dev/null && return 0
 import json,sys
 data=json.loads(sys.argv[1])
 name=sys.argv[2]
@@ -521,7 +541,18 @@ op_accounts_seed() {
             continue
         fi
         _op_accounts_write_kv "$alias_name" "$account_uuid"
-    done < <(printf '%s' "$json" | python -c "import json,sys; data=json.load(sys.stdin); [print(f\"{a.get('account_uuid','')}\\t{a.get('email','')}\\t{a.get('url','')}\") for a in data]")
+    done < <(
+        if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+            printf '%s' "$json" | jq -r '.[] | "\(.account_uuid)\t\(.email)\t\(.url)"'
+        elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+            "$_SECRETS_JSON_CMD" - <<'PY' "$json"
+import json,sys
+data=json.loads(sys.argv[1])
+for a in data:
+    print(f"{a.get('account_uuid','')}\t{a.get('email','')}\t{a.get('url','')}")
+PY
+        fi
+    )
     _secrets_info "Alias seeding complete"
 }
 
@@ -576,15 +607,14 @@ op_verify_accounts() {
         echo "🔐 1Password Account Verification"
         echo "================================"
         printf "%-22s | %-32s | %-40s | %s\n" "Alias" "UUID" "Item" "Result"
-        local py_cmd=""
-        if command -v python3 >/dev/null 2>&1; then
-            py_cmd="python3"
-        elif command -v python >/dev/null 2>&1; then
-            py_cmd="python"
-        else
-            _secrets_warn "python not found; cannot verify items"
-            exit 1
+        local py_cmd="${_SECRETS_JSON_CMD}"
+        if [[ "$py_cmd" == "jq" ]]; then
+            # verify needs python for complex item inspection; find it
+            if command -v python3 >/dev/null 2>&1; then py_cmd="python3"
+            elif command -v python >/dev/null 2>&1; then py_cmd="python"
+            else _secrets_warn "python not found; cannot verify items"; exit 1; fi
         fi
+        [[ -z "$py_cmd" ]] && { _secrets_warn "No JSON tool found; cannot verify items"; exit 1; }
         local line alias_name uuid
         local accounts_json
         accounts_json="$(OP_CLI_NO_COLOR=1 op account list --format=json 2>/dev/null || true)"
@@ -859,16 +889,17 @@ secrets_load_op() {
                 fi
 
                 # Fallback: parse op://vault/item/field and use item get.
-                local op_path="${rhs#op://}"
-                local vault="${op_path%%/*}"
-                local rest="${op_path#*/}"
-                local item="${rest%%/*}"
-                local fld="${rest#*/}"
-                if [[ -n "$item" && -n "$fld" ]]; then
-                    service="$item"
+                local parts
+                parts="$(_secrets_extract_op_url_parts "$rhs")"
+                local fld_vault="${parts%%	*}"
+                local fld_rest="${parts#*	}"
+                local fld_item="${fld_rest%%	*}"
+                local fld_field="${fld_rest#*	}"
+                if [[ -n "$fld_item" && -n "$fld_field" ]]; then
+                    service="$fld_item"
                     user="-"
-                    field="$fld"
-                    vault_override="$vault"
+                    field="$fld_field"
+                    vault_override="$fld_vault"
                 else
                     continue
                 fi
@@ -910,9 +941,9 @@ secrets_load_op() {
 
 _secrets_extract_op_url_parts() {
     local rhs="$1"
-    local path="${rhs#op://}"
-    local vault="${path%%/*}"
-    local rest="${path#*/}"
+    local op_path="${rhs#op://}"
+    local vault="${op_path%%/*}"
+    local rest="${op_path#*/}"
     local item="${rest%%/*}"
     local field="${rest#*/}"
     printf '%s\t%s\t%s' "$vault" "$item" "$field"
@@ -1123,15 +1154,17 @@ _op_latest_item_id_by_title() {
             ${resolved_account:+--account="$resolved_account"} \
             --format=json 2>/dev/null || true)"
     fi
-    if [[ -n "$items_json" ]]; then
-        if command -v jq >/dev/null 2>&1; then
-            local id
-            id="$(echo "$items_json" | jq -r --arg t "$title" '
-                [ .[] | select(.title == $t) ] | sort_by(.updatedAt // .updated_at // .createdAt // .created_at) | last | .id // empty
-            ' 2>/dev/null || true)"
-            [[ -n "$id" ]] && { echo "$id"; return 0; }
-        fi
-        python - <<'PY' "$items_json" "$title" 2>/dev/null && return 0
+    if [[ -z "$items_json" ]]; then
+        return 1
+    fi
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+        local id
+        id="$(printf '%s' "$items_json" | jq -r --arg t "$title" '
+            [ .[] | select(.title == $t) ] | sort_by(.updatedAt // .updated_at // .createdAt // .created_at) | last | .id // empty
+        ' 2>/dev/null || true)"
+        [[ -n "$id" ]] && { echo "$id"; return 0; }
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        "$_SECRETS_JSON_CMD" - <<'PY' "$items_json" "$title" 2>/dev/null && return 0
 import json,sys
 data=json.loads(sys.argv[1])
 title=sys.argv[2]
@@ -1143,17 +1176,6 @@ if matches:
     print(matches[-1].get("id",""))
 PY
     fi
-
-    local line id
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        [[ "$line" == ID* ]] && continue
-        if echo "$line" | awk '{print $2}' | grep -qx "$title"; then
-            id="$(echo "$line" | awk '{print $1}')"
-        fi
-    done < <(OP_CLI_NO_COLOR=1 op item list \
-        ${account_arg:+--account="$account_arg"} \
-        ${account_arg:+${vault_arg:+--vault="$vault_arg"}} 2>/dev/null || true)
-    [[ -n "$id" ]] && { echo "$id"; return 0; }
     return 1
 }
 
@@ -1176,13 +1198,13 @@ _op_group_item_ids_by_title() {
             --format=json 2>/dev/null || true)"
     fi
     [[ -z "$items_json" ]] && return 1
-    if command -v jq >/dev/null 2>&1; then
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
         echo "$items_json" | jq -r --arg t "$title" '
             [ .[] | select(.title == $t) ] | sort_by(.updatedAt // .updated_at // .createdAt // .created_at) | .[].id // empty
         ' 2>/dev/null
         return 0
-    fi
-    python - <<'PY' "$items_json" "$title" 2>/dev/null
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        "$_SECRETS_JSON_CMD" - <<'PY' "$items_json" "$title" 2>/dev/null
 import json,sys
 data=json.loads(sys.argv[1])
 title=sys.argv[2]
@@ -1193,6 +1215,9 @@ matches.sort(key=ts)
 for item in matches:
     print(item.get("id",""))
 PY
+    else
+        return 1
+    fi
 }
 
 secrets_prune_duplicates_1p() {
@@ -1436,16 +1461,19 @@ op_list_accounts_vaults() {
     echo "🔐 1Password Accounts & Vaults"
     echo "=============================="
     local acct_list
-    if command -v jq >/dev/null 2>&1; then
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
         acct_list="$(echo "$accounts_json" | jq -r '.[] | "\(.account_uuid)\t\(.email)\t\(.url)"')"
-    else
-        acct_list="$(python - <<'PY'
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        acct_list="$("$_SECRETS_JSON_CMD" - <<'PY' <<<"$accounts_json"
 import json,sys
 data=json.load(sys.stdin)
 for item in data:
     print(f"{item.get('account_uuid','')}\t{item.get('email','')}\t{item.get('url','')}")
 PY
-)" <<<"$accounts_json"
+)"
+    else
+        _secrets_warn "No JSON tool (jq/python) available"
+        return 1
     fi
     local line account_uuid email url alias
     while IFS=$'\t' read -r account_uuid email url; do
@@ -1456,18 +1484,12 @@ PY
         else
             echo "Account: $account_uuid @ $url"
         fi
-        if command -v jq >/dev/null 2>&1; then
-            local vaults
+        local vaults
+        if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
             vaults="$(op vault list --account="$account_uuid" --format=json 2>/dev/null | jq -r '.[]?.name' || true)"
-            if [[ -z "$vaults" ]]; then
-                echo "  - (none found or access denied)"
-            else
-                echo "$vaults" | awk '{print "  - " $0}'
-            fi
-        else
-            local vaults
+        elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
             vaults="$(op vault list --account="$account_uuid" --format=json 2>/dev/null | \
-                python - <<'PY'
+                "$_SECRETS_JSON_CMD" - <<'PY'
 import json,sys
 data=json.load(sys.stdin)
 for item in data:
@@ -1476,11 +1498,11 @@ for item in data:
         print(f"{name}")
 PY
 )"
-            if [[ -z "$vaults" ]]; then
-                echo "  - (none found or access denied)"
-            else
-                echo "$vaults" | awk '{print "  - " $0}'
-            fi
+        fi
+        if [[ -z "$vaults" ]]; then
+            echo "  - (none found or access denied)"
+        else
+            echo "$vaults" | awk '{print "  - " $0}'
         fi
     done <<<"$acct_list"
 }
@@ -1589,7 +1611,7 @@ secrets_map_sanitize() {
 _secrets_extract_item_value_from_json() {
     local item_json="$1"
     [[ -z "$item_json" ]] && return 1
-    if command -v jq >/dev/null 2>&1; then
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
         echo "$item_json" | jq -r '
             (.fields[]? | select((.id=="secrets_file") or (.label=="secrets_file") or (.title=="secrets_file") or (.name=="secrets_file")) | .value)
             // .notesPlain
@@ -1597,8 +1619,8 @@ _secrets_extract_item_value_from_json() {
             // empty
         ' 2>/dev/null
         return 0
-    fi
-    python - <<'PY' "$item_json"
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        "$_SECRETS_JSON_CMD" - <<'PY' "$item_json"
 import json,sys
 data=json.loads(sys.argv[1])
 value=""
@@ -1610,7 +1632,10 @@ if not value:
     value = data.get("notesPlain","") or data.get("notes","") or ""
 print(value)
 PY
-    return 0
+        return 0
+    else
+        return 1
+    fi
 }
 
 secrets_sync_to_1p() {
@@ -1729,23 +1754,13 @@ secrets_pull_from_1p() {
 }
 
 secrets_sync_codex_sessions_to_1p() {
-    local title="${1:-codex-sessions-env}"
-    local account_arg="${2:-${OP_ACCOUNT-}}"
-    local vault_arg="${3:-${OP_VAULT-}}"
-    local old_file="$ZSH_SECRETS_FILE"
-    ZSH_SECRETS_FILE="$CODEX_SESSIONS_FILE" \
-        secrets_sync_to_1p "$title" "$account_arg" "$vault_arg"
-    ZSH_SECRETS_FILE="$old_file"
+    # Deprecated: use secrets_sync_all_to_1p or secrets_push instead
+    secrets_sync_all_to_1p "$@"
 }
 
 secrets_pull_codex_sessions_from_1p() {
-    local title="${1:-codex-sessions-env}"
-    local account_arg="${2:-${OP_ACCOUNT-}}"
-    local vault_arg="${3:-${OP_VAULT-}}"
-    local old_file="$ZSH_SECRETS_FILE"
-    ZSH_SECRETS_FILE="$CODEX_SESSIONS_FILE" \
-        secrets_pull_from_1p "$title" "$account_arg" "$vault_arg"
-    ZSH_SECRETS_FILE="$old_file"
+    # Deprecated: use secrets_pull_all_from_1p or secrets_pull instead
+    secrets_pull_all_from_1p "$@"
 }
 
 secrets_sync_all_to_1p() {
@@ -1856,21 +1871,15 @@ op_list_items() {
         _secrets_warn "No items found"
         return 1
     fi
-    if command -v jq >/dev/null 2>&1; then
-        local titles
+    local titles
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
         if [[ -n "$filter" ]]; then
             titles="$(echo "$items_json" | jq -r --arg f "$filter" '.[] | select(.title | test($f;"i")) | .title')"
         else
             titles="$(echo "$items_json" | jq -r '.[].title')"
         fi
-        if [[ -z "$titles" ]]; then
-            _secrets_warn "No items found"
-            return 1
-        fi
-        echo "$titles"
-    else
-        local titles
-        titles="$(python - <<'PY' "$filter"
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        titles="$("$_SECRETS_JSON_CMD" - <<'PY' "$filter" <<<"$items_json"
 import json,sys,re
 flt=sys.argv[1] if len(sys.argv)>1 else ""
 data=json.load(sys.stdin)
@@ -1887,12 +1896,15 @@ for item in data:
 print("\n".join(out))
 PY
 )"
-        if [[ -z "$titles" ]]; then
-            _secrets_warn "No items found"
-            return 1
-        fi
-        echo "$titles"
+    else
+        _secrets_warn "No JSON tool (jq/python) available"
+        return 1
     fi
+    if [[ -z "$titles" ]]; then
+        _secrets_warn "No items found"
+        return 1
+    fi
+    echo "$titles"
 }
 
 op_find_item_across_accounts() {
@@ -1909,7 +1921,14 @@ op_find_item_across_accounts() {
         return 1
     fi
     local uuids
-    uuids="$(printf '%s' "$accounts_json" | python -c 'import json,sys; data=json.load(sys.stdin); print(\" \".join([a.get(\"account_uuid\",\"\") for a in data if a.get(\"account_uuid\")]))' 2>/dev/null || true)"
+    if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+        uuids="$(printf '%s' "$accounts_json" | jq -r '[.[].account_uuid // empty] | join(" ")' 2>/dev/null || true)"
+    elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+        uuids="$(printf '%s' "$accounts_json" | "$_SECRETS_JSON_CMD" -c 'import json,sys; data=json.load(sys.stdin); print(" ".join([a.get("account_uuid","") for a in data if a.get("account_uuid")]))' 2>/dev/null || true)"
+    else
+        _secrets_warn "No JSON tool (jq/python) available"
+        return 1
+    fi
     for uuid in $uuids; do
         local items_json
         items_json="$(op item list --account "$uuid" --format=json 2>/dev/null || true)"
@@ -1917,11 +1936,20 @@ op_find_item_across_accounts() {
             continue
         fi
         local matches
-        matches="$(printf '%s' "$items_json" | python -c 'import json,sys; data=json.load(sys.stdin); 
+        if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+            matches="$(printf '%s' "$items_json" | jq -r --arg t "$title" '.[] | select(.title == $t) | "\(.id)\t\(.title)\t\(.vault.name // "?")"' 2>/dev/null || true)"
+        elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+            matches="$("$_SECRETS_JSON_CMD" - <<'PY' "$items_json" "$title" 2>/dev/null || true
+import json,sys
+data=json.loads(sys.argv[1])
+title=sys.argv[2]
 for i in data:
-    if i.get(\"title\") == sys.argv[1]:
-        vault=i.get(\"vault\",{}).get(\"name\",\"?\")
-        print(f\"{i.get('id','')}\\t{i.get('title','')}\\t{vault}\")' "$title" 2>/dev/null || true)"
+    if i.get("title") == title:
+        vault=i.get("vault",{}).get("name","?")
+        print(f"{i.get('id','')}\t{i.get('title','')}\t{vault}")
+PY
+)"
+        fi
         if [[ -n "$matches" ]]; then
             printf "Account %s:\n" "$uuid"
             printf "%s\n" "$matches"
@@ -1961,75 +1989,6 @@ op_signin_account() {
 }
 
 op_signin_all() {
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot sign in"
-        return 1
-    fi
-    if [[ ! -f "$OP_ACCOUNTS_FILE" ]]; then
-        _secrets_warn "No account aliases file: $OP_ACCOUNTS_FILE"
-        _secrets_info "Create: op_accounts_edit"
-        return 1
-    fi
-    local accounts_json
-    accounts_json="$(OP_CLI_NO_COLOR=1 op account list --format=json 2>/dev/null || true)"
-    if [[ -z "$accounts_json" ]]; then
-        _secrets_warn "No accounts configured on this device (run: op account add)"
-        return 1
-    fi
-    local line alias_name resolved signin_arg token reply
-    while IFS= read -r -u3 line || [[ -n "$line" ]]; do
-        [[ -z "$line" || "$line" == \#* ]] && continue
-        if [[ "$line" == *"="* ]]; then
-            alias_name="${line%%=*}"
-            alias_name="${alias_name## }"; alias_name="${alias_name%% }"
-            [[ -z "$alias_name" ]] && continue
-            echo "🔐 Signing in: $alias_name"
-            resolved="$(_op_account_alias "$alias_name" 2>/dev/null || true)"
-            if [[ -z "$resolved" ]]; then
-                _secrets_warn "Account alias not found: $alias_name"
-                continue
-            fi
-            signin_arg=""
-            if _op_account_shorthand_configured "$alias_name" "$accounts_json"; then
-                signin_arg="$alias_name"
-            elif _op_account_uuid_configured "$resolved" "$accounts_json"; then
-                signin_arg="$resolved"
-            fi
-            if [[ -z "$signin_arg" ]]; then
-                _secrets_warn "Account not configured on this device: $alias_name ($resolved)"
-                if [[ -o interactive ]]; then
-                    reply=""
-                    read -r "reply?Add now with 'op account add --shorthand $alias_name'? [y/N]: "
-                    if [[ "$reply" =~ ^[Yy]$ ]]; then
-                        op account add --shorthand "$alias_name" || return 1
-                        accounts_json="$(OP_CLI_NO_COLOR=1 op account list --format=json 2>/dev/null || true)"
-                        if _op_account_shorthand_configured "$alias_name" "$accounts_json"; then
-                            signin_arg="$alias_name"
-                        elif _op_account_uuid_configured "$resolved" "$accounts_json"; then
-                            signin_arg="$resolved"
-                        fi
-                    fi
-                fi
-                if [[ -z "$signin_arg" ]]; then
-                    _secrets_info "Run: op account add --shorthand $alias_name"
-                    continue
-                fi
-            fi
-            if [[ "$signin_arg" == "$alias_name" && "$alias_name" =~ ^[A-Za-z0-9_]+$ ]]; then
-                token="$(op signin --account "$signin_arg" --raw 2>/dev/null || true)"
-                if [[ -z "$token" ]]; then
-                    _secrets_warn "Failed to sign in: $alias_name"
-                    continue
-                fi
-                export "OP_SESSION_${alias_name}=${token}"
-            else
-                eval "$(op signin --account "$signin_arg")" || { _secrets_warn "Failed to sign in: $alias_name"; continue; }
-            fi
-        fi
-    done 3< "$OP_ACCOUNTS_FILE"
-}
-
-op_login_headless() {
     setopt local_options
     unsetopt xtrace verbose
     if ! command -v op >/dev/null 2>&1; then
@@ -2047,14 +2006,13 @@ op_login_headless() {
         _secrets_warn "No accounts configured on this device (run: op account add)"
         return 1
     fi
-    echo "🔐 1Password Headless Login"
-    echo "==========================="
-    local line alias_name resolved token ok=0 fail=0
-    while IFS= read -r line || [[ -n "$line" ]]; do
+    local line alias_name resolved token reply ok=0 fail=0
+    while IFS= read -r -u3 line || [[ -n "$line" ]]; do
         [[ -z "$line" || "$line" == \#* ]] && continue
         alias_name="${line%%=*}"
         alias_name="${alias_name## }"; alias_name="${alias_name%% }"
         [[ -z "$alias_name" ]] && continue
+        echo "🔐 Signing in: $alias_name"
         resolved="$(_op_account_alias "$alias_name" 2>/dev/null || true)"
         if [[ -z "$resolved" ]]; then
             _secrets_warn "Account alias not found: $alias_name"
@@ -2065,7 +2023,7 @@ op_login_headless() {
            ! _op_account_uuid_configured "$resolved" "$accounts_json"; then
             _secrets_warn "Account not configured: $alias_name ($resolved)"
             if [[ -o interactive ]]; then
-                local reply=""
+                reply=""
                 read -r "reply?Add now with 'op account add --shorthand $alias_name'? [y/N]: "
                 if [[ "$reply" =~ ^[Yy]$ ]]; then
                     op account add --shorthand "$alias_name" || {
@@ -2098,9 +2056,14 @@ op_login_headless() {
         export "OP_SESSION_${alias_name}=${token}"
         echo "✅ Signed in: $alias_name"
         ((ok++))
-    done < "$OP_ACCOUNTS_FILE"
+    done 3< "$OP_ACCOUNTS_FILE"
     echo "Done: ${ok} ok, ${fail} failed"
     [[ "$fail" -eq 0 ]] || return 1
+}
+
+op_login_headless() {
+    # Deprecated: use op_signin_all instead
+    op_signin_all "$@"
 }
 
 secrets_profiles() {
@@ -2140,13 +2103,16 @@ secrets_bootstrap_from_1p() {
     _secrets_require_op "cannot bootstrap secrets" || return 1
     if [[ -z "$account_arg" ]]; then
         local shorthand
-        shorthand="$(op account list --format=json 2>/dev/null | \
-            python - <<'PY'
+        if [[ "$_SECRETS_JSON_CMD" == "jq" ]]; then
+            shorthand="$(op account list --format=json 2>/dev/null | jq -r '.[0].shorthand // empty' 2>/dev/null)"
+        elif [[ -n "$_SECRETS_JSON_CMD" ]]; then
+            shorthand="$(op account list --format=json 2>/dev/null | "$_SECRETS_JSON_CMD" - <<'PY'
 import json,sys
 data=json.load(sys.stdin)
 print(data[0].get("shorthand","") if data else "")
 PY
 )"
+        fi
         if [[ -n "$shorthand" ]]; then
             account_arg="$shorthand"
         fi
@@ -2180,34 +2146,8 @@ PY
 }
 
 op_signin_account_uuid() {
-    local account_alias="${1:-}"
-    if [[ -z "$account_alias" ]]; then
-        echo "Usage: op_signin_account_uuid <account-alias>" >&2
-        return 1
-    fi
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot sign in"
-        return 1
-    fi
-    local resolved
-    resolved="$(_op_account_alias "$account_alias" 2>/dev/null || true)"
-    if [[ -z "$resolved" ]]; then
-        _secrets_warn "Account alias not found: $account_alias"
-        _secrets_info "Edit: op_accounts_edit"
-        return 1
-    fi
-    if [[ "$account_alias" =~ ^[A-Za-z0-9_]+$ ]]; then
-        local token
-        token="$(op signin --account "$resolved" --raw 2>/dev/null || true)"
-        if [[ -z "$token" ]]; then
-            _secrets_warn "Failed to sign in: $account_alias"
-            return 1
-        fi
-        export "OP_SESSION_${account_alias}=${token}"
-    else
-        _secrets_warn "Alias '$account_alias' not safe for OP_SESSION variable name"
-        return 1
-    fi
+    # Deprecated: use op_signin_account instead
+    op_signin_account "$@"
 }
 
 op_set_default_alias() {
