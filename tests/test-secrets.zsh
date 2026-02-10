@@ -136,7 +136,7 @@ test_secrets_normalize_mode_strips_quote() {
 
 test_secrets_trim_value_strips_space_quote() {
     local out
-    out="$(_secrets_trim_value 'both"   ')"
+    out="$(_secrets_normalize_value 'both"   ')"
     assert_equal "both" "$out" "should trim whitespace and trailing quote"
 }
 
@@ -1030,7 +1030,7 @@ case "$1 $2" in
 esac
 OP
     chmod +x "$bin/op"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source /Users/dheerajchand/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; op_list_items' 2>&1)"
+    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; op_list_items' 2>&1)"
     rc=$?
     assert_not_equal "0" "$rc" "op_list_items should fail on empty list"
     assert_contains "$out" "No items found" "op_list_items should warn on empty list"
@@ -1061,7 +1061,7 @@ case "$1 $2" in
 esac
 OP
     chmod +x "$bin/op"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source /Users/dheerajchand/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
+    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
     rc=$?
     assert_not_equal "0" "$rc" "secrets_pull_from_1p should fail on empty field"
     assert_contains "$out" "No secrets_file field" "secrets_pull_from_1p should warn on empty field"
@@ -1101,7 +1101,7 @@ OP
     chmod +x "$bin/op"
     old_file="$ZSH_SECRETS_FILE"
     export ZSH_SECRETS_FILE="$tmp/secrets.env"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; source /Users/dheerajchand/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
+    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
     rc=$?
     assert_equal "0" "$rc" "should pull from notesPlain"
     assert_contains "$(cat "$tmp/secrets.env")" "HELLO=world" "should write notesPlain content"

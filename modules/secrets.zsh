@@ -11,8 +11,10 @@
 : "${OP_ACCOUNTS_FILE_EXAMPLE:=$HOME/.config/zsh/op-accounts.env.example}"
 : "${OP_VAULT:=}"
 : "${OP_ACCOUNT:=}"
+: "${CODEX_SESSIONS_FILE:=$HOME/.config/zsh/codex-sessions.env}"
 : "${ZSH_OP_SOURCE_ACCOUNT:=Dheeraj_Chand_Family}"
 : "${ZSH_OP_SOURCE_VAULT:=Private}"
+_SECRETS_SYNC_FILES=(op-accounts.env secrets.env secrets.1p codex-sessions.env)
 
 _secrets_warn() {
     echo "⚠️  $*" >&2
@@ -86,9 +88,6 @@ _secrets_export_kv() {
         local val="${line#*=}"
         key="${key## }"; key="${key%% }"
         val="$(_secrets_normalize_value "$val")"
-        if [[ "$key" == "ZSH_SECRETS_MODE" ]]; then
-            val="$(_secrets_trim_value "$val")"
-        fi
         export "$key=$val"
     fi
 }
@@ -99,17 +98,9 @@ _secrets_normalize_mode() {
     fi
 }
 
-_secrets_trim_value() {
-    local val="$1"
-    val="$(_secrets_strip_crlf "$val")"
-    val="$(_secrets_trim_ws "$val")"
-    val="${val%\"}"
-    echo "$val"
-}
-
 _secrets_strip_crlf() {
     local val="$1"
-    val="${val%$'\r'}"
+    val="${val%%$'\r'}"
     echo "$val"
 }
 
@@ -133,6 +124,9 @@ _secrets_strip_quotes() {
         val="${val#\'}"
         val="${val%\'}"
     fi
+    # Also strip unmatched trailing quote (common copy-paste artifact)
+    val="${val%\"}"
+    val="${val%\'}"
     echo "$val"
 }
 
@@ -156,7 +150,7 @@ _op_account_alias() {
             val="${line#*=}"
             key="${key## }"; key="${key%% }"
             if [[ "$key" == "$alias_name" ]]; then
-                echo "$(_secrets_trim_value "$val")"
+                echo "$(_secrets_normalize_value "$val")"
                 return 0
             fi
         fi
@@ -175,7 +169,7 @@ _op_account_alias_for_uuid() {
             key="${line%%=*}"
             val="${line#*=}"
             key="${key## }"; key="${key%% }"
-            val="$(_secrets_trim_value "$val")"
+            val="$(_secrets_normalize_value "$val")"
             if [[ "$val" == "$uuid" ]]; then
                 echo "$key"
                 return 0
@@ -297,6 +291,20 @@ _op_cmd() {
     command "$bin" "$@"
 }
 
+_secrets_require_op() {
+    local context="${1:-cannot proceed}"
+    local op_bin="${OP_BIN:-op}"
+    if ! command -v "$op_bin" >/dev/null 2>&1; then
+        _secrets_warn "op not found; $context"
+        return 1
+    fi
+    if ! _op_cmd account list >/dev/null 2>&1; then
+        _secrets_warn "1Password auth required (run: op signin)"
+        return 1
+    fi
+    return 0
+}
+
 secrets_find_account_for_item() {
     local title="${1:-}"
     local vault="${2:-${ZSH_OP_SOURCE_VAULT:-}}"
@@ -305,14 +313,7 @@ secrets_find_account_for_item() {
         _secrets_warn "Usage: secrets_find_account_for_item <title> [vault]"
         return 1
     fi
-    if ! command -v "$op_bin" >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot search accounts"
-        return 1
-    fi
-    if ! _op_cmd account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot search accounts" || return 1
     local accounts_json
     accounts_json="$(_op_cmd account list --format=json 2>/dev/null || true)"
     if [[ -z "$accounts_json" ]]; then
@@ -363,7 +364,7 @@ secrets_source_set() {
     fi
     local resolved
     resolved="$(_op_resolve_account_uuid "$account")"
-    export ZSH_OP_SOURCE_ACCOUNT="$(_secrets_trim_value "${resolved:-$account}")"
+    export ZSH_OP_SOURCE_ACCOUNT="$(_secrets_normalize_value "${resolved:-$account}")"
     if [[ -n "$vault" ]]; then
         export ZSH_OP_SOURCE_VAULT="$vault"
     fi
@@ -488,14 +489,7 @@ op_accounts_set_alias() {
 }
 
 op_accounts_seed() {
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot seed aliases"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: eval \"\$(op signin)\")"
-        return 1
-    fi
+    _secrets_require_op "cannot seed aliases" || return 1
     if [[ -z "${ZSH_TEST_MODE:-}" && ! -o interactive ]]; then
         _secrets_warn "Interactive shell required to seed aliases"
         return 1
@@ -721,12 +715,12 @@ secrets_rsync_to_host() {
     fi
     local src_base
     src_base="$(_secrets_local_path_default)"
+    local -a src_files=()
+    local _f
+    for _f in "${_SECRETS_SYNC_FILES[@]}"; do src_files+=("$src_base/$_f"); done
     rsync -av --chmod=Fu=rw,Fgo=,Du=rwx,Dgo= \
         --rsync-path="mkdir -p ${remote_path} && rsync" \
-        "$src_base/op-accounts.env" \
-        "$src_base/secrets.env" \
-        "$src_base/secrets.1p" \
-        "$src_base/codex-sessions.env" \
+        "${src_files[@]}" \
         "${remote}:${remote_path}/"
 }
 
@@ -750,11 +744,11 @@ secrets_rsync_from_host() {
     dest_base="$(_secrets_local_path_default)"
     umask 077
     mkdir -p "$dest_base"
+    local -a remote_files=()
+    local _f
+    for _f in "${_SECRETS_SYNC_FILES[@]}"; do remote_files+=("${remote}:${remote_path}/$_f"); done
     rsync -av --chmod=Fu=rw,Fgo=,Du=rwx,Dgo= \
-        "${remote}:${remote_path}/op-accounts.env" \
-        "${remote}:${remote_path}/secrets.env" \
-        "${remote}:${remote_path}/secrets.1p" \
-        "${remote}:${remote_path}/codex-sessions.env" \
+        "${remote_files[@]}" \
         "$dest_base/"
 }
 
@@ -787,13 +781,15 @@ secrets_rsync_verify() {
     local base
     base="$(_secrets_local_path_default)"
     local missing=0
-    for f in op-accounts.env secrets.env secrets.1p codex-sessions.env; do
+    for f in "${_SECRETS_SYNC_FILES[@]}"; do
         if [[ ! -f "$base/$f" ]]; then
             _secrets_warn "Missing local file: $base/$f"
             missing=1
         fi
     done
-    ssh "$remote" "test -f ${remote_path}/op-accounts.env -a -f ${remote_path}/secrets.env -a -f ${remote_path}/secrets.1p -a -f ${remote_path}/codex-sessions.env" >/dev/null 2>&1 || {
+    local _test_cmd="true"
+    for f in "${_SECRETS_SYNC_FILES[@]}"; do _test_cmd="$_test_cmd && test -f ${remote_path}/$f"; done
+    ssh "$remote" "$_test_cmd" >/dev/null 2>&1 || {
         _secrets_warn "Missing one or more remote files in ${remote_path}"
         missing=1
     }
@@ -820,15 +816,7 @@ secrets_load_op() {
         return 1
     fi
     [[ -f "$ZSH_SECRETS_MAP" ]] || return 1
-    local op_bin="${OP_BIN:-op}"
-    if ! command -v "$op_bin" >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot load 1Password secrets"
-        return 1
-    fi
-    if ! _op_cmd account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot load 1Password secrets" || return 1
     secrets_map_sanitize --fix >/dev/null 2>&1 || true
     if [[ -n "$account_arg" ]]; then
         account_arg="$(_op_resolve_account_arg "$account_arg")"
@@ -947,14 +935,7 @@ secrets_missing_from_1p() {
         return 1
     fi
     [[ -f "$ZSH_SECRETS_MAP" ]] || return 1
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot check 1Password"
-        return 1
-    fi
-    if ! _op_cmd account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot check 1Password" || return 1
     local missing=0
     local line envvar service user field vault_override
     local -a missing_json=()
@@ -962,8 +943,10 @@ secrets_missing_from_1p() {
     local line_num=0
     while IFS= read -r line || [[ -n "$line" ]]; do
         line_num=$((line_num + 1))
-        [[ -z "$line" ]] && continue
-        [[ "$line" == \#* ]] && continue
+        if [[ -z "$line" || "$line" == \#* ]]; then
+            updated_lines+=("$line")
+            continue
+        fi
         vault_override=""
 
         if [[ "$line" == *"="* ]]; then
@@ -1215,14 +1198,7 @@ secrets_prune_duplicates_1p() {
         _secrets_warn "Vault specified without account; refusing to prune"
         return 1
     fi
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot prune duplicates"
-        return 1
-    fi
-    if ! _op_cmd account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot prune duplicates" || return 1
     local -a titles
     if [[ "$#" -gt 0 ]]; then
         titles=("$@")
@@ -1441,14 +1417,7 @@ if [[ -z "${OP_ALIAS_SHIM_DISABLE:-}" ]]; then
 fi
 
 op_list_accounts_vaults() {
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot list accounts/vaults"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot list accounts/vaults" || return 1
     local accounts_json
     accounts_json="$(op account list --format=json 2>/dev/null)"
     if [[ -z "$accounts_json" ]]; then
@@ -1571,8 +1540,17 @@ secrets_map_sanitize() {
     local issues=0
     while IFS= read -r line || [[ -n "$line" ]]; do
         local original="$line"
-        # Normalize whitespace and surrounding quotes
-        line="$(_secrets_normalize_value "$line")"
+        # Normalize only the value part (after =), preserve key and structure
+        if [[ "$line" != \#* && "$line" == *"="* ]]; then
+            local key="${line%%=*}"
+            local val="${line#*=}"
+            val="$(_secrets_normalize_value "$val")"
+            line="${key}=${val}"
+        elif [[ "$line" != \#* && -n "$line" ]]; then
+            # Legacy space-delimited line: just strip CRLF and trailing whitespace
+            line="$(_secrets_strip_crlf "$line")"
+            line="$(_secrets_trim_ws "$line")"
+        fi
         if [[ "$line" != "$original" ]]; then
             issues=1
         fi
@@ -1638,14 +1616,7 @@ secrets_sync_to_1p() {
         _secrets_warn "Vault specified without account; refusing to sync"
         return 1
     fi
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot sync secrets to 1Password"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot sync secrets to 1Password" || return 1
     if [[ ! -f "$ZSH_SECRETS_FILE" ]]; then
         _secrets_warn "secrets file not found: $ZSH_SECRETS_FILE"
         return 1
@@ -1713,14 +1684,7 @@ secrets_pull_from_1p() {
         _secrets_warn "Vault specified without account; refusing to pull"
         return 1
     fi
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot pull secrets from 1Password"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot pull secrets from 1Password" || return 1
     local -a item_ids
     item_ids=($(_op_group_item_ids_by_title "$title" "$resolved_account" "$vault_arg" 2>/dev/null))
     if [[ "${#item_ids[@]}" -eq 0 ]]; then
@@ -1789,18 +1753,22 @@ secrets_sync_all_to_1p() {
         return 1
     fi
     op_accounts_sanitize --fix >/dev/null 2>&1 || true
-    local ok=0
+    local -a _failed_syncs=()
     local old_file="$ZSH_SECRETS_FILE"
     ZSH_SECRETS_FILE="$OP_ACCOUNTS_FILE" \
-        secrets_sync_to_1p "op-accounts-env" "$account_arg" "$vault_arg" || ok=1
+        secrets_sync_to_1p "op-accounts-env" "$account_arg" "$vault_arg" || _failed_syncs+=("op-accounts-env")
     ZSH_SECRETS_FILE="$old_file" \
-        secrets_sync_to_1p "zsh-secrets-env" "$account_arg" "$vault_arg" || ok=1
+        secrets_sync_to_1p "zsh-secrets-env" "$account_arg" "$vault_arg" || _failed_syncs+=("zsh-secrets-env")
     ZSH_SECRETS_FILE="$ZSH_SECRETS_MAP" \
-        secrets_sync_to_1p "zsh-secrets-map" "$account_arg" "$vault_arg" || ok=1
+        secrets_sync_to_1p "zsh-secrets-map" "$account_arg" "$vault_arg" || _failed_syncs+=("zsh-secrets-map")
     ZSH_SECRETS_FILE="$CODEX_SESSIONS_FILE" \
-        secrets_sync_to_1p "codex-sessions-env" "$account_arg" "$vault_arg" || ok=1
+        secrets_sync_to_1p "codex-sessions-env" "$account_arg" "$vault_arg" || _failed_syncs+=("codex-sessions-env")
     ZSH_SECRETS_FILE="$old_file"
-    return "$ok"
+    if (( ${#_failed_syncs[@]} > 0 )); then
+        _secrets_warn "Failed to sync: ${_failed_syncs[*]}"
+        return 1
+    fi
+    return 0
 }
 
 secrets_pull_all_from_1p() {
@@ -1816,18 +1784,22 @@ secrets_pull_all_from_1p() {
         _secrets_info "Run: secrets_source_set <account> <vault> to set source of truth"
         return 1
     fi
-    local ok=0
+    local -a _failed_pulls=()
     local old_file="$ZSH_SECRETS_FILE"
     ZSH_SECRETS_FILE="$OP_ACCOUNTS_FILE" \
-        secrets_pull_from_1p "op-accounts-env" "$account_arg" "$vault_arg" || ok=1
+        secrets_pull_from_1p "op-accounts-env" "$account_arg" "$vault_arg" || _failed_pulls+=("op-accounts-env")
     ZSH_SECRETS_FILE="$old_file" \
-        secrets_pull_from_1p "zsh-secrets-env" "$account_arg" "$vault_arg" || ok=1
+        secrets_pull_from_1p "zsh-secrets-env" "$account_arg" "$vault_arg" || _failed_pulls+=("zsh-secrets-env")
     ZSH_SECRETS_FILE="$ZSH_SECRETS_MAP" \
-        secrets_pull_from_1p "zsh-secrets-map" "$account_arg" "$vault_arg" || ok=1
+        secrets_pull_from_1p "zsh-secrets-map" "$account_arg" "$vault_arg" || _failed_pulls+=("zsh-secrets-map")
     ZSH_SECRETS_FILE="$CODEX_SESSIONS_FILE" \
-        secrets_pull_from_1p "codex-sessions-env" "$account_arg" "$vault_arg" || ok=1
+        secrets_pull_from_1p "codex-sessions-env" "$account_arg" "$vault_arg" || _failed_pulls+=("codex-sessions-env")
     ZSH_SECRETS_FILE="$old_file"
-    return "$ok"
+    if (( ${#_failed_pulls[@]} > 0 )); then
+        _secrets_warn "Failed to pull: ${_failed_pulls[*]}"
+        return 1
+    fi
+    return 0
 }
 
 secrets_profile_switch() {
@@ -1865,14 +1837,7 @@ op_list_items() {
         _secrets_warn "Vault specified without account; refusing to list items"
         return 1
     fi
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot list items"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot list items" || return 1
     local items_json
     items_json="$(op item list \
         ${account_arg:+--account="$account_arg"} \
@@ -1927,14 +1892,7 @@ op_find_item_across_accounts() {
         _secrets_warn "Usage: op_find_item_across_accounts <title>"
         return 1
     fi
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot search items"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: op signin)"
-        return 1
-    fi
+    _secrets_require_op "cannot search items" || return 1
     local accounts_json
     accounts_json="$(op account list --format=json 2>/dev/null || true)"
     if [[ -z "$accounts_json" ]]; then
@@ -1979,7 +1937,18 @@ op_signin_account() {
         _secrets_info "Edit: op_accounts_edit"
         return 1
     fi
-    eval "$(op signin --account "$resolved")"
+    if [[ "$account_alias" =~ ^[A-Za-z0-9_]+$ ]]; then
+        local token
+        token="$(op signin --account "$resolved" --raw 2>/dev/null || true)"
+        if [[ -z "$token" ]]; then
+            _secrets_warn "Failed to sign in: $account_alias"
+            return 1
+        fi
+        export "OP_SESSION_${account_alias}=${token}"
+    else
+        _secrets_warn "Alias '$account_alias' not safe for OP_SESSION variable name"
+        return 1
+    fi
 }
 
 op_signin_all() {
@@ -2161,14 +2130,7 @@ secrets_profiles() {
 secrets_bootstrap_from_1p() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
-    if ! command -v op >/dev/null 2>&1; then
-        _secrets_warn "op not found; cannot bootstrap secrets"
-        return 1
-    fi
-    if ! op account list >/dev/null 2>&1; then
-        _secrets_warn "1Password auth required (run: eval \"\$(op signin)\")"
-        return 1
-    fi
+    _secrets_require_op "cannot bootstrap secrets" || return 1
     if [[ -z "$account_arg" ]]; then
         local shorthand
         shorthand="$(op account list --format=json 2>/dev/null | \
@@ -2227,7 +2189,18 @@ op_signin_account_uuid() {
         _secrets_info "Edit: op_accounts_edit"
         return 1
     fi
-    eval "$(op signin --account "$resolved")"
+    if [[ "$account_alias" =~ ^[A-Za-z0-9_]+$ ]]; then
+        local token
+        token="$(op signin --account "$resolved" --raw 2>/dev/null || true)"
+        if [[ -z "$token" ]]; then
+            _secrets_warn "Failed to sign in: $account_alias"
+            return 1
+        fi
+        export "OP_SESSION_${account_alias}=${token}"
+    else
+        _secrets_warn "Alias '$account_alias' not safe for OP_SESSION variable name"
+        return 1
+    fi
 }
 
 op_set_default_alias() {
@@ -2306,7 +2279,7 @@ secrets_sync_status() {
     # Local files
     echo "Local files:"
     local f
-    for f in secrets.env secrets.1p op-accounts.env codex-sessions.env; do
+    for f in "${_SECRETS_SYNC_FILES[@]}"; do
         local path="$(_secrets_local_path_default)/$f"
         if [[ -f "$path" ]]; then
             local age_s=$(( $(date +%s) - $(stat -c %Y "$path" 2>/dev/null || stat -f %m "$path" 2>/dev/null || echo 0) ))
