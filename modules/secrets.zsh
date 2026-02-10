@@ -1976,21 +1976,20 @@ op_signin_all() {
         _secrets_warn "No accounts configured on this device (run: op account add)"
         return 1
     fi
-    local line alias_name
-    while IFS= read -r line || [[ -n "$line" ]]; do
+    local line alias_name resolved signin_arg token reply
+    while IFS= read -r -u3 line || [[ -n "$line" ]]; do
         [[ -z "$line" || "$line" == \#* ]] && continue
         if [[ "$line" == *"="* ]]; then
             alias_name="${line%%=*}"
             alias_name="${alias_name## }"; alias_name="${alias_name%% }"
             [[ -z "$alias_name" ]] && continue
             echo "🔐 Signing in: $alias_name"
-            local resolved
             resolved="$(_op_account_alias "$alias_name" 2>/dev/null || true)"
             if [[ -z "$resolved" ]]; then
                 _secrets_warn "Account alias not found: $alias_name"
                 continue
             fi
-            local signin_arg=""
+            signin_arg=""
             if _op_account_shorthand_configured "$alias_name" "$accounts_json"; then
                 signin_arg="$alias_name"
             elif _op_account_uuid_configured "$resolved" "$accounts_json"; then
@@ -1999,7 +1998,7 @@ op_signin_all() {
             if [[ -z "$signin_arg" ]]; then
                 _secrets_warn "Account not configured on this device: $alias_name ($resolved)"
                 if [[ -o interactive ]]; then
-                    local reply=""
+                    reply=""
                     read -r "reply?Add now with 'op account add --shorthand $alias_name'? [y/N]: "
                     if [[ "$reply" =~ ^[Yy]$ ]]; then
                         op account add --shorthand "$alias_name" || return 1
@@ -2017,18 +2016,17 @@ op_signin_all() {
                 fi
             fi
             if [[ "$signin_arg" == "$alias_name" && "$alias_name" =~ ^[A-Za-z0-9_]+$ ]]; then
-                local token
                 token="$(op signin --account "$signin_arg" --raw 2>/dev/null || true)"
                 if [[ -z "$token" ]]; then
                     _secrets_warn "Failed to sign in: $alias_name"
-                    return 1
+                    continue
                 fi
                 export "OP_SESSION_${alias_name}=${token}"
             else
-                eval "$(op signin --account "$signin_arg")" || return 1
+                eval "$(op signin --account "$signin_arg")" || { _secrets_warn "Failed to sign in: $alias_name"; continue; }
             fi
         fi
-    done < "$OP_ACCOUNTS_FILE"
+    done 3< "$OP_ACCOUNTS_FILE"
 }
 
 op_login_headless() {
