@@ -432,7 +432,8 @@ name=sys.argv[2]
 for a in data:
     if (a.get("shorthand") or "") == name:
         print(a.get("account_uuid",""))
-        break
+        sys.exit(0)
+sys.exit(1)
 PY
         elif command -v python >/dev/null 2>&1; then
             python - <<'PY' "$accounts_json" "$account" 2>/dev/null && return 0
@@ -442,7 +443,8 @@ name=sys.argv[2]
 for a in data:
     if (a.get("shorthand") or "") == name:
         print(a.get("account_uuid",""))
-        break
+        sys.exit(0)
+sys.exit(1)
 PY
         fi
     fi

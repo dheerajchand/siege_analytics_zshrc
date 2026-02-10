@@ -1064,7 +1064,7 @@ OP
     out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
     rc=$?
     assert_not_equal "0" "$rc" "secrets_pull_from_1p should fail on empty field"
-    assert_contains "$out" "No secrets_file field" "secrets_pull_from_1p should warn on empty field"
+    assert_contains "$out" "No secrets_file/notes found" "secrets_pull_from_1p should warn on empty field"
     rm -rf "$tmp"
 }
 
@@ -1158,9 +1158,11 @@ test_secrets_profiles_output() {
 }
 
 test_secrets_bootstrap_requires_op() {
-    local old_path out rc
+    local old_path old_bin out rc
     old_path="$PATH"
+    old_bin="${OP_BIN:-}"
     PATH="/usr/bin:/bin"
+    export OP_BIN="/nonexistent/op"
     unalias op 2>/dev/null || true
     unfunction op 2>/dev/null || true
     out="$(secrets_bootstrap_from_1p 2>&1)"
@@ -1168,6 +1170,7 @@ test_secrets_bootstrap_requires_op() {
     assert_not_equal "0" "$rc" "bootstrap should fail without op"
     assert_contains "$out" "op not found" "should warn without op"
     PATH="$old_path"
+    if [[ -n "$old_bin" ]]; then export OP_BIN="$old_bin"; else unset OP_BIN; fi
 }
 
 test_secrets_profile_switch_sets_profile() {
