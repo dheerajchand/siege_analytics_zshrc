@@ -85,11 +85,11 @@ _secrets_export_kv() {
         local key="${line%%=*}"
         local val="${line#*=}"
         key="${key## }"; key="${key%% }"
-        # Strip surrounding double quotes
-        val="${val#\"}"
-        val="${val%\"}"
-        # Strip surrounding single quotes
-        if [[ "$val" == \'*\' ]]; then
+        # Strip surrounding quotes only when fully quoted
+        if [[ "$val" == '"'*'"' ]]; then
+            val="${val#\"}"
+            val="${val%\"}"
+        elif [[ "$val" == "'"*"'" ]]; then
             val="${val#\'}"
             val="${val%\'}"
         fi

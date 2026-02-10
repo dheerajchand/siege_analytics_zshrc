@@ -525,6 +525,40 @@ EOF
     rm -rf "$tmp"
 }
 
+test_secrets_push_uses_1password_when_available() {
+    local tmp bin old_path old_bin out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    cat > "$bin/op" <<'OP'
+#!/usr/bin/env zsh
+if [[ "$1 $2" == "account list" ]]; then
+  exit 0
+fi
+exit 1
+OP
+    chmod +x "$bin/op"
+    old_bin="${OP_BIN-}"
+    old_path="$PATH"
+    OP_BIN="$bin/op"
+    PATH="$bin:/usr/bin:/bin"
+    secrets_sync_all_to_1p() { echo "SYNCED"; }
+    out="$(secrets_push 2>&1)"
+    assert_contains "$out" "1Password: synced" "secrets_push should attempt 1Password sync"
+    unset -f secrets_sync_all_to_1p 2>/dev/null || true
+    OP_BIN="$old_bin"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
+test_secrets_pull_prefers_rsync_when_host_provided() {
+    local out
+    secrets_rsync_from_host() { echo "RSYNCED"; return 0; }
+    out="$(secrets_pull host 2>&1)"
+    assert_contains "$out" "rsync" "secrets_pull should prefer rsync when host provided"
+    unset -f secrets_rsync_from_host 2>/dev/null || true
+}
+
 test_machine_profile_default() {
     local profile
     local old_profile="${ZSH_ENV_PROFILE-}"
@@ -1189,6 +1223,8 @@ test_vault_without_account_warns() {
 register_test "test_secrets_load_file" "test_secrets_load_file"
 register_test "test_secrets_load_op" "test_secrets_load_op"
 register_test "test_secrets_load_op_supports_op_url_mapping" "test_secrets_load_op_supports_op_url_mapping"
+register_test "test_secrets_push_uses_1password_when_available" "test_secrets_push_uses_1password_when_available"
+register_test "test_secrets_pull_prefers_rsync_when_host_provided" "test_secrets_pull_prefers_rsync_when_host_provided"
 register_test "test_secrets_normalize_mode_strips_quote" "test_secrets_normalize_mode_strips_quote"
 register_test "test_secrets_trim_value_strips_space_quote" "test_secrets_trim_value_strips_space_quote"
 register_test "test_op_group_item_ids_by_title_orders" "test_op_group_item_ids_by_title_orders"
