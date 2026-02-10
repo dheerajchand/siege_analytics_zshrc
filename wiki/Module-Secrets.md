@@ -92,6 +92,7 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 | `secrets_sync_all_to_1p` | Sync all secrets files | `op` | Logged in |
 | `secrets_pull_all_from_1p` | Pull all secrets files | `op` | Logged in |
 | `secrets_prune_duplicates_1p` | Delete older duplicate sync items | `op` | Logged in |
+| `secrets_missing_from_1p` | Report missing items in secrets.1p | `op` | Logged in |
 | `op_find_item_across_accounts` | Find item title across accounts | `op`, `python` | Logged in |
 | `secrets_profile_switch` | Set profile + reload | `load_secrets` | Valid profile |
 | `op_list_items` | List items in vault | `op` | Logged in |
@@ -108,4 +109,5 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 - `op_login_headless` sets `OP_SESSION_<alias>` tokens.
 - `op` CLI wrapper rewrites `--account` aliases to UUIDs. Disable with `OP_ALIAS_SHIM_DISABLE=1`.
 - `secrets_rsync_*` is the supported fallback for headless servers without op GUI.
+- `secrets_missing_from_1p --json` returns JSON array; `--fix` comments missing entries in `secrets.1p`.
 - `secrets_sync_to_1p` writes content to both `secrets_file` field and secure note `notes`/`notesPlain` for compatibility; `secrets_pull_from_1p` will read either.

@@ -899,9 +899,25 @@ _secrets_extract_op_url_parts() {
     printf '%s\t%s\t%s' "$vault" "$item" "$field"
 }
 
+_secrets_missing_from_1p_usage() {
+    echo "Usage: secrets_missing_from_1p [--json] [--fix] [account] [vault]" >&2
+}
+
 secrets_missing_from_1p() {
-    local account_arg="${1:-${OP_ACCOUNT-}}"
-    local vault_arg="${2:-${OP_VAULT-}}"
+    local mode="text"
+    local fix="0"
+    local account_arg=""
+    local vault_arg=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --json) mode="json"; shift ;;
+            --fix) fix="1"; shift ;;
+            -h|--help) _secrets_missing_from_1p_usage; return 0 ;;
+            *) if [[ -z "$account_arg" ]]; then account_arg="$1"; else vault_arg="$1"; fi; shift ;;
+        esac
+    done
+    account_arg="${account_arg:-${OP_ACCOUNT-}}"
+    vault_arg="${vault_arg:-${OP_VAULT-}}"
     if [[ -n "$vault_arg" && -z "$account_arg" ]]; then
         _secrets_warn "Vault specified without account; refusing to check"
         return 1
@@ -917,7 +933,11 @@ secrets_missing_from_1p() {
     fi
     local missing=0
     local line envvar service user field vault_override
+    local -a missing_json=()
+    local -a updated_lines=()
+    local line_num=0
     while IFS= read -r line || [[ -n "$line" ]]; do
+        line_num=$((line_num + 1))
         [[ -z "$line" ]] && continue
         [[ "$line" == \#* ]] && continue
         vault_override=""
@@ -935,8 +955,17 @@ secrets_missing_from_1p() {
                 item="${parts#*$'\t'}"; item="${item%%$'\t'*}"
                 fld="${parts##*$'\t'}"
                 if ! _op_cmd read "$rhs" ${account_arg:+--account="$account_arg"} >/dev/null 2>&1; then
-                    _secrets_warn "Missing: $envvar (op://$vault/$item/$fld)"
+                    if [[ "$mode" == "json" ]]; then
+                        missing_json+=("{\"line\":$line_num,\"env\":\"$envvar\",\"type\":\"op_url\",\"ref\":\"op://$vault/$item/$fld\"}")
+                    else
+                        _secrets_warn "Missing: $envvar (op://$vault/$item/$fld)"
+                    fi
                     missing=1
+                    if [[ "$fix" == "1" ]]; then
+                        updated_lines+=("# MISSING: $line")
+                    fi
+                else
+                    updated_lines+=("$line")
                 fi
                 continue
             else
@@ -955,10 +984,29 @@ secrets_missing_from_1p() {
             ok="$(_op_cmd item get "$service" ${account_arg:+--account="$account_arg"} ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} --fields label=="$field" --reveal 2>/dev/null || true)"
         fi
         if [[ -z "$ok" ]]; then
-            _secrets_warn "Missing: $envvar (item=$service field=$field)"
+            if [[ "$mode" == "json" ]]; then
+                missing_json+=("{\"line\":$line_num,\"env\":\"$envvar\",\"type\":\"item\",\"ref\":\"item=$service field=$field\"}")
+            else
+                _secrets_warn "Missing: $envvar (item=$service field=$field)"
+            fi
             missing=1
+            if [[ "$fix" == "1" ]]; then
+                updated_lines+=("# MISSING: $line")
+            fi
+        else
+            updated_lines+=("$line")
         fi
     done < "$ZSH_SECRETS_MAP"
+    if [[ "$mode" == "json" ]]; then
+        printf '[%s]\n' "$(IFS=,; echo "${missing_json[*]}")"
+    fi
+    if [[ "$fix" == "1" && "$missing" -ne 0 ]]; then
+        local tmp
+        tmp="$(mktemp)"
+        printf '%s\n' "${updated_lines[@]}" > "$tmp"
+        mv "$tmp" "$ZSH_SECRETS_MAP"
+        _secrets_info "Updated $ZSH_SECRETS_MAP (commented missing entries)"
+    fi
     return $missing
 }
 
