@@ -104,6 +104,11 @@ test_data_platform_use_versions_defined() {
     assert_true "typeset -f data_platform_default_versions >/dev/null 2>&1" "data_platform_default_versions should be defined"
 }
 
+test_spark41_route_health_defined() {
+    source "$ROOT_DIR/modules/system_diagnostics.zsh"
+    assert_true "typeset -f spark41_route_health >/dev/null 2>&1" "spark41_route_health should be defined"
+}
+
 register_test "test_icloud_status_missing_tools" "test_icloud_status_missing_tools"
 register_test "test_icloud_preflight_no_brctl" "test_icloud_preflight_no_brctl"
 register_test "test_icloud_reset_state_non_interactive" "test_icloud_reset_state_non_interactive"
@@ -112,3 +117,4 @@ register_test "test_linux_system_status_non_linux" "test_linux_system_status_non
 register_test "test_data_platform_health_without_modules" "test_data_platform_health_without_modules"
 register_test "test_data_platform_config_status_defined" "test_data_platform_config_status_defined"
 register_test "test_data_platform_use_versions_defined" "test_data_platform_use_versions_defined"
+register_test "test_spark41_route_health_defined" "test_spark41_route_health_defined"

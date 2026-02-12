@@ -118,6 +118,99 @@ data_platform_config_status() {
     return "$rc"
 }
 
+spark41_route_health() {
+    local run_spark_smoke=0
+    local spark_master_override=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --spark-smoke)
+                run_spark_smoke=1
+                shift
+                ;;
+            --master)
+                spark_master_override="$2"
+                shift 2
+                ;;
+            --help|-h)
+                echo "Usage: spark41_route_health [--spark-smoke] [--master <spark-master>]" >&2
+                return 0
+                ;;
+            *)
+                echo "Usage: spark41_route_health [--spark-smoke] [--master <spark-master>]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    local rc=0
+    echo "🧪 Spark 4.1 Route Health"
+    echo "========================="
+
+    if typeset -f stack_validate_versions >/dev/null 2>&1; then
+        stack_validate_versions --component zeppelin || rc=1
+    else
+        echo "⚠️  stack_validate_versions not available"
+        rc=1
+    fi
+    echo ""
+
+    if typeset -f spark_mode_status >/dev/null 2>&1; then
+        spark_mode_status || rc=1
+    else
+        echo "⚠️  spark_mode_status not available"
+        rc=1
+    fi
+    echo ""
+
+    if typeset -f zeppelin_integration_status >/dev/null 2>&1; then
+        zeppelin_integration_status || rc=1
+        if [[ "${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}" != "external" ]]; then
+            echo "⚠️  For Spark 4.1, preferred Zeppelin mode is external."
+            rc=1
+        fi
+    else
+        echo "⚠️  zeppelin_integration_status not available"
+        rc=1
+    fi
+    echo ""
+
+    if typeset -f zeppelin_status >/dev/null 2>&1; then
+        zeppelin_status || rc=1
+    else
+        echo "⚠️  zeppelin_status not available"
+        rc=1
+    fi
+
+    if (( run_spark_smoke )); then
+        echo ""
+        echo "🚀 Running Spark local smoke test..."
+        if ! command -v spark-submit >/dev/null 2>&1; then
+            echo "❌ spark-submit not found"
+            rc=1
+        else
+            local smoke_file
+            smoke_file="$(mktemp)"
+            cat > "$smoke_file" <<'PY'
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("spark41-route-health").getOrCreate()
+print("SPARK_VERSION=" + spark.version)
+print("ROW_COUNT=" + str(spark.range(1, 6).count()))
+spark.stop()
+PY
+            local smoke_master="${spark_master_override:-${SPARK_LOCAL_MASTER:-local[*]}}"
+            if spark-submit --master "$smoke_master" "$smoke_file"; then
+                echo "✅ Spark smoke test passed using master=$smoke_master"
+            else
+                echo "❌ Spark smoke test failed using master=$smoke_master"
+                rc=1
+            fi
+            rm -f "$smoke_file"
+        fi
+    fi
+
+    return "$rc"
+}
+
 data_platform_use_versions() {
     local spark="" hadoop="" scala="" java="" pyenv=""
     while [[ $# -gt 0 ]]; do

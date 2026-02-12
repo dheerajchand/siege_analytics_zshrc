@@ -21,6 +21,8 @@ fi
 export SPARK_MASTER_HOST="${SPARK_MASTER_HOST:-localhost}"
 export SPARK_MASTER_PORT="${SPARK_MASTER_PORT:-7077}"
 export SPARK_MASTER_URL="spark://${SPARK_MASTER_HOST}:${SPARK_MASTER_PORT}"
+export SPARK_LOCAL_MASTER="${SPARK_LOCAL_MASTER:-local[*]}"
+export SPARK_EXECUTION_MODE="${SPARK_EXECUTION_MODE:-auto}"
 export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
 export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-2g}"
 : "${SPARK_JARS_AUTO_DOWNLOAD:=1}"
@@ -32,6 +34,133 @@ export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-2g}"
 : "${SPARK_KAFKA_ENABLE:=1}"
 : "${SPARK_KAFKA_VERSION:=}"
 : "${HADOOP_VERSION:=}"
+
+_spark_cluster_running() {
+    if command -v jps >/dev/null 2>&1; then
+        jps | grep -q "Master"
+        return $?
+    fi
+    pgrep -f "spark.deploy.master.Master" >/dev/null 2>&1
+}
+
+_spark_normalize_mode() {
+    local mode="${1:-${SPARK_EXECUTION_MODE:-auto}}"
+    mode="${mode:l}"
+    case "$mode" in
+        auto|local|cluster) echo "$mode" ;;
+        *) echo "auto" ;;
+    esac
+}
+
+_spark_resolve_master() {
+    local mode
+    mode="$(_spark_normalize_mode "$1")"
+    case "$mode" in
+        local)
+            echo "$SPARK_LOCAL_MASTER"
+            ;;
+        cluster)
+            echo "$SPARK_MASTER_URL"
+            ;;
+        auto)
+            if _spark_cluster_running; then
+                echo "$SPARK_MASTER_URL"
+            else
+                echo "$SPARK_LOCAL_MASTER"
+            fi
+            ;;
+    esac
+}
+
+_spark_persist_var() {
+    local key="$1"
+    local value="$2"
+    local file="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/vars.env"
+    [[ -z "$key" ]] && return 1
+    if typeset -f _compat_persist_var >/dev/null 2>&1; then
+        _compat_persist_var "$key" "$value"
+        return $?
+    fi
+    [[ -f "$file" ]] || touch "$file"
+    python3 - "$file" "$key" "$value" <<'PY'
+import sys
+path, key, value = sys.argv[1:4]
+with open(path, "r", encoding="utf-8") as f:
+    lines = f.read().splitlines()
+needle = f'export {key}="'
+new_line = f'export {key}="${{{key}:-{value}}}"'
+updated = False
+out = []
+for line in lines:
+    if line.startswith(needle):
+        out.append(new_line)
+        updated = True
+    else:
+        out.append(line)
+if not updated:
+    out.append(new_line)
+with open(path, "w", encoding="utf-8") as f:
+    f.write("\n".join(out) + "\n")
+PY
+}
+
+spark_mode_status() {
+    local mode
+    mode="$(_spark_normalize_mode)"
+    local effective_master
+    effective_master="$(_spark_resolve_master "$mode")"
+    echo "⚙️  Spark Execution Mode"
+    echo "======================="
+    echo "Configured mode: ${mode}"
+    echo "Local master: ${SPARK_LOCAL_MASTER}"
+    echo "Cluster master: ${SPARK_MASTER_URL}"
+    if _spark_cluster_running; then
+        echo "Cluster state: running"
+    else
+        echo "Cluster state: stopped"
+    fi
+    echo "Effective master: ${effective_master}"
+}
+
+spark_mode_use() {
+    local mode=""
+    local persist=0
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            auto|local|cluster)
+                mode="$1"
+                shift
+                ;;
+            --persist)
+                persist=1
+                shift
+                ;;
+            --help|-h)
+                echo "Usage: spark_mode_use <auto|local|cluster> [--persist]" >&2
+                return 0
+                ;;
+            *)
+                echo "Usage: spark_mode_use <auto|local|cluster> [--persist]" >&2
+                return 1
+                ;;
+        esac
+    done
+    if [[ -z "$mode" ]]; then
+        echo "Usage: spark_mode_use <auto|local|cluster> [--persist]" >&2
+        return 1
+    fi
+    export SPARK_EXECUTION_MODE="$mode"
+    if (( persist )); then
+        _spark_persist_var "SPARK_EXECUTION_MODE" "$mode"
+        echo "✅ Persisted Spark execution mode: ${mode}"
+    else
+        echo "✅ Active Spark execution mode: ${mode}"
+    fi
+    if [[ "$mode" == "cluster" ]] && ! _spark_cluster_running; then
+        echo "⚠️  Spark cluster mode selected but master is not running at ${SPARK_MASTER_URL}"
+    fi
+    spark_mode_status
+}
 
 # Detect Spark and Scala versions from spark-submit output
 _spark_detect_versions() {
@@ -503,6 +632,8 @@ spark_status() {
     if [[ -d "$SPARK_HOME" ]]; then
         echo "SPARK_HOME: $SPARK_HOME"
         echo "Master URL: $SPARK_MASTER_URL"
+        echo "Execution mode: $(_spark_normalize_mode)"
+        echo "Effective master: $(_spark_resolve_master)"
     else
         echo "❌ SPARK_HOME not found"
         return 1
@@ -674,19 +805,22 @@ smart_spark_submit() {
     
     local dependencies=$(get_spark_dependencies)
     
-    # Check for running cluster (use jps, not pgrep)
-    if jps | grep -q "Master"; then
-        echo "🌐 Using cluster mode: $SPARK_MASTER_URL"
+    local mode
+    mode="$(_spark_normalize_mode)"
+    local master
+    master="$(_spark_resolve_master "$mode")"
+    if [[ "$master" == "$SPARK_MASTER_URL" ]]; then
+        echo "🌐 Using cluster mode: $master"
         spark-submit \
-            --master "$SPARK_MASTER_URL" \
+            --master "$master" \
             --driver-memory "$SPARK_DRIVER_MEMORY" \
             --executor-memory "$SPARK_EXECUTOR_MEMORY" \
             $dependencies \
             "$py_file"
     else
-        echo "💻 Using local mode"
+        echo "💻 Using local mode: $master"
         spark-submit \
-            --master local[*] \
+            --master "$master" \
             --driver-memory "$SPARK_DRIVER_MEMORY" \
             $dependencies \
             "$py_file"
@@ -696,12 +830,9 @@ smart_spark_submit() {
 # Interactive PySpark shell
 pyspark_shell() {
     local dependencies=$(get_spark_dependencies)
-    
-    if pgrep -f "spark.deploy.master.Master" >/dev/null; then
-        pyspark --master "$SPARK_MASTER_URL" $dependencies
-    else
-        pyspark --master local[*] $dependencies
-    fi
+    local master
+    master="$(_spark_resolve_master)"
+    pyspark --master "$master" $dependencies
 }
 
 # Spark history server
@@ -809,12 +940,9 @@ spark_yarn_submit() {
 # Interactive Spark shell
 spark_shell() {
     local dependencies=$(get_spark_dependencies)
-    
-    if pgrep -f "spark.deploy.master.Master" >/dev/null; then
-        spark-shell --master "$SPARK_MASTER_URL" $dependencies
-    else
-        spark-shell --master local[*] $dependencies
-    fi
+    local master
+    master="$(_spark_resolve_master)"
+    spark-shell --master "$master" $dependencies
 }
 
 # Restart Spark cluster

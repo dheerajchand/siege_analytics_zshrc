@@ -83,14 +83,14 @@ def paragraphs_for_mode(mode: str) -> list[dict[str, str]]:
                 "text": """%md
 # External Spark Mode
 
-This Zeppelin profile is configured for `external` Spark integration.
+This stack is using Zeppelin `external` mode for Spark 4.1 stability.
 
-- Use Zeppelin as documentation/UI.
-- Execute Spark 4.1 jobs outside Zeppelin (for example with `spark-submit`).
-- If you want notebook execution in Zeppelin, switch to Livy:
-  - `zeppelin_integration_use livy --persist`
+Notebook paragraphs below include Scala/Python Sedona + GraphFrames verification snippets.
+Run them with a compatible Zeppelin Spark interpreter, or execute equivalent scripts via
+`spark-shell` / `spark-submit` using Spark 4.1 outside Zeppelin.
 """,
-            }
+            },
+            *BASE_PARAGRAPHS,
         ]
     return BASE_PARAGRAPHS
 
