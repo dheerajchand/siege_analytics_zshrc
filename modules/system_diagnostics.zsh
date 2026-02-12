@@ -89,6 +89,14 @@ data_platform_config_status() {
         echo "⚠️  python_config_status not available (python module not loaded)"
         rc=1
     fi
+    if typeset -f zeppelin_config_status >/dev/null 2>&1; then
+        ran=1
+        echo ""
+        zeppelin_config_status || rc=1
+    else
+        echo "⚠️  zeppelin_config_status not available (zeppelin module not loaded)"
+        rc=1
+    fi
     if [[ "$ran" -eq 0 ]]; then
         echo "⚠️  No configuration checks available"
         return 1

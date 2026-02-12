@@ -25,16 +25,17 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 **What gets installed:**
 
 *Step 1 (ZSH Config):*
-- ✅ Modular zsh configuration (8 modules)
+- ✅ Modular zsh configuration (9 modules)
 - ✅ Oh-My-Zsh with Powerlevel10k theme
 - ✅ Symlinks and shell setup
 
 *Step 2 (Software Stack):*
 - ✅ **SDKMAN** - Java, Hadoop, Spark manager
 - ✅ **1Password CLI** - Secrets and credentials
-- ✅ **Java 11** (Temurin/Eclipse Adoptium)
+- ✅ **Java 17** (Temurin/Eclipse Adoptium)
 - ✅ **Hadoop 3.3.6** - Configured and ready
-- ✅ **Spark 3.5.0** - Configured and ready
+- ✅ **Spark 4.1.1** - Configured and ready
+- ✅ **Zeppelin 0.12.0** - Installed from Apache tarball
 - ✅ **pyenv** - Python version manager
 - ✅ **Python 3.11.11** - With virtual environment `default_31111`
 - ✅ **Python packages** - pandas, numpy, jupyter, pyspark, etc.

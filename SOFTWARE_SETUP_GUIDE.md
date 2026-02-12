@@ -11,8 +11,8 @@ Complete guide for the `setup-software.sh` installer.
 - Purpose: Manages Java, Hadoop, Spark versions
 - Website: https://sdkman.io
 
-**Java 11 (Temurin)**
-- Version: 11.0.20-tem
+**Java 17 (Temurin)**
+- Version: 17.0.15-tem
 - Location: `~/.sdkman/candidates/java/current`
 - Provider: Eclipse Adoptium (formerly AdoptOpenJDK)
 
@@ -24,7 +24,7 @@ Complete guide for the `setup-software.sh` installer.
   - `~/hadoop-data/tmp` - Temporary files
 - Configured for single-node cluster (localhost)
 
-**Spark 3.5.0**
+**Spark 4.1.1**
 - Location: `~/.sdkman/candidates/spark/current`
 - Directories:
   - `~/spark-events` - Event logs for history server
@@ -37,14 +37,18 @@ Complete guide for the `setup-software.sh` installer.
 - Installed via: Homebrew (macOS) or git (Linux)
 
 **Python 3.11.11**
-- Virtual environment: `geo31111`
+- Virtual environment: `default_31111`
 - Set as global default
 - Includes essential packages:
   - ipython, jupyter
   - pandas, numpy
   - matplotlib, seaborn
-  - pyspark, pyarrow
-  - pytest, requests
+- pyspark, pyarrow
+- pytest, requests
+
+**Zeppelin 0.12.0**
+- Location: `~/opt/zeppelin/current`
+- Installed from Apache tarball (no Homebrew formula)
 
 ---
 
@@ -146,6 +150,7 @@ java -version
 hadoop version
 spark-submit --version
 python --version
+zeppelin_start
 
 # Check SDKMAN
 sdk version
@@ -179,7 +184,12 @@ spark_start
 
 This starts the Spark standalone cluster.
 
-**4. Verify services:**
+**4. Start Zeppelin (optional):**
+```bash
+zeppelin_start
+```
+
+**5. Verify services:**
 ```bash
 hadoop_status
 spark_status
@@ -197,6 +207,7 @@ After starting services, access web interfaces:
 | **YARN ResourceManager** | http://localhost:8088 | YARN applications, cluster metrics |
 | **Spark Master** | http://localhost:8080 | Spark cluster status, workers |
 | **Spark History** | http://localhost:18080 | Completed Spark applications |
+| **Zeppelin** | http://localhost:8081 | Notebooks (Spark/Sedona) |
 
 ---
 
@@ -215,8 +226,11 @@ $HOME/
 ├── .pyenv/
 │   ├── versions/
 │   │   ├── 3.11.11/           # Python installation
-│   │   └── geo31111/          # Virtual environment
+│   │   └── default_31111/     # Virtual environment
 │   └── shims/                  # Python shims
+├── opt/
+│   └── zeppelin/
+│       └── current/            # Zeppelin installation
 ├── hadoop-data/
 │   ├── namenode/              # HDFS NameNode data
 │   ├── datanode/              # HDFS DataNode data
@@ -243,7 +257,7 @@ Edit `setup-software.sh`:
 
 ```bash
 HADOOP_VERSION="3.3.7"   # Change Hadoop version
-SPARK_VERSION="3.5.1"    # Change Spark version
+SPARK_VERSION="4.1.1"    # Change Spark version
 ```
 
 Then run the installer again (it's idempotent - safe to re-run).
@@ -254,7 +268,7 @@ After installation:
 
 ```bash
 # Activate environment
-pyenv shell geo31111
+pyenv shell default_31111
 
 # Install additional packages
 pip install scikit-learn tensorflow dask
@@ -366,8 +380,4 @@ rm -rf ~/spark-events/*
 - `README.md` - Main documentation
 - `TROUBLESHOOTING.md` - Common issues and fixes
 - `install.sh` - ZSH configuration installer
-
-
-
-
 

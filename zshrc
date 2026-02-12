@@ -143,6 +143,7 @@ if detect_ide; then
         load_module docker       # Docker management
         load_module spark        # Spark cluster (uses is_online!)
         load_module hadoop       # Hadoop/YARN/HDFS
+        load_module zeppelin     # Zeppelin notebooks
         echo "✅ All modules loaded" >&2
     }
     
@@ -174,6 +175,7 @@ else
     load_module docker
     load_module spark
     load_module hadoop
+    load_module zeppelin
 fi
 
 # =================================================================
@@ -226,6 +228,15 @@ help() {
     echo "  pyspark_shell          - Interactive PySpark"
     echo "  jar_matrix_resolve     - Resolve Spark jar coordinates"
     echo "  jar_matrix_status      - Show Spark jar resolution status"
+    echo ""
+    echo "📝 Zeppelin:"
+    echo "  zeppelin_start         - Start Zeppelin (Spark + Sedona)"
+    echo "  zeppelin_stop          - Stop Zeppelin"
+    echo "  zeppelin_status        - Show status"
+    echo "  zeppelin_restart       - Restart Zeppelin"
+    echo "  zeppelin_diagnose      - Diagnose config + runtime"
+    echo "  zeppelin_ui            - Open web UI"
+    echo "  zeppelin_logs          - Tail latest logs"
     echo ""
     echo "🐘 Hadoop:"
     echo "  start_hadoop [--format] - Start HDFS + YARN (format if needed)"
@@ -359,6 +370,7 @@ modules() {
     echo "✅ python      - Python/pyenv management"
     echo "✅ spark       - Spark cluster operations"
     echo "✅ hadoop      - Hadoop/YARN management"
+    echo "✅ zeppelin    - Zeppelin notebooks"
     echo "✅ docker      - Container management"
     echo "✅ database    - PostgreSQL connections"
     echo "✅ credentials - Secure credential storage"
@@ -535,6 +547,22 @@ zsh_status_banner() {
     # Key services status
     if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
         printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🐳 Docker:" "$reset_color" "running"
+    fi
+
+    # Zeppelin status (lightweight)
+    if typeset -f _zeppelin_detect_home >/dev/null 2>&1; then
+        local zeppelin_state="missing"
+        if _zeppelin_detect_home >/dev/null 2>&1; then
+            if typeset -f _zeppelin_is_running >/dev/null 2>&1 && _zeppelin_is_running; then
+                zeppelin_state="running"
+            else
+                zeppelin_state="stopped"
+            fi
+        fi
+        printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "📝 Zeppelin:" "$reset_color" "$zeppelin_state"
+        if typeset -f zeppelin_config_status >/dev/null 2>&1; then
+            zeppelin_config_status | sed 's/^/   /'
+        fi
     fi
 
     # Secrets status (lightweight)

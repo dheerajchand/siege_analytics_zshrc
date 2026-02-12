@@ -18,6 +18,7 @@ Clean, organized structure after removing 18 duplicate/cruft files.
 │   ├── hadoop.zsh                # Hadoop/YARN/HDFS operations
 │   ├── python.zsh                # Python/pyenv environment management
 │   ├── spark.zsh                 # Spark cluster management
+│   ├── zeppelin.zsh              # Zeppelin notebooks (Spark/Sedona)
 │   ├── system_diagnostics.zsh    # iCloud/Dropbox diagnostics + repair
 │   └── utils.zsh                 # Core utilities (zshconfig, zshreboot, etc.)
 │
@@ -44,7 +45,7 @@ Clean, organized structure after removing 18 duplicate/cruft files.
     └── Testing-Validation.md
 ```
 
-**Total: 29 files** (down from 47 before cleanup)
+**Total: 30 files** (down from 47 before cleanup)
 
 ---
 
@@ -77,13 +78,14 @@ All active module files loaded by `zshrc`:
 | **python.zsh** | 6 | pyenv integration, environment switching, project init |
 | **spark.zsh** | 9 | Spark cluster management, job submission |
 | **hadoop.zsh** | 11 | HDFS, YARN, cluster operations |
+| **zeppelin.zsh** | 5 | Zeppelin helpers and status |
 | **credentials.zsh** | 6 | 1Password/Keychain integration |
 | **docker.zsh** | 4 | Container management |
 | **database.zsh** | 4 | PostgreSQL connection management |
 | **backup.zsh** | 4 | Git self-backup system |
 | **system_diagnostics.zsh** | 6 | iCloud/Dropbox diagnostics and repair |
 
-**Total: 60+ functions** across 9 modules
+**Total: 65+ functions** across 10 modules
 
 ---
 
@@ -98,7 +100,7 @@ All active module files loaded by `zshrc`:
 
 **`setup-software.sh`** - Software Stack Installer
 - SDKMAN (Java, Hadoop, Spark manager)
-- Java 11, Hadoop 3.3.6, Spark 3.5.0
+- Java 17, Hadoop 3.3.6, Spark 4.1.1, Zeppelin 0.12.0
 - pyenv, Python 3.11.11, virtual environment
 - Essential Python packages
 - Configures Hadoop XML files

@@ -4,6 +4,7 @@
 # =================================================================
 # Installs and configures all software managed by the zsh config:
 # - SDKMAN (Java, Hadoop, Spark)
+# - Zeppelin (tarball)
 # - pyenv (Python environments)
 # - Docker Desktop
 # - PostgreSQL
@@ -24,8 +25,9 @@ NC='\033[0m' # No Color
 PYTHON_VERSION="3.11.11"
 DEFAULT_VENV="default_${PYTHON_VERSION//./}"
 HADOOP_VERSION="3.3.6"
-SPARK_VERSION="3.5.0"
-JAVA_VERSION="11.0.20-tem"  # Temurin (Eclipse Adoptium)
+SPARK_VERSION="4.1.1"
+JAVA_VERSION="17.0.15-tem"  # Temurin (Eclipse Adoptium)
+ZEPPELIN_VERSION="0.12.0"
 
 # Functions
 print_header() {
@@ -406,6 +408,41 @@ EOF
     fi
 }
 
+install_zeppelin() {
+    print_header "Installing Zeppelin (tarball)"
+
+    local zeppelin_root="$HOME/opt/zeppelin"
+    local zeppelin_dir="${zeppelin_root}/zeppelin-${ZEPPELIN_VERSION}-bin-all"
+    local zeppelin_current="${zeppelin_root}/current"
+    local tarball="/tmp/zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz"
+    local url="https://downloads.apache.org/zeppelin/zeppelin-${ZEPPELIN_VERSION}/zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz"
+    local archive_url="https://archive.apache.org/dist/zeppelin/zeppelin-${ZEPPELIN_VERSION}/zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz"
+
+    if [[ -d "$zeppelin_dir" ]]; then
+        print_success "Zeppelin ${ZEPPELIN_VERSION} already installed at ${zeppelin_dir}"
+        ln -sfn "$zeppelin_dir" "$zeppelin_current"
+        return
+    fi
+
+    print_step "Creating Zeppelin install directory..."
+    mkdir -p "$zeppelin_root"
+
+    print_step "Downloading Zeppelin ${ZEPPELIN_VERSION}..."
+    if command -v curl >/dev/null 2>&1; then
+        curl -fL "$url" -o "$tarball" || curl -fL "$archive_url" -o "$tarball"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$tarball" "$url" || wget -O "$tarball" "$archive_url"
+    else
+        print_error "Neither curl nor wget found; cannot download Zeppelin"
+        return 1
+    fi
+
+    print_step "Extracting Zeppelin..."
+    tar -xzf "$tarball" -C "$zeppelin_root"
+    ln -sfn "$zeppelin_dir" "$zeppelin_current"
+    print_success "Zeppelin installed: ${zeppelin_current}"
+}
+
 install_pyenv() {
     print_header "Installing pyenv (Python Version Manager)"
     
@@ -704,6 +741,13 @@ verify_installation() {
         print_error "Spark: Not found"
         all_good=false
     fi
+
+    # Check Zeppelin
+    if [[ -d "$HOME/opt/zeppelin/current" ]]; then
+        print_success "Zeppelin: Installed at ~/opt/zeppelin/current"
+    else
+        print_warning "Zeppelin: Not found (optional)"
+    fi
     
     # Check pyenv
     if command -v pyenv >/dev/null 2>&1; then
@@ -759,15 +803,19 @@ print_next_steps() {
     echo "4. Start Spark cluster:"
     printf "   %b\n" "${CYAN}spark_start${NC}"
     echo ""
-    echo "5. Check status:"
+    echo "5. Start Zeppelin (optional):"
+    printf "   %b\n" "${CYAN}zeppelin_start${NC}"
+    echo ""
+    echo "6. Check status:"
     printf "   %b\n" "${CYAN}hadoop_status${NC}"
     printf "   %b\n" "${CYAN}spark_status${NC}"
     echo ""
-    echo "6. Web UIs will be available at:"
+    echo "7. Web UIs will be available at:"
     printf "   Hadoop NameNode: %b\n" "${BLUE}http://localhost:9870${NC}"
     printf "   YARN ResourceManager: %b\n" "${BLUE}http://localhost:8088${NC}"
     printf "   Spark Master: %b\n" "${BLUE}http://localhost:8080${NC}"
     printf "   Spark History: %b\n" "${BLUE}http://localhost:18080${NC}"
+    printf "   Zeppelin: %b\n" "${BLUE}http://localhost:8081${NC}"
     echo ""
     
     if [[ ! $(command -v docker) ]]; then
@@ -789,6 +837,7 @@ main() {
     echo "  • Java $JAVA_VERSION"
     echo "  • Hadoop $HADOOP_VERSION"
     echo "  • Spark $SPARK_VERSION"
+    echo "  • Zeppelin $ZEPPELIN_VERSION"
     echo "  • pyenv (Python version manager)"
     echo "  • Python $PYTHON_VERSION"
     echo "  • Python virtual environment: $DEFAULT_VENV"
@@ -815,6 +864,7 @@ main() {
     ensure_java_home_in_zshenv
     install_hadoop
     install_spark
+    install_zeppelin
     install_pyenv
     ensure_screen_login_shell
     ensure_screen_pyenv_setup
