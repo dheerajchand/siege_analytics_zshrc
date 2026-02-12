@@ -22,12 +22,51 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
+STACK_PROFILE="${STACK_PROFILE:-stable}"
+SETUP_MODE="${SETUP_MODE:-full}"
 PYTHON_VERSION="3.11.11"
 DEFAULT_VENV="default_${PYTHON_VERSION//./}"
 HADOOP_VERSION="3.3.6"
 SPARK_VERSION="4.1.1"
 JAVA_VERSION="17.0.15-tem"  # Temurin (Eclipse Adoptium)
 ZEPPELIN_VERSION="0.12.0"
+LIVY_VERSION="0.8.0-incubating"
+LIVY_SCALA_BINARY="2.12"
+SPARK_SCALA_VERSION="2.13"
+SPARK_GRAPHFRAMES_VERSION="0.10.0"
+ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+
+apply_stack_profile_config() {
+    case "$STACK_PROFILE" in
+        stable)
+            HADOOP_VERSION="3.3.6"
+            SPARK_VERSION="4.1.1"
+            SPARK_SCALA_VERSION="2.13"
+            JAVA_VERSION="17.0.15-tem"
+            ZEPPELIN_VERSION="0.12.0"
+            LIVY_VERSION="0.8.0-incubating"
+            LIVY_SCALA_BINARY="2.12"
+            SPARK_GRAPHFRAMES_VERSION="0.10.0"
+            ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+            ;;
+        zeppelin_compatible)
+            HADOOP_VERSION="3.3.6"
+            SPARK_VERSION="3.5.3"
+            SPARK_SCALA_VERSION="2.12"
+            JAVA_VERSION="17.0.15-tem"
+            ZEPPELIN_VERSION="0.12.0"
+            LIVY_VERSION="0.8.0-incubating"
+            LIVY_SCALA_BINARY="2.12"
+            SPARK_GRAPHFRAMES_VERSION="0.9.3"
+            ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-embedded}"
+            ;;
+        *)
+            print_error "Unknown STACK_PROFILE: $STACK_PROFILE"
+            echo "Use STACK_PROFILE=stable or STACK_PROFILE=zeppelin_compatible"
+            exit 1
+            ;;
+    esac
+}
 
 # Functions
 print_header() {
@@ -56,6 +95,49 @@ print_info() {
 
 print_step() {
     echo -e "${BLUE}▶ $1${NC}"
+}
+
+print_usage() {
+    cat <<EOF
+Usage: $(basename "$0") [--install-only|--config-only] [--profile <name>]
+
+Modes:
+  --install-only   Install binaries/packages only (skip configuration writes)
+  --config-only    Configure existing installs only (skip package installs)
+  default          Install + configure
+
+Profiles:
+  stable              Spark 4.1 stack, Zeppelin defaults to Livy integration
+  zeppelin_compatible Spark 3.5 fallback for embedded Zeppelin interpreter
+EOF
+}
+
+parse_setup_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --install-only)
+                SETUP_MODE="install"
+                shift
+                ;;
+            --config-only)
+                SETUP_MODE="config"
+                shift
+                ;;
+            --profile)
+                STACK_PROFILE="$2"
+                shift 2
+                ;;
+            --help|-h)
+                print_usage
+                exit 0
+                ;;
+            *)
+                print_error "Unknown argument: $1"
+                print_usage
+                exit 1
+                ;;
+        esac
+    done
 }
 
 check_os() {
@@ -443,6 +525,89 @@ install_zeppelin() {
     print_success "Zeppelin installed: ${zeppelin_current}"
 }
 
+install_livy() {
+    print_header "Installing Livy (tarball)"
+
+    local livy_root="$HOME/opt/livy"
+    local livy_pkg="apache-livy-${LIVY_VERSION}_${LIVY_SCALA_BINARY}-bin"
+    local livy_dir="${livy_root}/${livy_pkg}"
+    local livy_current="${livy_root}/current"
+    local tarball="/tmp/${livy_pkg}.zip"
+    local url="https://downloads.apache.org/incubator/livy/${LIVY_VERSION}/${livy_pkg}.zip"
+    local archive_url="https://archive.apache.org/dist/incubator/livy/${LIVY_VERSION}/${livy_pkg}.zip"
+
+    if [[ -d "$livy_dir" ]]; then
+        print_success "Livy ${LIVY_VERSION} already installed at ${livy_dir}"
+        ln -sfn "$livy_dir" "$livy_current"
+        return
+    fi
+
+    print_step "Creating Livy install directory..."
+    mkdir -p "$livy_root"
+
+    print_step "Downloading Livy ${LIVY_VERSION}..."
+    if command -v curl >/dev/null 2>&1; then
+        curl -fL "$url" -o "$tarball" || curl -fL "$archive_url" -o "$tarball"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$tarball" "$url" || wget -O "$tarball" "$archive_url"
+    else
+        print_error "Neither curl nor wget found; cannot download Livy"
+        return 1
+    fi
+
+    print_step "Extracting Livy..."
+    if command -v unzip >/dev/null 2>&1; then
+        unzip -q -o "$tarball" -d "$livy_root"
+    else
+        print_error "unzip not found; cannot extract Livy zip archive"
+        return 1
+    fi
+    ln -sfn "$livy_dir" "$livy_current"
+    print_success "Livy installed: ${livy_current}"
+}
+
+persist_vars_env_value() {
+    local key="$1"
+    local value="$2"
+    local vars_file="$HOME/.config/zsh/vars.env"
+    [[ -z "$key" || -z "$value" ]] && return 1
+    mkdir -p "$(dirname "$vars_file")"
+    [[ -f "$vars_file" ]] || touch "$vars_file"
+    python3 - "$vars_file" "$key" "$value" <<'PY'
+import sys
+path, key, value = sys.argv[1:4]
+with open(path, "r", encoding="utf-8") as f:
+    lines = f.read().splitlines()
+needle = f'export {key}="'
+new_line = f'export {key}="${{{key}:-{value}}}"'
+updated = False
+out = []
+for line in lines:
+    if line.startswith(needle):
+        out.append(new_line)
+        updated = True
+    else:
+        out.append(line)
+if not updated:
+    out.append(new_line)
+with open(path, "w", encoding="utf-8") as f:
+    f.write("\n".join(out) + "\n")
+PY
+}
+
+configure_stack_profile_defaults() {
+    print_header "Configuring Stack Profile Defaults"
+    persist_vars_env_value "ZSH_STACK_PROFILE" "$STACK_PROFILE"
+    persist_vars_env_value "SPARK_VERSION" "$SPARK_VERSION"
+    persist_vars_env_value "SPARK_SCALA_VERSION" "$SPARK_SCALA_VERSION"
+    persist_vars_env_value "HADOOP_VERSION" "$HADOOP_VERSION"
+    persist_vars_env_value "JAVA_VERSION" "$JAVA_VERSION"
+    persist_vars_env_value "SPARK_GRAPHFRAMES_VERSION" "$SPARK_GRAPHFRAMES_VERSION"
+    persist_vars_env_value "ZEPPELIN_SPARK_INTEGRATION_MODE" "$ZEPPELIN_SPARK_INTEGRATION_MODE"
+    persist_vars_env_value "ZEPPELIN_LIVY_URL" "${ZEPPELIN_LIVY_URL:-http://127.0.0.1:8998}"
+    print_success "Persisted stack defaults to ~/.config/zsh/vars.env"
+}
+
 install_pyenv() {
     print_header "Installing pyenv (Python Version Manager)"
     
@@ -748,6 +913,13 @@ verify_installation() {
     else
         print_warning "Zeppelin: Not found (optional)"
     fi
+
+    # Check Livy
+    if [[ -d "$HOME/opt/livy/current" ]]; then
+        print_success "Livy: Installed at ~/opt/livy/current"
+    else
+        print_warning "Livy: Not found (recommended for Spark 4.1 + Zeppelin)"
+    fi
     
     # Check pyenv
     if command -v pyenv >/dev/null 2>&1; then
@@ -796,6 +968,7 @@ print_next_steps() {
     printf "   %b\n" "${CYAN}java -version${NC}"
     printf "   %b\n" "${CYAN}hadoop version${NC}"
     printf "   %b\n" "${CYAN}spark-submit --version${NC}"
+    printf "   %b\n" "${CYAN}stack_validate_versions${NC}"
     echo ""
     echo "3. Start Hadoop (first time):"
     printf "   %b\n" "${CYAN}start_hadoop${NC}"
@@ -803,18 +976,27 @@ print_next_steps() {
     echo "4. Start Spark cluster:"
     printf "   %b\n" "${CYAN}spark_start${NC}"
     echo ""
-    echo "5. Start Zeppelin (optional):"
+    echo "5. Start Livy (recommended for Spark 4.1 + Zeppelin):"
+    printf "   %b\n" "${CYAN}livy_start${NC}"
+    echo ""
+    echo "6. Set Zeppelin integration mode and start Zeppelin:"
+    printf "   %b\n" "${CYAN}zeppelin_integration_use livy --persist${NC}"
     printf "   %b\n" "${CYAN}zeppelin_start${NC}"
     echo ""
-    echo "6. Check status:"
+    echo "7. Seed and run Zeppelin smoke notebook (Sedona + GraphFrames):"
+    printf "   %b\n" "${CYAN}zeppelin_seed_smoke_notebook${NC}"
+    echo ""
+    echo "8. Check status:"
     printf "   %b\n" "${CYAN}hadoop_status${NC}"
     printf "   %b\n" "${CYAN}spark_status${NC}"
+    printf "   %b\n" "${CYAN}livy_status${NC}"
     echo ""
-    echo "7. Web UIs will be available at:"
+    echo "9. Web UIs will be available at:"
     printf "   Hadoop NameNode: %b\n" "${BLUE}http://localhost:9870${NC}"
     printf "   YARN ResourceManager: %b\n" "${BLUE}http://localhost:8088${NC}"
     printf "   Spark Master: %b\n" "${BLUE}http://localhost:8080${NC}"
     printf "   Spark History: %b\n" "${BLUE}http://localhost:18080${NC}"
+    printf "   Livy: %b\n" "${BLUE}http://localhost:8998/sessions${NC}"
     printf "   Zeppelin: %b\n" "${BLUE}http://localhost:8081${NC}"
     echo ""
     
@@ -829,54 +1011,71 @@ print_next_steps() {
 
 # Main installation flow
 main() {
+    parse_setup_args "$@"
     clear
     print_header "Software Stack Installer"
+    apply_stack_profile_config
     
     echo "This script will install:"
+    echo "  • Setup mode: $SETUP_MODE"
+    echo "  • Stack profile: $STACK_PROFILE"
     echo "  • SDKMAN (Java, Hadoop, Spark manager)"
     echo "  • Java $JAVA_VERSION"
     echo "  • Hadoop $HADOOP_VERSION"
-    echo "  • Spark $SPARK_VERSION"
+    echo "  • Spark $SPARK_VERSION (Scala $SPARK_SCALA_VERSION)"
     echo "  • Zeppelin $ZEPPELIN_VERSION"
+    echo "  • Livy $LIVY_VERSION"
+    echo "  • Zeppelin mode $ZEPPELIN_SPARK_INTEGRATION_MODE"
     echo "  • pyenv (Python version manager)"
     echo "  • Python $PYTHON_VERSION"
     echo "  • Python virtual environment: $DEFAULT_VENV"
     echo "  • 1Password CLI (v2)"
     echo "  • Essential Python packages (pandas, numpy, jupyter, pyspark, etc.)"
     echo ""
-    echo "Installation time: ~15-30 minutes"
+    if [[ "$SETUP_MODE" == "config" ]]; then
+        echo "Estimated time: ~3-10 minutes"
+    else
+        echo "Installation time: ~15-30 minutes"
+    fi
     echo ""
     echo "Press Enter to continue or Ctrl+C to cancel..."
     read
     
     check_os
-    
-    if [[ "$OS" == "macos" ]]; then
-        install_homebrew
+
+    if [[ "$SETUP_MODE" != "config" ]]; then
+        if [[ "$OS" == "macos" ]]; then
+            install_homebrew
+        else
+            install_system_packages
+        fi
+        install_1password_cli
+        install_sdkman
+        install_java
+        install_hadoop
+        install_spark
+        install_zeppelin
+        install_livy
+        install_pyenv
+        install_python
+        install_python_packages
+        # Optional components
+        check_docker
+        check_postgresql
     else
-        install_system_packages
+        print_info "Config-only mode: skipping package installations"
     fi
-    
-    install_1password_cli
-    install_sdkman
-    install_java
-    ensure_localhost_ssh_known_host
-    ensure_java_home_in_zshenv
-    install_hadoop
-    install_spark
-    install_zeppelin
-    install_pyenv
-    ensure_screen_login_shell
-    ensure_screen_pyenv_setup
-    install_python
-    install_python_packages
-    
-    # Optional components
-    check_docker
-    check_postgresql
-    
-    # Format namenode for first use
-    format_namenode
+
+    if [[ "$SETUP_MODE" != "install" ]]; then
+        ensure_localhost_ssh_known_host
+        ensure_java_home_in_zshenv
+        ensure_screen_login_shell
+        ensure_screen_pyenv_setup
+        configure_stack_profile_defaults
+        format_namenode
+    else
+        print_info "Install-only mode: skipping configuration writes"
+    fi
     
     if verify_installation; then
         print_next_steps

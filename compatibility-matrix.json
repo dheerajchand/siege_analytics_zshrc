@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "updated_on": "2026-02-12",
+    "updated_by": "codex",
+    "source_notes": "Primary sources are upstream Spark/Zeppelin docs and release pages; local runtime failures were also captured in this environment."
+  },
+  "sources": {
+    "zeppelin_downloads": "https://zeppelin.apache.org/download.html",
+    "zeppelin_docs": "https://zeppelin.apache.org/docs/latest/",
+    "spark_releases": "https://spark.apache.org/releases/spark-release-4-1-0.html",
+    "spark_conf": "https://spark.apache.org/docs/latest/configuration.html",
+    "livy_docs": "https://livy.apache.org/docs/latest/"
+  },
+  "profiles": {
+    "stable": {
+      "description": "Primary Spark 4.1 stack; Zeppelin should use Livy or external mode.",
+      "versions": {
+        "java": "17.0.15-tem",
+        "hadoop": "3.3.6",
+        "spark": "4.1.1",
+        "scala": "2.13",
+        "zeppelin": "0.12.0",
+        "sedona": "1.8.1",
+        "graphframes": "0.10.0"
+      },
+      "defaults": {
+        "zeppelin_spark_integration_mode": "livy",
+        "zeppelin_livy_url": "http://127.0.0.1:8998"
+      }
+    },
+    "zeppelin_compatible": {
+      "description": "Fallback profile for Zeppelin Spark interpreter compatibility.",
+      "versions": {
+        "java": "17.0.15-tem",
+        "hadoop": "3.3.6",
+        "spark": "3.5.3",
+        "scala": "2.12",
+        "zeppelin": "0.12.0",
+        "sedona": "1.8.1",
+        "graphframes": "0.9.3"
+      },
+      "defaults": {
+        "zeppelin_spark_integration_mode": "embedded"
+      }
+    }
+  },
+  "rules": [
+    {
+      "id": "zeppelin_spark4_embedded_guard",
+      "component": "zeppelin",
+      "status": "incompatible",
+      "when": {
+        "zeppelin": "0.12.0",
+        "spark": "4.*",
+        "zeppelin_spark_integration_mode": "embedded"
+      },
+      "reason": "Zeppelin 0.12 embedded Spark interpreter can fail on Spark 4.x with static config error for spark.submit.pyFiles.",
+      "sources": [
+        "spark_conf",
+        "zeppelin_docs"
+      ],
+      "verified_on": "2026-02-12",
+      "confidence": "high"
+    },
+    {
+      "id": "zeppelin_scala_abi_guard",
+      "component": "zeppelin",
+      "status": "incompatible",
+      "when": {
+        "zeppelin": "0.12.0",
+        "spark": "3.5.*",
+        "scala": "2.13*"
+      },
+      "reason": "Zeppelin Spark interpreter classpath mismatch (missing scala.collection.IterableOnce) with Spark 3.5 + Scala 2.13 runtime.",
+      "verified_on": "2026-02-12",
+      "confidence": "medium"
+    }
+  ]
+}

@@ -72,6 +72,61 @@ _zeppelin_is_running() {
     pgrep -f "org.apache.zeppelin.server.ZeppelinServer" >/dev/null 2>&1
 }
 
+_zeppelin_api_ready() {
+    local port="${ZEPPELIN_PORT:-8081}"
+    curl -fsS "http://127.0.0.1:${port}/api/version" >/dev/null 2>&1
+}
+
+_zeppelin_spark_integration_mode() {
+    local mode="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+    mode="${mode:l}"
+    case "$mode" in
+        embedded|livy|external) echo "$mode" ;;
+        *) echo "embedded" ;;
+    esac
+}
+
+_zeppelin_livy_url() {
+    echo "${ZEPPELIN_LIVY_URL:-http://127.0.0.1:8998}"
+}
+
+_zeppelin_livy_ready() {
+    local url="$(_zeppelin_livy_url)"
+    curl -fsS "${url%/}/sessions" >/dev/null 2>&1
+}
+
+_zeppelin_persist_var() {
+    local key="$1"
+    local value="$2"
+    local file="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/vars.env"
+    [[ -z "$key" || -z "$value" ]] && return 1
+    if typeset -f _compat_persist_var >/dev/null 2>&1; then
+        _compat_persist_var "$key" "$value"
+        return $?
+    fi
+    [[ -f "$file" ]] || touch "$file"
+    python3 - "$file" "$key" "$value" <<'PY'
+import sys
+path, key, value = sys.argv[1:4]
+with open(path, "r", encoding="utf-8") as f:
+    lines = f.read().splitlines()
+needle = f'export {key}="'
+new_line = f'export {key}="${{{key}:-{value}}}"'
+updated = False
+out = []
+for line in lines:
+    if line.startswith(needle):
+        out.append(new_line)
+        updated = True
+    else:
+        out.append(line)
+if not updated:
+    out.append(new_line)
+with open(path, "w", encoding="utf-8") as f:
+    f.write("\n".join(out) + "\n")
+PY
+}
+
 _zeppelin_sedona_confs() {
     if [[ "${SPARK_SEDONA_ENABLE:-1}" == "1" ]]; then
         echo "--conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.kryo.registrator=org.apache.sedona.core.serde.SedonaKryoRegistrator --conf spark.sql.extensions=org.apache.sedona.sql.SedonaSqlExtensions"
@@ -94,19 +149,47 @@ _zeppelin_write_config() {
     local spark_home="$2"
     local spark_master="$3"
     local submit_opts="$4"
+    local zeppelin_home="$5"
     local port="${ZEPPELIN_PORT:-8081}"
     local notebook_dir="$(_zeppelin_notebook_dir)"
+    local mode="$(_zeppelin_spark_integration_mode)"
+    local use_spark="true"
+    [[ "$mode" != "embedded" ]] && use_spark="false"
 
     mkdir -p "$conf_dir" "$(_zeppelin_log_dir)" "$notebook_dir"
 
-    cat > "$conf_dir/zeppelin-env.sh" <<EOF
-export ZEPPELIN_PORT="${port}"
-export ZEPPELIN_LOG_DIR="$(_zeppelin_log_dir)"
-export ZEPPELIN_NOTEBOOK_DIR="${notebook_dir}"
-${spark_home:+export SPARK_HOME="${spark_home}"}
-${submit_opts:+export SPARK_SUBMIT_OPTIONS="${submit_opts}"}
-${spark_master:+export SPARK_MASTER="${spark_master}"}
-EOF
+    {
+        printf 'export ZEPPELIN_PORT=%q\n' "${port}"
+        printf 'export ZEPPELIN_LOG_DIR=%q\n' "$(_zeppelin_log_dir)"
+        printf 'export ZEPPELIN_NOTEBOOK_DIR=%q\n' "${notebook_dir}"
+        printf 'export ZEPPELIN_SPARK_INTEGRATION_MODE=%q\n' "${mode}"
+        printf 'export ZEPPELIN_LIVY_URL=%q\n' "$(_zeppelin_livy_url)"
+        printf 'export USE_ZEPPELIN_SPARK=%q\n' "${use_spark}"
+        if [[ -n "$spark_home" ]]; then
+            printf 'export SPARK_HOME=%q\n' "${spark_home}"
+        fi
+        if [[ "$mode" == "embedded" && -n "$submit_opts" ]]; then
+            printf 'export SPARK_SUBMIT_OPTIONS=%q\n' "${submit_opts}"
+        fi
+        if [[ "$mode" == "embedded" && -n "$spark_master" ]]; then
+            printf 'export SPARK_MASTER=%q\n' "${spark_master}"
+        fi
+    } > "$conf_dir/zeppelin-env.sh"
+
+    # Seed required Zeppelin config files when using a custom conf directory.
+    # Without log4j.properties, Zeppelin may fail very early with no useful logs.
+    if [[ -n "$zeppelin_home" && -d "$zeppelin_home/conf" ]]; then
+        if [[ ! -f "$conf_dir/log4j.properties" ]]; then
+            if [[ -f "$zeppelin_home/conf/log4j.properties" ]]; then
+                cp "$zeppelin_home/conf/log4j.properties" "$conf_dir/log4j.properties" 2>/dev/null || true
+            elif [[ -f "$zeppelin_home/conf/log4j.properties.template" ]]; then
+                cp "$zeppelin_home/conf/log4j.properties.template" "$conf_dir/log4j.properties" 2>/dev/null || true
+            fi
+        fi
+        if [[ "${ZEPPELIN_ENABLE_AUTH:-0}" != "1" && -f "$conf_dir/shiro.ini" ]]; then
+            rm -f "$conf_dir/shiro.ini" 2>/dev/null || true
+        fi
+    fi
 
     cat > "$conf_dir/zeppelin-site.xml" <<EOF
 <?xml version="1.0"?>
@@ -134,20 +217,70 @@ zeppelin_start() {
         echo "❌ Zeppelin not installed (run setup-software.sh or install to ~/opt/zeppelin/current)"
         return 1
     fi
+    local mode
+    mode="$(_zeppelin_spark_integration_mode)"
+    if typeset -f stack_validate_versions >/dev/null 2>&1; then
+        if ! stack_validate_versions --component zeppelin >/dev/null; then
+            stack_validate_versions --component zeppelin
+            return 1
+        fi
+    fi
 
-    local spark_home="${SPARK_HOME:-}"
+    local spark_home="${ZEPPELIN_SPARK_HOME:-${SPARK_HOME:-}}"
     local spark_master="local[*]"
     if pgrep -f "spark.deploy.master.Master" >/dev/null 2>&1; then
         spark_master="${SPARK_MASTER_URL:-spark://localhost:7077}"
     fi
 
     local submit_opts
-    submit_opts="$(_zeppelin_resolve_spark_submit_options)"
-    [[ -n "$spark_master" ]] && submit_opts="--master ${spark_master} ${submit_opts}"
+    if [[ "$mode" == "embedded" ]]; then
+        local old_path="$PATH"
+        local old_runtime_spark_home="${SPARK_HOME-}"
+        local had_runtime_spark_home=0
+        local old_spark_version="${SPARK_VERSION-}"
+        local old_scala_version="${SPARK_SCALA_VERSION-}"
+        local old_kafka_version="${SPARK_KAFKA_VERSION-}"
+        local had_spark_version=0
+        local had_scala_version=0
+        local had_kafka_version=0
+        [[ "${SPARK_VERSION+x}" == "x" ]] && had_spark_version=1
+        [[ "${SPARK_SCALA_VERSION+x}" == "x" ]] && had_scala_version=1
+        [[ "${SPARK_KAFKA_VERSION+x}" == "x" ]] && had_kafka_version=1
+        [[ "${SPARK_HOME+x}" == "x" ]] && had_runtime_spark_home=1
+        if [[ -n "$spark_home" && -d "$spark_home/bin" ]]; then
+            export PATH="$spark_home/bin:$PATH"
+            export SPARK_HOME="$spark_home"
+            rehash 2>/dev/null || true
+            unset SPARK_VERSION
+            unset SPARK_SCALA_VERSION
+            unset SPARK_KAFKA_VERSION
+        fi
+        submit_opts="$(_zeppelin_resolve_spark_submit_options)"
+        export PATH="$old_path"
+        if [[ "$had_runtime_spark_home" -eq 1 ]]; then export SPARK_HOME="$old_runtime_spark_home"; else unset SPARK_HOME; fi
+        if [[ "$had_spark_version" -eq 1 ]]; then export SPARK_VERSION="$old_spark_version"; else unset SPARK_VERSION; fi
+        if [[ "$had_scala_version" -eq 1 ]]; then export SPARK_SCALA_VERSION="$old_scala_version"; else unset SPARK_SCALA_VERSION; fi
+        if [[ "$had_kafka_version" -eq 1 ]]; then export SPARK_KAFKA_VERSION="$old_kafka_version"; else unset SPARK_KAFKA_VERSION; fi
+        [[ -n "$spark_master" ]] && submit_opts="--master ${spark_master} ${submit_opts}"
+    fi
+
+    if [[ "$mode" == "livy" ]]; then
+        if ! _zeppelin_livy_ready; then
+            if typeset -f livy_status >/dev/null 2>&1; then
+                livy_status >/dev/null 2>&1 || true
+            fi
+            if [[ "${ZEPPELIN_LIVY_STRICT:-0}" == "1" ]]; then
+                echo "❌ Livy not reachable at $(_zeppelin_livy_url)"
+                echo "Run: livy_start"
+                return 1
+            fi
+            echo "⚠️  Livy not reachable at $(_zeppelin_livy_url); Zeppelin will start, but Livy paragraphs may fail."
+        fi
+    fi
 
     local conf_dir
     conf_dir="$(_zeppelin_conf_dir)"
-    _zeppelin_write_config "$conf_dir" "$spark_home" "$spark_master" "$submit_opts"
+    _zeppelin_write_config "$conf_dir" "$spark_home" "$spark_master" "$submit_opts" "$home"
 
     export ZEPPELIN_HOME="$home"
     export ZEPPELIN_CONF_DIR="$conf_dir"
@@ -157,12 +290,30 @@ zeppelin_start() {
     jh="$(_zeppelin_resolve_java_home 2>/dev/null || true)"
     [[ -n "$jh" ]] && export JAVA_HOME="$jh"
 
-    if [[ -x "$home/bin/zeppelin-daemon.sh" ]]; then
+    if _zeppelin_is_running; then
+        echo "✅ Zeppelin already running: http://localhost:${ZEPPELIN_PORT:-8081}"
+        return 0
+    fi
+
+    local launcher_log="$(_zeppelin_log_dir)/zeppelin-launch.out"
+    if [[ "${ZEPPELIN_USE_DAEMON:-0}" == "1" && -x "$home/bin/zeppelin-daemon.sh" ]]; then
         "$home/bin/zeppelin-daemon.sh" start
     else
-        "$home/bin/zeppelin.sh" start
+        nohup "$home/bin/zeppelin.sh" >> "$launcher_log" 2>&1 < /dev/null &
     fi
-    echo "✅ Zeppelin started: http://localhost:${ZEPPELIN_PORT:-8081}"
+
+    local attempts=20
+    local i=1
+    while [[ $i -le $attempts ]]; do
+        if _zeppelin_is_running && _zeppelin_api_ready; then
+            echo "✅ Zeppelin started: http://localhost:${ZEPPELIN_PORT:-8081}"
+            return 0
+        fi
+        sleep 1
+        i=$((i + 1))
+    done
+    echo "❌ Zeppelin failed to start (see $launcher_log)"
+    return 1
 }
 
 zeppelin_stop() {
@@ -172,12 +323,23 @@ zeppelin_stop() {
         echo "❌ Zeppelin not installed"
         return 1
     fi
-    if [[ -x "$home/bin/zeppelin-daemon.sh" ]]; then
-        "$home/bin/zeppelin-daemon.sh" stop
-    else
-        "$home/bin/zeppelin.sh" stop
+    if _zeppelin_is_running; then
+        pkill -f "org.apache.zeppelin.server.ZeppelinServer" >/dev/null 2>&1 || true
+    elif [[ -x "$home/bin/zeppelin-daemon.sh" ]]; then
+        "$home/bin/zeppelin-daemon.sh" stop || true
     fi
-    echo "✅ Zeppelin stopped"
+    local attempts=15
+    local i=1
+    while [[ $i -le $attempts ]]; do
+        if ! _zeppelin_is_running; then
+            echo "✅ Zeppelin stopped"
+            return 0
+        fi
+        sleep 1
+        i=$((i + 1))
+    done
+    echo "⚠️  Zeppelin stop timed out"
+    return 1
 }
 
 zeppelin_status() {
@@ -217,6 +379,10 @@ zeppelin_config_status() {
     local notebook_dir="$(_zeppelin_notebook_dir)"
     local port="${ZEPPELIN_PORT:-8081}"
     local spark_home="${SPARK_HOME:-}"
+    local mode
+    mode="$(_zeppelin_spark_integration_mode)"
+    local livy_url
+    livy_url="$(_zeppelin_livy_url)"
     local submit_opts
     submit_opts="$(_zeppelin_resolve_spark_submit_options 2>/dev/null || true)"
 
@@ -228,15 +394,33 @@ zeppelin_config_status() {
     echo "ZEPPELIN_NOTEBOOK_DIR: ${notebook_dir}"
     echo "ZEPPELIN_PORT: ${port}"
     echo "SPARK_HOME: ${spark_home:-unset}"
-    echo "SPARK_SUBMIT_OPTIONS: ${submit_opts:-unset}"
+    echo "ZEPPELIN_SPARK_HOME: ${ZEPPELIN_SPARK_HOME:-unset}"
+    echo "Integration mode: ${mode}"
+    echo "Livy URL: ${livy_url}"
+    if [[ "$mode" == "embedded" ]]; then
+        echo "SPARK_SUBMIT_OPTIONS: ${submit_opts:-unset}"
+    else
+        echo "SPARK_SUBMIT_OPTIONS: (unused in ${mode} mode)"
+    fi
     echo "Sedona: ${SPARK_SEDONA_ENABLE:-1} (v${SPARK_SEDONA_VERSION:-unknown})"
     echo "GeoTools: ${SPARK_GEOTOOLS_VERSION:-unknown}"
+    echo "GraphFrames: ${SPARK_GRAPHFRAMES_ENABLE:-1} (v${SPARK_GRAPHFRAMES_VERSION:-unknown})"
+    if [[ "$mode" == "livy" ]]; then
+        if _zeppelin_livy_ready; then
+            echo "Livy health: reachable"
+        else
+            echo "Livy health: unreachable"
+        fi
+    fi
 }
 
 zeppelin_diagnose() {
     local ok=0
+    local mode
+    mode="$(_zeppelin_spark_integration_mode)"
     echo "🩺 Zeppelin Diagnostics"
     echo "======================="
+    echo "Integration mode: ${mode}"
     zeppelin_status || ok=1
 
     local home
@@ -274,6 +458,14 @@ zeppelin_diagnose() {
         echo "⚠️  spark-submit not found"
         ok=1
     fi
+    if [[ "$mode" == "livy" ]]; then
+        if _zeppelin_livy_ready; then
+            echo "✅ Livy reachable: $(_zeppelin_livy_url)"
+        else
+            echo "⚠️  Livy unreachable: $(_zeppelin_livy_url)"
+            ok=1
+        fi
+    fi
 
     local log_dir="$(_zeppelin_log_dir)"
     if [[ -d "$log_dir" ]]; then
@@ -303,6 +495,89 @@ zeppelin_logs() {
         echo "No Zeppelin logs found in $log_dir"
         return 1
     fi
+}
+
+zeppelin_seed_smoke_notebook() {
+    local script="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/scripts/zeppelin_seed_smoke_notebook.py"
+    local base_url="http://127.0.0.1:${ZEPPELIN_PORT:-8081}"
+    if [[ ! -f "$script" ]]; then
+        echo "❌ Notebook seed script not found: $script"
+        return 1
+    fi
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "❌ python3 not found"
+        return 1
+    fi
+    if ! _zeppelin_is_running; then
+        zeppelin_start || return 1
+    fi
+    local mode
+    mode="$(_zeppelin_spark_integration_mode)"
+    python3 "$script" --base-url "$base_url" --integration-mode "$mode" --run "$@"
+}
+
+zeppelin_integration_status() {
+    local mode
+    mode="$(_zeppelin_spark_integration_mode)"
+    echo "Zeppelin Spark integration mode: ${mode}"
+    if [[ "$mode" == "livy" ]]; then
+        local livy_url
+        livy_url="$(_zeppelin_livy_url)"
+        echo "Livy URL: ${livy_url}"
+        if _zeppelin_livy_ready; then
+            echo "Livy: reachable"
+        else
+            echo "Livy: unreachable"
+        fi
+    fi
+}
+
+zeppelin_integration_use() {
+    local mode=""
+    local persist=0
+    local livy_url=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            embedded|livy|external)
+                mode="$1"
+                shift
+                ;;
+            --persist)
+                persist=1
+                shift
+                ;;
+            --livy-url)
+                livy_url="$2"
+                shift 2
+                ;;
+            --help|-h)
+                echo "Usage: zeppelin_integration_use <embedded|livy|external> [--livy-url URL] [--persist]" >&2
+                return 0
+                ;;
+            *)
+                echo "Usage: zeppelin_integration_use <embedded|livy|external> [--livy-url URL] [--persist]" >&2
+                return 1
+                ;;
+        esac
+    done
+    if [[ -z "$mode" ]]; then
+        echo "Usage: zeppelin_integration_use <embedded|livy|external> [--livy-url URL] [--persist]" >&2
+        return 1
+    fi
+    export ZEPPELIN_SPARK_INTEGRATION_MODE="$mode"
+    if [[ -n "$livy_url" ]]; then
+        export ZEPPELIN_LIVY_URL="$livy_url"
+    fi
+    if (( persist )); then
+        _zeppelin_persist_var "ZEPPELIN_SPARK_INTEGRATION_MODE" "$mode"
+        if [[ -n "$livy_url" ]]; then
+            _zeppelin_persist_var "ZEPPELIN_LIVY_URL" "$livy_url"
+        fi
+        echo "✅ Persisted Zeppelin integration mode: ${mode}"
+    else
+        echo "✅ Active Zeppelin integration mode: ${mode}"
+    fi
+    zeppelin_integration_status
 }
 
 alias zeppelin-ui='zeppelin_ui'

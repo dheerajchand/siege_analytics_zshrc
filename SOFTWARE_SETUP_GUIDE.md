@@ -31,6 +31,11 @@ Complete guide for the `setup-software.sh` installer.
   - `~/spark-jars` - Local JAR files
 - Configured for standalone mode
 
+**Livy 0.8.0-incubating**
+- Location: `~/opt/livy/current`
+- Purpose: Spark session bridge for Zeppelin when running Spark 4.1
+- Endpoint: `http://127.0.0.1:8998/sessions`
+
 **pyenv (Python Version Manager)**
 - Location: `~/.pyenv`
 - Purpose: Manages Python versions and virtual environments
@@ -49,6 +54,21 @@ Complete guide for the `setup-software.sh` installer.
 **Zeppelin 0.12.0**
 - Location: `~/opt/zeppelin/current`
 - Installed from Apache tarball (no Homebrew formula)
+- Supports integration modes via `ZEPPELIN_SPARK_INTEGRATION_MODE`:
+  - `livy` (default for stable profile)
+  - `embedded`
+  - `external`
+
+### Stack Profiles and Setup Modes
+
+`setup-software.sh` supports:
+- Profiles:
+  - `stable` (Spark 4.1.1 + Livy-first Zeppelin)
+  - `zeppelin_compatible` (Spark 3.5.3 fallback for embedded Zeppelin)
+- Modes:
+  - `default` (install + configure)
+  - `--install-only`
+  - `--config-only`
 
 ---
 
@@ -66,6 +86,19 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 cd ~/.config/zsh
 chmod +x setup-software.sh
 ./setup-software.sh
+```
+
+Examples:
+
+```bash
+# Full install using default (stable) profile
+./setup-software.sh
+
+# Full install with Zeppelin-embedded compatibility profile
+./setup-software.sh --profile zeppelin_compatible
+
+# Configure existing installs only
+./setup-software.sh --config-only
 ```
 
 ### Installation Time
@@ -150,7 +183,9 @@ java -version
 hadoop version
 spark-submit --version
 python --version
-zeppelin_start
+stack_validate_versions
+livy_status
+zeppelin_status
 
 # Check SDKMAN
 sdk version
@@ -184,15 +219,28 @@ spark_start
 
 This starts the Spark standalone cluster.
 
-**4. Start Zeppelin (optional):**
+**4. Start Livy (recommended for Spark 4.1 + Zeppelin):**
 ```bash
+livy_start
+```
+
+**5. Set Zeppelin mode + start Zeppelin:**
+```bash
+zeppelin_integration_use livy --persist
 zeppelin_start
 ```
 
-**5. Verify services:**
+**6. Seed and run Zeppelin smoke notebook (Sedona + GraphFrames):**
+```bash
+zeppelin_seed_smoke_notebook
+```
+
+**7. Verify services:**
 ```bash
 hadoop_status
 spark_status
+livy_status
+zeppelin_status
 ```
 
 ---
@@ -207,6 +255,7 @@ After starting services, access web interfaces:
 | **YARN ResourceManager** | http://localhost:8088 | YARN applications, cluster metrics |
 | **Spark Master** | http://localhost:8080 | Spark cluster status, workers |
 | **Spark History** | http://localhost:18080 | Completed Spark applications |
+| **Livy** | http://localhost:8998/sessions | Zeppelin Spark session backend |
 | **Zeppelin** | http://localhost:8081 | Notebooks (Spark/Sedona) |
 
 ---
@@ -229,8 +278,10 @@ $HOME/
 │   │   └── default_31111/     # Virtual environment
 │   └── shims/                  # Python shims
 ├── opt/
-│   └── zeppelin/
-│       └── current/            # Zeppelin installation
+│   ├── zeppelin/
+│   │   └── current/            # Zeppelin installation
+│   └── livy/
+│       └── current/            # Livy installation
 ├── hadoop-data/
 │   ├── namenode/              # HDFS NameNode data
 │   ├── datanode/              # HDFS DataNode data
@@ -380,4 +431,3 @@ rm -rf ~/spark-events/*
 - `README.md` - Main documentation
 - `TROUBLESHOOTING.md` - Common issues and fixes
 - `install.sh` - ZSH configuration installer
-

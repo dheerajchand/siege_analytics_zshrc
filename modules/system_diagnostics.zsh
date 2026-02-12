@@ -89,6 +89,15 @@ data_platform_config_status() {
         echo "⚠️  python_config_status not available (python module not loaded)"
         rc=1
     fi
+    if typeset -f stack_profile_status >/dev/null 2>&1; then
+        ran=1
+        echo ""
+        stack_profile_status || rc=1
+    fi
+    if typeset -f stack_validate_versions >/dev/null 2>&1; then
+        ran=1
+        stack_validate_versions || rc=1
+    fi
     if typeset -f zeppelin_config_status >/dev/null 2>&1; then
         ran=1
         echo ""
@@ -96,6 +105,11 @@ data_platform_config_status() {
     else
         echo "⚠️  zeppelin_config_status not available (zeppelin module not loaded)"
         rc=1
+    fi
+    if typeset -f livy_status >/dev/null 2>&1; then
+        ran=1
+        echo ""
+        livy_status || rc=1
     fi
     if [[ "$ran" -eq 0 ]]; then
         echo "⚠️  No configuration checks available"

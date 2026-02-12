@@ -27,6 +27,8 @@ export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-2g}"
 : "${SPARK_SEDONA_ENABLE:=1}"
 : "${SPARK_SEDONA_VERSION:=1.8.1}"
 : "${SPARK_GEOTOOLS_VERSION:=1.8.1-33.1}"
+: "${SPARK_GRAPHFRAMES_ENABLE:=1}"
+: "${SPARK_GRAPHFRAMES_VERSION:=}"
 : "${SPARK_KAFKA_ENABLE:=1}"
 : "${SPARK_KAFKA_VERSION:=}"
 : "${HADOOP_VERSION:=}"
@@ -112,8 +114,10 @@ jar_matrix_resolve() {
     local scala_binary=""
     scala_binary="$(_spark_scala_binary "$scala_version")"
     local spark_mm=""
+    local spark_major=""
     if [[ -n "$spark_version" ]]; then
         spark_mm="${spark_version%.*}"
+        spark_major="${spark_version%%.*}"
     fi
     local sedona_spark_mm="${SPARK_SEDONA_SPARK_VERSION:-}"
     if [[ -z "$sedona_spark_mm" && -n "$spark_version" ]]; then
@@ -127,6 +131,17 @@ jar_matrix_resolve() {
     if [[ "$SPARK_SEDONA_ENABLE" == "1" && -n "$sedona_spark_mm" && -n "$scala_binary" ]]; then
         coords+=("org.apache.sedona:sedona-spark-shaded-${sedona_spark_mm}_${scala_binary}:${SPARK_SEDONA_VERSION}")
         coords+=("org.datasyslab:geotools-wrapper:${SPARK_GEOTOOLS_VERSION}")
+    fi
+    local graphframes_version="${SPARK_GRAPHFRAMES_VERSION:-}"
+    if [[ -z "$graphframes_version" ]]; then
+        if [[ "$spark_major" == "4" ]]; then
+            graphframes_version="0.10.0"
+        elif [[ "$spark_major" == "3" ]]; then
+            graphframes_version="0.9.3"
+        fi
+    fi
+    if [[ "$SPARK_GRAPHFRAMES_ENABLE" == "1" && -n "$spark_major" && -n "$scala_binary" && -n "$graphframes_version" ]]; then
+        coords+=("io.graphframes:graphframes-spark${spark_major}_${scala_binary}:${graphframes_version}")
     fi
     if [[ "$SPARK_KAFKA_ENABLE" == "1" && -n "$scala_binary" ]]; then
         local kafka_version="${SPARK_KAFKA_VERSION:-$spark_version}"
@@ -249,8 +264,11 @@ spark_config_status() {
     echo "Hadoop: ${hadoop_version:-unknown}"
     echo "JARS_DIR: ${JARS_DIR:-$HOME/.jars}"
     echo "Auto-download: ${SPARK_JARS_AUTO_DOWNLOAD}"
+    echo "Legacy jar dirs: ${SPARK_LEGACY_JAR_DIR_ENABLE}"
     echo "Sedona: ${SPARK_SEDONA_ENABLE} (v${SPARK_SEDONA_VERSION})"
     echo "GeoTools: ${SPARK_GEOTOOLS_VERSION}"
+    local graphframes_version="${SPARK_GRAPHFRAMES_VERSION:-auto}"
+    echo "GraphFrames: ${SPARK_GRAPHFRAMES_ENABLE} (v${graphframes_version})"
 }
 
 spark_versions() {
@@ -575,7 +593,10 @@ get_spark_dependencies() {
         [[ -n "$scala_binary" ]] && jar_dirs+=("${jars_root}/spark/${spark_version}/scala-${scala_binary}")
         [[ -n "$hadoop_mm" ]] && jar_dirs+=("${jars_root}/spark/${spark_version}/hadoop-${hadoop_mm}")
     fi
-    jar_dirs+=("${jars_root}/spark" "${jars_root}" "$HOME/spark-jars" "$HOME/.spark/jars")
+    jar_dirs+=("${jars_root}/spark" "${jars_root}")
+    if [[ "${SPARK_LEGACY_JAR_DIR_ENABLE:-0}" == "1" ]]; then
+        jar_dirs+=("$HOME/spark-jars" "$HOME/.spark/jars")
+    fi
     
     for jar_dir in "${jar_dirs[@]}"; do
         if [[ -d "$jar_dir" ]]; then
@@ -612,21 +633,22 @@ get_spark_dependencies() {
                 fi
             fi
         fi
-        local spark_version scala_version scala_binary
-        spark_version="${SPARK_VERSION:-}"
-        scala_version="${SPARK_SCALA_VERSION:-}"
-        if [[ -z "$spark_version" || -z "$scala_version" ]]; then
+        local kafka_spark_version="${SPARK_VERSION:-}"
+        local kafka_scala_version="${SPARK_SCALA_VERSION:-}"
+        if [[ -z "$kafka_spark_version" || -z "$kafka_scala_version" ]]; then
             local detected
             detected="$(_spark_detect_versions 2>/dev/null || true)"
-            spark_version="${spark_version:-${detected%% *}}"
-            scala_version="${scala_version:-${detected#* }}"
+            kafka_spark_version="${kafka_spark_version:-${detected%% *}}"
+            kafka_scala_version="${kafka_scala_version:-${detected#* }}"
         fi
-        scala_binary=""
-        if [[ -n "$scala_version" ]]; then
-            scala_binary="${scala_version%.*}"
+        local kafka_scala_binary=""
+        if [[ -n "$kafka_scala_version" ]]; then
+            kafka_scala_binary="${kafka_scala_version%.*}"
         fi
-        if [[ -n "$spark_version" && -n "$scala_binary" ]]; then
-            deps="--packages org.apache.spark:spark-sql-kafka-0-10_${scala_binary}:${spark_version}"
+        if [[ -n "$spark_jars_coords" ]]; then
+            deps="--packages $spark_jars_coords"
+        elif [[ -n "$kafka_spark_version" && -n "$kafka_scala_binary" ]]; then
+            deps="--packages org.apache.spark:spark-sql-kafka-0-10_${kafka_scala_binary}:${kafka_spark_version}"
         else
             deps="--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0"
             echo "⚠️  Could not detect Spark/Scala versions; using default deps" >&2

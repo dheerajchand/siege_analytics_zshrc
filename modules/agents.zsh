@@ -170,6 +170,22 @@ codex_session() {
     fi
 }
 
+codex_start_net() {
+    if ! command -v codex >/dev/null 2>&1; then
+        echo "codex not found on PATH" >&2
+        return 1
+    fi
+    codex --sandbox workspace-write -a on-request -c network_access="enabled" "$@"
+}
+
+codex_start_danger() {
+    if ! command -v codex >/dev/null 2>&1; then
+        echo "codex not found on PATH" >&2
+        return 1
+    fi
+    codex --dangerously-bypass-approvals-and-sandbox "$@"
+}
+
 # =================================================================
 # Claude session helpers
 # =================================================================

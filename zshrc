@@ -124,6 +124,7 @@ if detect_ide; then
     # Tier 1: Essential (load immediately - IDE needs Python right away)
     load_module utils       # Provides is_online, mkcd, extract, path_add
     load_module settings    # vars/aliases/paths
+    load_module compat      # Stack compatibility profiles + guards
     load_module secrets     # Local + 1Password env vars
     load_module python      # Python environment (geo31111 auto-activated)
     load_module system_diagnostics  # iCloud/Dropbox helpers
@@ -143,6 +144,7 @@ if detect_ide; then
         load_module docker       # Docker management
         load_module spark        # Spark cluster (uses is_online!)
         load_module hadoop       # Hadoop/YARN/HDFS
+        load_module livy         # Livy server (Zeppelin Spark 4.1 path)
         load_module zeppelin     # Zeppelin notebooks
         echo "✅ All modules loaded" >&2
     }
@@ -163,6 +165,7 @@ else
     
     load_module utils
     load_module settings
+    load_module compat
     load_module secrets
     load_module python
     load_module system_diagnostics
@@ -175,6 +178,7 @@ else
     load_module docker
     load_module spark
     load_module hadoop
+    load_module livy
     load_module zeppelin
 fi
 
@@ -237,6 +241,21 @@ help() {
     echo "  zeppelin_diagnose      - Diagnose config + runtime"
     echo "  zeppelin_ui            - Open web UI"
     echo "  zeppelin_logs          - Tail latest logs"
+    echo "  zeppelin_seed_smoke_notebook - Create/run Sedona+GraphFrames Scala/Python smoke notebook"
+    echo "  zeppelin_integration_use <embedded|livy|external> [--persist] - Set Zeppelin Spark integration mode"
+    echo "  zeppelin_integration_status - Show active integration mode"
+    echo ""
+    echo "🔌 Livy:"
+    echo "  livy_start             - Start Livy server"
+    echo "  livy_stop              - Stop Livy server"
+    echo "  livy_status            - Show Livy status and endpoint"
+    echo "  livy_logs              - Tail latest Livy logs"
+    echo ""
+    echo "🧩 Compatibility:"
+    echo "  compat_profiles        - List supported stack profiles"
+    echo "  stack_profile_use <profile> [--persist] - Activate a compatibility profile"
+    echo "  stack_profile_status   - Show active profile and version pins"
+    echo "  stack_validate_versions [--component zeppelin] - Validate runtime combo against matrix"
     echo ""
     echo "🐘 Hadoop:"
     echo "  start_hadoop [--format] - Start HDFS + YARN (format if needed)"
@@ -358,6 +377,8 @@ help() {
     echo "  codex_session_update   - Update session"
     echo "  codex_session_remove   - Remove session"
     echo "  codex_session_edit     - Edit sessions file"
+    echo "  codex_start_net        - Start Codex with network enabled"
+    echo "  codex_start_danger     - Start Codex without sandbox"
     echo ""
     echo "📚 Full docs: $ZSH_CONFIG_DIR/README.md"
 }
@@ -370,6 +391,7 @@ modules() {
     echo "✅ python      - Python/pyenv management"
     echo "✅ spark       - Spark cluster operations"
     echo "✅ hadoop      - Hadoop/YARN management"
+    echo "✅ livy        - Livy server for Zeppelin Spark 4.1 integration"
     echo "✅ zeppelin    - Zeppelin notebooks"
     echo "✅ docker      - Container management"
     echo "✅ database    - PostgreSQL connections"
@@ -377,6 +399,7 @@ modules() {
     echo "✅ secrets     - Local + 1Password secrets"
     echo "✅ system_diagnostics - iCloud/Dropbox/Linux diagnostics"
     echo "✅ agents      - Codex session helpers"
+    echo "✅ compat      - Version compatibility matrix + profile guards"
     echo "✅ paths       - Custom path aliases"
     echo "✅ settings    - Vars/Aliases/Paths"
     echo "✅ backup      - Git self-backup system"
@@ -560,9 +583,6 @@ zsh_status_banner() {
             fi
         fi
         printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "📝 Zeppelin:" "$reset_color" "$zeppelin_state"
-        if typeset -f zeppelin_config_status >/dev/null 2>&1; then
-            zeppelin_config_status | sed 's/^/   /'
-        fi
     fi
 
     # Secrets status (lightweight)

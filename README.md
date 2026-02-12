@@ -25,7 +25,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 **What gets installed:**
 
 *Step 1 (ZSH Config):*
-- ✅ Modular zsh configuration (9 modules)
+- ✅ Modular zsh configuration (17 modules)
 - ✅ Oh-My-Zsh with Powerlevel10k theme
 - ✅ Symlinks and shell setup
 
@@ -36,6 +36,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 - ✅ **Hadoop 3.3.6** - Configured and ready
 - ✅ **Spark 4.1.1** - Configured and ready
 - ✅ **Zeppelin 0.12.0** - Installed from Apache tarball
+- ✅ **Livy 0.8.0-incubating** - Zeppelin Spark 4.1 integration path
+- ✅ **Stack compatibility profiles** - `stable` and `zeppelin_compatible`
 - ✅ **pyenv** - Python version manager
 - ✅ **Python 3.11.11** - With virtual environment `default_31111`
 - ✅ **Python packages** - pandas, numpy, jupyter, pyspark, etc.
@@ -278,7 +280,7 @@ If you encounter issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md):
 - 🎯 **11/11 hostile tests passing** - Zero critical vulnerabilities
 - ⚡ **<0.5s startup time** - Optimized performance
 - 🔒 **Enterprise security** - Multi-backend credential management
-- 📦 **12 modules auto-loaded** - Complete development environment
+- 📦 **17 modules available** - Complete development environment
 - 🧪 **Comprehensive verification** - Real terminal testing
 
 ## 🚀 Quick Start (After Installation)
