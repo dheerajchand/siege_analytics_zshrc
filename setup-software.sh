@@ -34,7 +34,7 @@ LIVY_VERSION="0.8.0-incubating"
 LIVY_SCALA_BINARY="2.12"
 SPARK_SCALA_VERSION="2.13"
 SPARK_GRAPHFRAMES_VERSION="0.10.0"
-ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}"
 
 apply_stack_profile_config() {
     case "$STACK_PROFILE" in
@@ -47,7 +47,7 @@ apply_stack_profile_config() {
             LIVY_VERSION="0.8.0-incubating"
             LIVY_SCALA_BINARY="2.12"
             SPARK_GRAPHFRAMES_VERSION="0.10.0"
-            ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+            ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}"
             ;;
         zeppelin_compatible)
             HADOOP_VERSION="3.3.6"
@@ -107,7 +107,7 @@ Modes:
   default          Install + configure
 
 Profiles:
-  stable              Spark 4.1 stack, Zeppelin defaults to Livy integration
+  stable              Spark 4.1 stack, Zeppelin defaults to external integration
   zeppelin_compatible Spark 3.5 fallback for embedded Zeppelin interpreter
 EOF
 }
@@ -976,27 +976,23 @@ print_next_steps() {
     echo "4. Start Spark cluster:"
     printf "   %b\n" "${CYAN}spark_start${NC}"
     echo ""
-    echo "5. Start Livy (recommended for Spark 4.1 + Zeppelin):"
-    printf "   %b\n" "${CYAN}livy_start${NC}"
-    echo ""
-    echo "6. Set Zeppelin integration mode and start Zeppelin:"
-    printf "   %b\n" "${CYAN}zeppelin_integration_use livy --persist${NC}"
+    echo "5. Set Zeppelin integration mode and start Zeppelin (Spark 4.1 route):"
+    printf "   %b\n" "${CYAN}zeppelin_integration_use external --persist${NC}"
     printf "   %b\n" "${CYAN}zeppelin_start${NC}"
     echo ""
-    echo "7. Seed and run Zeppelin smoke notebook (Sedona + GraphFrames):"
+    echo "6. Seed and run Zeppelin smoke notebook:"
     printf "   %b\n" "${CYAN}zeppelin_seed_smoke_notebook${NC}"
     echo ""
-    echo "8. Check status:"
+    echo "7. Check status:"
     printf "   %b\n" "${CYAN}hadoop_status${NC}"
     printf "   %b\n" "${CYAN}spark_status${NC}"
-    printf "   %b\n" "${CYAN}livy_status${NC}"
+    printf "   %b\n" "${CYAN}zeppelin_status${NC}"
     echo ""
-    echo "9. Web UIs will be available at:"
+    echo "8. Web UIs will be available at:"
     printf "   Hadoop NameNode: %b\n" "${BLUE}http://localhost:9870${NC}"
     printf "   YARN ResourceManager: %b\n" "${BLUE}http://localhost:8088${NC}"
     printf "   Spark Master: %b\n" "${BLUE}http://localhost:8080${NC}"
     printf "   Spark History: %b\n" "${BLUE}http://localhost:18080${NC}"
-    printf "   Livy: %b\n" "${BLUE}http://localhost:8998/sessions${NC}"
     printf "   Zeppelin: %b\n" "${BLUE}http://localhost:8081${NC}"
     echo ""
     

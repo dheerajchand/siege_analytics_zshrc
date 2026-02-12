@@ -36,7 +36,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 - ✅ **Hadoop 3.3.6** - Configured and ready
 - ✅ **Spark 4.1.1** - Configured and ready
 - ✅ **Zeppelin 0.12.0** - Installed from Apache tarball
-- ✅ **Livy 0.8.0-incubating** - Zeppelin Spark 4.1 integration path
+- ✅ **Spark 4.1 Zeppelin route** - External integration mode (stable default)
+- ✅ **Livy 0.8.0-incubating** - Optional/experimental for Spark 4.1
 - ✅ **Stack compatibility profiles** - `stable` and `zeppelin_compatible`
 - ✅ **pyenv** - Python version manager
 - ✅ **Python 3.11.11** - With virtual environment `default_31111`

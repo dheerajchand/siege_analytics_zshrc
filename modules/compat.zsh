@@ -79,7 +79,7 @@ _compat_detect_versions_json() {
         java_version="$(java -version 2>&1 | head -n 1 | awk -F'\"' '{print $2}')"
     fi
     zeppelin_version="$(_compat_detect_zeppelin_version 2>/dev/null || true)"
-    local zeppelin_mode="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+    local zeppelin_mode="${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}"
 
     python3 - "$spark_version" "$scala_version" "$hadoop_version" "$java_version" "$zeppelin_version" "${SPARK_SEDONA_VERSION:-}" "${SPARK_GRAPHFRAMES_VERSION:-}" "$zeppelin_mode" <<'PY'
 import json,sys
@@ -197,7 +197,7 @@ stack_profile_status() {
     echo "Java: ${JAVA_VERSION:-auto}"
     echo "Sedona: ${SPARK_SEDONA_VERSION:-auto}"
     echo "GraphFrames: ${SPARK_GRAPHFRAMES_VERSION:-auto}"
-    echo "Zeppelin mode: ${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+    echo "Zeppelin mode: ${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}"
     echo "Livy URL: ${ZEPPELIN_LIVY_URL:-http://127.0.0.1:8998}"
 }
 
@@ -272,7 +272,7 @@ else:
         for p in problems:
             comp=f"[{p['component']}]" if p.get("component") else ""
             print(f" - {p['id']} {comp}: {p['reason']}")
-        print("Hint: keep Spark 4.1 with Zeppelin using `zeppelin_integration_use livy --persist` or `zeppelin_integration_use external --persist`.")
+        print("Hint: keep Spark 4.1 with Zeppelin using `zeppelin_integration_use external --persist`.")
     else:
         print("✅ Version compatibility check passed")
     print(json.dumps(out))

@@ -99,6 +99,9 @@ livy_start() {
     export LIVY_HOME="$home"
     export LIVY_CONF_DIR="$(_livy_conf_dir)"
     export LIVY_LOG_DIR="$(_livy_log_dir)"
+    # Help older Livy/Kryo code paths on Java 17+.
+    local opens="--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+    export JAVA_TOOL_OPTIONS="${opens} ${JAVA_TOOL_OPTIONS:-}"
     if [[ -n "${SPARK_HOME:-}" ]]; then
         export SPARK_HOME
     fi

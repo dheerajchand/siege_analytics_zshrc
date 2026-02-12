@@ -78,11 +78,11 @@ _zeppelin_api_ready() {
 }
 
 _zeppelin_spark_integration_mode() {
-    local mode="${ZEPPELIN_SPARK_INTEGRATION_MODE:-livy}"
+    local mode="${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}"
     mode="${mode:l}"
     case "$mode" in
         embedded|livy|external) echo "$mode" ;;
-        *) echo "embedded" ;;
+        *) echo "external" ;;
     esac
 }
 

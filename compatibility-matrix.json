@@ -13,7 +13,7 @@
   },
   "profiles": {
     "stable": {
-      "description": "Primary Spark 4.1 stack; Zeppelin should use Livy or external mode.",
+      "description": "Primary Spark 4.1 stack; Zeppelin uses external integration by default.",
       "versions": {
         "java": "17.0.15-tem",
         "hadoop": "3.3.6",
@@ -24,7 +24,7 @@
         "graphframes": "0.10.0"
       },
       "defaults": {
-        "zeppelin_spark_integration_mode": "livy",
+        "zeppelin_spark_integration_mode": "external",
         "zeppelin_livy_url": "http://127.0.0.1:8998"
       }
     },
@@ -59,6 +59,18 @@
         "spark_conf",
         "zeppelin_docs"
       ],
+      "verified_on": "2026-02-12",
+      "confidence": "high"
+    },
+    {
+      "id": "zeppelin_spark4_livy_scala_guard",
+      "component": "zeppelin",
+      "status": "incompatible",
+      "when": {
+        "spark": "4.*",
+        "zeppelin_spark_integration_mode": "livy"
+      },
+      "reason": "Livy 0.8.0-incubating distribution is Scala 2.12 and fails with Spark 4.1 / Scala 2.13 runtime (RSC driver classpath mismatch).",
       "verified_on": "2026-02-12",
       "confidence": "high"
     },

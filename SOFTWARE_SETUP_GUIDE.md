@@ -55,15 +55,15 @@ Complete guide for the `setup-software.sh` installer.
 - Location: `~/opt/zeppelin/current`
 - Installed from Apache tarball (no Homebrew formula)
 - Supports integration modes via `ZEPPELIN_SPARK_INTEGRATION_MODE`:
-  - `livy` (default for stable profile)
+  - `external` (default for stable Spark 4.1 profile)
+  - `livy` (experimental with Spark 4.1; may fail due Scala ABI mismatch)
   - `embedded`
-  - `external`
 
 ### Stack Profiles and Setup Modes
 
 `setup-software.sh` supports:
 - Profiles:
-  - `stable` (Spark 4.1.1 + Livy-first Zeppelin)
+  - `stable` (Spark 4.1.1 + Zeppelin external mode)
   - `zeppelin_compatible` (Spark 3.5.3 fallback for embedded Zeppelin)
 - Modes:
   - `default` (install + configure)
@@ -219,27 +219,21 @@ spark_start
 
 This starts the Spark standalone cluster.
 
-**4. Start Livy (recommended for Spark 4.1 + Zeppelin):**
+**4. Set Zeppelin mode + start Zeppelin (Spark 4.1 route):**
 ```bash
-livy_start
-```
-
-**5. Set Zeppelin mode + start Zeppelin:**
-```bash
-zeppelin_integration_use livy --persist
+zeppelin_integration_use external --persist
 zeppelin_start
 ```
 
-**6. Seed and run Zeppelin smoke notebook (Sedona + GraphFrames):**
+**5. Seed Zeppelin smoke notebook:**
 ```bash
 zeppelin_seed_smoke_notebook
 ```
 
-**7. Verify services:**
+**6. Verify services:**
 ```bash
 hadoop_status
 spark_status
-livy_status
 zeppelin_status
 ```
 
