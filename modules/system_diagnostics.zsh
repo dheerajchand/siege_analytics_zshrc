@@ -189,7 +189,7 @@ spark41_route_health() {
             rc=1
         else
             local smoke_file
-            smoke_file="$(mktemp)"
+            smoke_file="$(mktemp /tmp/spark41-route-health.XXXXXX.py)"
             cat > "$smoke_file" <<'PY'
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName("spark41-route-health").getOrCreate()

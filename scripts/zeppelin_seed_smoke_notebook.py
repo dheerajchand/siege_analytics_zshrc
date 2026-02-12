@@ -86,11 +86,68 @@ def paragraphs_for_mode(mode: str) -> list[dict[str, str]]:
 This stack is using Zeppelin `external` mode for Spark 4.1 stability.
 
 Notebook paragraphs below include Scala/Python Sedona + GraphFrames verification snippets.
-Run them with a compatible Zeppelin Spark interpreter, or execute equivalent scripts via
-`spark-shell` / `spark-submit` using Spark 4.1 outside Zeppelin.
+Run them via `%sh` using Spark 4.1 outside Zeppelin's embedded Spark interpreter.
 """,
             },
-            *BASE_PARAGRAPHS,
+            {
+                "title": "Python: Spark 4.1 + Sedona + GraphFrames classpath smoke",
+                "text": """%sh
+set -euo pipefail
+cat > /tmp/zeppelin_spark41_py_smoke.py <<'PY'
+from pyspark.sql import SparkSession
+from py4j.java_gateway import java_import
+
+spark = SparkSession.builder.appName("zeppelin-spark41-py-smoke").getOrCreate()
+java_import(spark._jvm, "org.apache.sedona.sql.utils.SedonaSQLRegistrator")
+spark._jvm.org.apache.sedona.sql.utils.SedonaSQLRegistrator.registerAll(spark._jsparkSession)
+print("SPARK_VERSION=" + spark.version)
+print("SEDONA_WKT=" + spark.sql("SELECT ST_AsText(ST_Point(10.0, 20.0)) AS wkt").collect()[0]["wkt"])
+try:
+    _ = spark._jvm.org.graphframes.GraphFrame
+    print("GRAPHFRAMES_CLASS=OK")
+except Exception as exc:  # noqa: BLE001
+    print("GRAPHFRAMES_CLASS=FAIL")
+    raise
+spark.stop()
+PY
+
+spark-submit --master 'local[*]' \\
+  --conf spark.sql.extensions=org.apache.sedona.sql.SedonaSqlExtensions \\
+  --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \\
+  --conf spark.kryo.registrator=org.apache.sedona.core.serde.SedonaKryoRegistrator \\
+  --packages org.apache.sedona:sedona-spark-shaded-4.0_2.13:1.8.1,org.datasyslab:geotools-wrapper:1.8.1-33.1,io.graphframes:graphframes-spark4_2.13:0.10.0 \\
+  /tmp/zeppelin_spark41_py_smoke.py
+""",
+            },
+            {
+                "title": "Scala: Spark 4.1 + Sedona + GraphFrames smoke",
+                "text": """%sh
+set -euo pipefail
+cat > /tmp/zeppelin_spark41_scala_smoke.scala <<'SCALA'
+import org.apache.sedona.sql.utils.SedonaSQLRegistrator
+import org.graphframes.GraphFrame
+
+SedonaSQLRegistrator.registerAll(spark)
+println("SPARK_VERSION=" + spark.version)
+val wkt = spark.sql("SELECT ST_AsText(ST_Point(1.0, 2.0)) AS wkt").collect()(0).getString(0)
+println("SEDONA_WKT=" + wkt)
+
+val vertices = Seq(("a", "Alice"), ("b", "Bob"), ("c", "Cara")).toDF("id", "name")
+val edges = Seq(("a", "b"), ("b", "c"), ("c", "a")).toDF("src", "dst")
+val g = GraphFrame(vertices, edges)
+println("GRAPHFRAMES_INDEGREES=" + g.inDegrees.count())
+sys.exit(0)
+SCALA
+
+spark-shell --master 'local[*]' \\
+  --conf spark.api.mode=classic \\
+  --conf spark.sql.extensions=org.apache.sedona.sql.SedonaSqlExtensions \\
+  --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \\
+  --conf spark.kryo.registrator=org.apache.sedona.core.serde.SedonaKryoRegistrator \\
+  --packages org.apache.sedona:sedona-spark-shaded-4.0_2.13:1.8.1,org.datasyslab:geotools-wrapper:1.8.1-33.1,io.graphframes:graphframes-spark4_2.13:0.10.0 \\
+  -I /tmp/zeppelin_spark41_scala_smoke.scala
+""",
+            },
         ]
     return BASE_PARAGRAPHS
 
@@ -265,10 +322,6 @@ def main() -> int:
         print(f"Added paragraph: {para['title']} ({para_id})")
 
     if args.run:
-        if args.integration_mode == "external":
-            print("External integration mode selected; skipping paragraph execution.")
-            print(f"Notebook URL: {args.base_url}/#/notebook/{note_id}")
-            return 0
         failed = False
         for para, para_id in zip(paragraphs, para_ids):
             status = run_paragraph_and_wait(args.base_url, note_id, para_id, args.wait_timeout)

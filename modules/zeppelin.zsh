@@ -296,7 +296,7 @@ zeppelin_start() {
     fi
 
     local launcher_log="$(_zeppelin_log_dir)/zeppelin-launch.out"
-    if [[ "${ZEPPELIN_USE_DAEMON:-0}" == "1" && -x "$home/bin/zeppelin-daemon.sh" ]]; then
+    if [[ "${ZEPPELIN_USE_DAEMON:-1}" == "1" && -x "$home/bin/zeppelin-daemon.sh" ]]; then
         "$home/bin/zeppelin-daemon.sh" start
     else
         nohup "$home/bin/zeppelin.sh" >> "$launcher_log" 2>&1 < /dev/null &
