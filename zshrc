@@ -75,13 +75,38 @@ detect_ide() {
     [[ -n "$DATASPELL_HOSTED" ]] && return 0
     [[ -n "$INTELLIJ_ENVIRONMENT_READER" ]] && return 0
     [[ -n "$JETBRAINS_IDE" ]] && return 0
+    [[ -n "$VSCODE_INJECTION" ]] && return 0
+    [[ -n "$VSCODE_GIT_IPC_HANDLE" ]] && return 0
+    [[ -n "$CURSOR_TRACE_ID" ]] && return 0
     [[ "$TERM_PROGRAM" == "vscode" ]] && return 0
+    [[ "$TERM_PROGRAM" == "Cursor" ]] && return 0
     
     # Check process tree for IDE
     local parent_proc=$(ps -p $PPID -o comm= 2>/dev/null)
     [[ "$parent_proc" =~ (pycharm|idea|webstorm|goland|datagrip|dataspell|code) ]] && return 0
     
     return 1
+}
+
+_zsh_startup_use_staggered() {
+    local mode="${ZSH_STARTUP_MODE:-auto}"
+    mode="${mode:l}"
+    case "$mode" in
+        full|immediate|eager)
+            return 1
+            ;;
+        staggered|ide)
+            return 0
+            ;;
+        auto|"")
+            detect_ide
+            return $?
+            ;;
+        *)
+            detect_ide
+            return $?
+            ;;
+    esac
 }
 
 # Module loader
@@ -118,8 +143,10 @@ alias gl='git log --oneline'
 # =================================================================
 
 # Load modules based on environment
-if detect_ide; then
-    echo "🖥️  IDE detected - using staggered loading for faster startup"
+if _zsh_startup_use_staggered; then
+    export ZSH_IS_IDE_TERMINAL=1
+    mode_label="${ZSH_STARTUP_MODE:-auto}"
+    echo "🖥️  Staggered startup mode (${mode_label}) - integrated terminal optimization enabled"
     
     # Tier 1: Essential (load immediately - IDE needs Python right away)
     load_module utils       # Provides is_online, mkcd, extract, path_add
@@ -160,6 +187,7 @@ if detect_ide; then
     echo "💡 Python ready now, Spark/Hadoop loading in background"
     
 else
+    export ZSH_IS_IDE_TERMINAL=0
     # Regular terminal - load everything immediately (fast enough)
     echo "🚀 Loading modules..."
     
@@ -221,6 +249,7 @@ help() {
     echo "  spark_status           - Show status"
     echo "  spark_mode_use <auto|local|cluster> [--persist] - Set Spark execution mode"
     echo "  spark_mode_status      - Show effective Spark master resolution"
+    echo "  spark_log_level [level] [--persist] - Set Spark log level (default WARN)"
     echo "  spark_config_status    - Show configuration"
     echo "  spark_use_version <v>  - SDKMAN use Spark version"
     echo "  spark_default_version <v> - SDKMAN default Spark"
@@ -463,6 +492,91 @@ apply_profile_theme() {
     fi
 }
 
+_zsh_stamp_mtime() {
+    local f="$1"
+    [[ -f "$f" ]] || { echo "0"; return 0; }
+    if stat -f %m "$f" >/dev/null 2>&1; then
+        stat -f %m "$f"
+        return 0
+    fi
+    stat -c %Y "$f" 2>/dev/null || echo "0"
+}
+
+_zsh_auto_recover_data_services() {
+    typeset -g ZSH_DATA_RECOVERY_SUMMARY=""
+    [[ -n "${ZSH_TEST_MODE:-}" ]] && return 0
+    [[ "${ZSH_AUTO_RECOVER_DATA_SERVICES:-1}" != "1" ]] && return 0
+    if [[ "${ZSH_IS_IDE_TERMINAL:-0}" == "1" && "${ZSH_AUTO_RECOVER_IN_IDE:-0}" != "1" ]]; then
+        ZSH_DATA_RECOVERY_SUMMARY="skipped in IDE terminal"
+        return 0
+    fi
+
+    local stamp="${ZSH_DATA_RECOVERY_STAMP:-/tmp/zsh-data-services-recovery-${USER}}"
+    local now last window
+    now="$(date +%s)"
+    last="$(_zsh_stamp_mtime "$stamp")"
+    window="${ZSH_DATA_RECOVERY_WINDOW_SEC:-180}"
+    if [[ "$last" =~ '^[0-9]+$' ]] && (( now - last < window )); then
+        ZSH_DATA_RECOVERY_SUMMARY="skipped (recent attempt ${now-last}s ago)"
+        return 0
+    fi
+    : > "$stamp" 2>/dev/null || true
+
+    local events=()
+    local out rc
+
+    if [[ "${ZSH_AUTO_RECOVER_SPARK:-1}" == "1" ]] && typeset -f spark_start >/dev/null 2>&1; then
+        if ! pgrep -f "spark.deploy.master.Master" >/dev/null 2>&1 || ! pgrep -f "spark.deploy.worker.Worker" >/dev/null 2>&1; then
+            out="$(spark_start 2>&1)"
+            rc=$?
+            if (( rc == 0 )); then
+                events+=("Spark restarted")
+            else
+                events+=("Spark restart failed")
+                [[ -n "$out" ]] && echo "$out" >&2
+            fi
+        fi
+    fi
+
+    if [[ "${ZSH_AUTO_RECOVER_HADOOP:-1}" == "1" ]] && typeset -f start_hadoop >/dev/null 2>&1 && command -v jps >/dev/null 2>&1; then
+        if ! jps | grep -q "NameNode" || ! jps | grep -q "DataNode" || ! jps | grep -q "ResourceManager" || ! jps | grep -q "NodeManager"; then
+            out="$(start_hadoop 2>&1)"
+            rc=$?
+            if (( rc == 0 )); then
+                events+=("Hadoop/YARN restarted")
+            else
+                events+=("Hadoop/YARN restart failed")
+                [[ -n "$out" ]] && echo "$out" >&2
+            fi
+        fi
+    fi
+
+    if [[ "${ZSH_AUTO_RECOVER_ZEPPELIN:-1}" == "1" ]] && typeset -f zeppelin_start >/dev/null 2>&1; then
+        local zep_running=1
+        if typeset -f _zeppelin_is_running >/dev/null 2>&1; then
+            _zeppelin_is_running || zep_running=0
+        else
+            zep_running=0
+        fi
+        if (( zep_running == 0 )); then
+            out="$(zeppelin_start 2>&1)"
+            rc=$?
+            if (( rc == 0 )); then
+                events+=("Zeppelin restarted")
+            else
+                events+=("Zeppelin restart failed")
+                [[ -n "$out" ]] && echo "$out" >&2
+            fi
+        fi
+    fi
+
+    if (( ${#events[@]} > 0 )); then
+        ZSH_DATA_RECOVERY_SUMMARY="${(j:, :)events}"
+    else
+        ZSH_DATA_RECOVERY_SUMMARY="all services already running"
+    fi
+}
+
 # Welcome message - show useful context
 zsh_status_banner() {
     local header_color="${ZSH_PROFILE_HEADER_COLOR:-34}"
@@ -532,6 +646,12 @@ zsh_status_banner() {
         spark_ver="$(spark-submit --version 2>&1 | awk '/version/{print $NF; exit}')"
         [[ -n "$spark_ver" ]] && printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🔧 Spark version:" "$reset_color" "$spark_ver"
     fi
+    if typeset -f spark_workers_status_line >/dev/null 2>&1; then
+        local workers_line
+        workers_line="$(spark_workers_status_line 2>/dev/null || true)"
+        [[ -z "$workers_line" ]] && workers_line="unknown (worker diagnostic unavailable)"
+        printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "👷 Spark workers:" "$reset_color" "$workers_line"
+    fi
     if command -v java >/dev/null 2>&1; then
         local java_version
         java_version="$(java -version 2>&1 | head -n 1)"
@@ -587,6 +707,8 @@ zsh_status_banner() {
         fi
         printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "📝 Zeppelin:" "$reset_color" "$zeppelin_state"
     fi
+    local recovery_summary="${ZSH_DATA_RECOVERY_SUMMARY:-not attempted in this shell}"
+    printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🩺 Auto-recovery:" "$reset_color" "$recovery_summary"
 
     # Secrets status (lightweight)
     local secrets_status="unknown"
@@ -621,6 +743,7 @@ zsh_status_banner() {
 
 if [[ -o interactive ]]; then
     apply_profile_theme
+    _zsh_auto_recover_data_services
     zsh_status_banner
 fi
 

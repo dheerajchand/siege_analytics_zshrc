@@ -553,12 +553,17 @@ help                     # Complete usage guide
 backup "commit message"   # Backup and sync changes
 ```
 
-### **Environment Switching**
+### **Startup Mode**
 ```bash
-# Switch between light and full modes
-ZSH_MODE=light exec zsh   # Minimal mode
-ZSH_MODE=staggered exec zsh # Full mode (default)
+# Startup behavior (auto | staggered | full)
+ZSH_STARTUP_MODE=auto exec zsh       # Default: detect IDE terminals automatically
+ZSH_STARTUP_MODE=staggered exec zsh  # Force staggered module loading
+ZSH_STARTUP_MODE=full exec zsh       # Force immediate full module loading
 ```
+
+Heavy startup hooks are configurable in `vars.env`:
+- `ZSH_AUTO_RECOVER_*` controls Spark/Hadoop/Zeppelin auto-restart
+- `ZSH_OP_AUTO_SIGNIN_*` controls 1Password multi-account auto-signin
 
 ## 🛠️ Development Workflows
 
@@ -604,8 +609,8 @@ docker_cleanup --aggressive
 
 ### **Container Integration**
 ```bash
-# Docker containers automatically use light mode
-# Full functionality available via: ZSH_MODE=staggered exec zsh
+# Full functionality with explicit startup mode:
+# ZSH_STARTUP_MODE=staggered exec zsh
 ```
 
 ## 🚨 Troubleshooting

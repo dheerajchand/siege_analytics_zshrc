@@ -2327,9 +2327,47 @@ secrets_sync_status() {
     echo ""
 }
 
+_secrets_auto_signin_all_on_load() {
+    [[ -n "${ZSH_TEST_MODE:-}" ]] && return 0
+    [[ "${ZSH_OP_AUTO_SIGNIN_ALL:-1}" == "1" ]] || return 0
+    [[ -o interactive ]] || return 0
+    if [[ "${ZSH_IS_IDE_TERMINAL:-0}" == "1" && "${ZSH_OP_AUTO_SIGNIN_IN_IDE:-0}" != "1" ]]; then
+        return 0
+    fi
+    [[ "$ZSH_SECRETS_MODE" == "op" || "$ZSH_SECRETS_MODE" == "both" ]] || return 0
+    command -v op >/dev/null 2>&1 || return 0
+    [[ -f "$OP_ACCOUNTS_FILE" ]] || return 0
+    typeset -f op_signin_all >/dev/null 2>&1 || return 0
+
+    local stamp_file="${ZSH_OP_AUTO_SIGNIN_STAMP:-$HOME/.config/zsh/.op_signin_all.stamp}"
+    local now last age max_age
+    now="$(date +%s)"
+    max_age="${ZSH_OP_AUTO_SIGNIN_MAX_AGE_SEC:-300}"
+    last="0"
+    if [[ -f "$stamp_file" ]]; then
+        last="$(stat -f %m "$stamp_file" 2>/dev/null || stat -c %Y "$stamp_file" 2>/dev/null || echo 0)"
+    fi
+    if [[ "$last" =~ '^[0-9]+$' ]]; then
+        age=$(( now - last ))
+        if (( age >= 0 && age < max_age )); then
+            return 0
+        fi
+    fi
+    umask 077
+    : > "$stamp_file" 2>/dev/null || true
+
+    if ! op_signin_all >/dev/null 2>&1; then
+        _secrets_warn "Auto 1Password sign-in for all accounts failed (run: op_signin_all)"
+        return 1
+    fi
+    [[ "${ZSH_SECRETS_VERBOSE:-}" == "1" ]] && _secrets_info "Auto-signed in all configured 1Password accounts"
+    return 0
+}
+
 # Auto-load secrets unless disabled or in test mode
 if [[ -z "${ZSH_TEST_MODE:-}" ]]; then
     load_secrets
+    _secrets_auto_signin_all_on_load || true
     _secrets_check_profile
     [[ "${ZSH_SECRETS_VERBOSE:-}" == "1" ]] && echo "✅ secrets loaded"
 fi

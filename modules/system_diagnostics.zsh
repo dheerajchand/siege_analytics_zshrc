@@ -160,6 +160,13 @@ spark41_route_health() {
         echo "⚠️  spark_mode_status not available"
         rc=1
     fi
+    if typeset -f spark_workers_health >/dev/null 2>&1; then
+        echo ""
+        spark_workers_health || rc=1
+    else
+        echo "⚠️  spark_workers_health not available"
+        rc=1
+    fi
     echo ""
 
     if typeset -f zeppelin_integration_status >/dev/null 2>&1; then
@@ -205,6 +212,16 @@ PY
                 rc=1
             fi
             rm -f "$smoke_file"
+        fi
+
+        if typeset -f spark_workers_health >/dev/null 2>&1; then
+            echo ""
+            echo "🚀 Running Spark worker probe with Sedona/GraphFrames checks..."
+            if [[ -n "$spark_master_override" ]]; then
+                spark_workers_health --probe --with-packages --master "$spark_master_override" || rc=1
+            else
+                spark_workers_health --probe --with-packages || rc=1
+            fi
         fi
     fi
 

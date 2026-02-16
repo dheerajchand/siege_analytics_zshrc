@@ -87,7 +87,7 @@ def paragraphs_for_mode(mode: str) -> list[dict[str, str]]:
 This stack is using Zeppelin `external` mode for Spark 4.1 stability.
 
 Notebook paragraphs below include Python environment, Hadoop/service diagnostics,
-and Scala/Python Sedona + GraphFrames verification snippets.
+Spark worker functionality checks, and Scala/Python Sedona + GraphFrames verification snippets.
 Run them via `%sh` using Spark 4.1 outside Zeppelin's embedded Spark interpreter.
 """,
             },
@@ -128,9 +128,20 @@ PY
                 "title": "Hadoop and data-service diagnostics",
                 "text": """%sh
 set -euo pipefail
+REQUIRE_CLUSTER_SERVICES="${REQUIRE_CLUSTER_SERVICES:-0}"
+SPARK_MODE="${SPARK_EXECUTION_MODE:-auto}"
+if [ "$SPARK_MODE" = "local" ]; then
+  EXPECT_CLUSTER_SERVICES=0
+elif [ "$SPARK_MODE" = "cluster" ]; then
+  EXPECT_CLUSTER_SERVICES=1
+else
+  EXPECT_CLUSTER_SERVICES="$REQUIRE_CLUSTER_SERVICES"
+fi
 echo "HADOOP_HOME=${HADOOP_HOME:-unset}"
 echo "SPARK_HOME=${SPARK_HOME:-unset}"
 echo "JAVA_HOME=${JAVA_HOME:-unset}"
+echo "SPARK_EXECUTION_MODE=${SPARK_MODE}"
+echo "REQUIRE_CLUSTER_SERVICES=${REQUIRE_CLUSTER_SERVICES}"
 if ! command -v hadoop >/dev/null 2>&1 && [ -x "$HOME/.sdkman/candidates/hadoop/current/bin/hadoop" ]; then
   export PATH="$HOME/.sdkman/candidates/hadoop/current/bin:$PATH"
 fi
@@ -152,7 +163,11 @@ if command -v hdfs >/dev/null 2>&1; then
     echo "HDFS_ROOT_LIST:"
     hdfs dfs -ls / 2>/dev/null || true
   else
-    echo "HDFS_STATUS=WARN_NAMENODE_NOT_RUNNING"
+    if [ "$EXPECT_CLUSTER_SERVICES" = "1" ]; then
+      echo "HDFS_STATUS=FAIL_NAMENODE_NOT_RUNNING"
+    else
+      echo "HDFS_STATUS=SKIP_NAMENODE_NOT_RUNNING_LOCAL_OR_OPTIONAL"
+    fi
   fi
 fi
 
@@ -161,15 +176,68 @@ if command -v yarn >/dev/null 2>&1; then
     echo "YARN_NODE_LIST:"
     yarn node -list 2>/dev/null || true
   else
-    echo "YARN_STATUS=WARN_RESOURCEMANAGER_NOT_RUNNING"
+    if [ "$EXPECT_CLUSTER_SERVICES" = "1" ]; then
+      echo "YARN_STATUS=FAIL_RESOURCEMANAGER_NOT_RUNNING"
+    else
+      echo "YARN_STATUS=SKIP_RESOURCEMANAGER_NOT_RUNNING_LOCAL_OR_OPTIONAL"
+    fi
   fi
 fi
 
 if curl -fsS http://127.0.0.1:8080 >/dev/null 2>&1; then
   echo "SPARK_MASTER_UI=UP"
 else
-  echo "SPARK_MASTER_UI=DOWN_OR_NOT_RUNNING"
+  if [ "$EXPECT_CLUSTER_SERVICES" = "1" ]; then
+    echo "SPARK_MASTER_UI=FAIL_DOWN_OR_NOT_RUNNING"
+  else
+    echo "SPARK_MASTER_UI=SKIP_DOWN_OR_NOT_RUNNING_LOCAL_OR_OPTIONAL"
+  fi
 fi
+
+if [ "$EXPECT_CLUSTER_SERVICES" = "1" ]; then
+  if jps | grep -q NameNode 2>/dev/null && jps | grep -q ResourceManager 2>/dev/null && curl -fsS http://127.0.0.1:8080 >/dev/null 2>&1; then
+    echo "DATA_SERVICES_EXPECTED_STATUS=OK"
+  else
+    echo "DATA_SERVICES_EXPECTED_STATUS=FAIL"
+    exit 1
+  fi
+else
+  echo "DATA_SERVICES_EXPECTED_STATUS=OK_LOCAL_OR_OPTIONAL"
+fi
+""",
+            },
+            {
+                "title": "Spark workers: functional/dysfunctional diagnostics",
+                "text": """%sh
+set -euo pipefail
+zsh -lc '
+source ~/.config/zsh/modules/settings.zsh >/dev/null
+source ~/.config/zsh/modules/utils.zsh >/dev/null
+source ~/.config/zsh/modules/spark.zsh >/dev/null
+set +e
+echo "=== MODE local: status ==="
+SPARK_EXECUTION_MODE=local spark_workers_health
+echo "LOCAL_STATUS_RC=$?"
+echo
+echo "=== MODE local: probe (packages) ==="
+SPARK_EXECUTION_MODE=local spark_workers_health --probe --with-packages
+echo "LOCAL_PROBE_RC=$?"
+echo
+echo "=== MODE cluster: status ==="
+SPARK_EXECUTION_MODE=cluster spark_workers_health
+echo "CLUSTER_STATUS_RC=$?"
+echo
+echo "=== MODE cluster: probe (packages) ==="
+SPARK_EXECUTION_MODE=cluster spark_workers_health --summary >/dev/null 2>&1
+if [ "$?" -eq 0 ]; then
+  SPARK_EXECUTION_MODE=cluster spark_workers_health --probe --with-packages --master "${SPARK_MASTER_URL:-spark://localhost:7077}"
+  echo "CLUSTER_PROBE_RC=$?"
+else
+  echo "CLUSTER_PROBE_STATUS=SKIP_CLUSTER_MASTER_NOT_AVAILABLE"
+  echo "CLUSTER_PROBE_RC=0"
+fi
+set -e
+'
 """,
             },
             {
@@ -207,10 +275,8 @@ spark-submit --master 'local[*]' \\
                 "text": """%sh
 set -euo pipefail
 cat > /tmp/zeppelin_spark41_scala_smoke.scala <<'SCALA'
-import org.apache.sedona.sql.utils.SedonaSQLRegistrator
 import org.graphframes.GraphFrame
 
-SedonaSQLRegistrator.registerAll(spark)
 println("SPARK_VERSION=" + spark.version)
 val wkt = spark.sql("SELECT ST_AsText(ST_Point(1.0, 2.0)) AS wkt").collect()(0).getString(0)
 println("SEDONA_WKT=" + wkt)

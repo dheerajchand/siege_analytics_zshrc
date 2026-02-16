@@ -21,6 +21,8 @@ fi
 export SPARK_MASTER_HOST="${SPARK_MASTER_HOST:-localhost}"
 export SPARK_MASTER_PORT="${SPARK_MASTER_PORT:-7077}"
 export SPARK_MASTER_URL="spark://${SPARK_MASTER_HOST}:${SPARK_MASTER_PORT}"
+export SPARK_MASTER_WEBUI_PORT="${SPARK_MASTER_WEBUI_PORT:-8080}"
+export SPARK_WORKER_WEBUI_PORT="${SPARK_WORKER_WEBUI_PORT:-8082}"
 export SPARK_LOCAL_MASTER="${SPARK_LOCAL_MASTER:-local[*]}"
 export SPARK_EXECUTION_MODE="${SPARK_EXECUTION_MODE:-auto}"
 export SPARK_DRIVER_MEMORY="${SPARK_DRIVER_MEMORY:-2g}"
@@ -34,6 +36,7 @@ export SPARK_EXECUTOR_MEMORY="${SPARK_EXECUTOR_MEMORY:-2g}"
 : "${SPARK_KAFKA_ENABLE:=1}"
 : "${SPARK_KAFKA_VERSION:=}"
 : "${HADOOP_VERSION:=}"
+: "${SPARK_LOG_LEVEL:=WARN}"
 
 _spark_cluster_running() {
     if command -v jps >/dev/null 2>&1; then
@@ -49,6 +52,15 @@ _spark_normalize_mode() {
     case "$mode" in
         auto|local|cluster) echo "$mode" ;;
         *) echo "auto" ;;
+    esac
+}
+
+_spark_normalize_log_level() {
+    local level="${1:-${SPARK_LOG_LEVEL:-WARN}}"
+    level="${level:u}"
+    case "$level" in
+        ALL|DEBUG|ERROR|FATAL|INFO|OFF|TRACE|WARN) echo "$level" ;;
+        *) echo "WARN" ;;
     esac
 }
 
@@ -160,6 +172,45 @@ spark_mode_use() {
         echo "⚠️  Spark cluster mode selected but master is not running at ${SPARK_MASTER_URL}"
     fi
     spark_mode_status
+}
+
+spark_log_level() {
+    local level=""
+    local persist=0
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --persist)
+                persist=1
+                shift
+                ;;
+            --help|-h)
+                echo "Usage: spark_log_level [ALL|DEBUG|ERROR|FATAL|INFO|OFF|TRACE|WARN] [--persist]" >&2
+                return 0
+                ;;
+            ALL|DEBUG|ERROR|FATAL|INFO|OFF|TRACE|WARN|all|debug|error|fatal|info|off|trace|warn)
+                level="$1"
+                shift
+                ;;
+            *)
+                echo "Usage: spark_log_level [ALL|DEBUG|ERROR|FATAL|INFO|OFF|TRACE|WARN] [--persist]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    if [[ -z "$level" ]]; then
+        echo "$(_spark_normalize_log_level)"
+        return 0
+    fi
+
+    level="$(_spark_normalize_log_level "$level")"
+    export SPARK_LOG_LEVEL="$level"
+    if (( persist )); then
+        _spark_persist_var "SPARK_LOG_LEVEL" "$level"
+        echo "✅ Persisted Spark log level: $level"
+    else
+        echo "✅ Active Spark log level: $level"
+    fi
 }
 
 # Detect Spark and Scala versions from spark-submit output
@@ -398,6 +449,7 @@ spark_config_status() {
     echo "GeoTools: ${SPARK_GEOTOOLS_VERSION}"
     local graphframes_version="${SPARK_GRAPHFRAMES_VERSION:-auto}"
     echo "GraphFrames: ${SPARK_GRAPHFRAMES_ENABLE} (v${graphframes_version})"
+    echo "Log level: $(_spark_normalize_log_level)"
 }
 
 spark_versions() {
@@ -592,6 +644,7 @@ SPARKMAIN
     
     # Start worker
     if ! jps | grep -q "Worker"; then
+        export SPARK_WORKER_WEBUI_PORT
         "$SPARK_HOME/sbin/start-worker.sh" "$SPARK_MASTER_URL"
         sleep 3
         if jps | grep -q "Worker"; then
@@ -606,6 +659,7 @@ SPARKMAIN
     
     echo ""
     echo "Spark Web UI: http://localhost:8080"
+    echo "Worker Web UI: http://localhost:${SPARK_WORKER_WEBUI_PORT}"
     echo "Master URL: $SPARK_MASTER_URL"
 }
 
@@ -622,6 +676,238 @@ spark_stop() {
     "$SPARK_HOME/sbin/stop-master.sh" 2>/dev/null
     
     echo "✅ Spark cluster stopped"
+}
+
+_spark_master_ui_json_url() {
+    echo "http://${SPARK_MASTER_HOST}:${SPARK_MASTER_WEBUI_PORT}/json/"
+}
+
+_spark_worker_process_count() {
+    local count
+    count="$(pgrep -f "spark.deploy.worker.Worker" 2>/dev/null | wc -l | tr -d ' ')"
+    [[ -z "$count" ]] && count="0"
+    echo "$count"
+}
+
+_spark_master_alive_worker_count() {
+    local url payload count
+    url="$(_spark_master_ui_json_url)"
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "curl not found (cannot query $url)" >&2
+        return 1
+    fi
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "python3 not found (cannot parse Spark master JSON)" >&2
+        return 1
+    fi
+    if ! payload="$(curl -fsSL --max-time 3 "$url" 2>/dev/null)"; then
+        echo "unable to query Spark master UI at $url" >&2
+        return 1
+    fi
+    if ! count="$(printf '%s' "$payload" | python3 -c '
+import json
+import sys
+data = json.load(sys.stdin)
+alive = data.get("aliveworkers")
+if isinstance(alive, int):
+    print(alive)
+    raise SystemExit(0)
+workers = data.get("workers")
+if isinstance(workers, list):
+    n = 0
+    for w in workers:
+        if isinstance(w, dict) and w.get("alive", True):
+            n += 1
+    print(n)
+    raise SystemExit(0)
+raise SystemExit(2)
+' 2>/dev/null)"; then
+        echo "failed to parse Spark master worker data from $url" >&2
+        return 1
+    fi
+    echo "$count"
+}
+
+_spark_workers_quick_summary() {
+    local mode effective_master
+    mode="$(_spark_normalize_mode)"
+    effective_master="$(_spark_resolve_master "$mode")"
+    if [[ "$effective_master" == local* ]]; then
+        echo "effective master ${effective_master}; worker checks not required"
+        return 0
+    fi
+    if ! command -v spark-submit >/dev/null 2>&1; then
+        echo "spark-submit not found"
+        return 1
+    fi
+    if ! _spark_cluster_running; then
+        echo "master process not running (${SPARK_MASTER_URL})"
+        return 1
+    fi
+    local proc_count alive_count
+    proc_count="$(_spark_worker_process_count)"
+    if [[ "$proc_count" == "0" ]]; then
+        echo "worker process not running"
+        return 1
+    fi
+    if ! alive_count="$(_spark_master_alive_worker_count 2>/dev/null)"; then
+        echo "cannot query master UI worker registrations ($(_spark_master_ui_json_url))"
+        return 1
+    fi
+    if (( alive_count < 1 )); then
+        echo "master reports zero alive workers"
+        return 1
+    fi
+    echo "alive workers=${alive_count}, worker processes=${proc_count}"
+    return 0
+}
+
+spark_workers_status_line() {
+    local summary
+    summary="$(_spark_workers_quick_summary)"
+    local rc=$?
+    if (( rc == 0 )); then
+        echo "functional (${summary})"
+    else
+        echo "dysfunctional (${summary})"
+    fi
+    return "$rc"
+}
+
+spark_workers_health() {
+    local do_probe=0
+    local with_packages=0
+    local summary_only=0
+    local probe_master=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --probe)
+                do_probe=1
+                shift
+                ;;
+            --with-packages)
+                with_packages=1
+                shift
+                ;;
+            --summary)
+                summary_only=1
+                shift
+                ;;
+            --master)
+                probe_master="$2"
+                shift 2
+                ;;
+            --help|-h)
+                echo "Usage: spark_workers_health [--summary] [--probe] [--with-packages] [--master <spark-master>]" >&2
+                return 0
+                ;;
+            *)
+                echo "Usage: spark_workers_health [--summary] [--probe] [--with-packages] [--master <spark-master>]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    if (( summary_only )); then
+        spark_workers_status_line
+        return $?
+    fi
+
+    local rc=0
+    local quick_summary
+    quick_summary="$(spark_workers_status_line)"
+    local quick_rc=$?
+    (( quick_rc != 0 )) && rc=1
+
+    echo "⚙️  Spark Worker Health"
+    echo "======================"
+    echo "Execution mode: $(_spark_normalize_mode)"
+    echo "Master URL: ${SPARK_MASTER_URL}"
+    echo "Master UI: $(_spark_master_ui_json_url)"
+    echo "Status: ${quick_summary}"
+
+    local proc_count ui_count
+    proc_count="$(_spark_worker_process_count)"
+    echo "Worker processes: ${proc_count}"
+    if ui_count="$(_spark_master_alive_worker_count 2>/dev/null)"; then
+        echo "Master alive workers: ${ui_count}"
+    else
+        echo "Master alive workers: unavailable"
+    fi
+
+    if (( do_probe )); then
+        if [[ -z "$probe_master" ]]; then
+            probe_master="$(_spark_resolve_master)"
+        fi
+        echo ""
+        echo "🚀 Worker job probe: ${probe_master}"
+        if [[ "$probe_master" == local* ]]; then
+            echo "ℹ️  Probe skipped for local master (${probe_master})"
+            return "$rc"
+        fi
+        if ! command -v spark-submit >/dev/null 2>&1; then
+            echo "❌ spark-submit not found"
+            return 1
+        fi
+        local probe_file dependencies probe_output
+        probe_file="$(mktemp /tmp/spark-worker-probe.XXXXXX.py)"
+        cat > "$probe_file" <<'PY'
+import os
+from pyspark.sql import SparkSession
+from py4j.java_gateway import java_import
+
+spark = SparkSession.builder.appName("spark-worker-probe").getOrCreate()
+sc = spark.sparkContext
+partitions = int(os.environ.get("SPARK_WORKER_PROBE_PARTITIONS", "8"))
+rdd = sc.parallelize(range(partitions * 1000), partitions)
+seen_partitions = rdd.mapPartitionsWithIndex(lambda idx, it: [idx]).collect()
+executor_count = sc._jsc.sc().getExecutorMemoryStatus().size()
+
+print("PROBE_PARTITIONS=" + str(len(seen_partitions)))
+print("EXECUTOR_COUNT=" + str(int(executor_count)))
+
+if os.environ.get("SPARK_WORKER_PROBE_WITH_PACKAGES", "0") == "1":
+    java_import(spark._jvm, "org.apache.sedona.sql.utils.SedonaSQLRegistrator")
+    _ = spark._jvm.org.apache.sedona.sql.utils.SedonaSQLRegistrator
+    print("SEDONA_CLASS=OK")
+    _ = spark._jvm.org.graphframes.GraphFrame
+    print("GRAPHFRAMES_CLASS=OK")
+
+print("WORKER_PROBE_RESULT=OK")
+spark.stop()
+PY
+        dependencies=""
+        if (( with_packages )); then
+            dependencies="$(get_spark_dependencies)"
+        fi
+        if probe_output="$(SPARK_WORKER_PROBE_WITH_PACKAGES="$with_packages" spark-submit --master "$probe_master" --conf "spark.log.level=$(_spark_normalize_log_level)" ${=dependencies} "$probe_file" 2>&1)"; then
+            local executor_count partition_count
+            executor_count="$(printf '%s\n' "$probe_output" | awk -F= '/^EXECUTOR_COUNT=/{print $2; exit}')"
+            partition_count="$(printf '%s\n' "$probe_output" | awk -F= '/^PROBE_PARTITIONS=/{print $2; exit}')"
+            [[ -z "$executor_count" ]] && executor_count="unknown"
+            [[ -z "$partition_count" ]] && partition_count="unknown"
+            echo "✅ Probe completed (executors=${executor_count}, partitions=${partition_count})"
+            if [[ "$probe_master" == spark://* && "$executor_count" != "unknown" ]] && (( executor_count < 2 )); then
+                echo "❌ Cluster probe did not report worker executors (executor_count=${executor_count})"
+                rc=1
+            fi
+            if (( with_packages )); then
+                if [[ "$probe_output" == *"SEDONA_CLASS=OK"* && "$probe_output" == *"GRAPHFRAMES_CLASS=OK"* ]]; then
+                    echo "✅ Sedona + GraphFrames classes are available in worker probe"
+                else
+                    echo "❌ Sedona and/or GraphFrames class check failed during worker probe"
+                    rc=1
+                fi
+            fi
+        else
+            echo "❌ Worker probe failed"
+            printf '%s\n' "$probe_output"
+            rc=1
+        fi
+        rm -f "$probe_file"
+    fi
+
+    return "$rc"
 }
 
 # Show Spark status
@@ -652,6 +938,7 @@ spark_status() {
     else
         echo "❌ Worker: Not running"
     fi
+    echo "Workers health: $(spark_workers_status_line)"
 }
 
 spark_health() {
@@ -676,6 +963,14 @@ spark_health() {
         echo "✅ Worker: running"
     else
         echo "⚠️  Worker: not running"
+        ok=1
+    fi
+    local workers_summary
+    workers_summary="$(spark_workers_status_line)"
+    if [[ "$workers_summary" == functional* ]]; then
+        echo "✅ Workers: ${workers_summary}"
+    else
+        echo "⚠️  Workers: ${workers_summary}"
         ok=1
     fi
     if [[ -n "${ZSH_TEST_MODE:-}" ]]; then
@@ -745,7 +1040,15 @@ get_spark_dependencies() {
     done
     
     # No local JARs - check if online for Maven
-    if is_online; then
+    local online=1
+    if typeset -f is_online >/dev/null 2>&1; then
+        is_online || online=0
+    elif command -v curl >/dev/null 2>&1; then
+        curl -fsS --max-time 2 https://repo1.maven.org/maven2/ >/dev/null 2>&1 || online=0
+    else
+        online=0
+    fi
+    if (( online )); then
         if [[ -n "$spark_jars_coords" && "$SPARK_JARS_AUTO_DOWNLOAD" == "1" && "$(command -v download_jars 2>/dev/null)" != "" ]]; then
             local download_dir="${jars_root}/spark"
             if [[ -n "$spark_version" ]]; then
@@ -813,16 +1116,18 @@ smart_spark_submit() {
         echo "🌐 Using cluster mode: $master"
         spark-submit \
             --master "$master" \
+            --conf "spark.log.level=$(_spark_normalize_log_level)" \
             --driver-memory "$SPARK_DRIVER_MEMORY" \
             --executor-memory "$SPARK_EXECUTOR_MEMORY" \
-            $dependencies \
+            ${=dependencies} \
             "$py_file"
     else
         echo "💻 Using local mode: $master"
         spark-submit \
             --master "$master" \
+            --conf "spark.log.level=$(_spark_normalize_log_level)" \
             --driver-memory "$SPARK_DRIVER_MEMORY" \
-            $dependencies \
+            ${=dependencies} \
             "$py_file"
     fi
 }
@@ -832,7 +1137,7 @@ pyspark_shell() {
     local dependencies=$(get_spark_dependencies)
     local master
     master="$(_spark_resolve_master)"
-    pyspark --master "$master" $dependencies
+    pyspark --master "$master" --conf "spark.log.level=$(_spark_normalize_log_level)" ${=dependencies}
 }
 
 # Spark history server
@@ -931,9 +1236,10 @@ spark_yarn_submit() {
     spark-submit \
         --master yarn \
         --deploy-mode "$deploy_mode" \
+        --conf "spark.log.level=$(_spark_normalize_log_level)" \
         --driver-memory "$SPARK_DRIVER_MEMORY" \
         --executor-memory "$SPARK_EXECUTOR_MEMORY" \
-        $dependencies \
+        ${=dependencies} \
         "$script_file"
 }
 
@@ -942,7 +1248,7 @@ spark_shell() {
     local dependencies=$(get_spark_dependencies)
     local master
     master="$(_spark_resolve_master)"
-    spark-shell --master "$master" $dependencies
+    spark-shell --master "$master" --conf "spark.log.level=$(_spark_normalize_log_level)" ${=dependencies}
 }
 
 # Restart Spark cluster

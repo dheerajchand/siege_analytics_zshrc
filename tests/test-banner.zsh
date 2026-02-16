@@ -19,6 +19,8 @@ EOF
     out="$(PATH="$bin:/usr/bin:/bin" ZSH_SECRETS_MODE=file ZSH_SECRETS_FILE="$tmp/secrets.env" ZSH_TEST_MODE=1 zsh -fc "source $ROOT_DIR/zshrc; zsh_status_banner")"
     assert_contains "$out" "🔐 Secrets:" "banner should show secrets status"
     assert_contains "$out" "Spark version:" "banner should show spark version"
+    assert_contains "$out" "Spark workers:" "banner should show spark worker status"
+    assert_contains "$out" "Auto-recovery:" "banner should show auto-recovery summary"
     rm -rf "$tmp"
 }
 

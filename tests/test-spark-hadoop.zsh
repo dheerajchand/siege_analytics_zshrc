@@ -185,6 +185,71 @@ EOF
     rm -rf "$tmp"
 }
 
+test_spark_workers_health_defined() {
+    source "$ROOT_DIR/modules/spark.zsh"
+    assert_true "typeset -f spark_workers_health >/dev/null 2>&1" "spark_workers_health should be defined"
+    assert_true "typeset -f spark_workers_status_line >/dev/null 2>&1" "spark_workers_status_line should be defined"
+}
+
+test_spark_workers_status_line_local_mode_is_functional() {
+    source "$ROOT_DIR/modules/spark.zsh"
+    SPARK_EXECUTION_MODE="local"
+    local out rc
+    out="$(spark_workers_status_line 2>&1)"
+    rc=$?
+    assert_equal "0" "$rc" "local mode worker summary should be functional"
+    assert_contains "$out" "functional" "local mode should report functional workers status"
+    assert_contains "$out" "worker checks not required" "local mode should explain why worker checks are skipped"
+}
+
+test_spark_workers_status_line_cluster_mode_reports_dysfunctional() {
+    source "$ROOT_DIR/modules/spark.zsh"
+    SPARK_EXECUTION_MODE="cluster"
+    _spark_cluster_running() { return 1; }
+    local out rc
+    out="$(spark_workers_status_line 2>&1)"
+    rc=$?
+    assert_not_equal "0" "$rc" "cluster mode summary should fail when master is down"
+    assert_contains "$out" "dysfunctional" "cluster mode should report dysfunctional state when master is down"
+}
+
+test_spark_log_level_defined_and_defaults_warn() {
+    source "$ROOT_DIR/modules/spark.zsh"
+    assert_true "typeset -f spark_log_level >/dev/null 2>&1" "spark_log_level should be defined"
+    local out
+    unset SPARK_LOG_LEVEL
+    out="$(spark_log_level)"
+    assert_equal "WARN" "$out" "spark_log_level should default to WARN"
+}
+
+test_spark_log_level_set_and_persist() {
+    source "$ROOT_DIR/modules/spark.zsh"
+    local tmp
+    tmp="$(mktemp -d)"
+    ZSH_CONFIG_DIR="$tmp"
+    export ZSH_CONFIG_DIR
+    cat > "$tmp/vars.env" <<'EOF'
+export SPARK_LOG_LEVEL="${SPARK_LOG_LEVEL:-WARN}"
+EOF
+    spark_log_level info --persist >/dev/null
+    assert_equal "INFO" "${SPARK_LOG_LEVEL}" "spark_log_level should normalize to uppercase"
+    local persisted
+    persisted="$(cat "$tmp/vars.env")"
+    assert_contains "$persisted" 'export SPARK_LOG_LEVEL="${SPARK_LOG_LEVEL:-INFO}"' "persist should update SPARK_LOG_LEVEL in vars.env"
+    rm -rf "$tmp"
+}
+
+test_spark_log_level_rejects_invalid() {
+    source "$ROOT_DIR/modules/spark.zsh"
+    local out rc
+    set +e
+    out="$(spark_log_level noisy 2>&1)"
+    rc=$?
+    set -e
+    assert_not_equal "0" "$rc" "spark_log_level should fail for invalid level"
+    assert_contains "$out" "Usage: spark_log_level" "invalid log level should show usage"
+}
+
 register_test "test_spark_home_sdkman_preferred" "test_spark_home_sdkman_preferred"
 register_test "test_spark_install_from_tar_usage" "test_spark_install_from_tar_usage"
 register_test "test_spark_install_from_tar_dry_run" "test_spark_install_from_tar_dry_run"
@@ -199,6 +264,12 @@ register_test "test_spark_mode_functions_defined" "test_spark_mode_functions_def
 register_test "test_spark_resolve_master_by_mode" "test_spark_resolve_master_by_mode"
 register_test "test_spark_mode_use_normalizes_invalid" "test_spark_mode_use_normalizes_invalid"
 register_test "test_spark_mode_use_persist_writes_vars_env" "test_spark_mode_use_persist_writes_vars_env"
+register_test "test_spark_workers_health_defined" "test_spark_workers_health_defined"
+register_test "test_spark_workers_status_line_local_mode_is_functional" "test_spark_workers_status_line_local_mode_is_functional"
+register_test "test_spark_workers_status_line_cluster_mode_reports_dysfunctional" "test_spark_workers_status_line_cluster_mode_reports_dysfunctional"
+register_test "test_spark_log_level_defined_and_defaults_warn" "test_spark_log_level_defined_and_defaults_warn"
+register_test "test_spark_log_level_set_and_persist" "test_spark_log_level_set_and_persist"
+register_test "test_spark_log_level_rejects_invalid" "test_spark_log_level_rejects_invalid"
 register_test "test_hadoop_home_sdkman_preferred" "test_hadoop_home_sdkman_preferred"
 register_test "test_start_hadoop_usage" "test_start_hadoop_usage"
 register_test "test_yarn_kill_all_apps_requires_force" "test_yarn_kill_all_apps_requires_force"
