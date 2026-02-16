@@ -550,7 +550,9 @@ load_module docker        # Reload Docker module
 # System status and control
 modules                   # Show all loaded modules
 help                     # Complete usage guide
-backup "commit message"   # Backup and sync changes
+backup "commit message"   # Commit + push current branch
+backup_merge_main         # Merge current branch to main and push
+pushmain "commit message" # backup + merge-to-main in one step
 ```
 
 ### **Startup Mode**
