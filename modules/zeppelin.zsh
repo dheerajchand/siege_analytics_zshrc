@@ -364,10 +364,16 @@ zeppelin_restart() {
 
 zeppelin_ui() {
     local port="${ZEPPELIN_PORT:-8081}"
+    local ui="${1:-${ZEPPELIN_UI_MODE:-classic}}"
+    local path=""
+    if [[ "$ui" == "classic" ]]; then
+        path="/classic/"
+    fi
+    local url="http://localhost:${port}${path}"
     if command -v open >/dev/null 2>&1; then
-        open "http://localhost:${port}"
+        open "$url"
     else
-        echo "http://localhost:${port}"
+        echo "$url"
     fi
 }
 
@@ -499,7 +505,7 @@ zeppelin_logs() {
 
 zeppelin_seed_smoke_notebook() {
     local script="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/scripts/zeppelin_seed_smoke_notebook.py"
-    local base_url="http://127.0.0.1:${ZEPPELIN_PORT:-8081}"
+    local base_url="http://localhost:${ZEPPELIN_PORT:-8081}"
     if [[ ! -f "$script" ]]; then
         echo "❌ Notebook seed script not found: $script"
         return 1
@@ -513,7 +519,11 @@ zeppelin_seed_smoke_notebook() {
     fi
     local mode
     mode="$(_zeppelin_spark_integration_mode)"
-    python3 "$script" --base-url "$base_url" --integration-mode "$mode" --run "$@"
+    local open_flag=()
+    if [[ -o interactive && "${ZSH_TEST_MODE:-0}" != "1" ]]; then
+        open_flag=(--open-ui)
+    fi
+    python3 "$script" --base-url "$base_url" --integration-mode "$mode" --ui "${ZEPPELIN_UI_MODE:-classic}" --run "${open_flag[@]}" "$@"
 }
 
 zeppelin_integration_status() {

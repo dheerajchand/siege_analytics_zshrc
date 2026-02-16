@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import webbrowser
 import sys
 import time
 import urllib.error
@@ -85,8 +86,90 @@ def paragraphs_for_mode(mode: str) -> list[dict[str, str]]:
 
 This stack is using Zeppelin `external` mode for Spark 4.1 stability.
 
-Notebook paragraphs below include Scala/Python Sedona + GraphFrames verification snippets.
+Notebook paragraphs below include Python environment, Hadoop/service diagnostics,
+and Scala/Python Sedona + GraphFrames verification snippets.
 Run them via `%sh` using Spark 4.1 outside Zeppelin's embedded Spark interpreter.
+""",
+            },
+            {
+                "title": "Python environment diagnostics",
+                "text": """%sh
+set -euo pipefail
+if command -v pyenv >/dev/null 2>&1; then
+  eval "$(pyenv init --path)" || true
+  eval "$(pyenv init -)" || true
+  if [ -n "${PYENV_DEFAULT_VENV:-}" ]; then
+    pyenv shell "${PYENV_DEFAULT_VENV}" || true
+  fi
+fi
+echo "PYTHON3_BIN=$(command -v python3)"
+python3 --version
+if command -v pyenv >/dev/null 2>&1; then
+  pyenv version
+fi
+python3 - <<'PY'
+import importlib
+mods=["pyspark","py4j"]
+missing=[]
+for m in mods:
+    try:
+        importlib.import_module(m)
+        print(f"{m}=OK")
+    except Exception:
+        missing.append(m)
+if missing:
+    print("PYTHON_IMPORTS_WARN_MISSING=" + ",".join(missing))
+else:
+    print("PYTHON_IMPORTS=OK")
+PY
+""",
+            },
+            {
+                "title": "Hadoop and data-service diagnostics",
+                "text": """%sh
+set -euo pipefail
+echo "HADOOP_HOME=${HADOOP_HOME:-unset}"
+echo "SPARK_HOME=${SPARK_HOME:-unset}"
+echo "JAVA_HOME=${JAVA_HOME:-unset}"
+if ! command -v hadoop >/dev/null 2>&1 && [ -x "$HOME/.sdkman/candidates/hadoop/current/bin/hadoop" ]; then
+  export PATH="$HOME/.sdkman/candidates/hadoop/current/bin:$PATH"
+fi
+
+if ! command -v hadoop >/dev/null 2>&1; then
+  echo "HADOOP_CMD=MISSING"
+  exit 1
+fi
+echo "HADOOP_CMD=OK"
+hadoop version | head -n 2
+
+if command -v jps >/dev/null 2>&1; then
+  echo "JPS_SERVICES:"
+  jps | egrep 'NameNode|DataNode|ResourceManager|NodeManager|Master|Worker|HistoryServer|LivyServer' || true
+fi
+
+if command -v hdfs >/dev/null 2>&1; then
+  if jps | grep -q NameNode 2>/dev/null; then
+    echo "HDFS_ROOT_LIST:"
+    hdfs dfs -ls / 2>/dev/null || true
+  else
+    echo "HDFS_STATUS=WARN_NAMENODE_NOT_RUNNING"
+  fi
+fi
+
+if command -v yarn >/dev/null 2>&1; then
+  if jps | grep -q ResourceManager 2>/dev/null; then
+    echo "YARN_NODE_LIST:"
+    yarn node -list 2>/dev/null || true
+  else
+    echo "YARN_STATUS=WARN_RESOURCEMANAGER_NOT_RUNNING"
+  fi
+fi
+
+if curl -fsS http://127.0.0.1:8080 >/dev/null 2>&1; then
+  echo "SPARK_MASTER_UI=UP"
+else
+  echo "SPARK_MASTER_UI=DOWN_OR_NOT_RUNNING"
+fi
 """,
             },
             {
@@ -270,6 +353,12 @@ def run_paragraph_and_wait(base_url: str, note_id: str, para_id: str, timeout_s:
         time.sleep(2)
     return "TIMEOUT"
 
+def notebook_url(base_url: str, note_id: str, ui: str) -> str:
+    b = base_url.rstrip("/")
+    if ui == "classic":
+        return f"{b}/classic/#/notebook/{note_id}"
+    return f"{b}/#/notebook/{note_id}"
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Seed Zeppelin Sedona/GraphFrames smoke notebook")
@@ -302,6 +391,17 @@ def main() -> int:
         default=120,
         help="Wait timeout for Zeppelin API readiness in seconds",
     )
+    parser.add_argument(
+        "--ui",
+        choices=["angular", "classic"],
+        default="classic",
+        help="Preferred Zeppelin UI route to print/open",
+    )
+    parser.add_argument(
+        "--open-ui",
+        action="store_true",
+        help="Open resulting notebook URL in browser",
+    )
     args = parser.parse_args()
 
     wait_for_zeppelin(args.base_url, args.api_timeout)
@@ -330,10 +430,18 @@ def main() -> int:
                 failed = True
         if failed:
             print("One or more paragraphs failed. Check Zeppelin paragraph output/logs.", file=sys.stderr)
-            print(f"Notebook URL: {args.base_url}/#/notebook/{note_id}")
+            url = notebook_url(args.base_url, note_id, args.ui)
+            print(f"Notebook URL ({args.ui}): {url}")
+            if args.ui != "classic":
+                print(f"Notebook URL (classic): {notebook_url(args.base_url, note_id, 'classic')}")
             return 1
 
-    print(f"Notebook URL: {args.base_url}/#/notebook/{note_id}")
+    url = notebook_url(args.base_url, note_id, args.ui)
+    print(f"Notebook URL ({args.ui}): {url}")
+    if args.ui != "classic":
+        print(f"Notebook URL (classic): {notebook_url(args.base_url, note_id, 'classic')}")
+    if args.open_ui:
+        webbrowser.open(url)
     return 0
 
 
