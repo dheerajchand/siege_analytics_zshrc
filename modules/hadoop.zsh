@@ -72,6 +72,30 @@ start_hadoop() {
     fi
     
     echo "🚀 Starting Hadoop services..."
+
+    # Detect fs.defaultFS RPC port and fail fast on bind conflicts.
+    local core_site="${HADOOP_CONF_DIR}/core-site.xml"
+    local nn_port=""
+    if [[ -f "$core_site" ]]; then
+        nn_port="$(awk '
+            /<name>fs.defaultFS<\/name>/ { in_prop=1; next }
+            in_prop && /<value>/ {
+                if (match($0, /hdfs:\/\/[^:]+:([0-9]+)/, m)) { print m[1]; exit }
+                in_prop=0
+            }
+            /<\/property>/ { in_prop=0 }
+        ' "$core_site" 2>/dev/null || true)"
+    fi
+    if [[ -n "$nn_port" ]] && command -v lsof >/dev/null 2>&1; then
+        local busy
+        busy="$(lsof -nP -iTCP:"$nn_port" -sTCP:LISTEN 2>/dev/null | tail -n +2 || true)"
+        if [[ -n "$busy" && "$busy" != *"NameNode"* ]]; then
+            echo "❌ NameNode RPC port ${nn_port} is already in use."
+            echo "$busy" | head -n 2
+            echo "💡 Update fs.defaultFS in $core_site or stop the conflicting service."
+            return 1
+        fi
+    fi
     
     # Check if HDFS needs formatting
     local namenode_dir="${HOME}/hadoop-data/namenode"

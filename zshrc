@@ -75,13 +75,38 @@ detect_ide() {
     [[ -n "$DATASPELL_HOSTED" ]] && return 0
     [[ -n "$INTELLIJ_ENVIRONMENT_READER" ]] && return 0
     [[ -n "$JETBRAINS_IDE" ]] && return 0
+    [[ -n "$VSCODE_INJECTION" ]] && return 0
+    [[ -n "$VSCODE_GIT_IPC_HANDLE" ]] && return 0
+    [[ -n "$CURSOR_TRACE_ID" ]] && return 0
     [[ "$TERM_PROGRAM" == "vscode" ]] && return 0
+    [[ "$TERM_PROGRAM" == "Cursor" ]] && return 0
     
     # Check process tree for IDE
     local parent_proc=$(ps -p $PPID -o comm= 2>/dev/null)
     [[ "$parent_proc" =~ (pycharm|idea|webstorm|goland|datagrip|dataspell|code) ]] && return 0
     
     return 1
+}
+
+_zsh_startup_use_staggered() {
+    local mode="${ZSH_STARTUP_MODE:-auto}"
+    mode="${mode:l}"
+    case "$mode" in
+        full|immediate|eager)
+            return 1
+            ;;
+        staggered|ide)
+            return 0
+            ;;
+        auto|"")
+            detect_ide
+            return $?
+            ;;
+        *)
+            detect_ide
+            return $?
+            ;;
+    esac
 }
 
 # Module loader
@@ -118,12 +143,15 @@ alias gl='git log --oneline'
 # =================================================================
 
 # Load modules based on environment
-if detect_ide; then
-    echo "🖥️  IDE detected - using staggered loading for faster startup"
+if _zsh_startup_use_staggered; then
+    export ZSH_IS_IDE_TERMINAL=1
+    mode_label="${ZSH_STARTUP_MODE:-auto}"
+    echo "🖥️  Staggered startup mode (${mode_label}) - integrated terminal optimization enabled"
     
     # Tier 1: Essential (load immediately - IDE needs Python right away)
     load_module utils       # Provides is_online, mkcd, extract, path_add
     load_module settings    # vars/aliases/paths
+    load_module compat      # Stack compatibility profiles + guards
     load_module secrets     # Local + 1Password env vars
     load_module python      # Python environment (geo31111 auto-activated)
     load_module system_diagnostics  # iCloud/Dropbox helpers
@@ -143,6 +171,8 @@ if detect_ide; then
         load_module docker       # Docker management
         load_module spark        # Spark cluster (uses is_online!)
         load_module hadoop       # Hadoop/YARN/HDFS
+        load_module livy         # Livy server (Zeppelin Spark 4.1 path)
+        load_module zeppelin     # Zeppelin notebooks
         echo "✅ All modules loaded" >&2
     }
     
@@ -157,11 +187,13 @@ if detect_ide; then
     echo "💡 Python ready now, Spark/Hadoop loading in background"
     
 else
+    export ZSH_IS_IDE_TERMINAL=0
     # Regular terminal - load everything immediately (fast enough)
     echo "🚀 Loading modules..."
     
     load_module utils
     load_module settings
+    load_module compat
     load_module secrets
     load_module python
     load_module system_diagnostics
@@ -174,6 +206,8 @@ else
     load_module docker
     load_module spark
     load_module hadoop
+    load_module livy
+    load_module zeppelin
 fi
 
 # =================================================================
@@ -213,6 +247,9 @@ help() {
     echo "  spark_start            - Start Spark cluster"
     echo "  spark_stop             - Stop cluster"
     echo "  spark_status           - Show status"
+    echo "  spark_mode_use <auto|local|cluster> [--persist] - Set Spark execution mode"
+    echo "  spark_mode_status      - Show effective Spark master resolution"
+    echo "  spark_log_level [level] [--persist] - Set Spark log level (default WARN)"
     echo "  spark_config_status    - Show configuration"
     echo "  spark_use_version <v>  - SDKMAN use Spark version"
     echo "  spark_default_version <v> - SDKMAN default Spark"
@@ -226,6 +263,30 @@ help() {
     echo "  pyspark_shell          - Interactive PySpark"
     echo "  jar_matrix_resolve     - Resolve Spark jar coordinates"
     echo "  jar_matrix_status      - Show Spark jar resolution status"
+    echo ""
+    echo "📝 Zeppelin:"
+    echo "  zeppelin_start         - Start Zeppelin (Spark + Sedona)"
+    echo "  zeppelin_stop          - Stop Zeppelin"
+    echo "  zeppelin_status        - Show status"
+    echo "  zeppelin_restart       - Restart Zeppelin"
+    echo "  zeppelin_diagnose      - Diagnose config + runtime"
+    echo "  zeppelin_ui [classic|angular] - Open web UI"
+    echo "  zeppelin_logs          - Tail latest logs"
+    echo "  zeppelin_seed_smoke_notebook - Create/run external diagnostics + Sedona/GraphFrames smoke notebook"
+    echo "  zeppelin_integration_use <embedded|livy|external> [--persist] - Set Zeppelin Spark integration mode"
+    echo "  zeppelin_integration_status - Show active integration mode"
+    echo ""
+    echo "🔌 Livy:"
+    echo "  livy_start             - Start Livy server"
+    echo "  livy_stop              - Stop Livy server"
+    echo "  livy_status            - Show Livy status and endpoint"
+    echo "  livy_logs              - Tail latest Livy logs"
+    echo ""
+    echo "🧩 Compatibility:"
+    echo "  compat_profiles        - List supported stack profiles"
+    echo "  stack_profile_use <profile> [--persist] - Activate a compatibility profile"
+    echo "  stack_profile_status   - Show active profile and version pins"
+    echo "  stack_validate_versions [--component zeppelin] - Validate runtime combo against matrix"
     echo ""
     echo "🐘 Hadoop:"
     echo "  start_hadoop [--format] - Start HDFS + YARN (format if needed)"
@@ -303,6 +364,7 @@ help() {
     echo "  linux_system_status     - Linux-only system overview"
     echo "  data_platform_health    - Spark/Hadoop/YARN health suite"
     echo "  data_platform_config_status - Spark/Hadoop/Python config"
+    echo "  spark41_route_health [--spark-smoke] - Spark 4.1 + Zeppelin route checks"
     echo "  data_platform_use_versions --spark v --hadoop v --scala v --java v --pyenv v"
     echo "  data_platform_default_versions --spark v --hadoop v --scala v --java v --pyenv v"
     echo "  spark_health            - Spark master/worker health"
@@ -343,6 +405,8 @@ help() {
     echo "  codex_session_update   - Update session"
     echo "  codex_session_remove   - Remove session"
     echo "  codex_session_edit     - Edit sessions file"
+    echo "  codex_start_net        - Start Codex with network enabled"
+    echo "  codex_start_danger     - Start Codex without sandbox"
     echo ""
     echo "📚 Full docs: $ZSH_CONFIG_DIR/README.md"
 }
@@ -355,12 +419,15 @@ modules() {
     echo "✅ python      - Python/pyenv management"
     echo "✅ spark       - Spark cluster operations"
     echo "✅ hadoop      - Hadoop/YARN management"
+    echo "✅ livy        - Livy server for Zeppelin Spark 4.1 integration"
+    echo "✅ zeppelin    - Zeppelin notebooks"
     echo "✅ docker      - Container management"
     echo "✅ database    - PostgreSQL connections"
     echo "✅ credentials - Secure credential storage"
     echo "✅ secrets     - Local + 1Password secrets"
     echo "✅ system_diagnostics - iCloud/Dropbox/Linux diagnostics"
     echo "✅ agents      - Codex session helpers"
+    echo "✅ compat      - Version compatibility matrix + profile guards"
     echo "✅ paths       - Custom path aliases"
     echo "✅ settings    - Vars/Aliases/Paths"
     echo "✅ backup      - Git self-backup system"
@@ -418,6 +485,91 @@ apply_profile_theme() {
         typeset -g POWERLEVEL9K_DIR_FOREGROUND="$accent"
         typeset -g POWERLEVEL9K_PROMPT_CHAR_OK_VIINS_FOREGROUND="$accent"
         p10k reload >/dev/null 2>&1 || true
+    fi
+}
+
+_zsh_stamp_mtime() {
+    local f="$1"
+    [[ -f "$f" ]] || { echo "0"; return 0; }
+    if stat -f %m "$f" >/dev/null 2>&1; then
+        stat -f %m "$f"
+        return 0
+    fi
+    stat -c %Y "$f" 2>/dev/null || echo "0"
+}
+
+_zsh_auto_recover_data_services() {
+    typeset -g ZSH_DATA_RECOVERY_SUMMARY=""
+    [[ -n "${ZSH_TEST_MODE:-}" ]] && return 0
+    [[ "${ZSH_AUTO_RECOVER_DATA_SERVICES:-1}" != "1" ]] && return 0
+    if [[ "${ZSH_IS_IDE_TERMINAL:-0}" == "1" && "${ZSH_AUTO_RECOVER_IN_IDE:-0}" != "1" ]]; then
+        ZSH_DATA_RECOVERY_SUMMARY="skipped in IDE terminal"
+        return 0
+    fi
+
+    local stamp="${ZSH_DATA_RECOVERY_STAMP:-/tmp/zsh-data-services-recovery-${USER}}"
+    local now last window
+    now="$(date +%s)"
+    last="$(_zsh_stamp_mtime "$stamp")"
+    window="${ZSH_DATA_RECOVERY_WINDOW_SEC:-180}"
+    if [[ "$last" =~ '^[0-9]+$' ]] && (( now - last < window )); then
+        ZSH_DATA_RECOVERY_SUMMARY="skipped (recent attempt ${now-last}s ago)"
+        return 0
+    fi
+    : > "$stamp" 2>/dev/null || true
+
+    local events=()
+    local out rc
+
+    if [[ "${ZSH_AUTO_RECOVER_SPARK:-1}" == "1" ]] && typeset -f spark_start >/dev/null 2>&1; then
+        if ! pgrep -f "spark.deploy.master.Master" >/dev/null 2>&1 || ! pgrep -f "spark.deploy.worker.Worker" >/dev/null 2>&1; then
+            out="$(spark_start 2>&1)"
+            rc=$?
+            if (( rc == 0 )); then
+                events+=("Spark restarted")
+            else
+                events+=("Spark restart failed")
+                [[ -n "$out" ]] && echo "$out" >&2
+            fi
+        fi
+    fi
+
+    if [[ "${ZSH_AUTO_RECOVER_HADOOP:-1}" == "1" ]] && typeset -f start_hadoop >/dev/null 2>&1 && command -v jps >/dev/null 2>&1; then
+        if ! jps | grep -q "NameNode" || ! jps | grep -q "DataNode" || ! jps | grep -q "ResourceManager" || ! jps | grep -q "NodeManager"; then
+            out="$(start_hadoop 2>&1)"
+            rc=$?
+            if (( rc == 0 )); then
+                events+=("Hadoop/YARN restarted")
+            else
+                events+=("Hadoop/YARN restart failed")
+                [[ -n "$out" ]] && echo "$out" >&2
+            fi
+        fi
+    fi
+
+    if [[ "${ZSH_AUTO_RECOVER_ZEPPELIN:-1}" == "1" ]] && typeset -f zeppelin_start >/dev/null 2>&1; then
+        local zep_running=1
+        if typeset -f _zeppelin_is_running >/dev/null 2>&1; then
+            _zeppelin_is_running || zep_running=0
+        else
+            zep_running=0
+        fi
+        if (( zep_running == 0 )); then
+            out="$(zeppelin_start 2>&1)"
+            rc=$?
+            if (( rc == 0 )); then
+                events+=("Zeppelin restarted")
+            else
+                events+=("Zeppelin restart failed")
+                [[ -n "$out" ]] && echo "$out" >&2
+            fi
+        fi
+    fi
+
+    if (( ${#events[@]} > 0 )); then
+        ZSH_DATA_RECOVERY_SUMMARY="${(j:, :)events}"
+    else
+        ZSH_DATA_RECOVERY_SUMMARY="all services already running"
     fi
 }
 
@@ -490,6 +642,12 @@ zsh_status_banner() {
         spark_ver="$(spark-submit --version 2>&1 | awk '/version/{print $NF; exit}')"
         [[ -n "$spark_ver" ]] && printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🔧 Spark version:" "$reset_color" "$spark_ver"
     fi
+    if typeset -f spark_workers_status_line >/dev/null 2>&1; then
+        local workers_line
+        workers_line="$(spark_workers_status_line 2>/dev/null || true)"
+        [[ -z "$workers_line" ]] && workers_line="unknown (worker diagnostic unavailable)"
+        printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "👷 Spark workers:" "$reset_color" "$workers_line"
+    fi
     if command -v java >/dev/null 2>&1; then
         local java_version
         java_version="$(java -version 2>&1 | head -n 1)"
@@ -533,6 +691,21 @@ zsh_status_banner() {
         printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🐳 Docker:" "$reset_color" "running"
     fi
 
+    # Zeppelin status (lightweight)
+    if typeset -f _zeppelin_detect_home >/dev/null 2>&1; then
+        local zeppelin_state="missing"
+        if _zeppelin_detect_home >/dev/null 2>&1; then
+            if typeset -f _zeppelin_is_running >/dev/null 2>&1 && _zeppelin_is_running; then
+                zeppelin_state="running"
+            else
+                zeppelin_state="stopped"
+            fi
+        fi
+        printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "📝 Zeppelin:" "$reset_color" "$zeppelin_state"
+    fi
+    local recovery_summary="${ZSH_DATA_RECOVERY_SUMMARY:-not attempted in this shell}"
+    printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🩺 Auto-recovery:" "$reset_color" "$recovery_summary"
+
     # Secrets status (lightweight)
     local secrets_status="unknown"
     if [[ "${ZSH_SECRETS_MODE:-}" == "off" ]]; then
@@ -566,6 +739,7 @@ zsh_status_banner() {
 
 if [[ -o interactive ]]; then
     apply_profile_theme
+    _zsh_auto_recover_data_services
     zsh_status_banner
 fi
 
@@ -576,7 +750,7 @@ fi
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 
 # API Tokens
-export CLICKUP_TOKEN=pk_95317754_IRS7XSP7Y7KQV4ZOSGGRMPY32ZMOMBFU
+# Keep tokens in secrets backends (secrets.env / 1Password map), not in git-tracked files.
 
 # pyenv (screen)
 if command -v pyenv >/dev/null 2>&1; then
