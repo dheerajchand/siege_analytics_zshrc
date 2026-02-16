@@ -18,8 +18,8 @@ curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics_zshrc/
 # Reload entire configuration
 source ~/.config/zsh/zshrc
 
-# Or reload specific module
-source ~/.config/zsh/utilities.zsh
+# Or reload a specific module (example)
+source ~/.config/zsh/modules/utils.zsh
 ```
 
 ### **2. Verify Setup**
@@ -29,7 +29,7 @@ defaults read com.apple.finder AppleShowAllFiles
 defaults read -g ApplePressAndHoldEnabled
 
 # Test core functions
-zsh_help
+help
 ```
 
 ### **Profiles & PT Host Mapping**
@@ -98,10 +98,12 @@ auto_setup_environment
 
 ### **Core Functions**
 ```bash
-zsh_help                    # Display comprehensive help
+help                       # Display comprehensive help
 zshconfig                   # Edit configuration directory
 zshreboot                   # Reload configuration
-backup_zsh_config          # Create configuration backup
+backup "message"           # Commit + push current branch
+backup_merge_main          # Merge current branch into main + push
+pushmain "message"         # backup + merge-to-main
 secrets_profiles           # List available profiles and colors
 ```
 
@@ -212,12 +214,12 @@ Your configuration is organized into logical modules:
 ├── zshrc                  # Main configuration orchestrator
 ├── core.zsh              # Core shell settings and aliases
 ├── environment.zsh        # Environment variables and paths
-├── utilities.zsh          # General utilities and macOS configs
+├── modules/utils.zsh      # General utilities and macOS configs
 ├── spark.zsh             # Spark-specific functions and shells
 ├── hadoop.zsh            # Hadoop configuration and utilities
 ├── docker.zsh            # Docker management and switching
 ├── notebooks.zsh         # Jupyter and notebook integration
-├── backup-system.zsh     # Configuration backup and rotation
+├── modules/backup.zsh     # Git backup and merge workflow
 └── auto-setup.zsh        # Automatic environment setup
 ```
 
@@ -238,26 +240,22 @@ defaults read -g ApplePressAndHoldEnabled
 
 ### **Backup Your Current Config**
 ```bash
-# Create initial backup
-backup_zsh_config "Initial setup backup"
+# Create initial branch backup
+backup "Initial setup backup"
 
-# List available backups
-list_zsh_backups
+# Merge branch work to main
+backup_merge_main
 ```
 
 ## 🧪 **Testing Your Setup**
 
 ### **Function Testing**
 ```bash
-# Test all functions
-test_system
+# Run all tests
+zsh run-tests.zsh
 
-# Test specific category
-test_backup
-test_python
-test_compatibility
-test_bash_install
-test_spark
+# Run a specific test
+zsh run-tests.zsh --test backup_pushes_current_branch
 test_jvm
 test_jupyter
 
@@ -301,8 +299,8 @@ defaults delete -g ApplePressAndHoldEnabled
 
 ## 💡 **Pro Tips**
 
-- **Always backup before major changes**: `backup_zsh_config "Description"`
-- **Use `zsh_help`** to discover new functions
+- **Always backup before major changes**: `backup "Description"`
+- **Use `help`** to discover functions
 - **Check `python_status`** when Python issues arise
 - **Test with `zsh_test_all`** after configuration changes
 
@@ -310,4 +308,4 @@ defaults delete -g ApplePressAndHoldEnabled
 
 **Ready to supercharge your development environment!** 🚀
 
-**Need help?** Check the other wiki sections or run `zsh_help` for comprehensive assistance.
+**Need help?** Check the other wiki sections or run `help` for comprehensive assistance.
