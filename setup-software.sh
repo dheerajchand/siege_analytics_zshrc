@@ -573,6 +573,12 @@ persist_vars_env_value() {
     [[ -z "$key" || -z "$value" ]] && return 1
     mkdir -p "$(dirname "$vars_file")"
     [[ -f "$vars_file" ]] || touch "$vars_file"
+    if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.config/zsh/modules/settings.zsh" ]]; then
+        if ZSH_SETTINGS_DIR="$HOME/.config/zsh" ZSH_VARS_FILE="$vars_file" \
+            zsh -lc "source \"$HOME/.config/zsh/modules/settings.zsh\" >/dev/null 2>&1; settings_persist_var \"$key\" \"$value\" \"$vars_file\"" >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
     python3 - "$vars_file" "$key" "$value" <<'PY'
 import sys
 path, key, value = sys.argv[1:4]

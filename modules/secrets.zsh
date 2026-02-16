@@ -271,7 +271,7 @@ _op_account_uuid_configured() {
     else
         return 1
     fi
-    printf '%s' "$json" | "$py_cmd" -c 'import json,sys; data=json.load(sys.stdin); u=sys.argv[1]; 
+    printf '%s' "$json" | "$py_cmd" -c 'import json,sys; data=json.load(sys.stdin); u=sys.argv[1];
 print("1" if any((a.get("account_uuid") or "")==u for a in data) else "0")' "$uuid" 2>/dev/null | grep -q '^1$'
 }
 
@@ -287,7 +287,7 @@ _op_account_shorthand_configured() {
     else
         return 1
     fi
-    printf '%s' "$json" | "$py_cmd" -c 'import json,sys; data=json.load(sys.stdin); s=sys.argv[1]; 
+    printf '%s' "$json" | "$py_cmd" -c 'import json,sys; data=json.load(sys.stdin); s=sys.argv[1];
 print("1" if any((a.get("shorthand") or "")==s for a in data) else "0")' "$shorthand" 2>/dev/null | grep -q '^1$'
 }
 
@@ -360,6 +360,22 @@ _op_source_vault() {
     echo "${ZSH_OP_SOURCE_VAULT:-}"
 }
 
+_secrets_accounts_equivalent() {
+    local left="${1:-}"
+    local right="${2:-}"
+    [[ -z "$left" || -z "$right" ]] && return 1
+    local left_uuid right_uuid
+    left_uuid="$(_op_resolve_account_uuid "$left")"
+    right_uuid="$(_op_resolve_account_uuid "$right")"
+    if [[ -n "$left_uuid" && -n "$right_uuid" && "$left_uuid" == "$right_uuid" ]]; then
+        return 0
+    fi
+    if [[ "$left" == "$right" ]]; then
+        return 0
+    fi
+    return 1
+}
+
 secrets_source_set() {
     local account="${1:-}"
     local vault="${2:-}"
@@ -400,7 +416,7 @@ _secrets_require_source() {
     if [[ -n "$account" ]]; then
         resolved_account="$(_op_resolve_account_uuid "$account")"
     fi
-    if [[ -n "$resolved_account" && "$resolved_account" != "$source_account" ]]; then
+    if [[ -n "$resolved_account" ]] && ! _secrets_accounts_equivalent "$resolved_account" "$source_account"; then
         _secrets_warn "Refusing to use non-source account: $resolved_account (source: $source_account)"
         return 1
     fi
@@ -1697,6 +1713,11 @@ secrets_pull_from_1p() {
     local -a item_ids
     item_ids=($(_op_group_item_ids_by_title "$title" "$resolved_account" "$vault_arg" 2>/dev/null))
     if [[ "${#item_ids[@]}" -eq 0 ]]; then
+        local source_candidate=""
+        source_candidate="$(secrets_find_account_for_item "$title" "$vault_arg" 2>/dev/null | head -n 1 || true)"
+        if [[ -n "$source_candidate" && -n "$resolved_account" && "$source_candidate" != "$resolved_account" ]]; then
+            _secrets_warn "Item '$title' exists in account $source_candidate, but current source/account is $resolved_account"
+        fi
         _secrets_warn "Item not found: $title"
         return 1
     fi
@@ -1751,12 +1772,16 @@ secrets_pull_codex_sessions_from_1p() {
 secrets_sync_all_to_1p() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
+    local source_account source_vault
+    source_account="$(_op_source_account)"
+    source_vault="$(_op_source_vault)"
     if [[ -z "$account_arg" ]]; then
-        account_arg="$(_op_source_account)"
+        account_arg="$source_account"
     fi
     if [[ -z "$vault_arg" ]]; then
-        vault_arg="$(_op_source_vault)"
+        vault_arg="$source_vault"
     fi
+    account_arg="$(_op_resolve_account_uuid "$account_arg")"
     if ! _secrets_require_source "$account_arg" "$vault_arg"; then
         _secrets_info "Run: secrets_source_set <account> <vault> to set source of truth"
         return 1
@@ -1783,12 +1808,16 @@ secrets_sync_all_to_1p() {
 secrets_pull_all_from_1p() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
+    local source_account source_vault
+    source_account="$(_op_source_account)"
+    source_vault="$(_op_source_vault)"
     if [[ -z "$account_arg" ]]; then
-        account_arg="$(_op_source_account)"
+        account_arg="$source_account"
     fi
     if [[ -z "$vault_arg" ]]; then
-        vault_arg="$(_op_source_vault)"
+        vault_arg="$source_vault"
     fi
+    account_arg="$(_op_resolve_account_uuid "$account_arg")"
     if ! _secrets_require_source "$account_arg" "$vault_arg"; then
         _secrets_info "Run: secrets_source_set <account> <vault> to set source of truth"
         return 1
@@ -1917,7 +1946,7 @@ op_find_item_across_accounts() {
             continue
         fi
         local matches
-        matches="$(printf '%s' "$items_json" | python -c 'import json,sys; data=json.load(sys.stdin); 
+        matches="$(printf '%s' "$items_json" | python -c 'import json,sys; data=json.load(sys.stdin);
 for i in data:
     if i.get(\"title\") == sys.argv[1]:
         vault=i.get(\"vault\",{}).get(\"name\",\"?\")

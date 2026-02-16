@@ -161,12 +161,21 @@ codex_session() {
         echo "$cmd"
     fi
     local reply="y"
+    local should_exec=0
     if [[ -o interactive ]]; then
         read -r "reply?Execute command? [Y/n]: "
         reply="${reply:-y}"
+        [[ "$reply" =~ ^[Yy]$ ]] && should_exec=1
+    else
+        # Non-interactive mode defaults to "show only" unless explicitly enabled.
+        [[ "${CODEX_SESSION_AUTO_EXEC_NONINTERACTIVE:-0}" == "1" ]] && should_exec=1
     fi
-    if [[ "$reply" =~ ^[Yy]$ ]]; then
-        eval "$cmd"
+    if (( should_exec )); then
+        if [[ ! "$id" =~ ^[A-Za-z0-9._:-]+$ ]]; then
+            echo "Unsafe session id; refusing execution: $id" >&2
+            return 1
+        fi
+        command codex resume "$id"
     fi
 }
 
@@ -345,12 +354,20 @@ claude_session() {
         echo "$cmd"
     fi
     local reply="y"
+    local should_exec=0
     if [[ -o interactive ]]; then
         read -r "reply?Execute command? [Y/n]: "
         reply="${reply:-y}"
+        [[ "$reply" =~ ^[Yy]$ ]] && should_exec=1
+    else
+        [[ "${CLAUDE_SESSION_AUTO_EXEC_NONINTERACTIVE:-0}" == "1" ]] && should_exec=1
     fi
-    if [[ "$reply" =~ ^[Yy]$ ]]; then
-        eval "$cmd"
+    if (( should_exec )); then
+        if [[ ! "$id" =~ ^[A-Za-z0-9._:-]+$ ]]; then
+            echo "Unsafe session id; refusing execution: $id" >&2
+            return 1
+        fi
+        command claude resume "$id"
     fi
 }
 

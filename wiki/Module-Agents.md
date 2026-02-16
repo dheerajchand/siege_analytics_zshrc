@@ -72,4 +72,5 @@ claude_init --help                    # Show help
 - Format: `name=id|description`
 - If `fzf` is installed, both `codex_session` and `claude_session` use it for selection.
 - In interactive shells, session commands prompt to execute the resume command (default **Y**).
-- In non‑interactive shells, they auto‑execute the resume command.
+- In non-interactive shells, they print the command only by default.
+- Set `CODEX_SESSION_AUTO_EXEC_NONINTERACTIVE=1` or `CLAUDE_SESSION_AUTO_EXEC_NONINTERACTIVE=1` to auto-execute in scripts.

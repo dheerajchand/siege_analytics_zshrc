@@ -13,6 +13,10 @@ _compat_persist_var() {
     local key="$1"
     local value="$2"
     local file="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/vars.env"
+    if typeset -f settings_persist_var >/dev/null 2>&1; then
+        settings_persist_var "$key" "$value" "$file"
+        return $?
+    fi
     [[ -z "$key" || -z "$file" ]] && return 1
     [[ -f "$file" ]] || touch "$file"
     python3 - "$file" "$key" "$value" <<'PY'

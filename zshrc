@@ -754,7 +754,7 @@ fi
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 
 # API Tokens
-export CLICKUP_TOKEN=pk_95317754_IRS7XSP7Y7KQV4ZOSGGRMPY32ZMOMBFU
+# Keep tokens in secrets backends (secrets.env / 1Password map), not in git-tracked files.
 
 # pyenv (screen)
 if command -v pyenv >/dev/null 2>&1; then
