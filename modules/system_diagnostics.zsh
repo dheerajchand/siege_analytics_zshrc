@@ -89,10 +89,142 @@ data_platform_config_status() {
         echo "⚠️  python_config_status not available (python module not loaded)"
         rc=1
     fi
+    if typeset -f stack_profile_status >/dev/null 2>&1; then
+        ran=1
+        echo ""
+        stack_profile_status || rc=1
+    fi
+    if typeset -f stack_validate_versions >/dev/null 2>&1; then
+        ran=1
+        stack_validate_versions || rc=1
+    fi
+    if typeset -f zeppelin_config_status >/dev/null 2>&1; then
+        ran=1
+        echo ""
+        zeppelin_config_status || rc=1
+    else
+        echo "⚠️  zeppelin_config_status not available (zeppelin module not loaded)"
+        rc=1
+    fi
+    if typeset -f livy_status >/dev/null 2>&1; then
+        ran=1
+        echo ""
+        livy_status || rc=1
+    fi
     if [[ "$ran" -eq 0 ]]; then
         echo "⚠️  No configuration checks available"
         return 1
     fi
+    return "$rc"
+}
+
+spark41_route_health() {
+    local run_spark_smoke=0
+    local spark_master_override=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --spark-smoke)
+                run_spark_smoke=1
+                shift
+                ;;
+            --master)
+                spark_master_override="$2"
+                shift 2
+                ;;
+            --help|-h)
+                echo "Usage: spark41_route_health [--spark-smoke] [--master <spark-master>]" >&2
+                return 0
+                ;;
+            *)
+                echo "Usage: spark41_route_health [--spark-smoke] [--master <spark-master>]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    local rc=0
+    echo "🧪 Spark 4.1 Route Health"
+    echo "========================="
+
+    if typeset -f stack_validate_versions >/dev/null 2>&1; then
+        stack_validate_versions --component zeppelin || rc=1
+    else
+        echo "⚠️  stack_validate_versions not available"
+        rc=1
+    fi
+    echo ""
+
+    if typeset -f spark_mode_status >/dev/null 2>&1; then
+        spark_mode_status || rc=1
+    else
+        echo "⚠️  spark_mode_status not available"
+        rc=1
+    fi
+    if typeset -f spark_workers_health >/dev/null 2>&1; then
+        echo ""
+        spark_workers_health || rc=1
+    else
+        echo "⚠️  spark_workers_health not available"
+        rc=1
+    fi
+    echo ""
+
+    if typeset -f zeppelin_integration_status >/dev/null 2>&1; then
+        zeppelin_integration_status || rc=1
+        if [[ "${ZEPPELIN_SPARK_INTEGRATION_MODE:-external}" != "external" ]]; then
+            echo "⚠️  For Spark 4.1, preferred Zeppelin mode is external."
+            rc=1
+        fi
+    else
+        echo "⚠️  zeppelin_integration_status not available"
+        rc=1
+    fi
+    echo ""
+
+    if typeset -f zeppelin_status >/dev/null 2>&1; then
+        zeppelin_status || rc=1
+    else
+        echo "⚠️  zeppelin_status not available"
+        rc=1
+    fi
+
+    if (( run_spark_smoke )); then
+        echo ""
+        echo "🚀 Running Spark local smoke test..."
+        if ! command -v spark-submit >/dev/null 2>&1; then
+            echo "❌ spark-submit not found"
+            rc=1
+        else
+            local smoke_file
+            smoke_file="$(mktemp /tmp/spark41-route-health.XXXXXX.py)"
+            cat > "$smoke_file" <<'PY'
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("spark41-route-health").getOrCreate()
+print("SPARK_VERSION=" + spark.version)
+print("ROW_COUNT=" + str(spark.range(1, 6).count()))
+spark.stop()
+PY
+            local smoke_master="${spark_master_override:-${SPARK_LOCAL_MASTER:-local[*]}}"
+            if spark-submit --master "$smoke_master" "$smoke_file"; then
+                echo "✅ Spark smoke test passed using master=$smoke_master"
+            else
+                echo "❌ Spark smoke test failed using master=$smoke_master"
+                rc=1
+            fi
+            rm -f "$smoke_file"
+        fi
+
+        if typeset -f spark_workers_health >/dev/null 2>&1; then
+            echo ""
+            echo "🚀 Running Spark worker probe with Sedona/GraphFrames checks..."
+            if [[ -n "$spark_master_override" ]]; then
+                spark_workers_health --probe --with-packages --master "$spark_master_override" || rc=1
+            else
+                spark_workers_health --probe --with-packages || rc=1
+            fi
+        fi
+    fi
+
     return "$rc"
 }
 

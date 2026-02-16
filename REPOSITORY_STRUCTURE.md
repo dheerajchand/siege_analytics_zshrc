@@ -1,6 +1,6 @@
 # Repository Structure
 
-Clean, organized structure after removing 18 duplicate/cruft files.
+Current structure for the active modular zsh system.
 
 ## Directory Layout
 
@@ -10,16 +10,24 @@ Clean, organized structure after removing 18 duplicate/cruft files.
 │   ├── zshrc                      # Main configuration (loads modules from modules/)
 │   └── zshrc.bloated             # Reference: original bloated config (kept for comparison)
 │
-├── 📁 modules/                      # Active Module Directory
-│   ├── backup.zsh                # Git self-backup system
-│   ├── credentials.zsh           # Secure credential management (1Password/Keychain)
-│   ├── database.zsh              # PostgreSQL connection management
-│   ├── docker.zsh                # Docker container management
-│   ├── hadoop.zsh                # Hadoop/YARN/HDFS operations
-│   ├── python.zsh                # Python/pyenv environment management
-│   ├── spark.zsh                 # Spark cluster management
-│   ├── system_diagnostics.zsh    # iCloud/Dropbox diagnostics + repair
-│   └── utils.zsh                 # Core utilities (zshconfig, zshreboot, etc.)
+├── 📁 modules/                   # Active module directory
+│   ├── agents.zsh               # Codex/Claude session helpers
+│   ├── backup.zsh               # Git self-backup system
+│   ├── compat.zsh               # Stack profiles + compatibility guards
+│   ├── credentials.zsh          # Secure credential management (1Password/Keychain)
+│   ├── database.zsh             # PostgreSQL connection management
+│   ├── docker.zsh               # Docker container management
+│   ├── hadoop.zsh               # Hadoop/YARN/HDFS operations
+│   ├── livy.zsh                 # Livy lifecycle/status/log helpers
+│   ├── paths.zsh                # Path shortcuts and navigation helpers
+│   ├── python.zsh               # Python/pyenv environment management
+│   ├── screen.zsh               # GNU screen helpers
+│   ├── secrets.zsh              # Secrets/1Password profiles + sync
+│   ├── settings.zsh             # Vars/env/bootstrap settings
+│   ├── spark.zsh                # Spark cluster + dependency matrix
+│   ├── system_diagnostics.zsh   # iCloud/Dropbox/Linux diagnostics
+│   ├── utils.zsh                # Core utilities (zshconfig, zshreboot, etc.)
+│   └── zeppelin.zsh             # Zeppelin notebooks and Spark integration
 │
 ├── 📜 Installation Scripts
 │   ├── install.sh                # ZSH configuration installer
@@ -44,7 +52,7 @@ Clean, organized structure after removing 18 duplicate/cruft files.
     └── Testing-Validation.md
 ```
 
-**Total: 29 files** (down from 47 before cleanup)
+**Total: actively maintained modular layout with 17 module files**
 
 ---
 
@@ -73,17 +81,15 @@ All active module files loaded by `zshrc`:
 
 | Module | Functions | Purpose |
 |--------|-----------|---------|
-| **utils.zsh** | 10 | Core utilities, zshconfig, zshreboot, path management |
-| **python.zsh** | 6 | pyenv integration, environment switching, project init |
-| **spark.zsh** | 9 | Spark cluster management, job submission |
-| **hadoop.zsh** | 11 | HDFS, YARN, cluster operations |
-| **credentials.zsh** | 6 | 1Password/Keychain integration |
-| **docker.zsh** | 4 | Container management |
-| **database.zsh** | 4 | PostgreSQL connection management |
-| **backup.zsh** | 4 | Git self-backup system |
-| **system_diagnostics.zsh** | 6 | iCloud/Dropbox diagnostics and repair |
+| **spark.zsh** | 9+ | Spark cluster, dependency matrix, Sedona/Kafka/GraphFrames resolution |
+| **zeppelin.zsh** | 10+ | Zeppelin lifecycle, integration modes, diagnostics, smoke notebook helper |
+| **livy.zsh** | 5+ | Livy lifecycle, status, logs |
+| **compat.zsh** | 6+ | Profile switching, version guards, compatibility matrix |
+| **system_diagnostics.zsh** | 6+ | Includes data-platform config checks with Zeppelin/Livy/profile status |
+| **secrets.zsh** | many | 1Password-backed secret/profile management |
+| **agents.zsh** | several | Agent session helpers and launchers |
 
-**Total: 60+ functions** across 9 modules
+**Total: 17 modules** (core + data platform + secrets + tooling)
 
 ---
 
@@ -98,8 +104,9 @@ All active module files loaded by `zshrc`:
 
 **`setup-software.sh`** - Software Stack Installer
 - SDKMAN (Java, Hadoop, Spark manager)
-- Java 11, Hadoop 3.3.6, Spark 3.5.0
+- Java 17, Hadoop 3.3.6, Spark 4.1.1, Zeppelin 0.12.0, Livy 0.8.0-incubating
 - pyenv, Python 3.11.11, virtual environment
+- Stack profiles (`stable`, `zeppelin_compatible`) and persisted defaults
 - Essential Python packages
 - Configures Hadoop XML files
 - Formats HDFS NameNode

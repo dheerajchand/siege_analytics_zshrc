@@ -25,16 +25,20 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 **What gets installed:**
 
 *Step 1 (ZSH Config):*
-- ✅ Modular zsh configuration (8 modules)
+- ✅ Modular zsh configuration (17 modules)
 - ✅ Oh-My-Zsh with Powerlevel10k theme
 - ✅ Symlinks and shell setup
 
 *Step 2 (Software Stack):*
 - ✅ **SDKMAN** - Java, Hadoop, Spark manager
 - ✅ **1Password CLI** - Secrets and credentials
-- ✅ **Java 11** (Temurin/Eclipse Adoptium)
+- ✅ **Java 17** (Temurin/Eclipse Adoptium)
 - ✅ **Hadoop 3.3.6** - Configured and ready
-- ✅ **Spark 3.5.0** - Configured and ready
+- ✅ **Spark 4.1.1** - Configured and ready
+- ✅ **Zeppelin 0.12.0** - Installed from Apache tarball
+- ✅ **Spark 4.1 Zeppelin route** - External integration mode (stable default)
+- ✅ **Livy 0.8.0-incubating** - Optional/experimental for Spark 4.1
+- ✅ **Stack compatibility profiles** - `stable` and `zeppelin_compatible`
 - ✅ **pyenv** - Python version manager
 - ✅ **Python 3.11.11** - With virtual environment `default_31111`
 - ✅ **Python packages** - pandas, numpy, jupyter, pyspark, etc.
@@ -277,7 +281,7 @@ If you encounter issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md):
 - 🎯 **11/11 hostile tests passing** - Zero critical vulnerabilities
 - ⚡ **<0.5s startup time** - Optimized performance
 - 🔒 **Enterprise security** - Multi-backend credential management
-- 📦 **12 modules auto-loaded** - Complete development environment
+- 📦 **17 modules available** - Complete development environment
 - 🧪 **Comprehensive verification** - Real terminal testing
 
 ## 🚀 Quick Start (After Installation)
@@ -549,12 +553,17 @@ help                     # Complete usage guide
 backup "commit message"   # Backup and sync changes
 ```
 
-### **Environment Switching**
+### **Startup Mode**
 ```bash
-# Switch between light and full modes
-ZSH_MODE=light exec zsh   # Minimal mode
-ZSH_MODE=staggered exec zsh # Full mode (default)
+# Startup behavior (auto | staggered | full)
+ZSH_STARTUP_MODE=auto exec zsh       # Default: detect IDE terminals automatically
+ZSH_STARTUP_MODE=staggered exec zsh  # Force staggered module loading
+ZSH_STARTUP_MODE=full exec zsh       # Force immediate full module loading
 ```
+
+Heavy startup hooks are configurable in `vars.env`:
+- `ZSH_AUTO_RECOVER_*` controls Spark/Hadoop/Zeppelin auto-restart
+- `ZSH_OP_AUTO_SIGNIN_*` controls 1Password multi-account auto-signin
 
 ## 🛠️ Development Workflows
 
@@ -600,8 +609,8 @@ docker_cleanup --aggressive
 
 ### **Container Integration**
 ```bash
-# Docker containers automatically use light mode
-# Full functionality available via: ZSH_MODE=staggered exec zsh
+# Full functionality with explicit startup mode:
+# ZSH_STARTUP_MODE=staggered exec zsh
 ```
 
 ## 🚨 Troubleshooting

@@ -8,6 +8,34 @@
 : "${ZSH_ALIASES_FILE:=$ZSH_SETTINGS_DIR/aliases.zsh}"
 : "${ZSH_PATHS_FILE:=$ZSH_SETTINGS_DIR/paths.env}"
 
+settings_persist_var() {
+    local key="$1"
+    local value="$2"
+    local file="${3:-$ZSH_VARS_FILE}"
+    [[ -z "$key" || -z "$file" ]] && return 1
+    [[ -f "$file" ]] || touch "$file"
+    python3 - "$file" "$key" "$value" <<'PY'
+import sys
+path, key, value = sys.argv[1:4]
+with open(path, "r", encoding="utf-8") as f:
+    lines = f.read().splitlines()
+needle = f'export {key}="'
+new_line = f'export {key}="${{{key}:-{value}}}"'
+updated = False
+out = []
+for line in lines:
+    if line.startswith(needle):
+        out.append(new_line)
+        updated = True
+    else:
+        out.append(line)
+if not updated:
+    out.append(new_line)
+with open(path, "w", encoding="utf-8") as f:
+    f.write("\n".join(out) + "\n")
+PY
+}
+
 settings_init() {
     local created=0
     umask 077

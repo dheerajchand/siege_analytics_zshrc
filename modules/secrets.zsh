@@ -384,6 +384,22 @@ _op_source_vault() {
     echo "${ZSH_OP_SOURCE_VAULT:-}"
 }
 
+_secrets_accounts_equivalent() {
+    local left="${1:-}"
+    local right="${2:-}"
+    [[ -z "$left" || -z "$right" ]] && return 1
+    local left_uuid right_uuid
+    left_uuid="$(_op_resolve_account_uuid "$left")"
+    right_uuid="$(_op_resolve_account_uuid "$right")"
+    if [[ -n "$left_uuid" && -n "$right_uuid" && "$left_uuid" == "$right_uuid" ]]; then
+        return 0
+    fi
+    if [[ "$left" == "$right" ]]; then
+        return 0
+    fi
+    return 1
+}
+
 secrets_source_set() {
     local account="${1:-}"
     local vault="${2:-}"
@@ -424,7 +440,7 @@ _secrets_require_source() {
     if [[ -n "$account" ]]; then
         resolved_account="$(_op_resolve_account_uuid "$account")"
     fi
-    if [[ -n "$resolved_account" && "$resolved_account" != "$source_account" ]]; then
+    if [[ -n "$resolved_account" ]] && ! _secrets_accounts_equivalent "$resolved_account" "$source_account"; then
         _secrets_warn "Refusing to use non-source account: $resolved_account (source: $source_account)"
         return 1
     fi
@@ -1722,6 +1738,11 @@ secrets_pull_from_1p() {
     local -a item_ids
     item_ids=($(_op_group_item_ids_by_title "$title" "$resolved_account" "$vault_arg" 2>/dev/null))
     if [[ "${#item_ids[@]}" -eq 0 ]]; then
+        local source_candidate=""
+        source_candidate="$(secrets_find_account_for_item "$title" "$vault_arg" 2>/dev/null | head -n 1 || true)"
+        if [[ -n "$source_candidate" && -n "$resolved_account" && "$source_candidate" != "$resolved_account" ]]; then
+            _secrets_warn "Item '$title' exists in account $source_candidate, but current source/account is $resolved_account"
+        fi
         _secrets_warn "Item not found: $title"
         return 1
     fi
@@ -1766,12 +1787,16 @@ secrets_pull_codex_sessions_from_1p() {
 secrets_sync_all_to_1p() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
+    local source_account source_vault
+    source_account="$(_op_source_account)"
+    source_vault="$(_op_source_vault)"
     if [[ -z "$account_arg" ]]; then
-        account_arg="$(_op_source_account)"
+        account_arg="$source_account"
     fi
     if [[ -z "$vault_arg" ]]; then
-        vault_arg="$(_op_source_vault)"
+        vault_arg="$source_vault"
     fi
+    account_arg="$(_op_resolve_account_uuid "$account_arg")"
     if ! _secrets_require_source "$account_arg" "$vault_arg"; then
         _secrets_info "Run: secrets_source_set <account> <vault> to set source of truth"
         return 1
@@ -1798,12 +1823,16 @@ secrets_sync_all_to_1p() {
 secrets_pull_all_from_1p() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
+    local source_account source_vault
+    source_account="$(_op_source_account)"
+    source_vault="$(_op_source_vault)"
     if [[ -z "$account_arg" ]]; then
-        account_arg="$(_op_source_account)"
+        account_arg="$source_account"
     fi
     if [[ -z "$vault_arg" ]]; then
-        vault_arg="$(_op_source_vault)"
+        vault_arg="$source_vault"
     fi
+    account_arg="$(_op_resolve_account_uuid "$account_arg")"
     if ! _secrets_require_source "$account_arg" "$vault_arg"; then
         _secrets_info "Run: secrets_source_set <account> <vault> to set source of truth"
         return 1
@@ -1949,6 +1978,9 @@ for i in data:
         print(f"{i.get('id','')}\t{i.get('title','')}\t{vault}")
 PY
 )"
+        else
+            _secrets_warn "No JSON tool (jq/python) available"
+            return 1
         fi
         if [[ -n "$matches" ]]; then
             printf "Account %s:\n" "$uuid"
@@ -2265,9 +2297,47 @@ secrets_sync_status() {
     echo ""
 }
 
+_secrets_auto_signin_all_on_load() {
+    [[ -n "${ZSH_TEST_MODE:-}" ]] && return 0
+    [[ "${ZSH_OP_AUTO_SIGNIN_ALL:-1}" == "1" ]] || return 0
+    [[ -o interactive ]] || return 0
+    if [[ "${ZSH_IS_IDE_TERMINAL:-0}" == "1" && "${ZSH_OP_AUTO_SIGNIN_IN_IDE:-0}" != "1" ]]; then
+        return 0
+    fi
+    [[ "$ZSH_SECRETS_MODE" == "op" || "$ZSH_SECRETS_MODE" == "both" ]] || return 0
+    command -v op >/dev/null 2>&1 || return 0
+    [[ -f "$OP_ACCOUNTS_FILE" ]] || return 0
+    typeset -f op_signin_all >/dev/null 2>&1 || return 0
+
+    local stamp_file="${ZSH_OP_AUTO_SIGNIN_STAMP:-$HOME/.config/zsh/.op_signin_all.stamp}"
+    local now last age max_age
+    now="$(date +%s)"
+    max_age="${ZSH_OP_AUTO_SIGNIN_MAX_AGE_SEC:-300}"
+    last="0"
+    if [[ -f "$stamp_file" ]]; then
+        last="$(stat -f %m "$stamp_file" 2>/dev/null || stat -c %Y "$stamp_file" 2>/dev/null || echo 0)"
+    fi
+    if [[ "$last" =~ '^[0-9]+$' ]]; then
+        age=$(( now - last ))
+        if (( age >= 0 && age < max_age )); then
+            return 0
+        fi
+    fi
+    umask 077
+    : > "$stamp_file" 2>/dev/null || true
+
+    if ! op_signin_all >/dev/null 2>&1; then
+        _secrets_warn "Auto 1Password sign-in for all accounts failed (run: op_signin_all)"
+        return 1
+    fi
+    [[ "${ZSH_SECRETS_VERBOSE:-}" == "1" ]] && _secrets_info "Auto-signed in all configured 1Password accounts"
+    return 0
+}
+
 # Auto-load secrets unless disabled or in test mode
 if [[ -z "${ZSH_TEST_MODE:-}" ]]; then
     load_secrets
+    _secrets_auto_signin_all_on_load || true
     _secrets_check_profile
     [[ "${ZSH_SECRETS_VERBOSE:-}" == "1" ]] && echo "✅ secrets loaded"
 fi
