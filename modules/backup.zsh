@@ -14,6 +14,7 @@ export ZSHRC_BACKUP_REPO="zshrc_backups"
 backup() {
     local message="${1:-Config update}"
     local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    local branch=""
     
     cd "$ZSHRC_CONFIG_DIR" || {
         echo "❌ Cannot cd to $ZSHRC_CONFIG_DIR"
@@ -36,13 +37,23 @@ backup() {
         echo "⚠️  No changes to commit"
         return 0
     }
+
+    branch="$(git branch --show-current 2>/dev/null || true)"
+    if [[ -z "$branch" ]]; then
+        echo "❌ Cannot determine current branch"
+        return 1
+    fi
     
-    # Push to main repo
-    git push origin main && echo "✅ Pushed to main repo"
+    # Push current branch to main repo
+    if git rev-parse --abbrev-ref --symbolic-full-name "@{u}" >/dev/null 2>&1; then
+        git push origin "$branch" && echo "✅ Pushed to main repo ($branch)"
+    else
+        git push --set-upstream origin "$branch" && echo "✅ Pushed to main repo ($branch)"
+    fi
     
     # Push to backup repo if configured
     if git remote | grep -q backup; then
-        git push backup main && echo "✅ Pushed to backup repo"
+        git push backup "$branch" && echo "✅ Pushed to backup repo ($branch)"
     fi
     
     echo "🎉 Backup complete"
@@ -88,5 +99,4 @@ alias zshsync='repo_sync'
 alias zshstatus='repo_status'
 
 echo "✅ backup loaded"
-
 
