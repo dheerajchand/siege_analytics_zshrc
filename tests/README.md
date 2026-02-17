@@ -19,6 +19,7 @@ Minimal zsh test framework and test suites for this repo.
 - `test-database.zsh`
 - `test-docker.zsh`
 - `test-screen.zsh`
+- `test-git-hosting.zsh`
 
 ## Run tests
 

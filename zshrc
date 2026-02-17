@@ -164,6 +164,8 @@ if _zsh_startup_use_staggered; then
         load_module credentials  # 1Password/Keychain
         load_module database     # PostgreSQL with credentials
         load_module backup       # Git self-backup
+        load_module github       # GitHub CLI workflows
+        load_module gitlab       # GitLab CLI workflows
     }
     
     # Tier 3: Heavy tools (defer in current shell)
@@ -203,6 +205,8 @@ else
     load_module credentials
     load_module database
     load_module backup
+    load_module github
+    load_module gitlab
     load_module docker
     load_module spark
     load_module hadoop
@@ -377,6 +381,31 @@ help() {
     echo "  pushmain ['message']   - Backup current branch, then merge to main"
     echo "  repo_sync              - Sync repository"
     echo ""
+    echo "🐙 GitHub:"
+    echo "  gh_auth_status         - Check GitHub CLI authentication"
+    echo "  gh_org_clone_all --org <org> [--dest <dir>] - Clone all repos from org"
+    echo "  gh_repo_clone_matrix --file <repos.txt> [--dest <dir>] - Clone listed repos"
+    echo "  gh_issue_ls_mine [--repo <owner/repo>] - List your assigned issues"
+    echo "  gh_issue_start <num> --repo <owner/repo> - Create branch from issue"
+    echo "  gh_issue_close_with_commit <num> --repo <owner/repo> --commit <sha> - Close issue"
+    echo "  gh_pr_create_from_branch [--repo <owner/repo>] [--base <branch>] - Open PR"
+    echo "  gh_pr_merge_safe <num> --repo <owner/repo> - Merge PR if safe"
+    echo "  gh_pr_rebase_safe <num> --repo <owner/repo> - Rebase PR branch if safe"
+    echo "  gh_release_cut --repo <owner/repo> --tag <tag> [--target <branch>] - Create release"
+    echo ""
+    echo "🦊 GitLab:"
+    echo "  gl_auth_status         - Check GitLab CLI authentication"
+    echo "  gl_group_clone_all --group <group> [--dest <dir>] - Clone all group repos"
+    echo "  gl_project_clone_matrix --file <repos.txt> [--dest <dir>] - Clone listed repos"
+    echo "  gl_issue_ls_mine [--project <group/project>] - List your assigned issues"
+    echo "  gl_issue_start <iid> --project <group/project> - Create branch from issue"
+    echo "  gl_issue_close_with_commit <iid> --project <group/project> --commit <sha> - Close issue"
+    echo "  gl_mr_create_from_branch --project <group/project> [--target <branch>] - Open MR"
+    echo "  gl_mr_merge_safe <iid> --project <group/project> - Merge MR if safe"
+    echo "  gl_mr_rebase_safe <iid> --project <group/project> - Rebase MR if safe"
+    echo "  gl_release_cut --project <group/project> --tag <tag> [--ref <branch>] - Create release"
+    echo "  git_hosting_status     - GitHub/GitLab auth + branch summary"
+    echo ""
     echo "🛠️  Utilities:"
     echo "  zshconfig              - Edit zsh configuration"
     echo "  zshreboot              - Start a fresh shell"
@@ -432,6 +461,8 @@ modules() {
     echo "✅ paths       - Custom path aliases"
     echo "✅ settings    - Vars/Aliases/Paths"
     echo "✅ backup      - Git self-backup system"
+    echo "✅ github      - GitHub CLI repo/issue/PR workflows"
+    echo "✅ gitlab      - GitLab CLI repo/issue/MR workflows"
 }
 
 # Powerlevel10k configuration
