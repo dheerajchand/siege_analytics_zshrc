@@ -865,8 +865,7 @@ secrets_load_op() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
     if [[ -n "$vault_arg" && -z "$account_arg" ]]; then
-        _secrets_warn "Vault specified without account; refusing to load"
-        return 1
+        _secrets_debug "No global account set; entries must specify @account"
     fi
     [[ -f "$ZSH_SECRETS_MAP" ]] || return 1
     _secrets_require_op "cannot load 1Password secrets" || return 1
@@ -996,8 +995,7 @@ secrets_missing_from_1p() {
     account_arg="${account_arg:-${OP_ACCOUNT-}}"
     vault_arg="${vault_arg:-${OP_VAULT-}}"
     if [[ -n "$vault_arg" && -z "$account_arg" ]]; then
-        _secrets_warn "Vault specified without account; refusing to check"
-        return 1
+        _secrets_debug "No global account set; entries must specify @account"
     fi
     [[ -f "$ZSH_SECRETS_MAP" ]] || return 1
     _secrets_require_op "cannot check 1Password" || return 1
