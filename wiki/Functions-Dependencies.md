@@ -19,6 +19,8 @@ Your zsh configuration system provides **78+ functions** across **8 functional c
 - [Module: Docker](Module-Docker)
 - [Module: System Diagnostics](Module-System-Diagnostics)
 - [Module: Backup](Module-Backup)
+- [Module: GitHub](Module-GitHub)
+- [Module: GitLab](Module-GitLab)
 - [Module: Screen](Module-Screen)
 - [Module: Agents](Module-Agents)
 - [Module: Paths](Module-Paths)
