@@ -881,8 +881,9 @@ secrets_load_op() {
         [[ -z "$line" ]] && continue
         [[ "$line" == \#* ]] && continue
         vault_override=""
+        local entry_account=""
 
-        # Support op:// mapping: KEY=op://vault/item/field
+        # Support op:// mapping: KEY=op://vault/item/field [@account]
         if [[ "$line" == *"="* ]]; then
             envvar="${line%%=*}"
             local rhs="${line#*=}"
@@ -891,12 +892,21 @@ secrets_load_op() {
             rhs="${rhs## }"
             rhs="${rhs%% }"
             if [[ -n "$envvar" && "$rhs" == op://* ]]; then
+                # Support per-entry account: op://vault/item/field @account
+                local op_uri="$rhs"
+                if [[ "$rhs" == *" @"* ]]; then
+                    entry_account="${rhs##* @}"
+                    op_uri="${rhs% @*}"
+                    entry_account="$(_op_resolve_account_arg "$entry_account")"
+                fi
+                local effective_account="${entry_account:-$account_arg}"
+
                 local value=""
-                value="$(_op_cmd read "$rhs" \
-                    ${account_arg:+--account="$account_arg"} \
+                value="$(_op_cmd read "$op_uri" \
+                    ${effective_account:+--account="$effective_account"} \
                     2>/dev/null || true)"
                 if [[ -z "$value" ]]; then
-                    value="$(_op_cmd read "$rhs" 2>/dev/null || true)"
+                    value="$(_op_cmd read "$op_uri" 2>/dev/null || true)"
                 fi
                 if [[ -n "$value" ]]; then
                     export "$envvar=$value"
@@ -906,7 +916,7 @@ secrets_load_op() {
 
                 # Fallback: parse op://vault/item/field and use item get.
                 local parts
-                parts="$(_secrets_extract_op_url_parts "$rhs")"
+                parts="$(_secrets_extract_op_url_parts "$op_uri")"
                 local fld_vault="${parts%%	*}"
                 local fld_rest="${parts#*	}"
                 local fld_item="${fld_rest%%	*}"
@@ -929,15 +939,16 @@ secrets_load_op() {
         [[ -z "$service" || -z "$field" ]] && continue
         local value=""
         local vault_to_use="${vault_override:-$vault_arg}"
+        local effective_account="${entry_account:-$account_arg}"
         if [[ "$user" == "-" || -z "$user" ]]; then
             value="$(_op_cmd item get "$service" \
-                ${account_arg:+--account="$account_arg"} \
-                ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} \
+                ${effective_account:+--account="$effective_account"} \
+                ${effective_account:+${vault_to_use:+--vault="$vault_to_use"}} \
                 --field="$field" --reveal 2>/dev/null || true)"
         else
             value="$(_op_cmd item get "$service-$user" \
-                ${account_arg:+--account="$account_arg"} \
-                ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} \
+                ${effective_account:+--account="$effective_account"} \
+                ${effective_account:+${vault_to_use:+--vault="$vault_to_use"}} \
                 --field="$field" --reveal 2>/dev/null || true)"
         fi
         if [[ -n "$value" ]]; then
