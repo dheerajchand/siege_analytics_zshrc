@@ -1013,6 +1013,7 @@ secrets_missing_from_1p() {
             continue
         fi
         vault_override=""
+        local entry_account=""
 
         if [[ "$line" == *"="* ]]; then
             envvar="${line%%=*}"
@@ -1020,13 +1021,22 @@ secrets_missing_from_1p() {
             envvar="${envvar## }"; envvar="${envvar%% }"
             rhs="${rhs## }"; rhs="${rhs%% }"
             if [[ -n "$envvar" && "$rhs" == op://* ]]; then
+                # Support per-entry account: op://vault/item/field @account
+                local op_uri="$rhs"
+                if [[ "$rhs" == *" @"* ]]; then
+                    entry_account="${rhs##* @}"
+                    op_uri="${rhs% @*}"
+                    entry_account="$(_op_resolve_account_arg "$entry_account")"
+                fi
+                local effective_account="${entry_account:-$account_arg}"
+
                 local vault item fld
                 local parts
-                parts="$(_secrets_extract_op_url_parts "$rhs")"
+                parts="$(_secrets_extract_op_url_parts "$op_uri")"
                 vault="${parts%%$'\t'*}"
                 item="${parts#*$'\t'}"; item="${item%%$'\t'*}"
                 fld="${parts##*$'\t'}"
-                if ! _op_cmd read "$rhs" ${account_arg:+--account="$account_arg"} >/dev/null 2>&1; then
+                if ! _op_cmd read "$op_uri" ${effective_account:+--account="$effective_account"} >/dev/null 2>&1; then
                     if [[ "$mode" == "json" ]]; then
                         missing_json+=("{\"line\":$line_num,\"env\":\"$envvar\",\"type\":\"op_url\",\"ref\":\"op://$vault/$item/$fld\"}")
                     else
@@ -1049,11 +1059,12 @@ secrets_missing_from_1p() {
         [[ -z "$envvar" ]] && continue
         [[ -z "$service" || -z "$field" ]] && continue
         local vault_to_use="${vault_override:-$vault_arg}"
+        local effective_account="${entry_account:-$account_arg}"
         local ok=""
         if [[ "$user" == "-" || -z "$user" ]]; then
-            ok="$(_op_cmd item get "$service" ${account_arg:+--account="$account_arg"} ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} --field="$field" --reveal 2>/dev/null || true)"
+            ok="$(_op_cmd item get "$service" ${effective_account:+--account="$effective_account"} ${effective_account:+${vault_to_use:+--vault="$vault_to_use"}} --field="$field" --reveal 2>/dev/null || true)"
         else
-            ok="$(_op_cmd item get "$service" ${account_arg:+--account="$account_arg"} ${account_arg:+${vault_to_use:+--vault="$vault_to_use"}} --fields label=="$field" --reveal 2>/dev/null || true)"
+            ok="$(_op_cmd item get "$service" ${effective_account:+--account="$effective_account"} ${effective_account:+${vault_to_use:+--vault="$vault_to_use"}} --fields label=="$field" --reveal 2>/dev/null || true)"
         fi
         if [[ -z "$ok" ]]; then
             if [[ "$mode" == "json" ]]; then
