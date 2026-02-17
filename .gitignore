@@ -3,3 +3,4 @@ secrets.env
 secrets.1p
 op-accounts.env
 message-db/
+node_modules/
