@@ -10,9 +10,8 @@
 : "${CRED_BACKENDS:=op keychain env}"
 # Backends to write into (space-separated). Defaults to safest set.
 : "${CRED_STORE_BACKENDS:=op keychain}"
-# OP_VAULT is defined by secrets module; default if missing.
-: "${OP_VAULT:=Private}"
-: "${OP_ACCOUNT:=}"
+# OP_VAULT is defined by secrets module; only default when account is set.
+[[ -n "${OP_ACCOUNT:-}" ]] && : "${OP_VAULT:=Private}"
 
 _cred_backends() {
     echo "${=CRED_BACKENDS}"
