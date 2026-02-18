@@ -20,6 +20,7 @@ Minimal zsh test framework and test suites for this repo.
 - `test-docker.zsh`
 - `test-screen.zsh`
 - `test-git-hosting.zsh`
+- `test-databricks.zsh`
 
 ## Run tests
 
