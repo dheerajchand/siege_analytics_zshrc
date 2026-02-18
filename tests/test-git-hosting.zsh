@@ -35,6 +35,14 @@ if [[ "$cmd1" == "repo" && "$cmd2" == "clone" ]]; then
     echo "ERROR: Repository not found." >&2
     exit 1
   fi
+  if [[ -n "${GH_LFS_FAIL_REPO:-}" && "$repo" == "$GH_LFS_FAIL_REPO" ]]; then
+    mkdir -p "$target/.git"
+    echo "git-lfs smudge 'path/file.bin': git-lfs: command not found" >&2
+    echo "error: external filter 'git-lfs smudge %f' failed 127" >&2
+    echo "error: external filter 'git-lfs smudge %f' failed" >&2
+    echo "fatal: path/file.bin: smudge filter lfs failed" >&2
+    exit 128
+  fi
   mkdir -p "$target/.git"
   exit 0
 fi
@@ -224,6 +232,31 @@ test_gh_org_clone_all_skips_permission_failures() {
     rm -rf "$tmp"
 }
 
+test_gh_org_clone_all_reports_lfs_missing() {
+    local old_path="$PATH"
+    local tmp bin dest out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    dest="$tmp/dest"
+    mkdir -p "$bin" "$dest"
+
+    _make_gh_stub "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+
+    export GH_REPO_LIST_JSON='[{"nameWithOwner":"acme/lfsrepo","isArchived":false}]'
+    export GH_LFS_FAIL_REPO="acme/lfsrepo"
+
+    out="$(gh_org_clone_all --org acme --dest "$dest" 2>&1 || true)"
+    assert_true "[[ -d '$dest/lfsrepo/.git' ]]" "gh_org_clone_all should keep repo when only checkout fails due to lfs"
+    assert_contains "$out" "lfs-missing: 1" "gh_org_clone_all should report lfs-missing count"
+    assert_contains "$out" "acme/lfsrepo" "gh_org_clone_all should list lfs-missing repo"
+    assert_not_contains "$out" "other-fail: 1" "gh_org_clone_all should not classify lfs failures as other failures"
+
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
 test_gh_pr_merge_safe_blocks_draft() {
     local old_path="$PATH"
     local tmp bin
@@ -330,6 +363,7 @@ test_git_hosting_status_reports_auth() {
 register_test "gh_org_clone_all_clones_non_archived" test_gh_org_clone_all_clones_non_archived
 register_test "gh_issue_start_creates_branch" test_gh_issue_start_creates_branch
 register_test "gh_org_clone_all_skips_permission_failures" test_gh_org_clone_all_skips_permission_failures
+register_test "gh_org_clone_all_reports_lfs_missing" test_gh_org_clone_all_reports_lfs_missing
 register_test "gh_pr_merge_safe_blocks_draft" test_gh_pr_merge_safe_blocks_draft
 register_test "gl_group_clone_all_clones_non_archived" test_gl_group_clone_all_clones_non_archived
 register_test "gl_issue_start_creates_branch" test_gl_issue_start_creates_branch
