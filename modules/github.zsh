@@ -88,6 +88,7 @@ for r in data:
 
     local name target clone_out
     local -a failed_permissions=()
+    local -a failed_lfs=()
     local -a failed_other=()
     local total=0
     local cloned=0
@@ -110,6 +111,9 @@ for r in data:
         if [[ "$clone_out" == *"Permission denied"* || "$clone_out" == *"Repository not found"* || "$clone_out" == *"Could not read from remote repository"* ]]; then
             failed_permissions+=("$name")
             echo "⚠️  no access: $name (skipping)"
+        elif [[ "$clone_out" == *"git-lfs: command not found"* || "$clone_out" == *"smudge filter lfs failed"* ]]; then
+            failed_lfs+=("$name")
+            echo "⚠️  git-lfs missing: $name (clone present, checkout incomplete)"
         else
             failed_other+=("$name")
             echo "⚠️  clone failed: $name (skipping)"
@@ -117,10 +121,15 @@ for r in data:
     done <<< "$repo_lines"
 
     echo "📊 gh_org_clone_all summary"
-    echo "   total: $total  cloned: $cloned  skipped-existing: $skipped  no-access: ${#failed_permissions[@]}  other-fail: ${#failed_other[@]}"
+    echo "   total: $total  cloned: $cloned  skipped-existing: $skipped  no-access: ${#failed_permissions[@]}  lfs-missing: ${#failed_lfs[@]}  other-fail: ${#failed_other[@]}"
     if [[ ${#failed_permissions[@]} -gt 0 ]]; then
         echo "   no-access repos:"
         printf "   - %s\n" "${failed_permissions[@]}"
+    fi
+    if [[ ${#failed_lfs[@]} -gt 0 ]]; then
+        echo "   lfs-missing repos:"
+        printf "   - %s\n" "${failed_lfs[@]}"
+        echo "   hint: install git-lfs (brew install git-lfs && git lfs install)"
     fi
     if [[ ${#failed_other[@]} -gt 0 ]]; then
         echo "   other failures:"
