@@ -166,6 +166,7 @@ if _zsh_startup_use_staggered; then
         load_module backup       # Git self-backup
         load_module github       # GitHub CLI workflows
         load_module gitlab       # GitLab CLI workflows
+        load_module databricks   # Databricks + Lakebase workflows
     }
     
     # Tier 3: Heavy tools (defer in current shell)
@@ -207,6 +208,7 @@ else
     load_module backup
     load_module github
     load_module gitlab
+    load_module databricks
     load_module docker
     load_module spark
     load_module hadoop
@@ -406,6 +408,25 @@ help() {
     echo "  gl_release_cut --project <group/project> --tag <tag> [--ref <branch>] - Create release"
     echo "  git_hosting_status     - GitHub/GitLab auth + branch summary"
     echo ""
+    echo "🧱 Databricks:"
+    echo "  dbx_auth_status        - Check Databricks CLI authentication/profiles"
+    echo "  dbx_profiles_list      - List Databricks auth profiles"
+    echo "  dbx_profile_use <profile> [--persist] - Set active Databricks profile"
+    echo "  dbx_clusters_list      - List Databricks clusters"
+    echo "  dbx_cluster_start <id> - Start Databricks cluster"
+    echo "  dbx_cluster_stop <id>  - Stop Databricks cluster"
+    echo "  dbx_jobs_list          - List Databricks jobs"
+    echo "  dbx_job_run_now <id>   - Trigger Databricks job run"
+    echo "  dbx_workspace_ls [path] - List Databricks workspace path"
+    echo "  dbx_repos_sync [repo_path] - Sync Databricks repo to current branch"
+    echo "  dbx_sql_warehouses_list - List SQL warehouses"
+    echo "  dbx_lakebase_instances_list - List Lakebase instances"
+    echo "  dbx_lakebase_dbs_list --instance <id_or_name> - List Lakebase databases"
+    echo "  dbx_lakebase_db_create --instance <id_or_name> --db <name> - Create Lakebase DB"
+    echo "  dbx_lakebase_db_drop --instance <id_or_name> --db <name> --force - Drop Lakebase DB"
+    echo "  dbx_lakebase_psql --instance <id_or_name> --db <name> [--user <u>] - Connect via psql"
+    echo "  dbx_lakebase_health --instance <id_or_name> - Lakebase instance health snapshot"
+    echo ""
     echo "🛠️  Utilities:"
     echo "  zshconfig              - Edit zsh configuration"
     echo "  zshreboot              - Start a fresh shell"
@@ -463,6 +484,7 @@ modules() {
     echo "✅ backup      - Git self-backup system"
     echo "✅ github      - GitHub CLI repo/issue/PR workflows"
     echo "✅ gitlab      - GitLab CLI repo/issue/MR workflows"
+    echo "✅ databricks  - Databricks + Lakebase workflows"
 }
 
 # Powerlevel10k configuration
