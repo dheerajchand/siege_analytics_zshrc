@@ -29,7 +29,12 @@ if [[ "$cmd1" == "repo" && "$cmd2" == "list" ]]; then
   exit 0
 fi
 if [[ "$cmd1" == "repo" && "$cmd2" == "clone" ]]; then
+  repo="${3:-}"
   target="${4:-}"
+  if [[ -n "${GH_FAIL_REPO:-}" && "$repo" == "$GH_FAIL_REPO" ]]; then
+    echo "ERROR: Repository not found." >&2
+    exit 1
+  fi
   mkdir -p "$target/.git"
   exit 0
 fi
@@ -194,6 +199,31 @@ test_gh_issue_start_creates_branch() {
     rm -rf "$tmp"
 }
 
+test_gh_org_clone_all_skips_permission_failures() {
+    local old_path="$PATH"
+    local tmp bin dest out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    dest="$tmp/dest"
+    mkdir -p "$bin" "$dest"
+
+    _make_gh_stub "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+
+    export GH_REPO_LIST_JSON='[{"nameWithOwner":"acme/ok","isArchived":false},{"nameWithOwner":"acme/nope","isArchived":false}]'
+    export GH_FAIL_REPO="acme/nope"
+
+    out="$(gh_org_clone_all --org acme --dest "$dest" 2>&1 || true)"
+    assert_true "[[ -d '$dest/ok/.git' ]]" "gh_org_clone_all should clone accessible repo"
+    assert_false "[[ -d '$dest/nope/.git' ]]" "gh_org_clone_all should skip inaccessible repo"
+    assert_contains "$out" "no-access: 1" "gh_org_clone_all should report no-access count"
+    assert_contains "$out" "acme/nope" "gh_org_clone_all should list denied repos"
+
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
 test_gh_pr_merge_safe_blocks_draft() {
     local old_path="$PATH"
     local tmp bin
@@ -299,6 +329,7 @@ test_git_hosting_status_reports_auth() {
 
 register_test "gh_org_clone_all_clones_non_archived" test_gh_org_clone_all_clones_non_archived
 register_test "gh_issue_start_creates_branch" test_gh_issue_start_creates_branch
+register_test "gh_org_clone_all_skips_permission_failures" test_gh_org_clone_all_skips_permission_failures
 register_test "gh_pr_merge_safe_blocks_draft" test_gh_pr_merge_safe_blocks_draft
 register_test "gl_group_clone_all_clones_non_archived" test_gl_group_clone_all_clones_non_archived
 register_test "gl_issue_start_creates_branch" test_gl_issue_start_creates_branch

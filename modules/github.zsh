@@ -86,17 +86,47 @@ for r in data:
     print(r.get("nameWithOwner") or "")
 ' "$include_archived")"
 
-    local name target
+    local name target clone_out
+    local -a failed_permissions=()
+    local -a failed_other=()
+    local total=0
+    local cloned=0
+    local skipped=0
     while IFS= read -r name || [[ -n "$name" ]]; do
         [[ -z "$name" ]] && continue
+        (( total++ ))
         target="$dest/${name#*/}"
         if [[ -d "$target/.git" ]]; then
             echo "⏭️  skip $name (already cloned)"
+            (( skipped++ ))
             continue
         fi
         echo "📥 clone $name"
-        gh repo clone "$name" "$target" || return 1
+        clone_out="$(gh repo clone "$name" "$target" 2>&1)"
+        if [[ $? -eq 0 ]]; then
+            (( cloned++ ))
+            continue
+        fi
+        if [[ "$clone_out" == *"Permission denied"* || "$clone_out" == *"Repository not found"* || "$clone_out" == *"Could not read from remote repository"* ]]; then
+            failed_permissions+=("$name")
+            echo "⚠️  no access: $name (skipping)"
+        else
+            failed_other+=("$name")
+            echo "⚠️  clone failed: $name (skipping)"
+        fi
     done <<< "$repo_lines"
+
+    echo "📊 gh_org_clone_all summary"
+    echo "   total: $total  cloned: $cloned  skipped-existing: $skipped  no-access: ${#failed_permissions[@]}  other-fail: ${#failed_other[@]}"
+    if [[ ${#failed_permissions[@]} -gt 0 ]]; then
+        echo "   no-access repos:"
+        printf "   - %s\n" "${failed_permissions[@]}"
+    fi
+    if [[ ${#failed_other[@]} -gt 0 ]]; then
+        echo "   other failures:"
+        printf "   - %s\n" "${failed_other[@]}"
+        return 1
+    fi
 }
 
 gh_project_clone_all() {
