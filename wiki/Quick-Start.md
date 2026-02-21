@@ -138,6 +138,9 @@ claude_init --yes
 # Codex-only initialization
 codex_init --yes
 
+# Update existing Codex files with required policy rules (non-destructive)
+codex_init --update
+
 # Both Claude + Codex initialization
 ai_init --yes
 ```

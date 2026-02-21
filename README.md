@@ -393,6 +393,9 @@ claude_init --yes
 # Initialize Codex config in current project
 codex_init --yes
 
+# Update existing Codex config with required policy rules (without overwrite)
+codex_init --update
+
 # Initialize both at once
 ai_init --yes
 
