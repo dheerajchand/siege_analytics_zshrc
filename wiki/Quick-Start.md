@@ -127,6 +127,35 @@ cursor --add /path/to/folder  # Add folder to workspace
 c                           # Quick cursor command
 ```
 
+## 🤖 AI Config Initialization
+
+Use these from any project root:
+Template source repository: `https://github.com/siege-analytics/claude-configs`
+
+```bash
+# Claude-only initialization
+claude_init --yes
+
+# Codex-only initialization
+codex_init --yes
+
+# Update existing Codex files with required policy rules (non-destructive)
+codex_init --update
+
+# Both Claude + Codex initialization
+ai_init --yes
+
+# Update existing Codex config in-place (no overwrite)
+ai_init --codex-only --update
+```
+
+Session helpers:
+```bash
+codex_init --yes --add-session --session-name myproj_dev --session-desc "Project dev session"
+codex_session myproj_dev
+claude_session myproj_dev
+```
+
 ## 🐍 **Python Environment Setup**
 
 ### **Initialize Python Managers**
