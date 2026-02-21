@@ -134,6 +134,22 @@ test_ai_init_codex_only() {
     rm -rf "$tmp"
 }
 
+test_codex_init_add_session() {
+    local tmp
+    tmp="$(mktemp -d)"
+    (
+        cd "$tmp" || exit 1
+        export CODEX_SESSIONS_FILE="$tmp/codex-sessions.env"
+        ZSH_TEST_MODE=1 source "$ROOT_DIR/modules/agents.zsh"
+        codex_init --project demo --org siege --git-root "$tmp" --yes \
+          --add-session --session-name demo_dev --session-desc "Demo workspace" >/dev/null
+    )
+    assert_true "[[ -f \"$tmp/codex-sessions.env\" ]]" "codex_init --add-session should create sessions file"
+    assert_contains "$(cat "$tmp/codex-sessions.env")" "demo_dev=" "codex_init should add requested session key"
+    assert_contains "$(cat "$tmp/codex-sessions.env")" "Demo workspace" "codex_init should include session description"
+    rm -rf "$tmp"
+}
+
 register_test "test_codex_session_crud" "test_codex_session_crud"
 register_test "test_codex_session_auto_exec_non_interactive" "test_codex_session_auto_exec_non_interactive"
 register_test "test_codex_session_non_interactive_show_only_by_default" "test_codex_session_non_interactive_show_only_by_default"
@@ -141,3 +157,4 @@ register_test "test_claude_session_crud" "test_claude_session_crud"
 register_test "test_claude_session_auto_exec_non_interactive" "test_claude_session_auto_exec_non_interactive"
 register_test "test_codex_init_creates_config_files" "test_codex_init_creates_config_files"
 register_test "test_ai_init_codex_only" "test_ai_init_codex_only"
+register_test "test_codex_init_add_session" "test_codex_init_add_session"
