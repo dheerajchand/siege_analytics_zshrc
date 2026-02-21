@@ -385,6 +385,21 @@ op_list_items           # List items in account/vault
 secrets_profile_switch  # Set profile (persists to secrets.env) and reload secrets
 ```
 
+**🤖 AI Workspace Init (Claude + Codex):**
+```bash
+# Initialize Claude config in current project
+claude_init --yes
+
+# Initialize Codex config in current project
+codex_init --yes
+
+# Initialize both at once
+ai_init --yes
+
+# Add Codex session alias during init
+codex_init --yes --add-session --session-name zsh_work --session-desc "ZSH automation work"
+```
+
 **🩺 Diagnostics:**
 ```bash
 icloud_status           # macOS-only iCloud status
