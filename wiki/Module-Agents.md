@@ -3,7 +3,7 @@
 Back: [Functions & Dependencies](Functions-Dependencies)
 
 ## Overview
-Codex and Claude session management, plus Claude project initialization with configuration templates.
+Codex and Claude session management, plus Claude/Codex project initialization with configuration templates.
 
 ## Environment
 - `CODEX_SESSIONS_FILE` (default `~/.config/zsh/codex-sessions.env`)
@@ -38,6 +38,8 @@ Codex and Claude session management, plus Claude project initialization with con
 | Function | Purpose | Dependencies | Assumptions |
 |---|---|---|---|
 | `claude_init` | Initialize Claude Code config in current directory | `git`, `curl` | None |
+| `codex_init` | Initialize Codex config in current directory | None | None |
+| `ai_init` | Initialize Claude and Codex config together | `claude_init`, `codex_init` | None |
 
 **Usage:**
 ```bash
@@ -45,6 +47,8 @@ claude_init                           # Auto-detect project settings
 claude_init --project myapp --org myorg
 claude_init --add-session             # Also add to session list
 claude_init --help                    # Show help
+codex_init --project myapp --org myorg --yes
+ai_init --yes
 ```
 
 **What it does:**
@@ -54,6 +58,13 @@ claude_init --help                    # Show help
 4. Generates `CLAUDE.md` from template with variable substitution
 5. Copies baseline `settings.local.json` with safe permissions
 6. Optionally adds project to Claude session list
+
+`codex_init` creates:
+1. `AGENTS.md` with role, escalation, and execution defaults
+2. `.codex/settings.local.json` with approval/sandbox defaults
+3. `.codex/init.env` with detected project metadata
+
+`ai_init` runs both initializers (or one via `--claude-only` / `--codex-only`).
 
 **Template Variables:**
 - `{{PROJECT_NAME}}` - Auto-detected from git remote or directory name

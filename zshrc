@@ -458,6 +458,10 @@ help() {
     echo "  codex_session_edit     - Edit sessions file"
     echo "  codex_start_net        - Start Codex with network enabled"
     echo "  codex_start_danger     - Start Codex without sandbox"
+    echo "  codex_init [opts]      - Initialize AGENTS.md + .codex defaults"
+    echo "  ai_init [opts]         - Initialize Claude and Codex configs together"
+    echo "  claude_init [opts]     - Initialize Claude config templates"
+    echo "  claude_session [name]  - Print Claude resume command"
     echo ""
     echo "📚 Full docs: $ZSH_CONFIG_DIR/README.md"
 }

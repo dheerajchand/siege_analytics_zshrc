@@ -105,8 +105,39 @@ CLAUDE
     rm -rf "$tmp"
 }
 
+test_codex_init_creates_config_files() {
+    local tmp
+    tmp="$(mktemp -d)"
+    (
+        cd "$tmp" || exit 1
+        ZSH_TEST_MODE=1 source "$ROOT_DIR/modules/agents.zsh"
+        codex_init --project demo --org siege --git-root "$tmp" --role "Senior DE" --approval on-request --sandbox workspace-write --yes >/dev/null
+    )
+    assert_true "[[ -f \"$tmp/AGENTS.md\" ]]" "codex_init should create AGENTS.md"
+    assert_true "[[ -f \"$tmp/.codex/settings.local.json\" ]]" "codex_init should create settings file"
+    assert_true "[[ -f \"$tmp/.codex/init.env\" ]]" "codex_init should create init state file"
+    assert_contains "$(cat "$tmp/AGENTS.md")" "Senior DE" "AGENTS.md should include configured role"
+    assert_contains "$(cat "$tmp/.codex/settings.local.json")" "\"approval_mode\": \"on-request\"" "settings should include approval mode"
+    rm -rf "$tmp"
+}
+
+test_ai_init_codex_only() {
+    local tmp
+    tmp="$(mktemp -d)"
+    (
+        cd "$tmp" || exit 1
+        ZSH_TEST_MODE=1 source "$ROOT_DIR/modules/agents.zsh"
+        ai_init --codex-only --project demo --org siege --git-root "$tmp" --yes >/dev/null
+    )
+    assert_true "[[ -f \"$tmp/AGENTS.md\" ]]" "ai_init --codex-only should create Codex config"
+    assert_false "[[ -d \"$tmp/.claude\" ]]" "ai_init --codex-only should not run Claude init"
+    rm -rf "$tmp"
+}
+
 register_test "test_codex_session_crud" "test_codex_session_crud"
 register_test "test_codex_session_auto_exec_non_interactive" "test_codex_session_auto_exec_non_interactive"
 register_test "test_codex_session_non_interactive_show_only_by_default" "test_codex_session_non_interactive_show_only_by_default"
 register_test "test_claude_session_crud" "test_claude_session_crud"
 register_test "test_claude_session_auto_exec_non_interactive" "test_claude_session_auto_exec_non_interactive"
+register_test "test_codex_init_creates_config_files" "test_codex_init_creates_config_files"
+register_test "test_ai_init_codex_only" "test_ai_init_codex_only"
