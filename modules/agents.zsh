@@ -713,6 +713,9 @@ codex_init() {
     local role="${CODEX_DEFAULT_ROLE:-Senior pragmatic software engineer}"
     local approval="${CODEX_DEFAULT_APPROVAL:-on-request}"
     local sandbox="${CODEX_DEFAULT_SANDBOX:-workspace-write}"
+    local add_to_sessions=false
+    local session_name=""
+    local session_desc=""
     local yes=0
 
     while [[ $# -gt 0 ]]; do
@@ -723,6 +726,9 @@ codex_init() {
             --role) role="${2:-}"; shift 2 ;;
             --approval) approval="${2:-}"; shift 2 ;;
             --sandbox) sandbox="${2:-}"; shift 2 ;;
+            --add-session) add_to_sessions=true; shift ;;
+            --session-name) session_name="${2:-}"; shift 2 ;;
+            --session-desc) session_desc="${2:-}"; shift 2 ;;
             --yes|-y) yes=1; shift ;;
             --help)
                 cat <<'HELP'
@@ -737,6 +743,9 @@ Options:
   --role TEXT            Default role/persona
   --approval MODE        Default approval mode (default: on-request)
   --sandbox MODE         Default sandbox mode (default: workspace-write)
+  --add-session          Add this project to codex_session list
+  --session-name NAME    Session key to use with --add-session
+  --session-desc TEXT    Session description with --add-session
   --yes, -y              Overwrite existing files without prompt
 HELP
                 return 0
@@ -783,6 +792,32 @@ EOF
     echo "   - $agents_file"
     echo "   - $settings_file"
     echo "   - $state_file"
+
+    if [[ "$add_to_sessions" == true ]]; then
+        if [[ -z "$session_name" ]]; then
+            if [[ -o interactive ]]; then
+                read -r "session_name?Enter Codex session name (e.g., ${project_name}_dev): "
+            else
+                session_name="${project_name}_dev"
+            fi
+        fi
+        if [[ -n "$session_name" && -z "$session_desc" && -o interactive ]]; then
+            read -r "session_desc?Enter session description (optional): "
+        fi
+        if [[ -n "$session_name" ]]; then
+            local session_value="${PWD}"
+            if [[ -n "$session_desc" ]]; then
+                session_value="${PWD}|${session_desc}"
+            fi
+            if _codex_sessions_get "$session_name" >/dev/null 2>&1; then
+                codex_session_update "$session_name" "$session_value"
+                echo "✅ Updated Codex session: $session_name"
+            else
+                codex_session_add "$session_name" "$session_value"
+                echo "✅ Added Codex session: $session_name"
+            fi
+        fi
+    fi
 }
 
 ai_init() {
