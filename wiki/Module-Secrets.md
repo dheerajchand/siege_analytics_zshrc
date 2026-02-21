@@ -10,6 +10,7 @@ Secrets loading, 1Password integration, profiles, and rsync fallbacks.
 - `ZSH_SECRETS_FILE`, `ZSH_SECRETS_MAP`
 - `OP_ACCOUNT`, `OP_VAULT`
 - `OP_ACCOUNTS_FILE`
+- `SECRETS_AGENT_ENV_FILE` (local agent cache file; default `~/.config/zsh/.agent-secrets.env`)
 - `ZSH_OP_SOURCE_ACCOUNT`, `ZSH_OP_SOURCE_VAULT` (source of truth)
 - `ZSH_STRIP_UNMATCHED_QUOTES` (`1` default, `0` to disable trailing quote stripping)
 
@@ -71,6 +72,9 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 | `secrets_rsync_verify` | Verify local/remote files | `ssh` | Host reachable |
 | `secrets_load_file` | Load secrets.env | File IO | `ZSH_SECRETS_FILE` exists |
 | `secrets_load_op` | Load from 1Password map | `op` | Logged in |
+| `secrets_agent_refresh` | Write mapped 1Password envs to local agent cache file | `op` | Logged in |
+| `secrets_agent_source` | Load local agent cache file into shell env | File IO | cache file exists |
+| `secrets_agent_status` | Show agent cache + op readiness | `op` | None |
 | `load_secrets` | Dispatch loader | `secrets_load_*` | Mode valid |
 | `_secrets_check_profile` | Warn if no profile | None | Interactive shell |
 | `_secrets_validate_profile` | Validate profile | None | Profile list configured |
@@ -148,6 +152,18 @@ secrets_pull user@hostname
 secrets_sync_status
 ```
 
+### Agent-friendly cache (for Codex/Claude sessions)
+```bash
+# Build local cache from current 1Password mapping file
+secrets_agent_refresh
+
+# Build + load cache into current shell
+secrets_agent_source --refresh
+
+# Check cache file and op readiness
+secrets_agent_status
+```
+
 ### When to use rsync vs 1Password
 - **1Password** (`secrets_push`/`secrets_pull` with no host): preferred when `op` CLI is installed and authenticated.
 - **rsync** (`secrets_push user@host` / `secrets_pull user@host`): use for headless servers without `op` GUI, or when 1Password auth is unavailable. Requires SSH access to the target host.
@@ -158,5 +174,6 @@ secrets_sync_status
 - `secrets_rsync_*` is the supported fallback for headless servers without op GUI.
 - `secrets_missing_from_1p --json` returns JSON array; `--fix` comments missing entries in `secrets.1p`.
 - `secrets_sync_to_1p` writes content to both `secrets_file` field and secure note `notes`/`notesPlain` for compatibility; `secrets_pull_from_1p` will read either.
+- `secrets_agent_refresh` writes only mapped vars, with `chmod 600`, to a local cache file for agent consumption.
 - **Quote stripping policy:** `_secrets_strip_quotes` strips matched surrounding quotes (`"val"` → `val`) AND unmatched trailing quotes (`val"` → `val`). This is intentionally defensive against copy-paste artifacts in env files. Disable with `ZSH_STRIP_UNMATCHED_QUOTES=0` if you have values that legitimately end with a quote character.
 - `secrets_missing_from_1p --fix` creates a `.bak` backup before rewriting the map file.
