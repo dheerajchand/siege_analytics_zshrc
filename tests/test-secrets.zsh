@@ -1324,6 +1324,59 @@ test_vault_without_account_warns() {
     fi
 }
 
+test_secrets_map_envvar_from_line() {
+    local out
+    out="$(_secrets_map_envvar_from_line "FOO service user password")"
+    assert_equal "FOO" "$out" "should parse env var from legacy map line"
+    out="$(_secrets_map_envvar_from_line "BAR=op://Private/item/password")"
+    assert_equal "BAR" "$out" "should parse env var from op URL map line"
+}
+
+test_secrets_agent_refresh_writes_agent_env() {
+    local tmp map out old_map old_out old_req old_load
+    tmp="$(mktemp -d)"
+    map="$tmp/secrets.1p"
+    out="$tmp/agent.env"
+    cat > "$map" <<'EOF'
+FOO service user password
+BAR=op://Private/item/password
+BAZ=op://Private/missing/password
+EOF
+
+    old_map="$ZSH_SECRETS_MAP"
+    old_out="${SECRETS_AGENT_ENV_FILE-}"
+    old_req="$(typeset -f _secrets_require_op)"
+    old_load="$(typeset -f secrets_load_op)"
+    export ZSH_SECRETS_MAP="$map"
+    export SECRETS_AGENT_ENV_FILE="$out"
+
+    _secrets_require_op() { return 0; }
+    secrets_load_op() {
+        export FOO="alpha"
+        export BAR="bravo"
+        return 0
+    }
+
+    secrets_agent_refresh >/dev/null 2>&1
+    assert_true "[[ -f \"$out\" ]]" "agent refresh should write output file"
+    assert_contains "$(cat "$out")" "FOO=" "agent env should include mapped FOO"
+    assert_contains "$(cat "$out")" "BAR=" "agent env should include mapped BAR"
+    assert_not_contains "$(cat "$out")" "BAZ=" "agent env should omit missing vars"
+
+    out_msg="$(secrets_agent_refresh --strict 2>&1 || true)"
+    assert_contains "$out_msg" "missing 1" "strict refresh should report missing mapped vars"
+
+    eval "$old_req"
+    eval "$old_load"
+    export ZSH_SECRETS_MAP="$old_map"
+    if [[ -n "${old_out-}" ]]; then
+        export SECRETS_AGENT_ENV_FILE="$old_out"
+    else
+        unset SECRETS_AGENT_ENV_FILE
+    fi
+    rm -rf "$tmp"
+}
+
 register_test "test_secrets_load_file" "test_secrets_load_file"
 register_test "test_secrets_load_op" "test_secrets_load_op"
 register_test "test_secrets_load_op_supports_op_url_mapping" "test_secrets_load_op_supports_op_url_mapping"
@@ -1380,3 +1433,5 @@ register_test "test_vault_without_account_warns" "test_vault_without_account_war
 register_test "test_op_signin_account_usage" "test_op_signin_account_usage"
 register_test "test_op_signin_account_uuid_usage" "test_op_signin_account_uuid_usage"
 register_test "test_op_signin_all_missing_accounts_file" "test_op_signin_all_missing_accounts_file"
+register_test "test_secrets_map_envvar_from_line" "test_secrets_map_envvar_from_line"
+register_test "test_secrets_agent_refresh_writes_agent_env" "test_secrets_agent_refresh_writes_agent_env"
