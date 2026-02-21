@@ -117,7 +117,9 @@ test_codex_init_creates_config_files() {
     assert_true "[[ -f \"$tmp/.codex/settings.local.json\" ]]" "codex_init should create settings file"
     assert_true "[[ -f \"$tmp/.codex/init.env\" ]]" "codex_init should create init state file"
     assert_contains "$(cat "$tmp/AGENTS.md")" "Senior DE" "AGENTS.md should include configured role"
+    assert_contains "$(cat "$tmp/AGENTS.md")" "created with" "AGENTS.md should explicitly forbid created-with attribution phrasing"
     assert_contains "$(cat "$tmp/.codex/settings.local.json")" "\"approval_mode\": \"on-request\"" "settings should include approval mode"
+    assert_contains "$(cat "$tmp/.codex/settings.local.json")" "\"forbid_created_with_phrasing\": true" "settings should enforce no created-with phrasing"
     rm -rf "$tmp"
 }
 
