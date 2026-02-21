@@ -386,6 +386,7 @@ secrets_profile_switch  # Set profile (persists to secrets.env) and reload secre
 ```
 
 **🤖 AI Workspace Init (Claude + Codex):**
+Source templates/skills repo: `https://github.com/siege-analytics/claude-configs`
 ```bash
 # Initialize Claude config in current project
 claude_init --yes
@@ -398,6 +399,9 @@ codex_init --update
 
 # Initialize both at once
 ai_init --yes
+
+# Update existing config in-place (safe merge mode)
+ai_init --codex-only --update
 
 # Add Codex session alias during init
 codex_init --yes --add-session --session-name zsh_work --session-desc "ZSH automation work"

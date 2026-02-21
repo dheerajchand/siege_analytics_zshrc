@@ -51,11 +51,13 @@ codex_init --project myapp --org myorg --yes
 codex_init --update                      # Merge required policies into existing files
 codex_init --project myapp --add-session --session-name myapp_dev --session-desc "Local setup"
 ai_init --yes
+ai_init --codex-only --update
 ```
 
 **What it does:**
 1. Auto-detects project name, organization, and git root from context
 2. Clones `siege-analytics/claude-configs` repo
+   - URL: `https://github.com/siege-analytics/claude-configs`
 3. Copies categorized skills to `.claude/skills/`
 4. Generates `CLAUDE.md` from template with variable substitution
 5. Copies baseline `settings.local.json` with safe permissions

@@ -130,6 +130,7 @@ c                           # Quick cursor command
 ## 🤖 AI Config Initialization
 
 Use these from any project root:
+Template source repository: `https://github.com/siege-analytics/claude-configs`
 
 ```bash
 # Claude-only initialization
@@ -143,6 +144,9 @@ codex_init --update
 
 # Both Claude + Codex initialization
 ai_init --yes
+
+# Update existing Codex config in-place (no overwrite)
+ai_init --codex-only --update
 ```
 
 Session helpers:
