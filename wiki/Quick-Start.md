@@ -127,6 +127,28 @@ cursor --add /path/to/folder  # Add folder to workspace
 c                           # Quick cursor command
 ```
 
+## 🤖 AI Config Initialization
+
+Use these from any project root:
+
+```bash
+# Claude-only initialization
+claude_init --yes
+
+# Codex-only initialization
+codex_init --yes
+
+# Both Claude + Codex initialization
+ai_init --yes
+```
+
+Session helpers:
+```bash
+codex_init --yes --add-session --session-name myproj_dev --session-desc "Project dev session"
+codex_session myproj_dev
+claude_session myproj_dev
+```
+
 ## 🐍 **Python Environment Setup**
 
 ### **Initialize Python Managers**
