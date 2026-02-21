@@ -378,7 +378,7 @@ claude_session() {
 claude_init() {
     local project_name org_name git_root current_date
     local add_to_sessions=false
-    local claude_configs_repo="git@github.com:siege-analytics/claude-configs.git"
+    local claude_configs_repo="${CLAUDE_CONFIGS_REPO:-https://github.com/siege-analytics/claude-configs.git}"
 
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -493,7 +493,13 @@ HELP
     local tmp_dir
     tmp_dir="$(mktemp -d)"
     echo "Fetching skills and templates from $claude_configs_repo..."
-    if git clone --depth 1 "$claude_configs_repo" "$tmp_dir" 2>/dev/null; then
+    if command -v gh >/dev/null 2>&1; then
+        gh repo clone siege-analytics/claude-configs "$tmp_dir" -- --depth 1 >/dev/null 2>&1 || \
+            git clone --depth 1 "$claude_configs_repo" "$tmp_dir" >/dev/null 2>&1
+    else
+        git clone --depth 1 "$claude_configs_repo" "$tmp_dir" >/dev/null 2>&1
+    fi
+    if [[ -d "$tmp_dir/.git" || -d "$tmp_dir/templates" ]]; then
         cp -r "$tmp_dir/skills" .claude/
 
         # Store templates for later use
@@ -596,6 +602,211 @@ EOF
             claude_session_add "$session_name" "$session_value"
             echo "✅ Added to Claude session list: $session_name"
         fi
+    fi
+}
+
+# =================================================================
+# Codex + Combined project initialization
+# =================================================================
+
+_agents_detect_project_name() {
+    local remote_url
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        remote_url="$(git remote get-url origin 2>/dev/null || true)"
+        if [[ -n "$remote_url" ]]; then
+            local p="${remote_url##*/}"
+            echo "${p%.git}"
+            return 0
+        fi
+    fi
+    echo "${PWD:t}"
+}
+
+_agents_detect_org_name() {
+    local remote_url
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        remote_url="$(git remote get-url origin 2>/dev/null || true)"
+        if [[ -n "$remote_url" ]]; then
+            local o="${remote_url#*[:/]}"
+            echo "${o%%/*}"
+            return 0
+        fi
+    fi
+    echo "$(_agents_detect_project_name)"
+}
+
+_agents_detect_git_root() {
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        git rev-parse --show-toplevel 2>/dev/null || echo "$PWD"
+        return 0
+    fi
+    echo "$PWD"
+}
+
+_agents_write_codex_agents_md() {
+    local out="$1"
+    local project_name="$2"
+    local org_name="$3"
+    local git_root="$4"
+    local role="$5"
+    local approval="$6"
+    local sandbox="$7"
+    cat > "$out" <<EOF
+# AGENTS.md
+
+## Role
+\`$role\`
+
+## Execution Defaults
+- Approval mode: \`$approval\`
+- Sandbox mode: \`$sandbox\`
+- Destructive operations: require explicit confirmation.
+
+## Project Context
+- Project: \`$project_name\`
+- Organization: \`$org_name\`
+- Workspace root: \`$git_root\`
+
+## Working Rules
+- Plan first, then execute.
+- Prefer targeted edits over broad changes.
+- Run tests for changed behavior before presenting results.
+- Keep commits focused and reversible.
+- No AI attribution in commits, comments, docs, or PRs.
+
+## Escalation Rules
+- Ask before destructive operations (\`rm -rf\`, reset, force push).
+- Ask before changing external infrastructure or production data.
+- Ask before introducing long-running background processes.
+
+## Initialization Notes
+- Update this file with domain-specific constraints and architecture.
+- Keep secrets out of the repository.
+EOF
+}
+
+_agents_write_codex_settings() {
+    local out="$1"
+    local role="$2"
+    local approval="$3"
+    local sandbox="$4"
+    cat > "$out" <<EOF
+{
+  "defaults": {
+    "role": "$role",
+    "approval_mode": "$approval",
+    "sandbox_mode": "$sandbox"
+  },
+  "rules": {
+    "ask_before_destructive": true,
+    "no_ai_attribution": true,
+    "require_tests_for_behavior_changes": true
+  }
+}
+EOF
+}
+
+codex_init() {
+    local project_name=""
+    local org_name=""
+    local git_root=""
+    local role="${CODEX_DEFAULT_ROLE:-Senior pragmatic software engineer}"
+    local approval="${CODEX_DEFAULT_APPROVAL:-on-request}"
+    local sandbox="${CODEX_DEFAULT_SANDBOX:-workspace-write}"
+    local yes=0
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --project) project_name="${2:-}"; shift 2 ;;
+            --org) org_name="${2:-}"; shift 2 ;;
+            --git-root) git_root="${2:-}"; shift 2 ;;
+            --role) role="${2:-}"; shift 2 ;;
+            --approval) approval="${2:-}"; shift 2 ;;
+            --sandbox) sandbox="${2:-}"; shift 2 ;;
+            --yes|-y) yes=1; shift ;;
+            --help)
+                cat <<'HELP'
+Usage: codex_init [OPTIONS]
+
+Initialize Codex-oriented project config in the current directory.
+
+Options:
+  --project NAME         Project name (auto-detected if omitted)
+  --org NAME             Organization name (auto-detected if omitted)
+  --git-root PATH        Workspace root (auto-detected if omitted)
+  --role TEXT            Default role/persona
+  --approval MODE        Default approval mode (default: on-request)
+  --sandbox MODE         Default sandbox mode (default: workspace-write)
+  --yes, -y              Overwrite existing files without prompt
+HELP
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    [[ -n "$project_name" ]] || project_name="$(_agents_detect_project_name)"
+    [[ -n "$org_name" ]] || org_name="$(_agents_detect_org_name)"
+    [[ -n "$git_root" ]] || git_root="$(_agents_detect_git_root)"
+
+    mkdir -p .codex
+
+    local agents_file="AGENTS.md"
+    local settings_file=".codex/settings.local.json"
+    local state_file=".codex/init.env"
+
+    if [[ -f "$agents_file" && "$yes" -ne 1 ]]; then
+        read -r "reply?AGENTS.md exists. Overwrite? [y/N]: "
+        [[ "$reply" =~ ^[Yy]$ ]] || return 1
+    fi
+    if [[ -f "$settings_file" && "$yes" -ne 1 ]]; then
+        read -r "reply?.codex/settings.local.json exists. Overwrite? [y/N]: "
+        [[ "$reply" =~ ^[Yy]$ ]] || return 1
+    fi
+
+    _agents_write_codex_agents_md "$agents_file" "$project_name" "$org_name" "$git_root" "$role" "$approval" "$sandbox"
+    _agents_write_codex_settings "$settings_file" "$role" "$approval" "$sandbox"
+
+    cat > "$state_file" <<EOF
+PROJECT_NAME=$project_name
+ORG_NAME=$org_name
+GIT_ROOT=$git_root
+ROLE=$role
+APPROVAL=$approval
+SANDBOX=$sandbox
+EOF
+
+    echo "✅ Codex config initialized"
+    echo "   - $agents_file"
+    echo "   - $settings_file"
+    echo "   - $state_file"
+}
+
+ai_init() {
+    local claude_only=0
+    local codex_only=0
+    local pass=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --claude-only) claude_only=1; shift ;;
+            --codex-only) codex_only=1; shift ;;
+            *) pass+=("$1"); shift ;;
+        esac
+    done
+
+    if [[ "$claude_only" -eq 1 && "$codex_only" -eq 1 ]]; then
+        echo "Cannot set both --claude-only and --codex-only" >&2
+        return 1
+    fi
+
+    if [[ "$codex_only" -eq 0 ]]; then
+        claude_init "${pass[@]}" || return 1
+    fi
+    if [[ "$claude_only" -eq 0 ]]; then
+        codex_init "${pass[@]}" || return 1
     fi
 }
 
