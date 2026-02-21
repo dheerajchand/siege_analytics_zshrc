@@ -48,6 +48,7 @@ claude_init --project myapp --org myorg
 claude_init --add-session             # Also add to session list
 claude_init --help                    # Show help
 codex_init --project myapp --org myorg --yes
+codex_init --update                      # Merge required policies into existing files
 codex_init --project myapp --add-session --session-name myapp_dev --session-desc "Local setup"
 ai_init --yes
 ```
@@ -65,6 +66,7 @@ ai_init --yes
 2. `.codex/settings.local.json` with approval/sandbox defaults
 3. `.codex/init.env` with detected project metadata
 4. Optional Codex session entry via `--add-session` (updates existing key if present)
+5. `--update` mode merges required policy rules into existing files without replacing custom project content
 
 Default attribution policy is strict:
 - No AI assistant attribution in commits, PRs, issues, comments, or docs

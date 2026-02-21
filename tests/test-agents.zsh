@@ -152,6 +152,38 @@ test_codex_init_add_session() {
     rm -rf "$tmp"
 }
 
+test_codex_init_update_merges_rules_without_overwrite() {
+    local tmp
+    tmp="$(mktemp -d)"
+    (
+        cd "$tmp" || exit 1
+        mkdir -p .codex
+        cat > AGENTS.md <<'EOF'
+# AGENTS.md
+
+## Team Rules
+- Keep custom team language unchanged.
+EOF
+        cat > .codex/settings.local.json <<'EOF'
+{
+  "defaults": {
+    "role": "Custom Role"
+  },
+  "rules": {
+    "custom_rule": true
+  }
+}
+EOF
+        ZSH_TEST_MODE=1 source "$ROOT_DIR/modules/agents.zsh"
+        codex_init --project demo --org siege --git-root "$tmp" --update >/dev/null
+    )
+    assert_contains "$(cat "$tmp/AGENTS.md")" "Keep custom team language unchanged." "update should preserve custom AGENTS content"
+    assert_contains "$(cat "$tmp/AGENTS.md")" "Never use phrases like \"created with\"" "update should add required no-attribution phrase rule"
+    assert_contains "$(cat "$tmp/.codex/settings.local.json")" "\"custom_rule\": true" "update should preserve custom settings rules"
+    assert_contains "$(cat "$tmp/.codex/settings.local.json")" "\"forbid_created_with_phrasing\": true" "update should enforce created-with prohibition"
+    rm -rf "$tmp"
+}
+
 register_test "test_codex_session_crud" "test_codex_session_crud"
 register_test "test_codex_session_auto_exec_non_interactive" "test_codex_session_auto_exec_non_interactive"
 register_test "test_codex_session_non_interactive_show_only_by_default" "test_codex_session_non_interactive_show_only_by_default"
@@ -160,3 +192,4 @@ register_test "test_claude_session_auto_exec_non_interactive" "test_claude_sessi
 register_test "test_codex_init_creates_config_files" "test_codex_init_creates_config_files"
 register_test "test_ai_init_codex_only" "test_ai_init_codex_only"
 register_test "test_codex_init_add_session" "test_codex_init_add_session"
+register_test "test_codex_init_update_merges_rules_without_overwrite" "test_codex_init_update_merges_rules_without_overwrite"
