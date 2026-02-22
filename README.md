@@ -585,7 +585,9 @@ ZSH_STARTUP_MODE=staggered exec zsh  # Force staggered module loading
 ZSH_STARTUP_MODE=full exec zsh       # Force immediate full module loading
 ```
 
-Heavy startup hooks are configurable in `vars.env`:
+Heavy startup hooks are configurable in shared + machine vars:
+- Shared defaults: `~/.config/zsh/vars.env`
+- Machine override: `~/.config/zsh/vars.<profile>.env` (example: `vars.mac.env`, `vars.cyberpower.env`)
 - `ZSH_AUTO_RECOVER_*` controls Spark/Hadoop/Zeppelin auto-restart
 - `ZSH_OP_AUTO_SIGNIN_*` controls 1Password multi-account auto-signin
 

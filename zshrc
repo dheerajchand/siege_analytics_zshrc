@@ -448,6 +448,7 @@ help() {
     echo "⚙️  Settings:"
     echo "  settings_init          - Create vars/aliases/paths files"
     echo "  settings_edit_vars     - Edit vars.env"
+    echo "  settings_edit_vars_machine - Edit machine vars override file"
     echo "  settings_edit_aliases  - Edit aliases.zsh"
     echo "  settings_edit_paths    - Edit paths.env"
     echo "  settings_status        - Show settings file locations"

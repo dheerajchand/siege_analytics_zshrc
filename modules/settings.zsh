@@ -8,6 +8,32 @@
 : "${ZSH_ALIASES_FILE:=$ZSH_SETTINGS_DIR/aliases.zsh}"
 : "${ZSH_PATHS_FILE:=$ZSH_SETTINGS_DIR/paths.env}"
 
+_settings_detect_machine_profile() {
+    if [[ -n "${ZSH_MACHINE_PROFILE:-}" ]]; then
+        printf '%s\n' "${ZSH_MACHINE_PROFILE:l}"
+        return 0
+    fi
+    if [[ -n "${ZSH_ENV_PROFILE:-}" ]]; then
+        printf '%s\n' "${ZSH_ENV_PROFILE:l}"
+        return 0
+    fi
+    local hn
+    hn="$(hostname 2>/dev/null || echo "")"
+    hn="${hn:l}"
+    if [[ "$hn" == *cyberpower* ]]; then
+        echo "cyberpower"
+        return 0
+    fi
+    if [[ "$OSTYPE" == darwin* ]]; then
+        echo "mac"
+    else
+        echo "linux"
+    fi
+}
+
+: "${ZSH_MACHINE_PROFILE:=$(_settings_detect_machine_profile)}"
+: "${ZSH_VARS_MACHINE_FILE:=$ZSH_SETTINGS_DIR/vars.${ZSH_MACHINE_PROFILE}.env}"
+
 settings_persist_var() {
     local key="$1"
     local value="$2"
@@ -67,12 +93,27 @@ EOF
         created=1
         echo "Created $ZSH_PATHS_FILE"
     fi
+    if [[ ! -f "$ZSH_VARS_MACHINE_FILE" ]]; then
+        cat > "$ZSH_VARS_MACHINE_FILE" <<EOF
+# Machine-specific variable overrides for profile: ${ZSH_MACHINE_PROFILE}
+# Loaded after vars.env; values here override shared defaults.
+# Example:
+# export PYENV_DEFAULT_VENV="\${PYENV_DEFAULT_VENV:-default_31111}"
+EOF
+        created=1
+        echo "Created $ZSH_VARS_MACHINE_FILE"
+    fi
     [[ "$created" -eq 1 ]] || echo "All settings files already exist"
 }
 
 settings_edit_vars() {
     [[ -f "$ZSH_VARS_FILE" ]] || settings_init >/dev/null 2>&1
     "${EDITOR:-vi}" "$ZSH_VARS_FILE"
+}
+
+settings_edit_vars_machine() {
+    [[ -f "$ZSH_VARS_MACHINE_FILE" ]] || settings_init >/dev/null 2>&1
+    "${EDITOR:-vi}" "$ZSH_VARS_MACHINE_FILE"
 }
 
 settings_edit_aliases() {
@@ -88,14 +129,19 @@ settings_edit_paths() {
 settings_status() {
     echo "⚙️  Settings"
     echo "============"
+    echo "Profile: $ZSH_MACHINE_PROFILE"
     echo "Vars:    $ZSH_VARS_FILE"
+    echo "Vars(M): $ZSH_VARS_MACHINE_FILE"
     echo "Aliases: $ZSH_ALIASES_FILE"
     echo "Paths:   $ZSH_PATHS_FILE"
 }
 
-# Load order: vars -> aliases -> paths
+# Load order: shared vars -> machine vars -> aliases -> paths
 if [[ -f "$ZSH_VARS_FILE" ]]; then
     source "$ZSH_VARS_FILE"
+fi
+if [[ -f "$ZSH_VARS_MACHINE_FILE" ]]; then
+    source "$ZSH_VARS_MACHINE_FILE"
 fi
 if [[ -f "$ZSH_ALIASES_FILE" ]]; then
     source "$ZSH_ALIASES_FILE"
