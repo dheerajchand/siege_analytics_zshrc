@@ -25,3 +25,19 @@ Centralized config loader for shared vars, machine overrides, aliases, and paths
 ## Notes
 - Load order: `vars.env` → `vars.<profile>.env` → `aliases.zsh` → `paths.env`.
 - Use `vars.env` for universal defaults and `vars.<profile>.env` for machine-specific overrides (e.g. `vars.mac.env`, `vars.cyberpower.env`).
+
+## Example
+```zsh
+# Shared defaults (all machines)
+# ~/.config/zsh/vars.env
+export ZSH_STARTUP_MODE="${ZSH_STARTUP_MODE:-auto}"
+export PYENV_DEFAULT_VENV="${PYENV_DEFAULT_VENV:-default_31111}"
+
+# mac-specific override
+# ~/.config/zsh/vars.mac.env
+export PYENV_DEFAULT_VENV="${PYENV_DEFAULT_VENV:-geo31111}"
+
+# cyberpower-specific override
+# ~/.config/zsh/vars.cyberpower.env
+export PYENV_DEFAULT_VENV="${PYENV_DEFAULT_VENV:-default_31111}"
+```
