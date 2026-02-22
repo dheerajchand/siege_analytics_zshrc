@@ -5,3 +5,4 @@ op-accounts.env
 message-db/
 node_modules/
 .op_signin_all.stamp
+.agent-secrets.env
