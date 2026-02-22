@@ -591,6 +591,15 @@ Heavy startup hooks are configurable in shared + machine vars:
 - `ZSH_AUTO_RECOVER_*` controls Spark/Hadoop/Zeppelin auto-restart
 - `ZSH_OP_AUTO_SIGNIN_*` controls 1Password multi-account auto-signin
 
+Example machine-specific Python defaults:
+```zsh
+# ~/.config/zsh/vars.mac.env
+export PYENV_DEFAULT_VENV="${PYENV_DEFAULT_VENV:-geo31111}"
+
+# ~/.config/zsh/vars.cyberpower.env
+export PYENV_DEFAULT_VENV="${PYENV_DEFAULT_VENV:-default_31111}"
+```
+
 ## 🛠️ Development Workflows
 
 ### **Data Science Project**
