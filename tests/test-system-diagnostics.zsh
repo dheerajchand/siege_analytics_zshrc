@@ -109,6 +109,44 @@ test_spark41_route_health_defined() {
     assert_true "typeset -f spark41_route_health >/dev/null 2>&1" "spark41_route_health should be defined"
 }
 
+test_icloud_js_name_classifier() {
+    source "$ROOT_DIR/modules/system_diagnostics.zsh"
+    assert_command_success "_icloud_js_is_suspect_name \"@types\"" "scoped npm dir should be suspect"
+    assert_command_success "_icloud_js_is_suspect_name \"lodash\"" "package dir should be suspect"
+    assert_command_failure "_icloud_js_is_suspect_name \"Documents\"" "Documents should not be suspect"
+    assert_command_failure "_icloud_js_is_suspect_name \".bin\"" "dot dirs should not be suspect"
+}
+
+test_icloud_js_guard_fix_and_restore() {
+    source "$ROOT_DIR/modules/system_diagnostics.zsh"
+    local tmp root q out
+    tmp="$(mktemp -d)"
+    root="$tmp/com~apple~CloudDocs"
+    q="$tmp/quarantine"
+    mkdir -p "$root/@types" "$root/lodash" "$root/Documents"
+    echo "x" > "$root/@types/a.txt"
+    echo "y" > "$root/lodash/b.txt"
+    echo "z" > "$root/Documents/c.txt"
+
+    out="$(icloud_js_guard --root "$root" --quarantine "$q" 2>&1 || true)"
+    assert_contains "$out" "found 2 suspicious directories" "guard should detect suspects in report mode"
+    assert_true "[[ -d \"$root/@types\" && -d \"$root/lodash\" ]]" "report mode should not move directories"
+
+    out="$(icloud_js_guard --fix --yes --root "$root" --quarantine "$q" 2>&1 || true)"
+    assert_contains "$out" "Quarantined 2 directories" "fix mode should move suspects"
+    assert_false "[[ -d \"$root/@types\" ]]" "@types should be moved out of root"
+    assert_false "[[ -d \"$root/lodash\" ]]" "lodash should be moved out of root"
+    assert_true "[[ -d \"$root/Documents\" ]]" "non-suspect directories should remain"
+
+    local log_file
+    log_file="$(find "$q" -name move_log.tsv | head -n 1)"
+    assert_true "[[ -n \"$log_file\" && -f \"$log_file\" ]]" "fix mode should create move log"
+    icloud_js_restore "$log_file" >/dev/null 2>&1
+    assert_true "[[ -d \"$root/@types\" && -d \"$root/lodash\" ]]" "restore should move directories back"
+
+    rm -rf "$tmp"
+}
+
 register_test "test_icloud_status_missing_tools" "test_icloud_status_missing_tools"
 register_test "test_icloud_preflight_no_brctl" "test_icloud_preflight_no_brctl"
 register_test "test_icloud_reset_state_non_interactive" "test_icloud_reset_state_non_interactive"
@@ -118,3 +156,5 @@ register_test "test_data_platform_health_without_modules" "test_data_platform_he
 register_test "test_data_platform_config_status_defined" "test_data_platform_config_status_defined"
 register_test "test_data_platform_use_versions_defined" "test_data_platform_use_versions_defined"
 register_test "test_spark41_route_health_defined" "test_spark41_route_health_defined"
+register_test "test_icloud_js_name_classifier" "test_icloud_js_name_classifier"
+register_test "test_icloud_js_guard_fix_and_restore" "test_icloud_js_guard_fix_and_restore"

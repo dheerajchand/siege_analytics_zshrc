@@ -25,6 +25,37 @@ _is_macos() {
     [[ "$OSTYPE" == "darwin"* ]]
 }
 
+_icloud_js_is_suspect_name() {
+    local name="$1"
+    [[ -z "$name" ]] && return 1
+    case "$name" in
+        .*) return 1 ;;
+        Desktop|Documents|Downloads|Library|Movies|Music|Pictures|Public|Applications|__pycache__|Kung\ Fu|Oddities)
+            return 1
+            ;;
+    esac
+    if [[ "$name" == @* ]]; then
+        return 0
+    fi
+    # Heuristic: npm-style package names
+    if [[ "$name" =~ '^[a-z0-9._-]+$' && "$name" == *[a-z]* ]]; then
+        return 0
+    fi
+    return 1
+}
+
+_icloud_js_collect_suspects() {
+    local root="$1"
+    [[ -d "$root" ]] || return 1
+    local d base
+    for d in "$root"/*(N/); do
+        base="${d:t}"
+        if _icloud_js_is_suspect_name "$base"; then
+            printf '%s\n' "$d"
+        fi
+    done
+}
+
 data_platform_health() {
     local rc=0
     local ran=0
@@ -362,6 +393,126 @@ icloud_preflight() {
     fi
     echo "Preflight: no active sync indicators detected."
     return 0
+}
+
+icloud_js_guard() {
+    local fix=0
+    local assume_yes=0
+    local root="${ICLOUD_CLOUDDOCS_ROOT:-$HOME/Library/Mobile Documents/com~apple~CloudDocs}"
+    local quarantine_base="${ICLOUD_JS_QUARANTINE_BASE:-$HOME/Documents/iCloud_js_quarantine}"
+    local -a suspects
+    local p
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --fix) fix=1; shift ;;
+            --yes|-y) assume_yes=1; shift ;;
+            --root) root="${2:-}"; shift 2 ;;
+            --quarantine) quarantine_base="${2:-}"; shift 2 ;;
+            --help|-h)
+                cat <<'HELP'
+Usage: icloud_js_guard [--fix] [--yes] [--root <clouddocs_root>] [--quarantine <dir>]
+
+Scans iCloud Drive root for npm-like package directories accidentally created there.
+Default mode is report-only. Use --fix to move suspects into a quarantine folder.
+HELP
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    if [[ ! -d "$root" ]]; then
+        echo "❌ iCloud root not found: $root"
+        return 1
+    fi
+
+    while IFS= read -r p; do
+        [[ -n "$p" ]] && suspects+=("$p")
+    done < <(_icloud_js_collect_suspects "$root")
+
+    local count="${#suspects[@]}"
+    if [[ "$count" -eq 0 ]]; then
+        echo "✅ iCloud JS guard: no suspicious package directories found."
+        return 0
+    fi
+
+    echo "⚠️  iCloud JS guard: found $count suspicious directories in:"
+    echo "   $root"
+    local shown=0
+    for p in "${suspects[@]}"; do
+        echo "   - ${p:t}"
+        shown=$((shown + 1))
+        [[ "$shown" -ge 20 ]] && break
+    done
+    if [[ "$count" -gt 20 ]]; then
+        echo "   ... and $((count - 20)) more"
+    fi
+
+    if [[ "$fix" -ne 1 ]]; then
+        echo "Run with --fix to quarantine them."
+        return 1
+    fi
+
+    if [[ "$assume_yes" -ne 1 ]]; then
+        read -r "REPLY?Move these directories to quarantine? [y/N] "
+        [[ "$REPLY" =~ ^[Yy]$ ]] || {
+            echo "Cancelled."
+            return 1
+        }
+    fi
+
+    local ts qdir log
+    ts="$(date +%Y%m%d_%H%M%S)"
+    qdir="$quarantine_base/$ts"
+    log="$qdir/move_log.tsv"
+    mkdir -p "$qdir"
+    : > "$log"
+
+    local moved=0
+    local src base dst i
+    for src in "${suspects[@]}"; do
+        base="${src:t}"
+        dst="$qdir/$base"
+        i=1
+        while [[ -e "$dst" ]]; do
+            dst="$qdir/${base}__${i}"
+            i=$((i + 1))
+        done
+        if mv "$src" "$dst"; then
+            printf '%s\t%s\n' "$src" "$dst" >> "$log"
+            moved=$((moved + 1))
+        fi
+    done
+
+    echo "✅ Quarantined $moved directories"
+    echo "   Quarantine: $qdir"
+    echo "   Move log:   $log"
+}
+
+icloud_js_restore() {
+    local log_file="${1:-}"
+    if [[ -z "$log_file" ]]; then
+        echo "Usage: icloud_js_restore <move_log.tsv>" >&2
+        return 1
+    fi
+    if [[ ! -f "$log_file" ]]; then
+        echo "❌ Move log not found: $log_file" >&2
+        return 1
+    fi
+
+    local src dst restored=0
+    while IFS=$'\t' read -r src dst || [[ -n "${src:-}" ]]; do
+        [[ -z "${src:-}" || -z "${dst:-}" ]] && continue
+        if [[ -e "$dst" ]]; then
+            mv "$dst" "$src"
+            restored=$((restored + 1))
+        fi
+    done < "$log_file"
+    echo "✅ Restored $restored directories from quarantine"
 }
 
 icloud_reset_state() {
