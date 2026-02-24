@@ -411,6 +411,8 @@ codex_init --yes --add-session --session-name zsh_work --session-desc "ZSH autom
 ```bash
 icloud_status           # macOS-only iCloud status
 icloud_preflight        # macOS-only iCloud preflight
+icloud_js_guard         # Detect/quarantine npm-like dirs in iCloud root
+icloud_js_restore       # Restore dirs from icloud_js_guard move log
 dropbox_status          # macOS-only Dropbox status
 dropbox_restart         # macOS-only Dropbox restart
 linux_system_status     # Linux-only system overview

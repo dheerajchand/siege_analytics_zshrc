@@ -119,6 +119,9 @@ On shell startup, the banner includes:
 ```bash
 toggle_hidden_files         # Toggle Finder hidden files
 toggle_key_repeat          # Toggle key repeat behavior
+icloud_status              # iCloud diagnostics
+icloud_js_guard            # Detect npm-like dirs in iCloud Drive root
+icloud_js_guard --fix --yes
 ```
 
 ### **Cursor IDE Integration**

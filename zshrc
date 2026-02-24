@@ -368,6 +368,8 @@ help() {
     echo "🩺 Diagnostics:"
     echo "  icloud_status           - macOS-only iCloud status"
     echo "  icloud_preflight        - macOS-only iCloud preflight"
+    echo "  icloud_js_guard         - Detect/quarantine npm-like dirs in iCloud root"
+    echo "  icloud_js_restore       - Restore dirs from icloud_js_guard move log"
     echo "  dropbox_status          - macOS-only Dropbox status"
     echo "  dropbox_restart         - macOS-only Dropbox restart"
     echo "  linux_system_status     - Linux-only system overview"
