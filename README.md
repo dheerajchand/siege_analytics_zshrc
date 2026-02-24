@@ -577,6 +577,8 @@ help                     # Complete usage guide
 backup "commit message"   # Commit + push current branch
 backup_merge_main         # Merge current branch to main and push
 pushmain "commit message" # backup + merge-to-main in one step
+git_sync_safe             # Safe pull with rebase + autostash
+git_sync_hard --yes       # Hard reset to remote branch (destructive)
 ```
 
 ### **Startup Mode**

@@ -104,7 +104,54 @@ test_pushmain_commits_pushes_and_merges() {
     rm -rf "$root"
 }
 
+test_git_sync_safe_autostash() {
+    local old_dir="$ZSHRC_CONFIG_DIR"
+    local root work clone out
+    root="$(_make_backup_test_repo)"
+    work="$root/work"
+    clone="$root/clone"
+
+    git clone "$root/origin.git" "$clone" >/dev/null 2>&1
+    git -C "$clone" config user.email "test@example.com"
+    git -C "$clone" config user.name "Backup Test"
+    echo "remote update" > "$clone/remote.txt"
+    git -C "$clone" add remote.txt
+    git -C "$clone" commit -m "remote: add file" >/dev/null 2>&1
+    git -C "$clone" push origin main >/dev/null 2>&1
+
+    echo "local uncommitted" >> "$work/README.md"
+    git -C "$work" fetch origin >/dev/null 2>&1
+    ZSHRC_CONFIG_DIR="$work"
+    out="$(git_sync_safe 2>&1 || true)"
+    assert_contains "$out" "Safe sync complete" "git_sync_safe should complete"
+    assert_true "[[ -f '$work/remote.txt' ]]" "safe sync should bring remote file into local branch"
+    assert_true "grep -q 'local uncommitted' '$work/README.md'" "local uncommitted change should be preserved"
+
+    ZSHRC_CONFIG_DIR="$old_dir"
+    rm -rf "$root"
+}
+
+test_git_sync_hard_resets_and_cleans() {
+    local old_dir="$ZSHRC_CONFIG_DIR"
+    local root work
+    root="$(_make_backup_test_repo)"
+    work="$root/work"
+
+    echo "dirty change" >> "$work/README.md"
+    echo "tmp" > "$work/untracked.txt"
+    ZSHRC_CONFIG_DIR="$work"
+    out="$(git_sync_hard --yes 2>&1 || true)"
+    assert_contains "$out" "Hard sync complete" "git_sync_hard should complete"
+    assert_false "grep -q 'dirty change' '$work/README.md'" "tracked local modifications should be discarded"
+    assert_false "[[ -f '$work/untracked.txt' ]]" "untracked files should be removed"
+
+    ZSHRC_CONFIG_DIR="$old_dir"
+    rm -rf "$root"
+}
+
 register_test "backup_requires_git" test_backup_requires_git_repo
 register_test "backup_pushes_current_branch" test_backup_pushes_current_branch
 register_test "backup_merge_main_merges_and_returns_branch" test_backup_merge_main_merges_and_returns_branch
 register_test "pushmain_commits_pushes_and_merges" test_pushmain_commits_pushes_and_merges
+register_test "git_sync_safe_autostash" test_git_sync_safe_autostash
+register_test "git_sync_hard_resets_and_cleans" test_git_sync_hard_resets_and_cleans

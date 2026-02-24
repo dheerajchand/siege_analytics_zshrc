@@ -386,6 +386,8 @@ help() {
     echo "  backup ['message']     - Commit and push current branch"
     echo "  backup_merge_main [branch] - Merge branch into main and push"
     echo "  pushmain ['message']   - Backup current branch, then merge to main"
+    echo "  git_sync_safe          - Safe pull with rebase + autostash"
+    echo "  git_sync_hard [--yes]  - Hard sync to remote branch (destructive)"
     echo "  repo_sync              - Sync repository"
     echo ""
     echo "🐙 GitHub:"

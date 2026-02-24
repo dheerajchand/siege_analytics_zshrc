@@ -145,6 +145,71 @@ repo_sync() {
     echo "✅ Sync complete"
 }
 
+git_sync_safe() {
+    _backup_cd_repo || return 1
+    local branch
+    branch="$(_backup_current_branch)"
+    if [[ -z "$branch" ]]; then
+        echo "❌ Cannot determine current branch"
+        return 1
+    fi
+    echo "🔄 Safe sync on $branch (rebase + autostash)"
+    git fetch origin --prune || return 1
+    git pull --rebase --autostash origin "$branch" || return 1
+    echo "✅ Safe sync complete"
+}
+
+git_sync_hard() {
+    _backup_cd_repo || return 1
+    local yes=0
+    local remote="origin"
+    local branch=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --yes|-y) yes=1; shift ;;
+            --remote) remote="${2:-}"; shift 2 ;;
+            --branch) branch="${2:-}"; shift 2 ;;
+            -h|--help)
+                cat <<'HELP'
+Usage: git_sync_hard [--yes] [--remote <name>] [--branch <name>]
+
+Hard-sync current working tree to remote branch:
+  fetch --prune
+  reset --hard <remote>/<branch>
+  clean -fd
+HELP
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    [[ -n "$branch" ]] || branch="$(_backup_current_branch)"
+    if [[ -z "$branch" ]]; then
+        echo "❌ Cannot determine current branch"
+        return 1
+    fi
+
+    if [[ "$yes" -ne 1 ]]; then
+        local reply
+        read -r "reply?⚠️  This will delete local changes and untracked files. Continue? [y/N]: "
+        [[ "$reply" =~ ^[Yy]$ ]] || {
+            echo "Cancelled."
+            return 1
+        }
+    fi
+
+    echo "🧹 Hard syncing to ${remote}/${branch}"
+    git fetch "$remote" --prune || return 1
+    git reset --hard "${remote}/${branch}" || return 1
+    git clean -fd || return 1
+    echo "✅ Hard sync complete"
+}
+
 # Show repository status
 repo_status() {
     cd "$ZSHRC_CONFIG_DIR" || return 1
@@ -163,5 +228,6 @@ alias zshbackup='backup'
 alias zshsync='repo_sync'
 alias zshstatus='repo_status'
 alias zshmerge='backup_merge_main'
+alias gitsync='git_sync_safe'
 
 echo "✅ backup loaded"
