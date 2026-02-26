@@ -1377,6 +1377,65 @@ EOF
     rm -rf "$tmp"
 }
 
+test_secrets_debug_silent_without_flag() {
+    local out old_debug="${ZSH_SECRETS_DEBUG:-}"
+    unset ZSH_SECRETS_DEBUG 2>/dev/null || true
+    out="$(_secrets_debug "should not appear" 2>&1)"
+    [[ -n "$old_debug" ]] && export ZSH_SECRETS_DEBUG="$old_debug"
+    assert_equal "" "$out" "_secrets_debug should be silent without ZSH_SECRETS_DEBUG"
+}
+
+test_secrets_debug_outputs_with_flag() {
+    local out old_debug="${ZSH_SECRETS_DEBUG:-}"
+    export ZSH_SECRETS_DEBUG=1
+    out="$(_secrets_debug "test message" 2>&1)"
+    if [[ -n "$old_debug" ]]; then
+        export ZSH_SECRETS_DEBUG="$old_debug"
+    else
+        unset ZSH_SECRETS_DEBUG
+    fi
+    assert_contains "$out" "[secrets:debug] test message" "_secrets_debug should output when ZSH_SECRETS_DEBUG is set"
+}
+
+test_load_secrets_falls_back_to_agent_cache() {
+    local tmp old_mode old_map old_agent old_req old_load
+    tmp="$(mktemp -d)"
+    local agent_file="$tmp/agent.env"
+    printf 'MY_SECRET=%q\n' "cached_value" > "$agent_file"
+    chmod 600 "$agent_file"
+
+    old_mode="$ZSH_SECRETS_MODE"
+    old_map="$ZSH_SECRETS_MAP"
+    old_agent="${SECRETS_AGENT_ENV_FILE-}"
+    old_req="$(typeset -f _secrets_require_op)"
+    old_load="$(typeset -f secrets_load_op)"
+
+    export ZSH_SECRETS_MODE="op"
+    export ZSH_SECRETS_MAP="$tmp/secrets.1p"
+    echo "MY_SECRET=op://Private/item/field" > "$ZSH_SECRETS_MAP"
+    export SECRETS_AGENT_ENV_FILE="$agent_file"
+
+    _secrets_require_op() { return 0; }
+    secrets_load_op() { return 1; }
+
+    unset MY_SECRET 2>/dev/null || true
+    load_secrets >/dev/null 2>&1
+
+    assert_equal "cached_value" "${MY_SECRET:-}" "load_secrets should fall back to agent cache when op fails"
+
+    eval "$old_req"
+    eval "$old_load"
+    export ZSH_SECRETS_MODE="$old_mode"
+    export ZSH_SECRETS_MAP="$old_map"
+    if [[ -n "${old_agent-}" ]]; then
+        export SECRETS_AGENT_ENV_FILE="$old_agent"
+    else
+        unset SECRETS_AGENT_ENV_FILE
+    fi
+    unset MY_SECRET 2>/dev/null || true
+    rm -rf "$tmp"
+}
+
 register_test "test_secrets_load_file" "test_secrets_load_file"
 register_test "test_secrets_load_op" "test_secrets_load_op"
 register_test "test_secrets_load_op_supports_op_url_mapping" "test_secrets_load_op_supports_op_url_mapping"
@@ -1435,3 +1494,6 @@ register_test "test_op_signin_account_uuid_usage" "test_op_signin_account_uuid_u
 register_test "test_op_signin_all_missing_accounts_file" "test_op_signin_all_missing_accounts_file"
 register_test "test_secrets_map_envvar_from_line" "test_secrets_map_envvar_from_line"
 register_test "test_secrets_agent_refresh_writes_agent_env" "test_secrets_agent_refresh_writes_agent_env"
+register_test "test_secrets_debug_silent_without_flag" "test_secrets_debug_silent_without_flag"
+register_test "test_secrets_debug_outputs_with_flag" "test_secrets_debug_outputs_with_flag"
+register_test "test_load_secrets_falls_back_to_agent_cache" "test_load_secrets_falls_back_to_agent_cache"

@@ -36,6 +36,11 @@ _secrets_info() {
     echo "🔐 $*"
 }
 
+_secrets_debug() {
+    [[ -n "${ZSH_SECRETS_DEBUG:-}" ]] || return 0
+    echo "[secrets:debug] $*" >&2
+}
+
 _secrets_update_env_file() {
     local key="$1"
     local value="$2"
@@ -1233,13 +1238,26 @@ secrets_missing_from_1p() {
 
 load_secrets() {
     _secrets_normalize_mode
+    local _agent_cache="${SECRETS_AGENT_ENV_FILE:-$HOME/.config/zsh/.agent-secrets.env}"
     case "$ZSH_SECRETS_MODE" in
         off) return 0 ;;
         file) secrets_load_file ;;
-        op) secrets_load_op ;;
+        op)
+            secrets_load_op || {
+                if [[ -f "$_agent_cache" ]]; then
+                    _secrets_info "op auth unavailable, loading from agent cache"
+                    secrets_agent_source
+                fi
+            }
+            ;;
         both)
             secrets_load_file
-            secrets_load_op
+            secrets_load_op || {
+                if [[ -f "$_agent_cache" ]]; then
+                    _secrets_info "op auth unavailable, loading from agent cache"
+                    secrets_agent_source
+                fi
+            }
             ;;
         *)
             _secrets_warn "Unknown ZSH_SECRETS_MODE: $ZSH_SECRETS_MODE"
@@ -2489,6 +2507,11 @@ _secrets_auto_signin_all_on_load() {
         return 1
     fi
     [[ "${ZSH_SECRETS_VERBOSE:-}" == "1" ]] && _secrets_info "Auto-signed in all configured 1Password accounts"
+
+    # After successful auto-signin, refresh agent cache for non-interactive shells
+    if typeset -f secrets_agent_refresh >/dev/null 2>&1; then
+        secrets_agent_refresh >/dev/null 2>&1 || true
+    fi
     return 0
 }
 
