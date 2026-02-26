@@ -966,6 +966,8 @@ secrets_load_op() {
     done < "$ZSH_SECRETS_MAP"
     if (( _failed > 0 )); then
         _secrets_warn "1Password: loaded $_loaded, failed $_failed (${_failed_vars[*]})"
+        # Return failure when nothing loaded — triggers agent-cache fallback
+        (( _loaded == 0 )) && return 1
     else
         _secrets_info "Loaded $_loaded secrets from 1Password"
     fi
