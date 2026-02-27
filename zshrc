@@ -182,8 +182,14 @@ if _zsh_startup_use_staggered; then
     }
     
     if zmodload zsh/sched 2>/dev/null; then
-        sched +0.1 _zsh_load_tier2
-        sched +0.5 _zsh_load_tier3
+        # Some zsh builds reject fractional sched offsets ("+0.1").
+        # Use integer seconds and fall back to immediate loading if scheduling fails.
+        if ! sched +1 _zsh_load_tier2 2>/dev/null; then
+            _zsh_load_tier2
+        fi
+        if ! sched +2 _zsh_load_tier3 2>/dev/null; then
+            _zsh_load_tier3
+        fi
     else
         _zsh_load_tier2
         _zsh_load_tier3
@@ -756,9 +762,23 @@ zsh_status_banner() {
     # Current directory
     printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "📁 Location:" "$reset_color" "$(pwd)"
 
-    # Key services status
-    if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-        printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🐳 Docker:" "$reset_color" "running"
+    # Key services status (never block shell startup)
+    local _startup_probe_timeout=2
+    _zsh_startup_probe() {
+        local seconds="${1:-2}"
+        shift
+        if typeset -f _run_with_timeout >/dev/null 2>&1; then
+            _run_with_timeout "$seconds" "$@"
+            return $?
+        fi
+        perl -e 'alarm shift; exec @ARGV' "$seconds" "$@"
+    }
+    if command -v docker >/dev/null 2>&1; then
+        if _zsh_startup_probe "$_startup_probe_timeout" docker info >/dev/null 2>&1; then
+            printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🐳 Docker:" "$reset_color" "running"
+        else
+            printf "\033[%sm%s\033[%sm %s\n" "$accent_color" "🐳 Docker:" "$reset_color" "unreachable/timeout"
+        fi
     fi
 
     # Zeppelin status (lightweight)
@@ -785,7 +805,7 @@ zsh_status_banner() {
         local op_ok="no"
         [[ -n "${ZSH_SECRETS_FILE:-}" && -f "$ZSH_SECRETS_FILE" ]] && file_ok="yes"
         if command -v op >/dev/null 2>&1; then
-            op account list >/dev/null 2>&1 && op_ok="yes"
+            _zsh_startup_probe "$_startup_probe_timeout" op account list >/dev/null 2>&1 && op_ok="yes"
         fi
         secrets_status="file:${file_ok} op:${op_ok} mode:${ZSH_SECRETS_MODE:-unset}"
     fi
