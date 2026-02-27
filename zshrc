@@ -166,6 +166,8 @@ if _zsh_startup_use_staggered; then
         load_module backup       # Git self-backup
         load_module github       # GitHub CLI workflows
         load_module gitlab       # GitLab CLI workflows
+        load_module bitbucket    # Bitbucket migration workflows
+        load_module dataworld    # data.world CSV retention + geo cleanup
         load_module databricks   # Databricks + Lakebase workflows
     }
     
@@ -208,6 +210,8 @@ else
     load_module backup
     load_module github
     load_module gitlab
+    load_module bitbucket
+    load_module dataworld
     load_module databricks
     load_module docker
     load_module spark
