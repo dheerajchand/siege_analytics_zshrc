@@ -14,6 +14,8 @@ _gl_usage() {
     echo "  gl_mr_merge_safe <iid> --project <group/project>"
     echo "  gl_mr_rebase_safe <iid> --project <group/project>"
     echo "  gl_release_cut --project <group/project> --tag <tag> [--ref <branch>]"
+    echo "  git_remote_rescue_to_gitlab [repo_path] [--group <group>] [--dry-run]"
+    echo "  git_ssh_fail_rescue_to_gitlab [root] [--group <group>] [--apply|--dry-run]"
 }
 
 _gl_require() {
@@ -48,6 +50,62 @@ _gl_urlencode() {
     local py="python3"
     command -v python3 >/dev/null 2>&1 || py="python"
     "$py" -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$1"
+}
+
+_gl_require_next_arg() {
+    local flag="$1"
+    local next="${2-}"
+    if [[ -z "$next" || "$next" == --* ]]; then
+        echo "❌ Missing value for ${flag}" >&2
+        return 1
+    fi
+    return 0
+}
+
+_git_remote_health_gl() {
+    local repo_path="${1:-$PWD}"
+    local remote_name="${2:-origin}"
+    local out rc
+    out="$(git -C "$repo_path" ls-remote --heads "$remote_name" 2>&1)"
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+        echo "ok"
+        return 0
+    fi
+    if [[ "$out" == *"REMOTE HOST IDENTIFICATION HAS CHANGED"* || "$out" == *"Host key verification failed"* ]]; then
+        echo "ssh_hostkey_failed"
+        return 0
+    fi
+    if [[ "$out" == *"Permission denied"* || "$out" == *"Could not read from remote repository"* || "$out" == *"Repository not found"* ]]; then
+        echo "ssh_auth_failed"
+        return 0
+    fi
+    echo "unreachable"
+    return 0
+}
+
+_gl_current_username() {
+    local py="python3"
+    command -v python3 >/dev/null 2>&1 || py="python"
+    glab api user 2>/dev/null | "$py" -c 'import json,sys; d=json.load(sys.stdin); print(d.get("username",""))'
+}
+
+_gl_git_auth_remote_url() {
+    local project_path="$1"
+    local clean_url="https://gitlab.com/${project_path}.git"
+    if [[ -n "${GITLAB_TOKEN:-}" ]]; then
+        local enc
+        enc="$(_gl_urlencode "${GITLAB_TOKEN}")"
+        printf '%s\n' "https://oauth2:${enc}@gitlab.com/${project_path}.git"
+        return 0
+    fi
+    if [[ -n "${GITLAB_ACCESS_TOKEN:-}" ]]; then
+        local enc2
+        enc2="$(_gl_urlencode "${GITLAB_ACCESS_TOKEN}")"
+        printf '%s\n' "https://oauth2:${enc2}@gitlab.com/${project_path}.git"
+        return 0
+    fi
+    printf '%s\n' "$clean_url"
 }
 
 gl_auth_status() {
@@ -333,6 +391,185 @@ gl_release_cut() {
     else
         glab release create "$tag" --repo "$project" --notes "Release $tag"
     fi
+}
+
+git_remote_rescue_to_gitlab() {
+    local repo_path="$PWD"
+    local group=""
+    local name_prefix=""
+    local name="" slug="" remote_name="origin" dry_run=0
+
+    if [[ $# -gt 0 && "$1" != --* ]]; then
+        repo_path="$1"
+        shift
+    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --group)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                group="${2:-}"; shift 2
+                ;;
+            --name-prefix)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                name_prefix="${2:-}"; shift 2
+                ;;
+            --name)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                name="${2:-}"; shift 2
+                ;;
+            --slug)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                slug="${2:-}"; shift 2
+                ;;
+            --remote)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                remote_name="${2:-}"; shift 2
+                ;;
+            --dry-run) dry_run=1; shift ;;
+            *)
+                echo "Usage: git_remote_rescue_to_gitlab [repo_path] [--group <group>] [--name-prefix <prefix>] [--name <name>] [--slug <slug>] [--remote <name>] [--dry-run]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    git -C "$repo_path" rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "❌ Not a git repo: $repo_path" >&2; return 1; }
+    _gl_require_auth || return 1
+
+    local health repo_base namespace project_path target_url push_url
+    health="$(_git_remote_health_gl "$repo_path" "$remote_name")"
+    repo_base="$(basename "$repo_path")"
+    name="${name:-$repo_base}"
+    slug="${slug:-$(_gl_slugify "$name")}"
+    [[ -n "$slug" ]] || slug="$repo_base"
+    if [[ -n "$name_prefix" ]]; then
+        slug="$(_gl_slugify "${name_prefix}${slug}")"
+    fi
+
+    namespace="$group"
+    if [[ -z "$namespace" ]]; then
+        namespace="$(_gl_current_username)"
+    fi
+    [[ -n "$namespace" ]] || { echo "❌ Could not determine GitLab namespace; pass --group <namespace>" >&2; return 1; }
+
+    project_path="${namespace}/${slug}"
+    target_url="https://gitlab.com/${project_path}.git"
+    push_url="$(_gl_git_auth_remote_url "$project_path")"
+
+    if [[ "$health" == "ok" ]]; then
+        echo "✅ Remote '$remote_name' is reachable for $repo_path"
+        return 0
+    fi
+
+    echo "⚠️  Remote '$remote_name' health: $health"
+    echo "➡️  Rescue target: $target_url"
+    if (( dry_run )); then
+        echo "🧪 Dry run only; no remote changes made"
+        return 0
+    fi
+
+    if ! glab repo view "$project_path" >/dev/null 2>&1; then
+        glab repo create "$project_path" --private >/dev/null || {
+            echo "❌ Failed to create GitLab project: $project_path" >&2
+            return 1
+        }
+        echo "✅ Created GitLab project: $project_path"
+    else
+        echo "✅ GitLab project already exists: $project_path"
+    fi
+
+    if git -C "$repo_path" remote get-url gl_rescue >/dev/null 2>&1; then
+        git -C "$repo_path" remote remove gl_rescue >/dev/null 2>&1 || true
+    fi
+    git -C "$repo_path" remote add gl_rescue "$push_url" || return 1
+    git -C "$repo_path" push gl_rescue --all || { git -C "$repo_path" remote remove gl_rescue >/dev/null 2>&1 || true; return 1; }
+    git -C "$repo_path" push gl_rescue --tags || { git -C "$repo_path" remote remove gl_rescue >/dev/null 2>&1 || true; return 1; }
+    git -C "$repo_path" remote set-url "$remote_name" "$target_url" || { git -C "$repo_path" remote remove gl_rescue >/dev/null 2>&1 || true; return 1; }
+    git -C "$repo_path" remote remove gl_rescue >/dev/null 2>&1 || true
+    echo "✅ Origin rewritten to: $target_url"
+}
+
+git_ssh_fail_repos_gl() {
+    local root="${1:-$HOME/Documents}"
+    find "$root" -maxdepth 4 -name .git -type d 2>/dev/null | while read -r gitdir; do
+        local repo="${gitdir%/.git}"
+        local origin
+        origin="$(git -C "$repo" remote get-url origin 2>/dev/null || true)"
+        [[ "$origin" == git@* || "$origin" == ssh://git@* ]] || continue
+        local health
+        health="$(_git_remote_health_gl "$repo" origin)"
+        if [[ "$health" != "ok" ]]; then
+            printf '%s\t%s\t%s\n' "$health" "$repo" "$origin"
+        fi
+    done
+}
+
+git_ssh_fail_rescue_to_gitlab() {
+    local root="$HOME/Documents"
+    local group=""
+    local name_prefix=""
+    local dry_run=1
+    if [[ $# -gt 0 && "$1" != --* ]]; then
+        root="$1"
+        shift
+    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --group)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                group="${2:-}"; shift 2
+                ;;
+            --name-prefix)
+                _gl_require_next_arg "$1" "${2-}" || return 1
+                name_prefix="${2:-}"; shift 2
+                ;;
+            --apply) dry_run=0; shift ;;
+            --dry-run) dry_run=1; shift ;;
+            *)
+                echo "Usage: git_ssh_fail_rescue_to_gitlab [root] [--group <group>] [--name-prefix <prefix>] [--apply|--dry-run]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    _gl_require_auth || return 1
+
+    git_ssh_fail_repos_gl "$root" | while IFS=$'\t' read -r health repo origin; do
+        [[ -n "$repo" ]] || continue
+        echo "== $repo =="
+        echo "health=$health"
+        echo "origin=$origin"
+        if (( dry_run )); then
+            if [[ -n "$group" ]]; then
+                if [[ -n "$name_prefix" ]]; then
+                    git_remote_rescue_to_gitlab "$repo" --group "$group" --name-prefix "$name_prefix" --dry-run || true
+                else
+                    git_remote_rescue_to_gitlab "$repo" --group "$group" --dry-run || true
+                fi
+            else
+                if [[ -n "$name_prefix" ]]; then
+                    git_remote_rescue_to_gitlab "$repo" --name-prefix "$name_prefix" --dry-run || true
+                else
+                    git_remote_rescue_to_gitlab "$repo" --dry-run || true
+                fi
+            fi
+        else
+            if [[ -n "$group" ]]; then
+                if [[ -n "$name_prefix" ]]; then
+                    git_remote_rescue_to_gitlab "$repo" --group "$group" --name-prefix "$name_prefix" || true
+                else
+                    git_remote_rescue_to_gitlab "$repo" --group "$group" || true
+                fi
+            else
+                if [[ -n "$name_prefix" ]]; then
+                    git_remote_rescue_to_gitlab "$repo" --name-prefix "$name_prefix" || true
+                else
+                    git_remote_rescue_to_gitlab "$repo" || true
+                fi
+            fi
+        fi
+        echo ""
+    done
 }
 
 if [[ -z "${ZSH_TEST_MODE:-}" ]]; then

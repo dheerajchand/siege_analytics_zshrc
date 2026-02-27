@@ -97,6 +97,16 @@ if [[ "$cmd1" == "repo" && "$cmd2" == "clone" ]]; then
   mkdir -p "$target/.git"
   exit 0
 fi
+if [[ "$cmd1" == "repo" && "$cmd2" == "view" ]]; then
+  if [[ "${GL_REPO_VIEW_EXISTS:-0}" == "1" ]]; then
+    exit 0
+  fi
+  exit 1
+fi
+if [[ "$cmd1" == "repo" && "$cmd2" == "create" ]]; then
+  [[ -n "${GL_REPO_CREATE_MARK:-}" ]] && : > "$GL_REPO_CREATE_MARK"
+  exit 0
+fi
 if [[ "$cmd1" == "issue" && "$cmd2" == "list" ]]; then
   echo "issue list"
   exit 0
@@ -131,6 +141,10 @@ if [[ "$cmd1" == "api" ]]; then
   done
   if [[ "$path" == groups/*/projects* ]]; then
     printf '%s' "${GL_GROUP_PROJECTS_JSON:-[]}"
+    exit 0
+  fi
+  if [[ "$path" == user && "$method" == "GET" ]]; then
+    printf '{"username":"%s"}' "${GL_USER_NAME:-tester}"
     exit 0
   fi
   if [[ "$path" == projects/*/issues/* && "$method" == "GET" ]]; then
@@ -340,6 +354,32 @@ test_gl_mr_merge_safe_blocks_draft() {
     rm -rf "$tmp"
 }
 
+test_git_remote_rescue_to_gitlab_dry_run() {
+    local old_path="$PATH" old_pwd="$PWD"
+    local tmp bin repo out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    repo="$tmp/repo"
+    mkdir -p "$bin"
+
+    _make_glab_stub "$bin"
+    _make_test_repo "$repo"
+    git -C "$repo" remote add origin git@example.com:missing/repo.git
+
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+    cd "$repo"
+
+    _git_remote_health_gl() { echo "ssh_auth_failed"; }
+    out="$(git_remote_rescue_to_gitlab "$repo" --group mygroup --dry-run 2>&1)"
+    assert_contains "$out" "Rescue target: https://gitlab.com/mygroup/repo.git" "dry-run should print GitLab target"
+    assert_contains "$out" "Dry run only" "dry-run should not mutate remotes"
+
+    PATH="$old_path"
+    cd "$old_pwd"
+    rm -rf "$tmp"
+}
+
 test_git_hosting_status_reports_auth() {
     local old_path="$PATH"
     local tmp bin out
@@ -368,4 +408,5 @@ register_test "gh_pr_merge_safe_blocks_draft" test_gh_pr_merge_safe_blocks_draft
 register_test "gl_group_clone_all_clones_non_archived" test_gl_group_clone_all_clones_non_archived
 register_test "gl_issue_start_creates_branch" test_gl_issue_start_creates_branch
 register_test "gl_mr_merge_safe_blocks_draft" test_gl_mr_merge_safe_blocks_draft
+register_test "git_remote_rescue_to_gitlab_dry_run" test_git_remote_rescue_to_gitlab_dry_run
 register_test "git_hosting_status_reports_auth" test_git_hosting_status_reports_auth

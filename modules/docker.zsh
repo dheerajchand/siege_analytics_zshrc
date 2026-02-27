@@ -47,11 +47,11 @@ docker_cleanup() {
     docker system df
     echo ""
     
-    # Remove stopped containers
-    local stopped=$(docker ps -aq --filter "status=exited")
-    if [[ -n "$stopped" ]]; then
+    # Remove stopped containers. `docker rm` returns 404 on some Desktop contexts.
+    local stopped_count=$(docker ps -aq --filter "status=exited" | wc -l | tr -d '[:space:]')
+    if [[ "$stopped_count" -gt 0 ]]; then
         echo "🗑️  Removing stopped containers..."
-        docker rm $stopped
+        docker container prune -f
     else
         echo "✅ No stopped containers"
     fi
@@ -151,6 +151,5 @@ alias dexec='docker exec -it'
 alias dlogs='docker logs -f'
 
 echo "✅ docker loaded"
-
 
 
