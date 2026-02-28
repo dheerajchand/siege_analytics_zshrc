@@ -9,7 +9,10 @@
 # Basic environment
 export EDITOR="zed"
 export VISUAL="$EDITOR"
-export ZSH_CONFIG_DIR="$HOME/.config/zsh"
+: "${ZSHRC_CONFIG_DIR:=$HOME/.config/zsh}"
+export ZSHRC_CONFIG_DIR
+: "${ZSH_CONFIG_DIR:=$ZSHRC_CONFIG_DIR}"
+export ZSH_CONFIG_DIR
 
 # Minimal init for non-TTY interactive shells (prevents GUI app timeouts)
 # Set ZSH_FORCE_FULL_INIT=1 to override.

@@ -3,7 +3,7 @@
 # SETTINGS - Centralized user config (vars/paths/aliases)
 # =================================================================
 
-: "${ZSH_SETTINGS_DIR:=$HOME/.config/zsh}"
+: "${ZSH_SETTINGS_DIR:=${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}}"
 : "${ZSH_VARS_FILE:=$ZSH_SETTINGS_DIR/vars.env}"
 : "${ZSH_ALIASES_FILE:=$ZSH_SETTINGS_DIR/aliases.zsh}"
 : "${ZSH_PATHS_FILE:=$ZSH_SETTINGS_DIR/paths.env}"

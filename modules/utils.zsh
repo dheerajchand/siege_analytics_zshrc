@@ -138,7 +138,7 @@ path_clean() {
 # Edit zsh configuration
 zshconfig() {
     local editor="${EDITOR:-vim}"
-    local config_dir="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}"
+    local config_dir="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
     
     if [[ ! -d "$config_dir" ]]; then
         echo "❌ Configuration directory not found: $config_dir"
@@ -166,11 +166,92 @@ zshreboot() {
     exec zsh
 }
 
+setup_pyenv() {
+    if ! command -v pyenv >/dev/null 2>&1; then
+        echo "❌ pyenv not found on PATH" >&2
+        echo "💡 Install pyenv first, then run setup_pyenv again" >&2
+        return 1
+    fi
+    export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
+    [[ ":$PATH:" == *":$PYENV_ROOT/bin:"* ]] || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path 2>/dev/null)"
+    eval "$(pyenv init - 2>/dev/null)"
+    echo "✅ pyenv initialized"
+    pyenv --version 2>/dev/null | head -n 1 || true
+}
+
+setup_uv() {
+    if ! command -v uv >/dev/null 2>&1; then
+        echo "❌ uv not found on PATH" >&2
+        echo "Install: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+        return 1
+    fi
+    echo "✅ uv available"
+    uv --version 2>/dev/null | head -n 1 || true
+}
+
+toggle_hidden_files() {
+    if [[ "$OSTYPE" != darwin* ]]; then
+        echo "toggle_hidden_files is macOS-only" >&2
+        return 1
+    fi
+    local current
+    current="$(defaults read com.apple.finder AppleShowAllFiles 2>/dev/null || echo 0)"
+    if [[ "$current" == "1" || "$current" == "true" ]]; then
+        defaults write com.apple.finder AppleShowAllFiles -bool false
+        echo "✅ Hidden files disabled"
+    else
+        defaults write com.apple.finder AppleShowAllFiles -bool true
+        echo "✅ Hidden files enabled"
+    fi
+    killall Finder >/dev/null 2>&1 || true
+}
+
+toggle_key_repeat() {
+    if [[ "$OSTYPE" != darwin* ]]; then
+        echo "toggle_key_repeat is macOS-only" >&2
+        return 1
+    fi
+    local current
+    current="$(defaults read -g ApplePressAndHoldEnabled 2>/dev/null || echo 1)"
+    if [[ "$current" == "1" || "$current" == "true" ]]; then
+        defaults write -g ApplePressAndHoldEnabled -bool false
+        echo "✅ Key repeat enabled (press-and-hold disabled)"
+    else
+        defaults write -g ApplePressAndHoldEnabled -bool true
+        echo "✅ Press-and-hold enabled (key repeat disabled)"
+    fi
+}
+
+_utils_run_named_tests() {
+    local root="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
+    local runner="$root/run-tests.zsh"
+    [[ -f "$runner" ]] || { echo "❌ Test runner not found: $runner" >&2; return 1; }
+    local t
+    for t in "$@"; do
+        zsh "$runner" --test "$t" || return 1
+    done
+}
+
+test_system() {
+    local root="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
+    local runner="$root/run-tests.zsh"
+    [[ -f "$runner" ]] || { echo "❌ Test runner not found: $runner" >&2; return 1; }
+    zsh "$runner"
+}
+
+test_backup() { _utils_run_named_tests backup_requires_git backup_pushes_current_branch; }
+test_python() { _utils_run_named_tests test_python_status_defined test_python_config_status_defined; }
+test_spark() { _utils_run_named_tests test_spark_mode_functions_defined test_spark_workers_health_defined; }
+test_jvm() { _utils_run_named_tests test_hadoop_health_defined test_spark_health_defined; }
+test_jupyter() { _utils_run_named_tests test_spark41_route_health_defined; }
+test_compatibility() { _utils_run_named_tests test_bash_bridge_defines_functions test_wiki_internal_links_resolve; }
+test_bash_install() { _utils_run_named_tests test_bash_bridge_defines_functions test_bash_docs_no_stale_commands; }
+
 # Aliases for common variations
 alias reload='zshreboot'
 alias zshreload='zshreboot'
 alias editconfig='zshconfig'
 
 echo "✅ utils loaded"
-
 
