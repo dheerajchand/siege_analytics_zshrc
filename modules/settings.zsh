@@ -8,6 +8,14 @@
 : "${ZSH_ALIASES_FILE:=$ZSH_SETTINGS_DIR/aliases.zsh}"
 : "${ZSH_PATHS_FILE:=$ZSH_SETTINGS_DIR/paths.env}"
 
+_settings_detect_os_profile() {
+    if [[ "$OSTYPE" == darwin* ]]; then
+        echo "mac"
+    else
+        echo "linux"
+    fi
+}
+
 _settings_detect_machine_profile() {
     if [[ -n "${ZSH_MACHINE_PROFILE:-}" ]]; then
         printf '%s\n' "${ZSH_MACHINE_PROFILE:l}"
@@ -31,7 +39,9 @@ _settings_detect_machine_profile() {
     fi
 }
 
+: "${ZSH_OS_PROFILE:=$(_settings_detect_os_profile)}"
 : "${ZSH_MACHINE_PROFILE:=$(_settings_detect_machine_profile)}"
+: "${ZSH_VARS_OS_FILE:=$ZSH_SETTINGS_DIR/vars.${ZSH_OS_PROFILE}.env}"
 : "${ZSH_VARS_MACHINE_FILE:=$ZSH_SETTINGS_DIR/vars.${ZSH_MACHINE_PROFILE}.env}"
 
 settings_persist_var() {
@@ -93,10 +103,20 @@ EOF
         created=1
         echo "Created $ZSH_PATHS_FILE"
     fi
+    if [[ ! -f "$ZSH_VARS_OS_FILE" ]]; then
+        cat > "$ZSH_VARS_OS_FILE" <<EOF
+# OS-specific variable overrides for profile: ${ZSH_OS_PROFILE}
+# Loaded after vars.env and before machine-specific overrides.
+# Example:
+# export ZSH_STARTUP_MODE="\${ZSH_STARTUP_MODE:-auto}"
+EOF
+        created=1
+        echo "Created $ZSH_VARS_OS_FILE"
+    fi
     if [[ ! -f "$ZSH_VARS_MACHINE_FILE" ]]; then
         cat > "$ZSH_VARS_MACHINE_FILE" <<EOF
 # Machine-specific variable overrides for profile: ${ZSH_MACHINE_PROFILE}
-# Loaded after vars.env; values here override shared defaults.
+# Loaded last; values here override shared + OS defaults.
 # Example:
 # export PYENV_DEFAULT_VENV="\${PYENV_DEFAULT_VENV:-default_31111}"
 EOF
@@ -116,6 +136,11 @@ settings_edit_vars_machine() {
     "${EDITOR:-vi}" "$ZSH_VARS_MACHINE_FILE"
 }
 
+settings_edit_vars_os() {
+    [[ -f "$ZSH_VARS_OS_FILE" ]] || settings_init >/dev/null 2>&1
+    "${EDITOR:-vi}" "$ZSH_VARS_OS_FILE"
+}
+
 settings_edit_aliases() {
     [[ -f "$ZSH_ALIASES_FILE" ]] || settings_init >/dev/null 2>&1
     "${EDITOR:-vi}" "$ZSH_ALIASES_FILE"
@@ -129,19 +154,26 @@ settings_edit_paths() {
 settings_status() {
     echo "⚙️  Settings"
     echo "============"
+    echo "OS profile: $ZSH_OS_PROFILE"
     echo "Profile: $ZSH_MACHINE_PROFILE"
     echo "Vars:    $ZSH_VARS_FILE"
+    echo "Vars(OS): $ZSH_VARS_OS_FILE"
     echo "Vars(M): $ZSH_VARS_MACHINE_FILE"
     echo "Aliases: $ZSH_ALIASES_FILE"
     echo "Paths:   $ZSH_PATHS_FILE"
 }
 
-# Load order: shared vars -> machine vars -> aliases -> paths
+# Load order: shared vars -> os vars -> machine vars -> aliases -> paths
 if [[ -f "$ZSH_VARS_FILE" ]]; then
     source "$ZSH_VARS_FILE"
 fi
+if [[ -f "$ZSH_VARS_OS_FILE" && "$ZSH_VARS_OS_FILE" != "$ZSH_VARS_FILE" ]]; then
+    source "$ZSH_VARS_OS_FILE"
+fi
 if [[ -f "$ZSH_VARS_MACHINE_FILE" ]]; then
-    source "$ZSH_VARS_MACHINE_FILE"
+    if [[ "$ZSH_VARS_MACHINE_FILE" != "$ZSH_VARS_FILE" && "$ZSH_VARS_MACHINE_FILE" != "$ZSH_VARS_OS_FILE" ]]; then
+        source "$ZSH_VARS_MACHINE_FILE"
+    fi
 fi
 if [[ -f "$ZSH_ALIASES_FILE" ]]; then
     source "$ZSH_ALIASES_FILE"
