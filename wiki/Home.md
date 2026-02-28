@@ -25,6 +25,16 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - First-time configuration
 - Essential commands
 
+### **🧭 [New User Onboarding](New-User-Onboarding)**
+- First 30-minute setup path
+- Profile, secrets, Python, Spark/Hadoop validation
+- Safe baseline for new machines/users
+
+### **🛠️ [How-To Recipes](How-To-Recipes)**
+- Common operational tasks
+- Quick fixes and recovery playbooks
+- Command-first snippets for daily use
+
 ### **🎯 [Idiot-Proof Guide](../IDIOT_LEVEL_GUIDE.md)**
 - **Complete beginner-friendly setup guide**
 - **Step-by-step instructions** for all skill levels
