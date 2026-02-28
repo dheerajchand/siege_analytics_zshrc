@@ -931,7 +931,7 @@ test_secrets_require_source_blocks_mismatch() {
 }
 
 test_op_set_default_prefers_shorthand() {
-    local tmp bin file old_path old_file
+    local tmp bin file old_path old_file old_account old_vault
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
     mkdir -p "$bin"
@@ -942,17 +942,21 @@ EOF
     _make_stub_op_accounts_json "$bin" '[{"account_uuid":"UUID1","shorthand":"Dheeraj_Chand_Family"}]'
     old_path="$PATH"
     old_file="$OP_ACCOUNTS_FILE"
+    old_account="${OP_ACCOUNT-}"
+    old_vault="${OP_VAULT-}"
     PATH="$bin:/usr/bin:/bin"
     export OP_ACCOUNTS_FILE="$file"
     op_set_default Dheeraj_Chand_Family Private
     assert_equal "Dheeraj_Chand_Family" "$OP_ACCOUNT" "should prefer shorthand when configured"
     PATH="$old_path"
     export OP_ACCOUNTS_FILE="$old_file"
+    if [[ -n "${old_account-}" ]]; then export OP_ACCOUNT="$old_account"; else unset OP_ACCOUNT; fi
+    if [[ -n "${old_vault-}" ]]; then export OP_VAULT="$old_vault"; else unset OP_VAULT; fi
     rm -rf "$tmp"
 }
 
 test_op_set_default_uses_uuid_when_no_shorthand() {
-    local tmp bin file old_path old_file
+    local tmp bin file old_path old_file old_account old_vault
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
     mkdir -p "$bin"
@@ -963,12 +967,16 @@ EOF
     _make_stub_op_accounts_json "$bin" '[{"account_uuid":"UUID1","shorthand":""}]'
     old_path="$PATH"
     old_file="$OP_ACCOUNTS_FILE"
+    old_account="${OP_ACCOUNT-}"
+    old_vault="${OP_VAULT-}"
     PATH="$bin:/usr/bin:/bin"
     export OP_ACCOUNTS_FILE="$file"
     op_set_default Dheeraj_Chand_Family Private
     assert_equal "UUID1" "$OP_ACCOUNT" "should use uuid when shorthand missing"
     PATH="$old_path"
     export OP_ACCOUNTS_FILE="$old_file"
+    if [[ -n "${old_account-}" ]]; then export OP_ACCOUNT="$old_account"; else unset OP_ACCOUNT; fi
+    if [[ -n "${old_vault-}" ]]; then export OP_VAULT="$old_vault"; else unset OP_VAULT; fi
     rm -rf "$tmp"
 }
 
@@ -1184,27 +1192,48 @@ test_secrets_profile_switch_sets_profile() {
 }
 
 test_secrets_profile_switch_persists() {
-    local tmp file old_file old_mode
+    local tmp file old_file old_mode old_account old_vault old_path old_profile_list
     tmp="$(mktemp -d)"
     file="$tmp/secrets.env"
     old_file="$ZSH_SECRETS_FILE"
     old_mode="$ZSH_SECRETS_MODE"
+    old_account="${OP_ACCOUNT-}"
+    old_vault="${OP_VAULT-}"
+    old_path="$PATH"
+    old_profile_list="${ZSH_PROFILE_LIST-}"
     export ZSH_SECRETS_FILE="$file"
     export ZSH_SECRETS_MODE="off"
-    secrets_profile_switch staging >/dev/null 2>&1
+    export PATH="/usr/bin:/bin"
+    unset OP_ACCOUNT OP_VAULT
+    export ZSH_PROFILE_LIST="dev staging prod laptop cyberpower"
+    : > "$file"
+    secrets_profile_switch staging >/dev/null 2>&1 || true
     assert_contains "$(cat "$file")" "ZSH_ENV_PROFILE=staging" "should persist profile to secrets file"
     export ZSH_SECRETS_FILE="$old_file"
     export ZSH_SECRETS_MODE="$old_mode"
+    PATH="$old_path"
+    if [[ -n "${old_account-}" ]]; then export OP_ACCOUNT="$old_account"; else unset OP_ACCOUNT; fi
+    if [[ -n "${old_vault-}" ]]; then export OP_VAULT="$old_vault"; else unset OP_VAULT; fi
+    if [[ -n "${old_profile_list-}" ]]; then export ZSH_PROFILE_LIST="$old_profile_list"; else unset ZSH_PROFILE_LIST; fi
     rm -rf "$tmp"
 }
 
 test_secrets_update_env_file_error_handling() {
-    local old_file
+    local old_file old_path tmp blocked out
     old_file="$ZSH_SECRETS_FILE"
-    export ZSH_SECRETS_FILE="/root/forbidden_secrets.env"
+    old_path="$PATH"
+    tmp="$(mktemp -d)"
+    blocked="$tmp/blocked"
+    mkdir -p "$blocked"
+    chmod 500 "$blocked"
+    export PATH="/usr/bin:/bin"
+    export ZSH_SECRETS_FILE="$blocked/forbidden_secrets.env"
     out="$(_secrets_update_env_file FOO bar 2>&1 || true)"
     assert_contains "$out" "Failed to create secrets file" "should warn on write failure"
     export ZSH_SECRETS_FILE="$old_file"
+    PATH="$old_path"
+    chmod 700 "$blocked" 2>/dev/null || true
+    rm -rf "$tmp"
 }
 
 test_secrets_profile_switch_ignores_vault_without_account() {

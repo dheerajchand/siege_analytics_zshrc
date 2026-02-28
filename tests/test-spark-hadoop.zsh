@@ -170,7 +170,11 @@ test_spark_mode_use_persist_writes_vars_env() {
     source "$ROOT_DIR/modules/spark.zsh"
     local tmp
     tmp="$(mktemp -d)"
+    local old_zshrc_config_dir="${ZSHRC_CONFIG_DIR-}"
+    local old_zsh_config_dir="${ZSH_CONFIG_DIR-}"
+    ZSHRC_CONFIG_DIR="$tmp"
     ZSH_CONFIG_DIR="$tmp"
+    export ZSHRC_CONFIG_DIR
     export ZSH_CONFIG_DIR
     cat > "$tmp/vars.env" <<'EOF'
 export SPARK_EXECUTION_MODE="${SPARK_EXECUTION_MODE:-auto}"
@@ -182,6 +186,8 @@ EOF
     persisted="$(cat "$tmp/vars.env")"
     assert_contains "$persisted" 'export SPARK_EXECUTION_MODE="${SPARK_EXECUTION_MODE:-local}"' "persist should update vars.env value"
 
+    if [[ -n "${old_zshrc_config_dir:-}" ]]; then export ZSHRC_CONFIG_DIR="$old_zshrc_config_dir"; else unset ZSHRC_CONFIG_DIR; fi
+    if [[ -n "${old_zsh_config_dir:-}" ]]; then export ZSH_CONFIG_DIR="$old_zsh_config_dir"; else unset ZSH_CONFIG_DIR; fi
     rm -rf "$tmp"
 }
 
@@ -225,8 +231,12 @@ test_spark_log_level_defined_and_defaults_warn() {
 test_spark_log_level_set_and_persist() {
     source "$ROOT_DIR/modules/spark.zsh"
     local tmp
+    local old_zshrc_config_dir="${ZSHRC_CONFIG_DIR-}"
+    local old_zsh_config_dir="${ZSH_CONFIG_DIR-}"
     tmp="$(mktemp -d)"
+    ZSHRC_CONFIG_DIR="$tmp"
     ZSH_CONFIG_DIR="$tmp"
+    export ZSHRC_CONFIG_DIR
     export ZSH_CONFIG_DIR
     cat > "$tmp/vars.env" <<'EOF'
 export SPARK_LOG_LEVEL="${SPARK_LOG_LEVEL:-WARN}"
@@ -236,6 +246,8 @@ EOF
     local persisted
     persisted="$(cat "$tmp/vars.env")"
     assert_contains "$persisted" 'export SPARK_LOG_LEVEL="${SPARK_LOG_LEVEL:-INFO}"' "persist should update SPARK_LOG_LEVEL in vars.env"
+    if [[ -n "${old_zshrc_config_dir:-}" ]]; then export ZSHRC_CONFIG_DIR="$old_zshrc_config_dir"; else unset ZSHRC_CONFIG_DIR; fi
+    if [[ -n "${old_zsh_config_dir:-}" ]]; then export ZSH_CONFIG_DIR="$old_zsh_config_dir"; else unset ZSH_CONFIG_DIR; fi
     rm -rf "$tmp"
 }
 

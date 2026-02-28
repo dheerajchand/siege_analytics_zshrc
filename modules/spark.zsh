@@ -87,7 +87,7 @@ _spark_resolve_master() {
 _spark_persist_var() {
     local key="$1"
     local value="$2"
-    local file="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/vars.env"
+    local file="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}/vars.env"
     [[ -z "$key" ]] && return 1
     if typeset -f settings_persist_var >/dev/null 2>&1; then
         settings_persist_var "$key" "$value" "$file"
