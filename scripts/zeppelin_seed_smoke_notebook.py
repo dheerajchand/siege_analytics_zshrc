@@ -211,9 +211,10 @@ fi
                 "text": """%sh
 set -euo pipefail
 zsh -lc '
-source ~/.config/zsh/modules/settings.zsh >/dev/null
-source ~/.config/zsh/modules/utils.zsh >/dev/null
-source ~/.config/zsh/modules/spark.zsh >/dev/null
+CFG="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
+source "$CFG/modules/settings.zsh" >/dev/null
+source "$CFG/modules/utils.zsh" >/dev/null
+source "$CFG/modules/spark.zsh" >/dev/null
 set +e
 echo "=== MODE local: status ==="
 SPARK_EXECUTION_MODE=local spark_workers_health

@@ -6,7 +6,8 @@
 # =================================================================
 
 # Repository locations
-export ZSHRC_CONFIG_DIR="$HOME/.config/zsh"
+: "${ZSHRC_CONFIG_DIR:=${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
+export ZSHRC_CONFIG_DIR
 export ZSHRC_MAIN_REPO="siege_analytics_zshrc"
 export ZSHRC_BACKUP_REPO="zshrc_backups"
 
