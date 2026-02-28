@@ -15,6 +15,11 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - Localization and host override model
 - Complete public function index by module
 
+### **🧱 [Coding Standards](Coding-Standards)**
+- Zsh coding conventions and patterns
+- Hardcoding avoidance and configuration layering
+- Testing and review checklist for maintainable modules
+
 ### **🚀 [Quick Start Guide](Quick-Start)**
 - Installation and setup
 - First-time configuration
