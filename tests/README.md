@@ -21,6 +21,10 @@ Minimal zsh test framework and test suites for this repo.
 - `test-screen.zsh`
 - `test-git-hosting.zsh`
 - `test-databricks.zsh`
+- `test-bash-bridge.zsh`
+- `test-bitbucket.zsh`
+- `test-dataworld.zsh`
+- `test-wiki.zsh`
 
 ## Run tests
 

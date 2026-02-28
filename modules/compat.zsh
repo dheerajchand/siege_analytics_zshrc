@@ -6,13 +6,14 @@
 : "${ZSH_STACK_PROFILE:=stable}"
 
 _compat_matrix_file() {
-    echo "${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/compatibility-matrix.json"
+    local base="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
+    echo "${base}/compatibility-matrix.json"
 }
 
 _compat_persist_var() {
     local key="$1"
     local value="$2"
-    local file="${ZSH_CONFIG_DIR:-$HOME/.config/zsh}/vars.env"
+    local file="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}/vars.env"
     if typeset -f settings_persist_var >/dev/null 2>&1; then
         settings_persist_var "$key" "$value" "$file"
         return $?

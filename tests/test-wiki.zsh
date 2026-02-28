@@ -95,8 +95,8 @@ test_bash_docs_no_stale_commands() {
 
 test_home_quick_commands_are_defined() {
     local out
-    out="$(ZSH_TEST_MODE=1 zsh -fc "
-        source $ROOT_DIR/zshrc >/dev/null 2>&1
+    out="$(ROOT_DIR="$ROOT_DIR" ZSH_TEST_MODE=1 zsh -fc '
+        source "$ROOT_DIR/zshrc" >/dev/null 2>&1
         missing=0
         for fn in \
             help zshconfig zshreboot backup secrets_profiles secrets_bootstrap_from_1p screen_ensure_pyenv \
@@ -105,10 +105,10 @@ test_home_quick_commands_are_defined() {
             setup_pyenv setup_uv python_status \
             test_system test_backup test_python test_spark test_jvm test_jupyter test_compatibility test_bash_install
         do
-            typeset -f \"\$fn\" >/dev/null 2>&1 || { echo \"MISSING:\$fn\"; missing=1; }
+            typeset -f "$fn" >/dev/null 2>&1 || { echo "MISSING:$fn"; missing=1; }
         done
-        [[ \"\$missing\" -eq 0 ]] || exit 1
-    " 2>&1 || true)"
+        [[ "$missing" -eq 0 ]] || exit 1
+    ' 2>&1 || true)"
     assert_not_contains "$out" "MISSING:" "Home quick commands should map to defined functions"
 }
 

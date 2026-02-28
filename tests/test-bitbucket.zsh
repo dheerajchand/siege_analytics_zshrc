@@ -83,11 +83,14 @@ test_git_ssh_fail_rescue_rejects_missing_workspace_value() {
 
 test_bb_auth_setup_interactive_persists_with_helpers() {
     local tmp_vars tmp_secrets
+    local old_settings_persist_var old_secrets_update_env_file
     tmp_vars="$(mktemp)"
     tmp_secrets="$(mktemp)"
     export ZSH_VARS_FILE="$tmp_vars"
     export ZSH_SECRETS_FILE="$tmp_secrets"
     unset BITBUCKET_WORKSPACE BITBUCKET_USERNAME BITBUCKET_APP_PASSWORD
+    old_settings_persist_var="$(typeset -f settings_persist_var || true)"
+    old_secrets_update_env_file="$(typeset -f _secrets_update_env_file || true)"
 
     settings_persist_var() {
         local key="$1" val="$2" file="${3:-$ZSH_VARS_FILE}"
@@ -110,8 +113,16 @@ test_bb_auth_setup_interactive_persists_with_helpers() {
     assert_command_success "rg -q \"BITBUCKET_USERNAME\" \"$tmp_vars\"" "vars file should include username"
     assert_command_success "rg -q \"BITBUCKET_APP_PASSWORD=mypassword\" \"$tmp_secrets\"" "secrets file should include app password"
 
-    unfunction settings_persist_var
-    unfunction _secrets_update_env_file
+    if [[ -n "$old_settings_persist_var" ]]; then
+        eval "$old_settings_persist_var"
+    else
+        unfunction settings_persist_var 2>/dev/null || true
+    fi
+    if [[ -n "$old_secrets_update_env_file" ]]; then
+        eval "$old_secrets_update_env_file"
+    else
+        unfunction _secrets_update_env_file 2>/dev/null || true
+    fi
     rm -f "$tmp_vars" "$tmp_secrets" "$out_file"
 }
 

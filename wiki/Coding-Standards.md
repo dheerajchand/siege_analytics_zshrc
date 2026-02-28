@@ -30,10 +30,11 @@ Goal: predictable behavior, low maintenance, and testable shell code.
 Example:
 ```zsh
 # Good
-: "${ZSH_CONFIG_DIR:=$HOME/.config/zsh}"
+: "${ZSHRC_CONFIG_DIR:=$HOME/.config/zsh}"
+: "${ZSH_CONFIG_DIR:=$ZSHRC_CONFIG_DIR}"
 
 # Avoid
-ZSH_CONFIG_DIR="/Users/dheerajchand/.config/zsh"
+ZSHRC_CONFIG_DIR="/Users/dheerajchand/.config/zsh"
 ```
 
 ## Function Design Patterns
