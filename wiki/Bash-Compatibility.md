@@ -16,9 +16,7 @@ That means:
 ### Minimal bridge
 Add to `~/.bashrc`:
 ```bash
-zrun() {
-  zsh -lc "$*"
-}
+source ~/.config/zsh/bash-bridge.sh
 ```
 
 Usage:
@@ -28,6 +26,9 @@ zrun "settings_status"
 zrun "spark_status"
 zrun "hadoop_status"
 ```
+
+Built-in wrapper commands from the bridge:
+`zhelp`, `zmodules`, `zstatus`, `zspark`, `zhadoop`, `zzeppelin`, `zsecrets`, `zbackup`, `ztest`
 
 ### Grouped execution (faster)
 ```bash
