@@ -62,6 +62,12 @@ my_func() {
 - Use `local` for function-scoped variables.
 - Avoid global mutation unless it is the function purpose.
 - Avoid `eval` unless no safe alternative exists.
+- Allowed `eval` patterns are explicitly limited to trusted shell initializers that emit shell code, such as:
+  - `eval "$(pyenv init --path ...)"`, `eval "$(pyenv init - ...)"`
+  - `eval "$(pyenv virtualenv-init - ...)"`
+  - `eval "$(op signin ...)"` in interactive auth helpers
+- Do not use `eval` for dynamic command construction from user-provided values.
+- If a new `eval` use is introduced, document why a non-`eval` approach is unsafe/infeasible and add tests.
 - Use `command -v tool >/dev/null 2>&1` for dependency checks.
 
 ## Logging and UX

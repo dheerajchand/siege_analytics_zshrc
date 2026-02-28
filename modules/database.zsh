@@ -7,7 +7,8 @@
 
 # PostgreSQL default configuration
 export PGHOST="${PGHOST:-localhost}"
-export PGUSER="${PGUSER:-dheerajchand}"
+export DEFAULT_PG_USER="${DEFAULT_PG_USER:-$USER}"
+export PGUSER="${PGUSER:-${DEFAULT_PG_USER}}"
 export PGPORT="${PGPORT:-5432}"
 export PGDATABASE="${PGDATABASE:-postgres}"
 
@@ -135,6 +136,5 @@ alias pgtest='pg_test_connection'
 alias pgsetup='setup_postgres_credentials'
 
 echo "✅ database loaded"
-
 
 
