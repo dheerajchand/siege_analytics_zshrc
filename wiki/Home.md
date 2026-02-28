@@ -10,6 +10,11 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - **Interactive navigation** and search functionality
 - **Siege Analytics branding** with custom styling
 
+### **📘 [Shell Operations Guide](Shell-Operations-Guide)**
+- End-to-end shell usage and workflows
+- Localization and host override model
+- Complete public function index by module
+
 ### **🚀 [Quick Start Guide](Quick-Start)**
 - Installation and setup
 - First-time configuration
@@ -34,35 +39,35 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - Function translation between zsh and bash
 - Installation scripts for both shells
 
-### **⚡ [Spark & Big Data](Spark-Big-Data)**
+### **⚡ [Spark + Hadoop + Zeppelin](Module-Spark)**
 - Spark shell management
 - Hadoop integration
-- Jupyter notebook setup
+- Jar matrix and compatibility checks
 
 ### **🧩 [Functions & Dependencies](Functions-Dependencies)**
 - Detailed function reference
 - Jar matrix resolution
 - Spark/Hadoop safety flags
 
-### **🐍 [Python Environment](Python-Environment)**
+### **🐍 [Python Environment](Module-Python)**
 - Pyenv and UV management
 - Virtual environment setup
 - Project management
 
-### **🛠️ [macOS Integration](macOS-Integration)**
-- System configuration
-- Cursor IDE integration
-- Finder and keyboard optimizations
+### **🛠️ [System Diagnostics](Module-System-Diagnostics)**
+- macOS/Linux diagnostics
+- iCloud and Dropbox helpers
+- Data platform checks
 
-### **💾 [Backup & Recovery](Backup-Recovery)**
+### **💾 [Backup & Recovery](Module-Backup)**
 - Configuration backup system
 - Restore procedures
 - Version management
 
-### **🔧 [Advanced Features](Advanced-Features)**
-- Custom functions
-- Performance optimization
-- Troubleshooting
+### **🔧 [Settings + Secrets](Module-Settings)**
+- Shared/OS/machine variable layering
+- Alias/path customization
+- Host-aware local overrides
 
 ### **🧪 [Testing Framework](Testing-Framework)**
 - Comprehensive unit testing for Zsh functions
@@ -82,11 +87,11 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 
 ```bash
 # Core functions
-zsh_help                    # Display comprehensive help
+help                        # Display comprehensive help
 zshconfig                   # Edit configuration directory
 zshreboot                   # Reload configuration
-backup_zsh_config          # Create configuration backup
-secrets_profiles           # List profiles and colors
+backup "message"            # Commit + push current branch
+secrets_profiles            # List profiles and colors
 secrets_bootstrap_from_1p   # Pull secrets files from 1Password
 screen_ensure_pyenv         # Ensure pyenv init for screen shells
 
@@ -100,8 +105,8 @@ toggle_key_repeat          # Toggle key repeat behavior
 
 # Spark management
 pyspark_shell              # Python shell with dependencies
-spark_shell_scala          # Scala shell with optimization
-smart_spark_shell          # Intelligent shell selection
+spark_shell                # Scala shell with optimization
+smart_spark_submit job.py  # Intelligent submit wrapper
 
 # Python management
 setup_pyenv                # Initialize pyenv
@@ -129,10 +134,10 @@ zsh run-tests.zsh --coverage # Run tests with coverage
 
 ## 📖 **Getting Started**
 
-1. **Read the [Quick Start Guide](Quick-Start)** for immediate setup
+1. **Read the [Shell Operations Guide](Shell-Operations-Guide)** for complete workflows
 2. **Explore [System Architecture](System-Architecture)** to understand the design
-3. **Check [macOS Integration](macOS-Integration)** for system optimization
-4. **Review [Backup & Recovery](Backup-Recovery)** for safety
+3. **Read [Quick-Start](Quick-Start)** for rapid setup
+4. **Review [Module-Backup](Module-Backup)** for safety
 
 ---
 
