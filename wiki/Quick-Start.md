@@ -2,6 +2,8 @@
 
 Get your enhanced zsh configuration up and running in minutes! **Now with full bash compatibility!**
 
+For full operational workflows and complete function coverage, use [Shell Operations Guide](Shell-Operations-Guide).
+
 ## ⚡ **Immediate Setup**
 
 ### **For Bash Users (One-Line Installation)**
@@ -325,9 +327,9 @@ defaults delete -g ApplePressAndHoldEnabled
 ## 📚 **Next Steps**
 
 1. **Read [System Architecture](System-Architecture)** to understand the design
-2. **Explore [macOS Integration](macOS-Integration)** for system optimization
-3. **Check [Backup & Recovery](Backup-Recovery)** for safety procedures
-4. **Review [Advanced Features](Advanced-Features)** for power user tips
+2. **Explore [macOS Integration](Module-System-Diagnostics)** for system optimization
+3. **Check [Backup & Recovery](Module-Backup)** for safety procedures
+4. **Review [Advanced Features](Shell-Operations-Guide)** for power user tips
 
 ## 💡 **Pro Tips**
 

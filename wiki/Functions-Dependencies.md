@@ -1037,4 +1037,4 @@ function recover_from_error {
 
 **Comprehensive function documentation with dependency graphs, performance metrics, and implementation details!** 🚀
 
-**Next**: Read about [macOS Integration](macOS-Integration) or [Repository Management](Repository-Management) features.
+**Next**: Read about [macOS Integration](Module-System-Diagnostics) or [Repository Management](Repository-Management) features.

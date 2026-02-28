@@ -1134,4 +1134,4 @@ function show_test_statistics {
 
 **Comprehensive testing framework with validation procedures, performance testing, and diagnostic capabilities!** 🚀
 
-**Next**: Read about [macOS Integration](macOS-Integration) or [Repository Management](Repository-Management) features.
+**Next**: Read about [macOS Integration](Module-System-Diagnostics) or [Repository Management](Repository-Management) features.

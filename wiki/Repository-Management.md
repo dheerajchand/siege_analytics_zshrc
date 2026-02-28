@@ -807,4 +807,4 @@ function repository_performance_metrics {
 
 **Comprehensive repository management with dual repository architecture, intelligent sync, and robust backup systems!** 🚀
 
-**Next**: Read about [macOS Integration](macOS-Integration) or [Testing & Validation](Testing-Validation) features.
+**Next**: Read about [macOS Integration](Module-System-Diagnostics) or [Testing & Validation](Testing-Validation) features.

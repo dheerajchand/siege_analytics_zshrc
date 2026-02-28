@@ -624,4 +624,4 @@ graph LR
 
 **Architecture designed for maintainability, performance, extensibility, and enterprise-grade reliability!** 🚀
 
-**Next**: Read about [macOS Integration](macOS-Integration) or [Spark & Big Data](Spark-Big-Data) features.
+**Next**: Read about [macOS Integration](Module-System-Diagnostics) or [Spark & Big Data](Module-Spark) features.
