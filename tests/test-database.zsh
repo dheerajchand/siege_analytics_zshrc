@@ -51,5 +51,19 @@ test_database_status_with_stub() {
     rm -rf "$tmp"
 }
 
+test_database_default_pg_user_from_default_var() {
+    local out
+    out="$(DEFAULT_PG_USER='pg_owner' PGUSER='' ZSH_TEST_MODE=1 zsh -fc "source $ROOT_DIR/modules/database.zsh >/dev/null; echo \$PGUSER")"
+    assert_equal "pg_owner" "$out" "PGUSER should default to DEFAULT_PG_USER when PGUSER is unset"
+}
+
+test_database_default_pg_user_falls_back_to_shell_user() {
+    local out
+    out="$(DEFAULT_PG_USER='' PGUSER='' ZSH_TEST_MODE=1 zsh -fc "source $ROOT_DIR/modules/database.zsh >/dev/null; echo \$PGUSER")"
+    assert_equal "$USER" "$out" "PGUSER should fallback to current shell user when DEFAULT_PG_USER is unset"
+}
+
 register_test "database_pg_test" test_pg_test_connection_success
 register_test "database_status" test_database_status_with_stub
+register_test "database_default_pg_user_from_default_var" test_database_default_pg_user_from_default_var
+register_test "database_default_pg_user_falls_back_to_shell_user" test_database_default_pg_user_falls_back_to_shell_user

@@ -7,7 +7,8 @@ PostgreSQL helpers and credential wiring.
 
 ## Environment
 - `PGHOST` (default `localhost`)
-- `PGUSER` (default `dheerajchand`)
+- `DEFAULT_PG_USER` (default current shell user)
+- `PGUSER` (default `${DEFAULT_PG_USER}`)
 - `PGPORT` (default `5432`)
 - `PGDATABASE` (default `postgres`)
 - `PGPASSWORD` (set by `setup_postgres_credentials`)
