@@ -42,7 +42,7 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - Cross-shell compatibility layer
 - Platform-specific adaptations
 - Function translation between zsh and bash
-- Installation scripts for both shells
+- Bash bridge wrappers (`bash-bridge.sh`) for zsh-native functions
 
 ### **⚡ [Spark + Hadoop + Zeppelin](Module-Spark)**
 - Spark shell management
@@ -79,6 +79,10 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - pytest-like functionality for shell scripting
 - Test coverage and reporting
 - CI/CD integration
+
+### **📋 [Backlog](Backlog)**
+- Open and closed documentation/code follow-ups
+- Operational tracking for maintenance tasks
 
 ## 🎯 **What Makes This Special?**
 
@@ -133,7 +137,7 @@ zsh run-tests.zsh --coverage # Run tests with coverage
 
 ## 🔗 **Repository Links**
 
-- **Main Config**: [~/.config/zsh](https://github.com/dheerajchand/spark_ready_zshrc)
+- **Main Config**: [~/.config/zsh](https://github.com/dheerajchand/siege_analytics_zshrc)
 - **Backup System**: [zshrc_backups](https://github.com/dheerajchand/zshrc_backups)
 - **Main Dotfiles**: [~/.dotfiles](https://github.com/dheerajchand/dotfiles)
 
@@ -148,5 +152,5 @@ zsh run-tests.zsh --coverage # Run tests with coverage
 
 **Enhanced Zsh Configuration**: Modern, modular, and intelligent shell configuration for productive development! 🚀
 
-**Last Updated**: January 2025  
-**Version**: 2.1.0-optimized
+**Last Updated**: February 2026  
+**Version**: 2.2.0
