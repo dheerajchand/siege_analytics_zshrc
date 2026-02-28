@@ -17,22 +17,17 @@ If your login shell is bash, the supported pattern is:
 git -C ~/.config/zsh pull origin main
 ```
 
-### 2. Add bridge aliases/functions to `~/.bashrc`
+### 2. Source bridge file from `~/.bashrc`
 ```bash
-# zsh bridge
-zcfg='zsh -lc'
+source ~/.config/zsh/bash-bridge.sh
+```
 
-# quick wrappers
-alias zhelp='zsh -lc "help"'
-alias zstatus='zsh -lc "python_status; spark_mode_status; hadoop_status; secrets_status"'
-alias zspark='zsh -lc "spark_status"'
-alias zhadoop='zsh -lc "hadoop_status"'
-alias zzeppelin='zsh -lc "zeppelin_status"'
-
-# run any zsh function from bash
-zrun() {
-  zsh -lc "$*"
-}
+### 3. Optional: add convenience aliases/functions to `~/.bashrc`
+```bash
+# wrappers are already provided by bash-bridge.sh:
+# zrun, zhelp, zmodules, zstatus, zspark, zhadoop, zzeppelin, zsecrets, zbackup, ztest
+# add your own aliases if desired
+alias zhealth='zrun data_platform_health'
 ```
 
 Reload:
