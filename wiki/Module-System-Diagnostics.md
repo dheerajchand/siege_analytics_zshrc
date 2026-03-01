@@ -32,12 +32,16 @@ macOS iCloud/Dropbox helpers, Linux system summary, and data platform health.
 | `data_platform_config_status` | Spark/Hadoop/Python config | module functions | Modules loaded |
 | `data_platform_use_versions` | Switch versions | SDKMAN/pyenv | Version tools installed |
 | `data_platform_default_versions` | Persist versions | SDKMAN/pyenv | Version tools installed |
+| `cross_host_smoke` | Multi-host smoke checks + reports | `ssh` (remote), local toolchain | Hosts reachable |
+| `onboarding_validate` | Timed onboarding validation + evidence artifacts | shell toolchain | Config repo present |
 
 ## Notes
 - `icloud_reset_state` is destructive; it moves state to `.bak.<timestamp>`.
 - `icloud_js_guard` is report-only by default; use `--fix` to move suspicious directories to quarantine.
 - `icloud_js_restore <move_log.tsv>` restores moves from a guard run.
 - `data_platform_health` delegates to Spark/Hadoop/YARN modules.
+- `cross_host_smoke` can emit both human-readable and machine-readable reports.
+- `onboarding_validate` includes recovery hints per failed checkpoint and records config git-ref.
 
 ## Examples
 ```bash
@@ -49,4 +53,10 @@ icloud_js_guard --fix --yes
 
 # Restore using the move log produced by a guard run
 icloud_js_restore ~/Documents/iCloud_js_quarantine/<timestamp>/move_log.tsv
+
+# Cross-host smoke report artifacts
+cross_host_smoke --hosts local,cyberpower --json-out /tmp/smoke.json --report-out /tmp/smoke.txt
+
+# Fresh-machine onboarding validation evidence
+onboarding_validate --target-minutes 30 --json-out /tmp/onboarding.json --report-out /tmp/onboarding.txt
 ```

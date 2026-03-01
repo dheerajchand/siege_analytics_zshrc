@@ -5,6 +5,8 @@
 
 _dbx_usage() {
     echo "Usage:"
+    echo "  dbx_preflight [--json]"
+    echo "  dbx_ops <status|run|logs|diag> [options]"
     echo "  dbx_auth_status"
     echo "  dbx_profiles_list"
     echo "  dbx_profile_use <profile> [--persist]"
@@ -22,6 +24,15 @@ _dbx_usage() {
     echo "  dbx_lakebase_db_drop --instance <id_or_name> --db <name> [--force]"
     echo "  dbx_lakebase_psql --instance <id_or_name> --db <name> [--user <u>]"
     echo "  dbx_lakebase_health --instance <id_or_name>"
+}
+
+_dbx_fail() {
+    local failure_class="$1"
+    local message="$2"
+    local hint="${3:-}"
+    echo "❌ [$failure_class] $message" >&2
+    [[ -n "$hint" ]] && echo "   hint: $hint" >&2
+    return 1
 }
 
 _dbx_require() {
@@ -95,6 +106,68 @@ _dbx_profile_persist() {
 dbx_auth_status() {
     _dbx_require || return 1
     _dbx_exec auth profiles
+}
+
+dbx_preflight() {
+    local mode="text"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --json) mode="json"; shift ;;
+            --help|-h)
+                echo "Usage: dbx_preflight [--json]" >&2
+                return 0
+                ;;
+            *)
+                echo "Usage: dbx_preflight [--json]" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    local cli_ok=1 auth_ok=1 api_ok=1 rc=0
+    local cli_msg="ok" auth_msg="ok" api_msg="ok"
+
+    if ! _dbx_require >/dev/null 2>&1; then
+        cli_ok=0
+        auth_ok=0
+        api_ok=0
+        rc=1
+        cli_msg="databricks CLI not found"
+        auth_msg="skipped (cli unavailable)"
+        api_msg="skipped (cli unavailable)"
+    else
+        local profiles
+        profiles="$(_dbx_profiles_json)"
+        if [[ -z "$profiles" || "$profiles" == "[]" ]]; then
+            auth_ok=0
+            api_ok=0
+            rc=1
+            auth_msg="no authenticated profiles"
+            api_msg="skipped (auth unavailable)"
+        else
+            if ! _dbx_exec api get /api/2.0/sql/warehouses >/dev/null 2>&1; then
+                api_ok=0
+                rc=1
+                api_msg="workspace/API reachability failed"
+            fi
+        fi
+    fi
+
+    if [[ "$mode" == "json" ]]; then
+        printf '{"ok":%s,"checks":{"cli":{"ok":%s,"message":"%s"},"auth":{"ok":%s,"message":"%s"},"api":{"ok":%s,"message":"%s"}}}\n' \
+            "$([[ "$rc" -eq 0 ]] && echo true || echo false)" \
+            "$([[ "$cli_ok" -eq 1 ]] && echo true || echo false)" "$cli_msg" \
+            "$([[ "$auth_ok" -eq 1 ]] && echo true || echo false)" "$auth_msg" \
+            "$([[ "$api_ok" -eq 1 ]] && echo true || echo false)" "$api_msg"
+        return "$rc"
+    fi
+
+    echo "🔎 Databricks Preflight"
+    echo "======================="
+    [[ "$cli_ok" -eq 1 ]] && echo "✅ cli: $cli_msg" || _dbx_fail "DBX_CLI_MISSING" "$cli_msg" "install Databricks CLI and ensure it is on PATH"
+    [[ "$auth_ok" -eq 1 ]] && echo "✅ auth: $auth_msg" || _dbx_fail "DBX_AUTH_REQUIRED" "$auth_msg" "run: databricks auth login --host <workspace-url>"
+    [[ "$api_ok" -eq 1 ]] && echo "✅ api: $api_msg" || _dbx_fail "DBX_API_UNREACHABLE" "$api_msg" "verify host/profile and network reachability"
+    return "$rc"
 }
 
 dbx_profiles_list() {
@@ -322,6 +395,67 @@ dbx_lakebase_health() {
     _dbx_exec api get "/api/2.0/lakebase/instances/${instance_id}"
     echo
     _dbx_exec api get "/api/2.0/lakebase/instances/${instance_id}/databases"
+}
+
+dbx_ops() {
+    local op="${1:-}"
+    shift || true
+    case "$op" in
+        status)
+            dbx_preflight || return 1
+            echo ""
+            dbx_auth_status
+            ;;
+        run)
+            local job_id=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --job) job_id="${2:-}"; shift 2 ;;
+                    *) echo "Usage: dbx_ops run --job <job_id>" >&2; return 1 ;;
+                esac
+            done
+            [[ -n "$job_id" ]] || { echo "Usage: dbx_ops run --job <job_id>" >&2; return 1; }
+            dbx_preflight || return 1
+            dbx_job_run_now "$job_id"
+            ;;
+        logs)
+            local run_id=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --run-id) run_id="${2:-}"; shift 2 ;;
+                    *) echo "Usage: dbx_ops logs --run-id <run_id>" >&2; return 1 ;;
+                esac
+            done
+            [[ -n "$run_id" ]] || { echo "Usage: dbx_ops logs --run-id <run_id>" >&2; return 1; }
+            dbx_preflight || return 1
+            _dbx_exec jobs get-run "$run_id"
+            ;;
+        diag)
+            local instance=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --instance) instance="${2:-}"; shift 2 ;;
+                    *) echo "Usage: dbx_ops diag [--instance <id_or_name>]" >&2; return 1 ;;
+                esac
+            done
+            dbx_preflight || return 1
+            echo ""
+            dbx_sql_warehouses_list || true
+            if [[ -n "$instance" ]]; then
+                echo ""
+                dbx_lakebase_health --instance "$instance"
+            fi
+            ;;
+        --help|-h|"")
+            _dbx_usage
+            return 0
+            ;;
+        *)
+            echo "Unknown dbx_ops command: $op" >&2
+            _dbx_usage >&2
+            return 1
+            ;;
+    esac
 }
 
 if [[ -z "${ZSH_TEST_MODE:-}" ]]; then

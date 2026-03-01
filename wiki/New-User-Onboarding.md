@@ -112,6 +112,9 @@ gl_auth_status
 zsh run-tests.zsh --test test_wiki_internal_links_resolve
 zsh run-tests.zsh --test test_settings_os_then_machine_override_order
 zsh run-tests.zsh --test test_bash_bridge_defines_functions
+dbx_preflight
+cross_host_smoke --hosts local --json-out /tmp/smoke.json --report-out /tmp/smoke.txt
+onboarding_validate --target-minutes 30 --json-out /tmp/onboarding.json --report-out /tmp/onboarding.txt
 ```
 
 ## 9) Common Failure Recovery

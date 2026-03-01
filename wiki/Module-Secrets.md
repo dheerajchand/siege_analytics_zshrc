@@ -96,6 +96,9 @@ GITLAB_TOKEN=op://Private/gitlab-access-token/password
 | `secrets_pull_codex_sessions_from_1p` | **Deprecated** → `secrets_pull_all_from_1p` | `op` | Logged in |
 | `secrets_sync_all_to_1p` | Sync all secrets files | `op` | Logged in |
 | `secrets_pull_all_from_1p` | Pull all secrets files | `op` | Logged in |
+| `secrets_policy_preflight` | Enforce policy checks before sync/pull | `op` (for map/duplicate checks) | Source configured |
+| `secrets_policy_status` | Auditable readiness snapshot | None | None |
+| `secrets_policy_recover_headless` | Non-interactive policy remediation | `op` optional | Headless-safe |
 | `secrets_prune_duplicates_1p` | Delete older duplicate sync items | `op` | Logged in |
 | `secrets_missing_from_1p` | Report missing items in secrets.1p | `op` | Logged in |
 | `op_find_item_across_accounts` | Find item title across accounts | `op`, `jq`/`python` | Logged in |
@@ -138,6 +141,13 @@ secrets_missing_from_1p --fix
 
 ### Syncing secrets
 ```bash
+# Validate policy before sync/pull
+secrets_policy_preflight
+secrets_policy_status --json
+
+# Non-interactive remediation (headless)
+secrets_policy_recover_headless
+
 # Push all local files to 1Password
 secrets_push
 
@@ -175,5 +185,6 @@ secrets_agent_status
 - `secrets_missing_from_1p --json` returns JSON array; `--fix` comments missing entries in `secrets.1p`.
 - `secrets_sync_to_1p` writes content to both `secrets_file` field and secure note `notes`/`notesPlain` for compatibility; `secrets_pull_from_1p` will read either.
 - `secrets_agent_refresh` writes only mapped vars, with `chmod 600`, to a local cache file for agent consumption.
+- `secrets_sync_all_to_1p` and `secrets_pull_all_from_1p` now run `secrets_policy_preflight`; failed policy checks block mutation and print remediation hints.
 - **Quote stripping policy:** `_secrets_strip_quotes` strips matched surrounding quotes (`"val"` → `val`) AND unmatched trailing quotes (`val"` → `val`). This is intentionally defensive against copy-paste artifacts in env files. Disable with `ZSH_STRIP_UNMATCHED_QUOTES=0` if you have values that legitimately end with a quote character.
 - `secrets_missing_from_1p --fix` creates a `.bak` backup before rewriting the map file.

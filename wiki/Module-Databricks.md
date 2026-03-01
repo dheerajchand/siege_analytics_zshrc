@@ -32,10 +32,19 @@ Databricks CLI workflows for profiles, clusters, jobs, workspace/repos sync, SQL
 | `dbx_lakebase_db_drop` | Drop Lakebase database | Requires explicit `--force` |
 | `dbx_lakebase_psql` | Connect to Lakebase instance/database via psql | Resolves host from instance metadata |
 | `dbx_lakebase_health` | Show instance + database health snapshot | Prints instance and db inventory |
+| `dbx_preflight` | Deterministic Databricks readiness checks | Validates CLI, auth profiles, API reachability |
+| `dbx_ops` | Unified operational command surface | `status`, `run`, `logs`, `diag` |
 
 ## Examples
 
 ```bash
+dbx_preflight
+dbx_preflight --json
+dbx_ops status
+dbx_ops run --job 12345
+dbx_ops logs --run-id 98765
+dbx_ops diag --instance family
+
 dbx_profile_use DEFAULT --persist
 dbx_clusters_list
 dbx_job_run_now 12345
@@ -47,3 +56,11 @@ dbx_lakebase_dbs_list --instance family
 dbx_lakebase_db_create --instance family --db analytics
 dbx_lakebase_db_drop --instance family --db analytics --force
 ```
+
+## Environment Contract
+
+- `DATABRICKS_BIN` (optional): override Databricks CLI binary path.
+- `DATABRICKS_CONFIG_PROFILE`: active profile for command execution.
+- `DATABRICKS_HOST` / profile host from CLI auth config: required for API reachability.
+
+`dbx_preflight` should pass before routine `dbx_ops` flows.
