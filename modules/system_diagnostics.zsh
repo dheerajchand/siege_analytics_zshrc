@@ -315,6 +315,239 @@ data_platform_default_versions() {
     return "$rc"
 }
 
+_diag_json_escape() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    printf '%s' "$s"
+}
+
+_cross_host_smoke_local_check() {
+    local name="$1"
+    local cmd="$2"
+    local hint="$3"
+    if eval "$cmd" >/dev/null 2>&1; then
+        printf '%s|PASS|ok|%s\n' "$name" "$hint"
+    else
+        printf '%s|FAIL|failed|%s\n' "$name" "$hint"
+    fi
+}
+
+_cross_host_smoke_local() {
+    _cross_host_smoke_local_check "bootstrap.zsh" "command -v zsh" "install zsh and ensure it is on PATH"
+    _cross_host_smoke_local_check "secrets.map" "[[ -f \"${ZSH_SECRETS_MAP:-$HOME/.config/zsh/secrets.1p}\" ]]" "create or sync secrets.1p"
+    _cross_host_smoke_local_check "python.available" "command -v python3 || command -v python" "install python3"
+    _cross_host_smoke_local_check "java.available" "command -v java" "install Java 17+"
+    _cross_host_smoke_local_check "spark.available" "command -v spark-submit" "install Spark or set SPARK_HOME/bin on PATH"
+    _cross_host_smoke_local_check "hadoop.available" "command -v hadoop" "install Hadoop or set HADOOP_HOME/bin on PATH"
+}
+
+_cross_host_smoke_remote() {
+    local host="$1"
+    if ! command -v ssh >/dev/null 2>&1; then
+        printf 'ssh.connect|FAIL|ssh_not_installed|install OpenSSH client\n'
+        return 1
+    fi
+    if ! _run_with_timeout 12 ssh -o BatchMode=yes -o ConnectTimeout=8 "$host" "command -v zsh >/dev/null 2>&1"; then
+        printf 'ssh.connect|FAIL|ssh_connect_failed|verify host/user/network/ssh-keys\n'
+        return 1
+    fi
+    printf 'ssh.connect|PASS|ok|n/a\n'
+    if _run_with_timeout 12 ssh -o BatchMode=yes -o ConnectTimeout=8 "$host" "command -v spark-submit >/dev/null 2>&1"; then
+        printf 'spark.available|PASS|ok|n/a\n'
+    else
+        printf 'spark.available|FAIL|failed|install Spark on remote host\n'
+    fi
+    if _run_with_timeout 12 ssh -o BatchMode=yes -o ConnectTimeout=8 "$host" "command -v hadoop >/dev/null 2>&1"; then
+        printf 'hadoop.available|PASS|ok|n/a\n'
+    else
+        printf 'hadoop.available|FAIL|failed|install Hadoop on remote host\n'
+    fi
+}
+
+cross_host_smoke() {
+    local hosts_csv="local"
+    local json_out=""
+    local report_out=""
+    local non_interactive=0
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --hosts) hosts_csv="${2:-local}"; shift 2 ;;
+            --json-out) json_out="${2:-}"; shift 2 ;;
+            --report-out) report_out="${2:-}"; shift 2 ;;
+            --non-interactive) non_interactive=1; shift ;;
+            --help|-h)
+                cat <<'HELP'
+Usage: cross_host_smoke [--hosts <csv>] [--json-out <file>] [--report-out <file>] [--non-interactive]
+
+Examples:
+  cross_host_smoke --hosts local,cyberpower
+  cross_host_smoke --hosts local --json-out /tmp/smoke.json --report-out /tmp/smoke.txt
+HELP
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    local ts
+    ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    local -a hosts
+    hosts=("${(@s:,:)hosts_csv}")
+    local total=0
+    local failed=0
+    local json='{"timestamp":"'"$ts"'","hosts":['
+    local host first_host=1
+    local report="Cross-host smoke report ($ts)\n"
+
+    for host in "${hosts[@]}"; do
+        [[ -z "$host" ]] && continue
+        local lines=""
+        if [[ "$host" == "local" ]]; then
+            lines="$(_cross_host_smoke_local)"
+        else
+            lines="$(_cross_host_smoke_remote "$host")"
+        fi
+
+        local host_checks_json=""
+        local first_check=1
+        report+="\n[$host]\n"
+        local line name check_status detail hint
+        while IFS='|' read -r name check_status detail hint; do
+            [[ -z "$name" ]] && continue
+            total=$((total + 1))
+            [[ "$check_status" == "FAIL" ]] && failed=$((failed + 1))
+            report+="$name: $check_status ($detail)\n"
+            if [[ "$first_check" -eq 0 ]]; then
+                host_checks_json+=","
+            fi
+            first_check=0
+            host_checks_json+='{"name":"'"$(_diag_json_escape "$name")"'","status":"'"$check_status"'","detail":"'"$(_diag_json_escape "$detail")"'","hint":"'"$(_diag_json_escape "$hint")"'"}'
+        done <<< "$lines"
+
+        if [[ "$first_host" -eq 0 ]]; then
+            json+=","
+        fi
+        first_host=0
+        json+='{"host":"'"$(_diag_json_escape "$host")"'","checks":['"$host_checks_json"']}'
+    done
+    json+='],"summary":{"total":'"$total"',"failed":'"$failed"',"ok":'"$([[ "$failed" -eq 0 ]] && echo true || echo false)"'}}'
+    report+="\nSummary: total=$total failed=$failed\n"
+
+    if [[ -n "$report_out" ]]; then
+        printf '%b' "$report" > "$report_out"
+    fi
+    if [[ -n "$json_out" ]]; then
+        printf '%s\n' "$json" > "$json_out"
+    fi
+    printf '%b' "$report"
+    if [[ -n "$json_out" ]]; then
+        echo "JSON report: $json_out"
+    fi
+    if [[ -n "$report_out" ]]; then
+        echo "Text report: $report_out"
+    fi
+
+    [[ "$failed" -eq 0 ]]
+}
+
+_onboarding_checkpoint() {
+    local name="$1"
+    local cmd="$2"
+    local recovery="$3"
+    if eval "$cmd" >/dev/null 2>&1; then
+        printf '%s|PASS|ok|%s\n' "$name" "$recovery"
+    else
+        printf '%s|FAIL|failed|%s\n' "$name" "$recovery"
+    fi
+}
+
+onboarding_validate() {
+    local target_minutes=30
+    local report_out=""
+    local json_out=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --target-minutes) target_minutes="${2:-30}"; shift 2 ;;
+            --report-out) report_out="${2:-}"; shift 2 ;;
+            --json-out) json_out="${2:-}"; shift 2 ;;
+            --help|-h)
+                cat <<'HELP'
+Usage: onboarding_validate [--target-minutes <n>] [--report-out <file>] [--json-out <file>]
+HELP
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    local start_ts end_ts elapsed_s elapsed_m
+    start_ts="$(date +%s)"
+    local stamp
+    stamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    local repo_dir="${ZSHRC_CONFIG_DIR:-${ZSH_CONFIG_DIR:-$HOME/.config/zsh}}"
+    local git_ref="unknown"
+    if command -v git >/dev/null 2>&1 && [[ -d "$repo_dir/.git" ]]; then
+        git_ref="$(git -C "$repo_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+    fi
+
+    local lines=""
+    lines+="$(_onboarding_checkpoint "profile.set" "[[ -n \"${ZSH_ENV_PROFILE:-}\" ]]" "run: secrets_profile_switch dev")"$'\n'
+    lines+="$(_onboarding_checkpoint "secrets.ready" "typeset -f secrets_validate_setup >/dev/null 2>&1 && secrets_validate_setup" "run: secrets_validate_setup && secrets_bootstrap_from_1p")"$'\n'
+    lines+="$(_onboarding_checkpoint "python.ready" "command -v python3 || command -v python" "install Python and run python_status")"$'\n'
+    lines+="$(_onboarding_checkpoint "java.ready" "command -v java" "install Java 17 and set JAVA_HOME")"$'\n'
+    lines+="$(_onboarding_checkpoint "spark.ready" "command -v spark-submit" "install Spark 4.1.1 and set SPARK_HOME")"$'\n'
+    lines+="$(_onboarding_checkpoint "hadoop.ready" "command -v hadoop" "install Hadoop 3.3.x and set HADOOP_HOME")"$'\n'
+
+    end_ts="$(date +%s)"
+    elapsed_s=$(( end_ts - start_ts ))
+    elapsed_m=$(( elapsed_s / 60 ))
+    local within_sla=true
+    (( elapsed_m > target_minutes )) && within_sla=false
+
+    local total=0 failed=0
+    local line name check_status detail recovery
+    local report="Onboarding validation ($stamp)\nconfig_ref=$git_ref\n"
+    local checks_json=""
+    local first=1
+    while IFS='|' read -r name check_status detail recovery; do
+        [[ -z "$name" ]] && continue
+        total=$((total + 1))
+        [[ "$check_status" == "FAIL" ]] && failed=$((failed + 1))
+        report+="$name: $check_status ($detail)\n"
+        if [[ "$check_status" == "FAIL" ]]; then
+            report+="  recovery: $recovery\n"
+        fi
+        if [[ "$first" -eq 0 ]]; then
+            checks_json+=","
+        fi
+        first=0
+        checks_json+='{"name":"'"$(_diag_json_escape "$name")"'","status":"'"$check_status"'","detail":"'"$(_diag_json_escape "$detail")"'","recovery":"'"$(_diag_json_escape "$recovery")"'"}'
+    done <<< "$lines"
+    report+="elapsed_minutes=$elapsed_m target_minutes=$target_minutes\n"
+    report+="summary: total=$total failed=$failed within_sla=$within_sla\n"
+
+    local json
+    json='{"timestamp":"'"$stamp"'","config_ref":"'"$(_diag_json_escape "$git_ref")"'","elapsed_minutes":'"$elapsed_m"',"target_minutes":'"$target_minutes"',"within_sla":'"$within_sla"',"checks":['"$checks_json"'],"summary":{"total":'"$total"',"failed":'"$failed"',"ok":'"$([[ "$failed" -eq 0 ]] && echo true || echo false)"'}}'
+
+    if [[ -n "$report_out" ]]; then
+        printf '%b' "$report" > "$report_out"
+    fi
+    if [[ -n "$json_out" ]]; then
+        printf '%s\n' "$json" > "$json_out"
+    fi
+    printf '%b' "$report"
+    [[ "$failed" -eq 0 && "$within_sla" == true ]]
+}
+
 icloud_status() {
     if ! _is_macos; then
         echo "iCloud diagnostics are macOS-only."

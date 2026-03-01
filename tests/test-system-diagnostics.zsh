@@ -147,6 +147,41 @@ test_icloud_js_guard_fix_and_restore() {
     rm -rf "$tmp"
 }
 
+test_cross_host_smoke_generates_reports() {
+    source "$ROOT_DIR/modules/system_diagnostics.zsh"
+    local tmp json_out txt_out out
+    tmp="$(mktemp -d)"
+    json_out="$tmp/smoke.json"
+    txt_out="$tmp/smoke.txt"
+    out="$(cross_host_smoke --hosts local --json-out "$json_out" --report-out "$txt_out" 2>&1 || true)"
+    assert_contains "$out" "Cross-host smoke report" "should print smoke report header"
+    assert_true "[[ -f \"$json_out\" ]]" "should write json report"
+    assert_true "[[ -f \"$txt_out\" ]]" "should write text report"
+    assert_contains "$(cat "$json_out")" "\"summary\"" "json should include summary"
+    rm -rf "$tmp"
+}
+
+test_cross_host_smoke_remote_classifies_ssh_failure() {
+    source "$ROOT_DIR/modules/system_diagnostics.zsh"
+    local out
+    out="$(cross_host_smoke --hosts does-not-exist.invalid 2>&1 || true)"
+    assert_contains "$out" "ssh.connect: FAIL" "should classify remote ssh failure"
+}
+
+test_onboarding_validate_writes_artifacts() {
+    source "$ROOT_DIR/modules/system_diagnostics.zsh"
+    local tmp json_out txt_out out
+    tmp="$(mktemp -d)"
+    json_out="$tmp/onboarding.json"
+    txt_out="$tmp/onboarding.txt"
+    out="$(onboarding_validate --target-minutes 999 --json-out "$json_out" --report-out "$txt_out" 2>&1 || true)"
+    assert_contains "$out" "Onboarding validation" "should print onboarding header"
+    assert_true "[[ -f \"$json_out\" ]]" "should write onboarding json"
+    assert_true "[[ -f \"$txt_out\" ]]" "should write onboarding report"
+    assert_contains "$(cat "$json_out")" "\"config_ref\"" "json should include config ref"
+    rm -rf "$tmp"
+}
+
 register_test "test_icloud_status_missing_tools" "test_icloud_status_missing_tools"
 register_test "test_icloud_preflight_no_brctl" "test_icloud_preflight_no_brctl"
 register_test "test_icloud_reset_state_non_interactive" "test_icloud_reset_state_non_interactive"
@@ -158,3 +193,6 @@ register_test "test_data_platform_use_versions_defined" "test_data_platform_use_
 register_test "test_spark41_route_health_defined" "test_spark41_route_health_defined"
 register_test "test_icloud_js_name_classifier" "test_icloud_js_name_classifier"
 register_test "test_icloud_js_guard_fix_and_restore" "test_icloud_js_guard_fix_and_restore"
+register_test "test_cross_host_smoke_generates_reports" "test_cross_host_smoke_generates_reports"
+register_test "test_cross_host_smoke_remote_classifies_ssh_failure" "test_cross_host_smoke_remote_classifies_ssh_failure"
+register_test "test_onboarding_validate_writes_artifacts" "test_onboarding_validate_writes_artifacts"

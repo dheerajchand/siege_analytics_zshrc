@@ -96,6 +96,18 @@ enable_auto_setup
 auto_setup_environment
 ```
 
+### **4. Validate Adoption Health**
+```bash
+# Databricks/Lakebase deterministic preflight
+dbx_preflight
+
+# Cross-host smoke checks + artifacts
+cross_host_smoke --hosts local --json-out /tmp/smoke.json --report-out /tmp/smoke.txt
+
+# Fresh-machine onboarding evidence (<30m target)
+onboarding_validate --target-minutes 30 --json-out /tmp/onboarding.json --report-out /tmp/onboarding.txt
+```
+
 ## 🎯 **Essential Commands**
 
 ### **Core Functions**

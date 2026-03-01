@@ -51,6 +51,10 @@ if [[ "$cmd1" == "jobs" && "$cmd2" == "run-now" ]]; then
   echo "run ${3:-}"
   exit 0
 fi
+if [[ "$cmd1" == "jobs" && "$cmd2" == "get-run" ]]; then
+  echo "runlog ${3:-}"
+  exit 0
+fi
 
 if [[ "$cmd1" == "workspace" && "$cmd2" == "list" ]]; then
   echo "workspace ${3:-/}"
@@ -231,6 +235,64 @@ test_dbx_lakebase_psql_uses_instance_host() {
     rm -rf "$tmp"
 }
 
+test_dbx_preflight_reports_success() {
+    local old_path="$PATH"
+    local tmp="$(mktemp -d)"
+    local bin="$tmp/bin"
+    mkdir -p "$bin"
+    _make_databricks_stub "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+    export DATABRICKS_BIN="$bin/databricks"
+    export DBX_AUTH_PROFILES_JSON='[{"name":"DEFAULT"}]'
+    local out
+    out="$(dbx_preflight 2>&1)"
+    assert_contains "$out" "Databricks Preflight" "preflight should print header"
+    assert_contains "$out" "✅ cli:" "preflight should validate cli"
+    assert_contains "$out" "✅ auth:" "preflight should validate auth"
+    assert_contains "$out" "✅ api:" "preflight should validate api reachability"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
+test_dbx_preflight_reports_missing_auth() {
+    local old_path="$PATH"
+    local tmp="$(mktemp -d)"
+    local bin="$tmp/bin"
+    mkdir -p "$bin"
+    _make_databricks_stub "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+    export DATABRICKS_BIN="$bin/databricks"
+    export DBX_AUTH_PROFILES_JSON='[]'
+    local out rc
+    out="$(dbx_preflight 2>&1)"
+    rc=$?
+    assert_not_equal "0" "$rc" "preflight should fail without auth"
+    assert_contains "$out" "DBX_AUTH_REQUIRED" "preflight should classify auth failure"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
+test_dbx_ops_run_and_logs() {
+    local old_path="$PATH"
+    local tmp="$(mktemp -d)"
+    local bin="$tmp/bin"
+    mkdir -p "$bin"
+    _make_databricks_stub "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+    export DATABRICKS_BIN="$bin/databricks"
+    export DBX_AUTH_PROFILES_JSON='[{"name":"DEFAULT"}]'
+    local out
+    out="$(dbx_ops run --job 123 2>&1)"
+    assert_contains "$out" "run 123" "dbx_ops run should delegate to job trigger"
+    out="$(dbx_ops logs --run-id 456 2>&1)"
+    assert_contains "$out" "runlog 456" "dbx_ops logs should fetch run details"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
 register_test "dbx_profile_use_sets_env" test_dbx_profile_use_sets_env
 register_test "dbx_clusters_list_invokes_cli" test_dbx_clusters_list_invokes_cli
 register_test "dbx_lakebase_dbs_list_resolves_instance_name" test_dbx_lakebase_dbs_list_resolves_instance_name
@@ -238,3 +300,6 @@ register_test "dbx_lakebase_db_create_calls_api" test_dbx_lakebase_db_create_cal
 register_test "dbx_lakebase_db_drop_requires_force" test_dbx_lakebase_db_drop_requires_force
 register_test "dbx_lakebase_db_drop_calls_api_with_force" test_dbx_lakebase_db_drop_calls_api_with_force
 register_test "dbx_lakebase_psql_uses_instance_host" test_dbx_lakebase_psql_uses_instance_host
+register_test "dbx_preflight_reports_success" test_dbx_preflight_reports_success
+register_test "dbx_preflight_reports_missing_auth" test_dbx_preflight_reports_missing_auth
+register_test "dbx_ops_run_and_logs" test_dbx_ops_run_and_logs

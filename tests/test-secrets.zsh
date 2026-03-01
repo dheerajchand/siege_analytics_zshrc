@@ -1285,6 +1285,53 @@ OP
     rm -rf "$tmp"
 }
 
+test_secrets_policy_status_json_ok() {
+    local old_require old_sanitize old_dups old_missing
+    old_require="$(typeset -f _secrets_require_source || true)"
+    old_sanitize="$(typeset -f secrets_map_sanitize || true)"
+    old_dups="$(typeset -f _secrets_count_duplicate_titles || true)"
+    old_missing="$(typeset -f secrets_missing_from_1p || true)"
+    _secrets_require_source() { return 0; }
+    secrets_map_sanitize() { return 0; }
+    _secrets_count_duplicate_titles() { echo 0; }
+    secrets_missing_from_1p() { echo "[]"; return 0; }
+
+    local out
+    out="$(secrets_policy_status --json)"
+    assert_contains "$out" "\"ok\":true" "policy status should report ok true"
+    assert_contains "$out" "\"duplicates\"" "policy status should include duplicates check"
+    assert_contains "$out" "\"missing\"" "policy status should include missing check"
+
+    if [[ -n "$old_require" ]]; then eval "$old_require"; fi
+    if [[ -n "$old_sanitize" ]]; then eval "$old_sanitize"; fi
+    if [[ -n "$old_dups" ]]; then eval "$old_dups"; fi
+    if [[ -n "$old_missing" ]]; then eval "$old_missing"; fi
+}
+
+test_secrets_sync_all_blocks_on_policy_failure() {
+    local old_policy old_require old_sync marker tmp
+    old_policy="$(typeset -f secrets_policy_preflight || true)"
+    old_require="$(typeset -f _secrets_require_source || true)"
+    old_sync="$(typeset -f secrets_sync_to_1p || true)"
+    tmp="$(mktemp -d)"
+    marker="$tmp/sync_called"
+
+    _secrets_require_source() { return 0; }
+    secrets_policy_preflight() { return 1; }
+    secrets_sync_to_1p() { echo "called" > "$marker"; return 0; }
+
+    local rc
+    secrets_sync_all_to_1p "acct" "Private" >/dev/null 2>&1
+    rc=$?
+    assert_not_equal "0" "$rc" "sync_all should fail when policy preflight fails"
+    assert_false "[[ -f \"$marker\" ]]" "sync_all should stop before sync calls"
+
+    if [[ -n "$old_policy" ]]; then eval "$old_policy"; fi
+    if [[ -n "$old_require" ]]; then eval "$old_require"; fi
+    if [[ -n "$old_sync" ]]; then eval "$old_sync"; fi
+    rm -rf "$tmp"
+}
+
 test_op_signin_account_usage() {
     local out
     out="$(op_signin_account 2>&1 || true)"
@@ -1517,6 +1564,8 @@ register_test "test_secrets_profiles_output" "test_secrets_profiles_output"
 register_test "test_secrets_bootstrap_requires_op" "test_secrets_bootstrap_requires_op"
 register_test "test_secrets_update_env_file_error_handling" "test_secrets_update_env_file_error_handling"
 register_test "test_secrets_validate_setup_success" "test_secrets_validate_setup_success"
+register_test "test_secrets_policy_status_json_ok" "test_secrets_policy_status_json_ok"
+register_test "test_secrets_sync_all_blocks_on_policy_failure" "test_secrets_sync_all_blocks_on_policy_failure"
 register_test "test_vault_without_account_warns" "test_vault_without_account_warns"
 register_test "test_op_signin_account_usage" "test_op_signin_account_usage"
 register_test "test_op_signin_account_uuid_usage" "test_op_signin_account_uuid_usage"
