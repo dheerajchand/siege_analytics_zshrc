@@ -49,6 +49,54 @@ test_settings_os_then_machine_override_order() {
     rm -rf "$tmp"
 }
 
+test_settings_macos_gis_autoconfig_from_config_prefix() {
+    local tmp out
+    tmp="$(mktemp -d)"
+    mkdir -p "$tmp/bin" "$tmp/gdal/lib" "$tmp/geos/lib" "$tmp/settings"
+    : > "$tmp/gdal/lib/libgdal.dylib"
+    : > "$tmp/geos/lib/libgeos_c.dylib"
+    cat > "$tmp/bin/gdal-config" <<EOF
+#!/usr/bin/env zsh
+if [[ "\$1" == "--prefix" ]]; then
+  echo "$tmp/gdal"
+  exit 0
+fi
+if [[ "\$1" == "--version" ]]; then
+  echo "3.9.0"
+  exit 0
+fi
+EOF
+    cat > "$tmp/bin/geos-config" <<EOF
+#!/usr/bin/env zsh
+if [[ "\$1" == "--prefix" ]]; then
+  echo "$tmp/geos"
+  exit 0
+fi
+if [[ "\$1" == "--version" ]]; then
+  echo "3.12.0"
+  exit 0
+fi
+EOF
+    chmod +x "$tmp/bin/gdal-config" "$tmp/bin/geos-config"
+    out="$(OSTYPE=darwin PATH="$tmp/bin:/usr/bin:/bin" ZSH_SETTINGS_DIR="$tmp/settings" ZSH_TEST_MODE=1 zsh -fc "unset GDAL_LIBRARY_PATH GEOS_LIBRARY_PATH; source $ROOT_DIR/modules/settings.zsh; echo \"\$GDAL_LIBRARY_PATH|\$GEOS_LIBRARY_PATH\"")"
+    assert_contains "$out" "$tmp/gdal/lib/libgdal.dylib" "should auto-configure GDAL_LIBRARY_PATH from gdal-config prefix"
+    assert_contains "$out" "$tmp/geos/lib/libgeos_c.dylib" "should auto-configure GEOS_LIBRARY_PATH from geos-config prefix"
+    rm -rf "$tmp"
+}
+
+test_django_gis_doctor_defined() {
+    source "$ROOT_DIR/modules/settings.zsh"
+    assert_command_success "typeset -f django_gis_doctor >/dev/null 2>&1" "django_gis_doctor should be defined"
+}
+
+test_mac_gis_env_sync_defined() {
+    source "$ROOT_DIR/modules/settings.zsh"
+    assert_command_success "typeset -f mac_gis_env_sync >/dev/null 2>&1" "mac_gis_env_sync should be defined"
+}
+
 register_test "test_settings_load_order" "test_settings_load_order"
 register_test "test_settings_machine_override" "test_settings_machine_override"
 register_test "test_settings_os_then_machine_override_order" "test_settings_os_then_machine_override_order"
+register_test "test_settings_macos_gis_autoconfig_from_config_prefix" "test_settings_macos_gis_autoconfig_from_config_prefix"
+register_test "test_django_gis_doctor_defined" "test_django_gis_doctor_defined"
+register_test "test_mac_gis_env_sync_defined" "test_mac_gis_env_sync_defined"
