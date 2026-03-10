@@ -2267,6 +2267,18 @@ op_signin_all() {
         echo "✅ Signed in: $alias_name"
         ((ok++))
     done 3< "$OP_ACCOUNTS_FILE"
+
+    # Persist session tokens so subprocesses (Claude Code, scripts) can use them
+    local session_file="${ZSH_OP_SESSION_FILE:-$HOME/.config/zsh/.op_sessions}"
+    (
+        umask 077
+        : > "$session_file"
+        local varname
+        for varname in ${(k)parameters[(I)OP_SESSION_*]}; do
+            echo "export ${varname}=${(P)varname}" >> "$session_file"
+        done
+    )
+
     echo "Done: ${ok} ok, ${fail} failed"
     [[ "$fail" -eq 0 ]] || return 1
 }
