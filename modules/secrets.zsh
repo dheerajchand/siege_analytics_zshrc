@@ -1621,17 +1621,25 @@ if [[ -z "${OP_ALIAS_SHIM_DISABLE:-}" ]]; then
                     --account)
                         account="${args[$((i+1))]}"
                         out+=("--account")
-                        local resolved
-                        resolved="$(_op_resolve_account_arg "$account")"
-                        out+=("$resolved")
+                        if typeset -f _op_resolve_account_arg >/dev/null 2>&1; then
+                            local resolved
+                            resolved="$(_op_resolve_account_arg "$account")"
+                            out+=("$resolved")
+                        else
+                            out+=("$account")
+                        fi
                         i=$((i+2))
                         continue
                         ;;
                     --account=*)
                         account="${args[$i]#--account=}"
-                        local resolved2
-                        resolved2="$(_op_resolve_account_arg "$account")"
-                        out+=("--account=${resolved2}")
+                        if typeset -f _op_resolve_account_arg >/dev/null 2>&1; then
+                            local resolved2
+                            resolved2="$(_op_resolve_account_arg "$account")"
+                            out+=("--account=${resolved2}")
+                        else
+                            out+=("--account=${account}")
+                        fi
                         i=$((i+1))
                         continue
                         ;;
