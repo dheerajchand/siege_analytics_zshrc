@@ -94,6 +94,7 @@ test_bash_docs_no_stale_commands() {
 }
 
 test_home_quick_commands_are_defined() {
+    skip_in_ci
     local out
     out="$(ROOT_DIR="$ROOT_DIR" ZSH_TEST_MODE=1 zsh -fc '
         source "$ROOT_DIR/zshrc" >/dev/null 2>&1

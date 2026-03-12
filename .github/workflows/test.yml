@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify zsh
+        run: zsh --version
+
+      - name: Create stub directories for modules that need them
+        run: mkdir -p /tmp/stub-spark /tmp/stub-hadoop /tmp/stub-zeppelin
+
+      - name: Run tests
+        env:
+          SPARK_HOME: /tmp/stub-spark
+          HADOOP_HOME: /tmp/stub-hadoop
+          ZEPPELIN_HOME: /tmp/stub-zeppelin
+          ZSH_TEST_MODE: "1"
+        run: zsh run-tests.zsh --verbose

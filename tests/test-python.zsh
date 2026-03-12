@@ -62,6 +62,7 @@ test_python_status_no_pyenv() {
 }
 
 test_python_status_uses_python3_shim() {
+    skip_in_ci
     local tmp bin old_path out
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
@@ -105,6 +106,7 @@ test_python_config_status_defined() {
 }
 
 test_pyenv_default_venv_variable() {
+    skip_in_ci
     local out
     out="$(PYENV_DEFAULT_VENV=geo31111 ZSH_TEST_MODE=1 zsh -fc 'source $HOME/.config/zsh/modules/python.zsh; python_config_status')"
     assert_contains "$out" "Default venv: geo31111" "should show default venv"

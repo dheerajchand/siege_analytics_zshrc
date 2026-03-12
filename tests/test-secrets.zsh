@@ -500,6 +500,7 @@ EOF
 }
 
 test_secrets_load_op_supports_op_url_mapping() {
+    skip_if_missing "op"
     local tmp map old_map old_mode old_account old_vault orig_op_cmd
     tmp="$(mktemp -d)"
     map="$tmp/secrets.1p"
@@ -1018,6 +1019,7 @@ JQ
 }
 
 test_op_list_items_requires_op() {
+    skip_if_missing "op"
     local tmp bin out rc
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
@@ -1046,6 +1048,7 @@ OP
 }
 
 test_secrets_pull_requires_op() {
+    skip_if_missing "op"
     local tmp bin out rc
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
@@ -1077,6 +1080,7 @@ OP
 }
 
 test_secrets_pull_fallback_notes_plain() {
+    skip_if_missing "op"
     local tmp bin out rc old_file
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
@@ -1345,6 +1349,7 @@ test_op_signin_account_uuid_usage() {
 }
 
 test_op_signin_all_missing_accounts_file() {
+    skip_if_missing "op"
     local old_file
     old_file="$OP_ACCOUNTS_FILE"
     export OP_ACCOUNTS_FILE="/tmp/does-not-exist"

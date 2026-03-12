@@ -82,6 +82,7 @@ test_git_ssh_fail_rescue_rejects_missing_workspace_value() {
 }
 
 test_bb_auth_setup_interactive_persists_with_helpers() {
+    skip_if_missing "rg"
     local tmp_vars tmp_secrets
     local old_settings_persist_var old_secrets_update_env_file
     tmp_vars="$(mktemp)"
