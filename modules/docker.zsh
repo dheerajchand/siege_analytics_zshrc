@@ -29,7 +29,8 @@ docker_status() {
     echo ""
     
     # Running containers
-    local running=$(docker ps -q | wc -l | tr -d ' ')
+    local running
+    running=$(docker ps -q | wc -l | tr -d ' ')
     echo "Running containers: $running"
     
     if [[ $running -gt 0 ]]; then
@@ -48,7 +49,8 @@ docker_cleanup() {
     echo ""
     
     # Remove stopped containers. `docker rm` returns 404 on some Desktop contexts.
-    local stopped_count=$(docker ps -aq --filter "status=exited" | wc -l | tr -d '[:space:]')
+    local stopped_count
+    stopped_count=$(docker ps -aq --filter "status=exited" | wc -l | tr -d '[:space:]')
     if [[ "$stopped_count" -gt 0 ]]; then
         echo "🗑️  Removing stopped containers..."
         docker container prune -f
@@ -57,7 +59,8 @@ docker_cleanup() {
     fi
     
     # Remove dangling images
-    local dangling=$(docker images -qf "dangling=true")
+    local dangling
+    dangling=$(docker images -qf "dangling=true")
     if [[ -n "$dangling" ]]; then
         echo "🗑️  Removing dangling images..."
         docker rmi $dangling
@@ -80,6 +83,7 @@ docker_deep_clean() {
     echo "===================="
     echo "⚠️  This will remove ALL unused resources"
     echo -n "Continue? (y/n): "
+    local confirm
     read confirm
     
     if [[ "$confirm" != "y" ]]; then
@@ -140,16 +144,27 @@ docker_quick_run() {
     docker run -it --rm "$image" /bin/bash
 }
 
+dstop() {
+    local ids
+    ids="$(docker ps -q)"
+    if [[ -z "$ids" ]]; then
+        echo "No running containers"
+        return 0
+    fi
+    docker stop $ids
+}
+
 # Aliases
 alias d='docker'
 alias dc='docker-compose'
 alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias dimg='docker images'
-alias dstop='docker stop $(docker ps -q)'
 alias dexec='docker exec -it'
 alias dlogs='docker logs -f'
 
-echo "✅ docker loaded"
+if [[ -z "${ZSH_TEST_MODE:-}" ]]; then
+    echo "✅ docker loaded"
+fi
 
 

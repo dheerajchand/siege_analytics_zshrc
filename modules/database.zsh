@@ -29,7 +29,8 @@ setup_postgres_credentials() {
     
     # Try to get from credential system
     if command -v get_credential >/dev/null 2>&1; then
-        local password=$(get_credential "postgres" "$PGUSER" "PASSWORD" 2>/dev/null)
+        local password
+        password=$(get_credential "postgres" "$PGUSER" "PASSWORD" 2>/dev/null)
         if [[ -n "$password" ]]; then
             export PGPASSWORD="$password"
             echo "✅ Loaded from secure storage"
@@ -39,12 +40,13 @@ setup_postgres_credentials() {
     
     # Interactive setup
     echo "Enter PostgreSQL password for $PGUSER@$PGHOST:"
+    local password store_it
     read -s password
     echo ""
-    
+
     if [[ -n "$password" ]]; then
         export PGPASSWORD="$password"
-        
+
         # Offer to store
         echo -n "Store password securely? (y/n): "
         read store_it

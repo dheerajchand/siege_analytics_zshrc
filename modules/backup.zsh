@@ -37,7 +37,7 @@ backup() {
     echo "📦 Creating backup..."
     
     # Add all changes
-    git add -A
+    git add -u
     
     # Commit
     git commit -m "[$timestamp] $message" || {

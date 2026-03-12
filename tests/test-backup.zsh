@@ -46,7 +46,7 @@ test_backup_pushes_current_branch() {
     root="$(_make_backup_test_repo)"
     work="$root/work"
     git -C "$work" checkout -b feature/backup >/dev/null 2>&1
-    echo "backup branch payload" > "$work/feature.txt"
+    echo "backup branch payload" >> "$work/README.md"
 
     ZSHRC_CONFIG_DIR="$work"
     out="$(backup "feature backup test" 2>&1 || true)"
@@ -86,7 +86,7 @@ test_pushmain_commits_pushes_and_merges() {
     root="$(_make_backup_test_repo)"
     work="$root/work"
     git -C "$work" checkout -b feature/pushmain >/dev/null 2>&1
-    echo "pushmain payload" > "$work/pushmain.txt"
+    echo "pushmain payload" >> "$work/README.md"
 
     ZSHRC_CONFIG_DIR="$work"
     out="$(pushmain "pushmain integration test" 2>&1 || true)"

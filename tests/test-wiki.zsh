@@ -100,7 +100,7 @@ test_home_quick_commands_are_defined() {
         source "$ROOT_DIR/zshrc" >/dev/null 2>&1
         missing=0
         for fn in \
-            help zshconfig zshreboot backup secrets_profiles secrets_bootstrap_from_1p screen_ensure_pyenv \
+            zsh_help zshconfig zshreboot backup secrets_profiles secrets_bootstrap_from_1p screen_ensure_pyenv \
             toggle_hidden_files toggle_key_repeat \
             pyspark_shell spark_shell smart_spark_submit \
             setup_pyenv setup_uv python_status \

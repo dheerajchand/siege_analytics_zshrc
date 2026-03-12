@@ -249,7 +249,7 @@ fi
 rehash
 
 # Help
-help() {
+zsh_help() {
     echo "🚀 ZSH Quick Reference"
     echo "===================="
     echo ""
@@ -487,6 +487,7 @@ help() {
     echo ""
     echo "📚 Full docs: $ZSH_CONFIG_DIR/README.md"
 }
+alias zhelp='zsh_help'
 
 # Show loaded modules
 modules() {
@@ -818,7 +819,7 @@ zsh_status_banner() {
     # Quick tips
     echo ""
     printf "\033[%sm%s\033[%sm\n" "$accent_color" "💡 Quick Commands:" "$reset_color"
-    echo "   help          - Show all available commands"
+    echo "   zsh_help      - Show all available commands"
     echo "   modules       - List loaded modules"
     echo "   python_status - Check Python environment"
     echo "   spark_status  - Check Spark status"
@@ -846,8 +847,5 @@ fi
 # API Tokens
 # Keep tokens in secrets backends (secrets.env / 1Password map), not in git-tracked files.
 
-# pyenv (screen)
-if command -v pyenv >/dev/null 2>&1; then
-  eval "$(pyenv init --path)"
-  eval "$(pyenv init -)"
-fi
+# pyenv: canonical init is in modules/python.zsh (setup_pyenv)
+# For screen/tmux sessions, call setup_pyenv manually if needed
