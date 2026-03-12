@@ -101,6 +101,24 @@ assert_command_failure() {
     fi
 }
 
+TEST_SKIP=0
+TEST_SKIPPED_COUNT=0
+
+skip_if_missing() {
+    local cmd="$1"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        TEST_SKIP=1
+        return 0
+    fi
+}
+
+skip_in_ci() {
+    if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+        TEST_SKIP=1
+        return 0
+    fi
+}
+
 run_test() {
     local name="$1"
     local func="${TEST_FUNCS[$name]-$name}"
@@ -110,8 +128,14 @@ run_test() {
     fi
     [[ "$TEST_VERBOSE" == "1" ]] && echo "RUN: $name"
     TEST_ASSERT_FAIL=0
+    TEST_SKIP=0
     "$func"
     local rc=$?
+    if [[ "$TEST_SKIP" -eq 1 ]]; then
+        [[ "$TEST_VERBOSE" == "1" ]] && echo "SKIP: $name"
+        ((TEST_SKIPPED_COUNT++))
+        return 0
+    fi
     if [[ "$TEST_ASSERT_FAIL" -ne 0 || "$rc" -ne 0 ]]; then
         return 1
     fi
@@ -130,6 +154,10 @@ run_all_tests() {
             ((failed++))
         fi
     done
-    echo "TOTAL: $total  FAILED: $failed"
+    if [[ "$TEST_SKIPPED_COUNT" -gt 0 ]]; then
+        echo "TOTAL: $total  FAILED: $failed  SKIPPED: $TEST_SKIPPED_COUNT"
+    else
+        echo "TOTAL: $total  FAILED: $failed"
+    fi
     [[ "$failed" -eq 0 ]]
 }

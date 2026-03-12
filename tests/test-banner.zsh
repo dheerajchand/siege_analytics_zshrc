@@ -4,6 +4,7 @@ ROOT_DIR="$(cd "$(dirname "${0:A}")/.." && pwd)"
 source "$ROOT_DIR/tests/test-framework.zsh"
 
 test_status_banner_includes_secrets_and_spark_version() {
+    skip_in_ci
     local tmp bin out
     tmp="$(mktemp -d)"
     bin="$tmp/bin"

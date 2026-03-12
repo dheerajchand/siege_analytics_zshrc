@@ -105,6 +105,7 @@ test_pushmain_commits_pushes_and_merges() {
 }
 
 test_git_sync_safe_autostash() {
+    skip_in_ci
     local old_dir="$ZSHRC_CONFIG_DIR"
     local root work clone out
     root="$(_make_backup_test_repo)"

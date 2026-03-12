@@ -16,8 +16,7 @@ jobs:
         run: zsh --version
 
       - name: Create stub directories for modules that need them
-        run: |
-          mkdir -p /tmp/stub-spark /tmp/stub-hadoop /tmp/stub-zeppelin
+        run: mkdir -p /tmp/stub-spark /tmp/stub-hadoop /tmp/stub-zeppelin
 
       - name: Run tests
         env:
