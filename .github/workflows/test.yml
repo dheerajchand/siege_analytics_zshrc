@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify zsh
+        run: zsh --version
+
+      - name: Run tests
+        run: zsh run-tests.zsh --verbose
