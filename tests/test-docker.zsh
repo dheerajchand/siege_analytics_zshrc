@@ -58,4 +58,43 @@ test_docker_status_output() {
     rm -rf "$tmp"
 }
 
+test_docker_cleanup_output() {
+    local old_path="$PATH"
+    local tmp bin out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    _make_stub_docker "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+    out="$(docker_cleanup 2>&1)"
+    assert_contains "$out" "Docker Cleanup" "docker_cleanup should print header"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
+test_docker_shell_usage() {
+    local out
+    out="$(docker_shell 2>&1 || true)"
+    assert_contains "$out" "Usage: docker_shell" "docker_shell with no args should show usage"
+}
+
+test_dstop_no_containers() {
+    local old_path="$PATH"
+    local tmp bin out
+    tmp="$(mktemp -d)"
+    bin="$tmp/bin"
+    mkdir -p "$bin"
+    _make_stub_docker "$bin"
+    PATH="$bin:/usr/bin:/bin"
+    hash -r
+    out="$(dstop 2>&1)"
+    assert_contains "$out" "No running containers" "dstop with no containers should report none"
+    PATH="$old_path"
+    rm -rf "$tmp"
+}
+
 register_test "docker_status" test_docker_status_output
+register_test "docker_cleanup_output" test_docker_cleanup_output
+register_test "docker_shell_usage" test_docker_shell_usage
+register_test "dstop_no_containers" test_dstop_no_containers
