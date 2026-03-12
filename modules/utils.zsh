@@ -9,9 +9,7 @@
 
 # Check if internet connection is available
 # Used by Spark to decide: local JARs vs Maven downloads
-is_online() {
-    ping -c 1 google.com &> /dev/null
-}
+is_online() { ping -c 1 -W 2 google.com &>/dev/null; }
 
 is_online_status() {
     is_online && echo "online" || echo "offline"
@@ -121,18 +119,19 @@ path_add() {
     fi
 }
 
-# Simple PATH deduplication
+# PATH deduplication using associative array (O(n))
 path_clean() {
-    local seen=()
+    typeset -A seen
     local cleaned=""
+    local dir
     for dir in ${(s/:/)PATH}; do
-        if [[ -d "$dir" ]] && [[ ! " ${seen[@]} " =~ " $dir " ]]; then
-            seen+=("$dir")
+        if [[ -d "$dir" ]] && (( ! ${+seen[$dir]} )); then
+            seen[$dir]=1
             cleaned="${cleaned:+$cleaned:}$dir"
         fi
     done
     export PATH="$cleaned"
-    echo "✅ PATH cleaned: $(echo $PATH | tr ':' '\n' | wc -l | tr -d ' ') directories"
+    echo "PATH cleaned: $(echo $PATH | tr ':' '\n' | wc -l | tr -d ' ') directories"
 }
 
 # Edit zsh configuration

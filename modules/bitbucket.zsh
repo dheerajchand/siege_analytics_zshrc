@@ -174,7 +174,7 @@ bb_repo_create() {
     fi
 
     local payload
-    payload="$(printf '{"scm":"git","is_private":%s,"name":"%s"}' "$private" "$name")"
+    payload="$(python3 -c "import json,sys; print(json.dumps({'scm':'git','is_private':sys.argv[1]=='true','name':sys.argv[2]}))" "$private" "$name")"
     if ! curl -fsS "${auth_args[@]}" \
         -H "Content-Type: application/json" \
         -X POST \

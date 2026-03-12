@@ -743,7 +743,7 @@ _agents_merge_codex_settings() {
     local approval="$3"
     local sandbox="$4"
 
-    python - "$out" "$role" "$approval" "$sandbox" <<'PY'
+    python3 - "$out" "$role" "$approval" "$sandbox" <<'PY'
 import json
 import os
 import sys

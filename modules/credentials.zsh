@@ -50,22 +50,22 @@ _cred_put_op() {
     local service="$1" user="$2" value="$3"
     command -v op >/dev/null 2>&1 || return 1
     if op item get "$service-$user" >/dev/null 2>&1; then
-        op item edit "$service-$user" \
+        printf '%s' "$value" | op item edit "$service-$user" \
             ${OP_ACCOUNT:+--account="$OP_ACCOUNT"} \
             ${OP_VAULT:+--vault="$OP_VAULT"} \
-            "password=$value" >/dev/null 2>&1 && {
+            "password[password]=-" >/dev/null 2>&1 && {
             echo "✅ Updated in 1Password"
             return 0
         }
         return 1
     fi
-    op item create \
+    printf '%s' "$value" | op item create \
         --category="Login" \
         --title="$service-$user" \
         --vault="$OP_VAULT" \
         ${OP_ACCOUNT:+--account="$OP_ACCOUNT"} \
         "username=$user" \
-        "password=$value" \
+        "password[password]=-" \
         --tags="zsh-credentials" >/dev/null 2>&1 && {
         echo "✅ Stored in 1Password"
         return 0
@@ -92,6 +92,9 @@ _cred_get_keychain() {
 }
 
 _cred_put_keychain() {
+    # Note: macOS `security add-generic-password -w` does not support stdin;
+    # the password must be passed as a CLI argument. This is acceptable because
+    # Keychain operations require system authentication (Touch ID / password).
     local service="$1" user="$2" value="$3"
     command -v security >/dev/null 2>&1 || return 1
     security delete-generic-password -s "$service-$user" -a "$user" 2>/dev/null
@@ -286,13 +289,13 @@ ga_store_service_account() {
     echo "📧 Service Account: $client_email"
     echo "🎯 Project: $project_id"
     
-    op item create \
+    jq -r '.private_key' "$json_file" | op item create \
         --category="API Credential" \
         --title="GA-$project_id" \
         --vault="Private" \
         "project_id=$project_id" \
         "client_email=$client_email" \
-        "private_key[password]=$(jq -r '.private_key' "$json_file")" \
+        "private_key[password]=-" \
         "raw_json[text]=$(cat "$json_file")" \
         --tags="google-analytics,service-account"
     

@@ -316,7 +316,7 @@ dbx_lakebase_db_create() {
     _dbx_require_auth || return 1
     local instance_id
     instance_id="$(_dbx_lakebase_resolve_instance_id "$instance")"
-    _dbx_exec api post "/api/2.0/lakebase/instances/${instance_id}/databases" --json "{\"name\":\"${db}\"}"
+    _dbx_exec api post "/api/2.0/lakebase/instances/${instance_id}/databases" --json "$(python3 -c "import json,sys; print(json.dumps({'name':sys.argv[1]},separators=(',',':')))" "$db")"
 }
 
 dbx_lakebase_db_drop() {
