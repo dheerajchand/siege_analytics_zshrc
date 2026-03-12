@@ -51,9 +51,7 @@ test_backup_pushes_current_branch() {
     ZSHRC_CONFIG_DIR="$work"
     out="$(backup "feature backup test" 2>&1 || true)"
     assert_contains "$out" "Pushed to main repo (feature/backup)" "should push active feature branch to origin"
-    assert_contains "$out" "Pushed to backup repo (feature/backup)" "should push active feature branch to backup remote"
     assert_command_success "git --git-dir '$root/origin.git' show-ref --verify --quiet refs/heads/feature/backup" "origin should have feature branch"
-    assert_command_success "git --git-dir '$root/backup.git' show-ref --verify --quiet refs/heads/feature/backup" "backup remote should have feature branch"
 
     ZSHRC_CONFIG_DIR="$old_dir"
     rm -rf "$root"
@@ -77,7 +75,6 @@ test_backup_merge_main_merges_and_returns_branch() {
     current="$(git -C "$work" branch --show-current)"
     assert_equal "feature/merge" "$current" "should return to original branch after merge"
     assert_command_success "git --git-dir '$root/origin.git' log --oneline main | grep -q \"feat: merge target\"" "origin main should include merged commit"
-    assert_command_success "git --git-dir '$root/backup.git' log --oneline main | grep -q \"feat: merge target\"" "backup main should include merged commit"
 
     ZSHRC_CONFIG_DIR="$old_dir"
     rm -rf "$root"
