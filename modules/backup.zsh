@@ -61,11 +61,8 @@ backup() {
         git push --set-upstream origin "$branch" && echo "✅ Pushed to main repo ($branch)"
     fi
     
-    # Push to backup repo if configured
-    if git remote | grep -q backup; then
-        git push backup "$branch" && echo "✅ Pushed to backup repo ($branch)"
-    fi
-    
+    # Backup mirror handled by CI (see .github/workflows/mirror.yml)
+
     echo "🎉 Backup complete"
 }
 
@@ -96,9 +93,6 @@ backup_merge_main() {
     if [[ "$source_branch" == "main" ]]; then
         git pull --ff-only origin main || return 1
         git push origin main || return 1
-        if git remote | grep -q backup; then
-            git push backup main || return 1
-        fi
         echo "✅ main pushed"
         return 0
     fi
@@ -116,9 +110,6 @@ backup_merge_main() {
     }
     merged=1
     git push origin main || return 1
-    if git remote | grep -q backup; then
-        git push backup main || return 1
-    fi
     [[ "$start_branch" != "main" ]] && git checkout "$start_branch" >/dev/null 2>&1 || true
     [[ "$merged" -eq 1 ]] && echo "✅ Merged and pushed: $source_branch -> main"
 }
@@ -138,11 +129,9 @@ repo_sync() {
     
     git pull origin main --rebase
     git push origin main
-    
-    if git remote | grep -q backup; then
-        git push backup main
-    fi
-    
+
+    # Backup mirror handled by CI (see .github/workflows/mirror.yml)
+
     echo "✅ Sync complete"
 }
 
