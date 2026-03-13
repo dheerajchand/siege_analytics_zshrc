@@ -2374,15 +2374,33 @@ op_signin_all() {
             ((fail++))
             continue
         fi
+        # Determine which identifier op knows: prefer shorthand, fall back to UUID
+        local signin_id="$resolved"
+        if _op_account_shorthand_configured "$alias_name" "$accounts_json"; then
+            signin_id="$alias_name"
+        fi
         unset "OP_SESSION_${alias_name}" 2>/dev/null || true
-        token="$(OP_CLI_NO_COLOR=1 op signin --account "$alias_name" --raw </dev/tty || true)"
-        if [[ -z "$token" ]]; then
-            _secrets_warn "Failed to sign in: $alias_name"
-            _secrets_info "Try: export OP_SESSION_${alias_name}=\"\$(op signin --account $alias_name --raw)\""
+        local signin_err="" signin_rc
+        local _stderr_file="$(mktemp)"
+        if [[ -e /dev/tty ]]; then
+            token="$(OP_CLI_NO_COLOR=1 op signin --account "$signin_id" --raw </dev/tty 2>"$_stderr_file")"
+        else
+            token="$(OP_CLI_NO_COLOR=1 op signin --account "$signin_id" --raw 2>"$_stderr_file")"
+        fi
+        signin_rc=$?
+        signin_err="$(<"$_stderr_file")"
+        rm -f "$_stderr_file"
+        if [[ "$signin_rc" -ne 0 ]]; then
+            _secrets_warn "Failed to sign in: $alias_name (account: $signin_id)"
+            [[ -n "$signin_err" ]] && _secrets_warn "  op error: $signin_err"
+            _secrets_info "Try: op signin --account $signin_id"
             ((fail++))
             continue
         fi
-        export "OP_SESSION_${alias_name}=${token}"
+        # With app integration (biometric), token is empty but signin succeeds
+        if [[ -n "$token" ]]; then
+            export "OP_SESSION_${alias_name}=${token}"
+        fi
         echo "✅ Signed in: $alias_name"
         ((ok++))
     done 3< "$OP_ACCOUNTS_FILE"
