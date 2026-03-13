@@ -25,6 +25,9 @@ Minimal zsh test framework and test suites for this repo.
 - `test-bitbucket.zsh`
 - `test-dataworld.zsh`
 - `test-wiki.zsh`
+- `test-livy.zsh`
+- `test-zeppelin.zsh`
+- `test-compat.zsh`
 
 ## Run tests
 

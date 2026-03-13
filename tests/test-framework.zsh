@@ -21,6 +21,7 @@ register_test() {
 
 _print_fail() {
     local msg="$1"
+    (( TEST_SKIP )) && return 0
     echo "FAIL: $msg"
     TEST_ASSERT_FAIL=1
 }
