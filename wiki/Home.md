@@ -90,6 +90,23 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 - Test coverage and reporting
 - CI/CD integration
 
+### **📝 [Testing Guide](Testing-Guide)**
+- Step-by-step guide to writing new tests
+- Stub pattern for external tool isolation
+- Skip guards for CI compatibility
+- Assertion reference
+
+### **👋 [Developer Welcome](Developer-Welcome)**
+- Repository overview and architecture
+- Setup instructions and first run
+- How to make changes and open PRs
+- Key commands reference
+
+### **🤝 [Contributing](../CONTRIBUTING.md)**
+- Branching model (develop/main)
+- Conventional commit format
+- Pull request requirements
+
 ### **📋 [Backlog](Backlog)**
 - Open and closed documentation/code follow-ups
 - Operational tracking for maintenance tasks
@@ -106,7 +123,7 @@ Welcome to the comprehensive documentation for your enhanced zsh configuration s
 
 ```bash
 # Core functions
-help                        # Display comprehensive help
+zsh_help                    # Display comprehensive help
 zshconfig                   # Edit configuration directory
 zshreboot                   # Reload configuration
 backup "message"            # Commit + push current branch
