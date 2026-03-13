@@ -2,6 +2,7 @@
 
 ROOT_DIR="$(cd "$(dirname "${0:A}")/.." && pwd)"
 source "$ROOT_DIR/tests/test-framework.zsh"
+export ZSHRC_CONFIG_DIR="$ROOT_DIR"
 source "$ROOT_DIR/modules/compat.zsh"
 
 test_compat_matrix_file_exists() {
@@ -11,6 +12,7 @@ test_compat_matrix_file_exists() {
 }
 
 test_compat_profiles_lists_entries() {
+    skip_if_missing "python3"
     local out
     out="$(compat_profiles 2>&1 || true)"
     assert_contains "$out" "stable" "compat_profiles should list the stable profile"
@@ -30,6 +32,7 @@ test_stack_profile_use_sets_env() {
 }
 
 test_stack_profile_status_output() {
+    skip_if_missing "python3"
     local out
     out="$(stack_profile_status 2>&1 || true)"
     assert_contains "$out" "Spark" "stack_profile_status should mention Spark"

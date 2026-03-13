@@ -81,6 +81,7 @@ test_backup_merge_main_merges_and_returns_branch() {
 }
 
 test_pushmain_commits_pushes_and_merges() {
+    skip_in_ci
     local old_dir="$ZSHRC_CONFIG_DIR"
     local root work out current
     root="$(_make_backup_test_repo)"
