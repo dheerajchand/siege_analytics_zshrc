@@ -2337,6 +2337,11 @@ op_signin_all() {
         return 1
     fi
     local line alias_name resolved token reply ok=0 fail=0
+    local _sessions_tmp
+    _sessions_tmp="$(mktemp)"
+    umask 077
+    chmod 600 "$_sessions_tmp" 2>/dev/null || true
+    printf '# op session state — written by op_signin_all at %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" > "$_sessions_tmp"
     while IFS= read -r -u3 line || [[ -n "$line" ]]; do
         [[ -z "$line" || "$line" == \#* ]] && continue
         alias_name="${line%%=*}"
@@ -2402,35 +2407,51 @@ op_signin_all() {
         if [[ -n "$token" ]]; then
             export "OP_SESSION_${alias_name}=${token}"
         fi
+        # Record successful signin for agent access
+        # Human-legible label, resolved UUID, and op identifier
+        printf '# %s\n' "$alias_name" >> "$_sessions_tmp"
+        printf 'OP_SIGNED_IN_%s=%q\n' "$alias_name" "$signin_id" >> "$_sessions_tmp"
+        printf 'OP_UUID_%s=%q\n' "$alias_name" "$resolved" >> "$_sessions_tmp"
+        # Include email/URL for human identification
+        local _acct_email _acct_url
+        _acct_email="$(printf '%s' "$accounts_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(next((a.get('email','') for a in d if a.get('account_uuid')==sys.argv[1]),''))" "$resolved" 2>/dev/null || true)"
+        _acct_url="$(printf '%s' "$accounts_json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(next((a.get('url','') for a in d if a.get('account_uuid')==sys.argv[1]),''))" "$resolved" 2>/dev/null || true)"
+        [[ -n "$_acct_email" ]] && printf 'OP_EMAIL_%s=%q\n' "$alias_name" "$_acct_email" >> "$_sessions_tmp"
+        [[ -n "$_acct_url" ]] && printf 'OP_URL_%s=%q\n' "$alias_name" "$_acct_url" >> "$_sessions_tmp"
+        if [[ -n "$token" ]]; then
+            printf 'OP_SESSION_%s=%q\n' "$alias_name" "$token" >> "$_sessions_tmp"
+        fi
         echo "✅ Signed in: $alias_name"
         ((ok++))
     done 3< "$OP_ACCOUNTS_FILE"
     echo "Done: ${ok} ok, ${fail} failed"
 
-    # Persist session tokens to file for agent/non-interactive access
-    _op_sessions_save
+    # Finalize session file with defaults and move into place
+    _op_sessions_save --tmp-file "$_sessions_tmp" --count "$ok"
 
     [[ "$fail" -eq 0 ]] || return 1
 }
 
 _op_sessions_save() {
-    local sessions_file="${OP_SESSIONS_FILE:-$HOME/.config/zsh/.op-sessions.env}"
-    local tmp
-    tmp="$(mktemp)"
-    umask 077
-    chmod 600 "$tmp" 2>/dev/null || true
-    # Write all OP_SESSION_* and OP_ACCOUNT/OP_VAULT vars
-    local var val
-    for var in ${(k)parameters[(I)OP_SESSION_*]}; do
-        val="${(P)var}"
-        [[ -n "$val" ]] && printf '%s=%q\n' "$var" "$val" >> "$tmp"
+    local tmp_file="" count=0
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --tmp-file) tmp_file="${2:-}"; shift 2 ;;
+            --count)    count="${2:-0}"; shift 2 ;;
+            *)          shift ;;
+        esac
     done
-    [[ -n "${OP_ACCOUNT:-}" ]] && printf 'OP_ACCOUNT=%q\n' "$OP_ACCOUNT" >> "$tmp"
-    [[ -n "${OP_VAULT:-}" ]] && printf 'OP_VAULT=%q\n' "$OP_VAULT" >> "$tmp"
+    [[ -z "$tmp_file" ]] && return 1
+    local sessions_file="${OP_SESSIONS_FILE:-$HOME/.config/zsh/.op-sessions.env}"
+
+    # Append current default account/vault
+    [[ -n "${OP_ACCOUNT:-}" ]] && printf 'OP_ACCOUNT=%q\n' "$OP_ACCOUNT" >> "$tmp_file"
+    [[ -n "${OP_VAULT:-}" ]] && printf 'OP_VAULT=%q\n' "$OP_VAULT" >> "$tmp_file"
+
     mkdir -p "$(dirname "$sessions_file")" 2>/dev/null || true
-    mv "$tmp" "$sessions_file"
+    mv "$tmp_file" "$sessions_file"
     chmod 600 "$sessions_file" 2>/dev/null || true
-    _secrets_info "Session tokens saved to $sessions_file"
+    _secrets_info "Session state saved to $sessions_file ($count accounts)"
 }
 
 op_sessions_source() {
