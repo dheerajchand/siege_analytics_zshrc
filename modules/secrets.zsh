@@ -13,6 +13,7 @@
 : "${OP_ACCOUNT:=}"
 : "${CODEX_SESSIONS_FILE:=$HOME/.config/zsh/codex-sessions.env}"
 : "${SECRETS_AGENT_ENV_FILE:=$HOME/.config/zsh/.agent-secrets.env}"
+: "${OP_SESSIONS_FILE:=$HOME/.config/zsh/.op-sessions.env}"
 : "${ZSH_OP_SOURCE_ACCOUNT:=Dheeraj_Chand_Family}"
 : "${ZSH_OP_SOURCE_VAULT:=Private}"
 _SECRETS_SYNC_FILES=(op-accounts.env secrets.env secrets.1p codex-sessions.env)
@@ -2405,7 +2406,47 @@ op_signin_all() {
         ((ok++))
     done 3< "$OP_ACCOUNTS_FILE"
     echo "Done: ${ok} ok, ${fail} failed"
+
+    # Persist session tokens to file for agent/non-interactive access
+    _op_sessions_save
+
     [[ "$fail" -eq 0 ]] || return 1
+}
+
+_op_sessions_save() {
+    local sessions_file="${OP_SESSIONS_FILE:-$HOME/.config/zsh/.op-sessions.env}"
+    local tmp
+    tmp="$(mktemp)"
+    umask 077
+    chmod 600 "$tmp" 2>/dev/null || true
+    # Write all OP_SESSION_* and OP_ACCOUNT/OP_VAULT vars
+    local var val
+    for var in ${(k)parameters[(I)OP_SESSION_*]}; do
+        val="${(P)var}"
+        [[ -n "$val" ]] && printf '%s=%q\n' "$var" "$val" >> "$tmp"
+    done
+    [[ -n "${OP_ACCOUNT:-}" ]] && printf 'OP_ACCOUNT=%q\n' "$OP_ACCOUNT" >> "$tmp"
+    [[ -n "${OP_VAULT:-}" ]] && printf 'OP_VAULT=%q\n' "$OP_VAULT" >> "$tmp"
+    mkdir -p "$(dirname "$sessions_file")" 2>/dev/null || true
+    mv "$tmp" "$sessions_file"
+    chmod 600 "$sessions_file" 2>/dev/null || true
+    _secrets_info "Session tokens saved to $sessions_file"
+}
+
+op_sessions_source() {
+    local sessions_file="${OP_SESSIONS_FILE:-$HOME/.config/zsh/.op-sessions.env}"
+    if [[ ! -f "$sessions_file" ]]; then
+        _secrets_warn "No sessions file: $sessions_file (run op_signin_all first)"
+        return 1
+    fi
+    local line
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        local key="${line%%=*}"
+        local val="${line#*=}"
+        export "$key=$val"
+    done < "$sessions_file"
+    _secrets_info "Loaded OP sessions from $sessions_file"
 }
 
 op_login_headless() {
