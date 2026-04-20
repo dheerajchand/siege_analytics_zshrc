@@ -8,11 +8,16 @@
 
 # Warn to stderr with a visible prefix.
 _secrets_warn() {
+    emulate -L zsh
     echo "⚠️  $*" >&2
 }
 
-# Informational message; silenced in test mode.
+# Informational message; silenced in test mode. `emulate -L` insulates
+# us from caller-imposed options (errexit/nounset/pipefail) so a
+# false-first conditional (`[[ -n "" ]] && return 0`) doesn't trip
+# under a strict-mode caller like run-tests.zsh (#137 investigation).
 _secrets_info() {
+    emulate -L zsh
     [[ -n "${ZSH_TEST_MODE:-}" ]] && return 0
     echo "🔐 $*"
 }
