@@ -25,7 +25,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 **What gets installed:**
 
 *Step 1 (ZSH Config):*
-- ✅ Modular zsh configuration (17 modules)
+- ✅ Modular zsh configuration (23 modules)
 - ✅ Oh-My-Zsh with Powerlevel10k theme
 - ✅ Symlinks and shell setup
 
@@ -302,7 +302,7 @@ If you encounter issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md):
 - 🎯 **11/11 hostile tests passing** - Zero critical vulnerabilities
 - ⚡ **<0.5s startup time** - Optimized performance
 - 🔒 **Enterprise security** - Multi-backend credential management
-- 📦 **17 modules available** - Complete development environment
+- 📦 **23 modules available** - Complete development environment
 - 🧪 **Comprehensive verification** - Real terminal testing
 
 ## 🚀 Quick Start (After Installation)
