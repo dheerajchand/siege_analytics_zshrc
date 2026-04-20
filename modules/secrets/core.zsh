@@ -68,11 +68,27 @@ _secrets_strip_quotes() {
 }
 
 # Canonicalize a raw value: strip CRLF, trim whitespace, strip quotes.
+# Inlined to avoid three subprocess spawns per call — load_secrets can
+# invoke this ~30 times per shell, and command substitution forking was
+# a measurable share of startup under zprof (#140).
 _secrets_normalize_value() {
     local val="$1"
-    val="$(_secrets_strip_crlf "$val")"
-    val="$(_secrets_trim_ws "$val")"
-    val="$(_secrets_strip_quotes "$val")"
+    # Strip trailing CR (handles CRLF env files)
+    val="${val%%$'\r'}"
+    # Trim leading + trailing whitespace
+    while [[ "$val" == *[[:space:]] ]]; do val="${val%[[:space:]]}"; done
+    while [[ "$val" == [[:space:]]* ]]; do val="${val#[[:space:]]}"; done
+    # Strip matched surrounding quotes
+    if [[ "$val" == \"*\" ]]; then
+        val="${val#\"}"; val="${val%\"}"
+    elif [[ "$val" == \'*\' ]]; then
+        val="${val#\'}"; val="${val%\'}"
+    fi
+    # Defensive trailing-quote stripping (see _secrets_strip_quotes)
+    if [[ "${ZSH_STRIP_UNMATCHED_QUOTES:-1}" != "0" ]]; then
+        val="${val%\"}"
+        val="${val%\'}"
+    fi
     echo "$val"
 }
 
