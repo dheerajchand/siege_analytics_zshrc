@@ -29,19 +29,9 @@ elif command -v python >/dev/null 2>&1; then
     _SECRETS_JSON_CMD="python"
 fi
 
-_secrets_warn() {
-    echo "⚠️  $*" >&2
-}
-
-_secrets_info() {
-    [[ -n "${ZSH_TEST_MODE:-}" ]] && return 0
-    echo "🔐 $*"
-}
-
-_secrets_debug() {
-    [[ -n "${ZSH_SECRETS_DEBUG:-}" ]] || return 0
-    echo "[secrets:debug] $*" >&2
-}
+# Core utility helpers (_secrets_warn/info/debug, value normalization,
+# agent-cache preference) moved to modules/secrets/core.zsh.
+source "${0:A:h}/secrets/core.zsh"
 
 _secrets_update_env_file() {
     local key="" value="" file="$ZSH_SECRETS_FILE"
@@ -125,73 +115,6 @@ _secrets_export_kv() {
         val="$(_secrets_normalize_value "$val")"
         export "$key=$val"
     fi
-}
-
-_secrets_normalize_mode() {
-    if [[ -n "${ZSH_SECRETS_MODE:-}" ]]; then
-        export ZSH_SECRETS_MODE="$(_secrets_normalize_value "$ZSH_SECRETS_MODE")"
-    fi
-}
-
-_secrets_startup_prefers_agent_cache() {
-    local mode="${ZSH_SECRETS_STARTUP_SOURCE:-auto}"
-    mode="${mode:l}"
-    case "$mode" in
-        cache) return 0 ;;
-        live) return 1 ;;
-        auto)
-            [[ "${ZSH_IS_IDE_TERMINAL:-0}" == "1" ]] && [[ -f "${SECRETS_AGENT_ENV_FILE:-$HOME/.config/zsh/.agent-secrets.env}" ]]
-            return $?
-            ;;
-        *)
-            return 1
-            ;;
-    esac
-}
-
-_secrets_strip_crlf() {
-    local val="$1"
-    val="${val%%$'\r'}"
-    echo "$val"
-}
-
-_secrets_trim_ws() {
-    local val="$1"
-    while [[ "$val" == *[[:space:]] ]]; do
-        val="${val%[[:space:]]}"
-    done
-    while [[ "$val" == [[:space:]]* ]]; do
-        val="${val#[[:space:]]}"
-    done
-    echo "$val"
-}
-
-_secrets_strip_quotes() {
-    local val="$1"
-    if [[ "$val" == \"*\" ]]; then
-        val="${val#\"}"
-        val="${val%\"}"
-    elif [[ "$val" == \'*\' ]]; then
-        val="${val#\'}"
-        val="${val%\'}"
-    fi
-    # POLICY: Also strip unmatched trailing quote.  This is intentionally
-    # defensive against copy-paste artifacts in env files (e.g. KEY=UUID").
-    # Values that legitimately end with a quote char are not expected in
-    # secrets.env / op-accounts.env.  Disable with ZSH_STRIP_UNMATCHED_QUOTES=0.
-    if [[ "${ZSH_STRIP_UNMATCHED_QUOTES:-1}" != "0" ]]; then
-        val="${val%\"}"
-        val="${val%\'}"
-    fi
-    echo "$val"
-}
-
-_secrets_normalize_value() {
-    local val="$1"
-    val="$(_secrets_strip_crlf "$val")"
-    val="$(_secrets_trim_ws "$val")"
-    val="$(_secrets_strip_quotes "$val")"
-    echo "$val"
 }
 
 _op_account_alias() {
