@@ -2,6 +2,33 @@
 
 ## Common Issues and Solutions
 
+### Test suite flakes with unexplained SIGPIPE / exit 141
+
+Symptom: `tests/test-*.zsh` assertions of the form
+`cmd | grep -q "..."` flake — sometimes pass, sometimes fail, with no
+code change. The failing run returns exit 141.
+
+Cause: `pipefail` is enabled globally somewhere. `grep -q` exits on
+first match; upstream producer gets SIGPIPE; `pipefail` surfaces the
+141 as the pipe's overall status, failing the assertion.
+
+Fix: ensure `run-tests.zsh` does **not** enable `pipefail` globally
+(test `conventions_runner_no_global_pipefail` guards this).
+Inside individual tests that genuinely need strict mode, use
+`emulate -L zsh` + `setopt pipefail` inside a function so the option
+is scoped.
+
+Workaround in a single assertion: capture output first, then grep the
+variable, so there's no live pipe:
+
+```zsh
+out="$(cmd)"
+echo "$out" | grep -q "..."
+```
+
+See [STYLE.md](STYLE.md) §Shell flags and GitHub issue #90 for the
+full investigation.
+
 ### Python/Pyenv Not Working - "command not found: pip/python"
 
 **Symptoms:**

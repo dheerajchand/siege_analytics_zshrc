@@ -107,5 +107,20 @@ test_conventions_no_bare_exit() {
     return 0
 }
 
+test_conventions_runner_no_global_pipefail() {
+    # `set -o pipefail` at global scope in run-tests.zsh silently broke
+    # assertions of the form `cmd | grep -q "..."`: grep -q exits on match,
+    # upstream producer gets SIGPIPE, and pipefail surfaces the 141 as the
+    # pipeline's status, failing flakily. Scoped inside `emulate -L` is fine;
+    # unscoped at run-tests.zsh top level is not. See #90 for the history.
+    # Match only statement lines, not comment lines, that enable pipefail.
+    if grep -qE '^[[:space:]]*(set[[:space:]]+[^#]*pipefail|setopt[[:space:]]+[^#]*pipefail)' "$ROOT_DIR/run-tests.zsh"; then
+        _print_fail "run-tests.zsh must not enable pipefail globally (#90)"
+        return 1
+    fi
+    return 0
+}
+
 register_test "conventions_docstrings" test_conventions_docstrings
 register_test "conventions_no_bare_exit" test_conventions_no_bare_exit
+register_test "conventions_runner_no_global_pipefail" test_conventions_runner_no_global_pipefail

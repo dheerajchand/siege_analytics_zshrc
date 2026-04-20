@@ -1,5 +1,10 @@
 #!/usr/bin/env zsh
-set -euo pipefail
+# `pipefail` is deliberately NOT set globally: test assertions frequently
+# look like `cmd | grep -q "something"`, and `grep -q` exits as soon as
+# it finds a match. Under pipefail the upstream producer may then be
+# killed by SIGPIPE, turning a successful assertion into a flake. Tests
+# that need strict mode should opt in scoped inside `emulate -L`.
+set -eu
 
 ROOT_DIR="$(cd "$(dirname "${0:A}")" && pwd)"
 TESTS_DIR="$ROOT_DIR/tests"
