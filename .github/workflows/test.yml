@@ -38,17 +38,29 @@ jobs:
 
       - name: Install shellcheck + shfmt (macOS)
         if: runner.os == 'macOS'
-        run: brew install --quiet shellcheck shfmt
+        run: |
+          # Both are usually preinstalled on macos-latest; install only
+          # if missing. `brew install` on an existing bottle still pays
+          # a formula-tap fetch, so skipping when present saves seconds.
+          command -v shellcheck >/dev/null 2>&1 || brew install --quiet shellcheck
+          command -v shfmt >/dev/null 2>&1 || brew install --quiet shfmt
 
       - name: Install shellcheck + shfmt (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install -y --no-install-recommends shellcheck
-          # shfmt isn't in Ubuntu default repos; grab the latest release binary.
-          SHFMT_VERSION="v3.13.1"
-          curl -fsSL -o /tmp/shfmt "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
-          chmod +x /tmp/shfmt
-          sudo mv /tmp/shfmt /usr/local/bin/shfmt
+          # shellcheck is usually preinstalled on ubuntu-latest; install
+          # only if missing. shfmt isn't in apt default repos — grab a
+          # pinned release binary.
+          if ! command -v shellcheck >/dev/null 2>&1; then
+              sudo apt-get update -qq
+              sudo apt-get install -y --no-install-recommends shellcheck
+          fi
+          if ! command -v shfmt >/dev/null 2>&1; then
+              SHFMT_VERSION="v3.13.1"
+              curl -fsSL -o /tmp/shfmt "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
+              chmod +x /tmp/shfmt
+              sudo mv /tmp/shfmt /usr/local/bin/shfmt
+          fi
 
       - name: Shellcheck (bash scripts only — zsh is not supported by shellcheck)
         run: shellcheck -S error install.sh setup-software.sh bash-bridge.sh
