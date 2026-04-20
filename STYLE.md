@@ -158,11 +158,20 @@ and call it.
 ## Shell flags
 
 - Don't set `set -e` / `set -u` / `set -o pipefail` at the top of
-  modules or tests. They propagate to the sourcing shell and create
-  action-at-a-distance bugs.
+  modules, tests, or `run-tests.zsh`. They propagate to the sourcing
+  shell and create action-at-a-distance bugs.
 - If you need strict mode in a scope, use `emulate -L zsh` + `setopt`
   **inside a function** — `emulate -L` scopes the options to the
   function.
+- **Pipefail gotcha (#90):** `cmd | grep -q "..."` is fragile under
+  `pipefail`. `grep -q` exits on first match; the upstream producer
+  receives SIGPIPE and exits 141; pipefail surfaces the 141 as the
+  pipe's status, so a successful match can fail flakily. Two fixes:
+  1. Don't enable pipefail at runner/test-file scope.
+  2. Capture the producer output first, then grep the variable:
+     `out="$(cmd)"; echo "$out" | grep -q "..."`. No live pipe to the
+     short-circuiting consumer.
+  `test_conventions_runner_no_global_pipefail` guards run-tests.zsh.
 
 ---
 
