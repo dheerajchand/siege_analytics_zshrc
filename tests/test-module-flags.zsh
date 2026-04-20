@@ -16,7 +16,7 @@ test_load_module_honors_disable_flag() {
     mkdir -p "$tmp/modules"
     echo 'echo LOADED_FROM_FAKE_MODULE' > "$tmp/modules/fake.zsh"
     local loader="$(_extract_load_module)"
-    out="$(ZSH_CONFIG_DIR="$tmp" ZSH_DISABLE_FAKE=1 zsh -c "$loader; load_module fake")"
+    out="$(ZSH_CONFIG_DIR="$tmp" ZSH_DISABLE_FAKE=1 zsh -fc "$loader; load_module fake")"
     rm -rf "$tmp"
     assert_equal "" "$out" "ZSH_DISABLE_FAKE=1 should skip the module source"
 }
@@ -27,7 +27,7 @@ test_load_module_loads_when_flag_unset() {
     mkdir -p "$tmp/modules"
     echo 'echo LOADED_FROM_FAKE_MODULE' > "$tmp/modules/fake.zsh"
     local loader="$(_extract_load_module)"
-    out="$(ZSH_CONFIG_DIR="$tmp" zsh -c "$loader; load_module fake")"
+    out="$(ZSH_CONFIG_DIR="$tmp" zsh -fc "$loader; load_module fake")"
     rm -rf "$tmp"
     assert_equal "LOADED_FROM_FAKE_MODULE" "$out" "load_module should source by default"
 }
@@ -38,7 +38,7 @@ test_load_module_flag_maps_hyphen_to_underscore() {
     mkdir -p "$tmp/modules"
     echo 'echo LOADED_HYPHEN' > "$tmp/modules/my-module.zsh"
     local loader="$(_extract_load_module)"
-    out="$(ZSH_CONFIG_DIR="$tmp" ZSH_DISABLE_MY_MODULE=1 zsh -c "$loader; load_module my-module")"
+    out="$(ZSH_CONFIG_DIR="$tmp" ZSH_DISABLE_MY_MODULE=1 zsh -fc "$loader; load_module my-module")"
     rm -rf "$tmp"
     assert_equal "" "$out" "hyphens should map to underscores in the flag name"
 }
