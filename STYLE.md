@@ -175,6 +175,28 @@ and call it.
 
 ---
 
+## Module feature flags
+
+Any module can be opted out of a shell by exporting
+`ZSH_DISABLE_<NAME>=1` before shell start, where `<NAME>` is the
+uppercase module file stem with hyphens swapped for underscores.
+Honored by `load_module` in `zshrc`.
+
+Examples:
+
+```sh
+# Skip the Spark / Hadoop / Zeppelin trio on a lightweight host:
+export ZSH_DISABLE_SPARK=1
+export ZSH_DISABLE_HADOOP=1
+export ZSH_DISABLE_ZEPPELIN=1
+
+# Debug-only: run a shell without docker helpers:
+ZSH_DISABLE_DOCKER=1 zsh -i
+```
+
+Per-host `vars.<host>.env` files are the conventional place to set
+these for a given machine.
+
 ## Enforcement
 
 - `tests/test-zshrc-startup.zsh` — structural invariants of `zshrc`.
