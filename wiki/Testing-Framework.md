@@ -10,6 +10,39 @@ The ZSH Testing Framework provides:
 - **Comprehensive Assertions**: Rich set of assertion functions
 - **Test Discovery**: Automatic test discovery and execution
 
+## 🚫 Pitfalls
+
+### Don't enable `pipefail` globally in run-tests.zsh (#90)
+
+Test assertions frequently look like `cmd | grep -q "..."`. Under
+`pipefail`:
+
+1. `grep -q` exits 0 on first match (short-circuits).
+2. The upstream producer receives SIGPIPE and exits 141.
+3. `pipefail` surfaces the 141 as the pipeline's exit status.
+4. A successful assertion is flagged as failure, flakily.
+
+Rules:
+
+- **`run-tests.zsh` must NOT set `-o pipefail`.** A regression test
+  (`conventions_runner_no_global_pipefail` in
+  `tests/test-conventions.zsh`) guards this.
+- Test files that need strict mode should scope it **inside a
+  function** with `emulate -L zsh` + `setopt pipefail`.
+  `tests/test-zshrc-startup.zsh` and `tests/test-startup-budget.zsh`
+  are the reference implementations.
+- When an assertion must verify a command's output, **capture first,
+  then grep the variable** — no live pipe to a short-circuiting
+  consumer:
+
+```zsh
+out="$(git --git-dir "$origin" log --oneline main)"
+assert_contains "$out" "feat: merge target" "..."
+```
+
+See also [STYLE.md](../STYLE.md) §Shell flags and
+[TROUBLESHOOTING.md](../TROUBLESHOOTING.md).
+
 ## 🎯 Key Features
 
 ### **pytest-like Functionality**
