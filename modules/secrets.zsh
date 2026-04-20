@@ -36,6 +36,15 @@ source "${0:A:h}/secrets/core.zsh"
 # 1Password CLI layer — _op_* helpers and op_* public commands.
 source "${0:A:h}/secrets/1password-cli.zsh"
 
+# Agent env cache — secrets_agent_{refresh,source,status}.
+source "${0:A:h}/secrets/agent-cache.zsh"
+
+# Policy preflight + recovery + status.
+source "${0:A:h}/secrets/policy.zsh"
+
+# Machine profile management.
+source "${0:A:h}/secrets/profile.zsh"
+
 _secrets_update_env_file() {
     local key="" value="" file="$ZSH_SECRETS_FILE"
     while [[ $# -gt 0 ]]; do
@@ -589,128 +598,6 @@ _secrets_map_envvar_from_line() {
     printf '%s\n' "$envvar"
 }
 
-secrets_agent_refresh() {
-    local out_file="${SECRETS_AGENT_ENV_FILE:-$HOME/.config/zsh/.agent-secrets.env}"
-    local account_arg="${OP_ACCOUNT-}"
-    local vault_arg="${OP_VAULT-}"
-    local strict=0
-
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --output) out_file="${2:-}"; shift 2 ;;
-            --account) account_arg="${2:-}"; shift 2 ;;
-            --vault) vault_arg="${2:-}"; shift 2 ;;
-            --strict) strict=1; shift ;;
-            -h|--help)
-                cat <<'HELP'
-Usage: secrets_agent_refresh [--output <file>] [--account <account>] [--vault <vault>] [--strict]
-
-Loads mapped 1Password secrets and writes only mapped ENV vars to an agent-readable local env file.
-The output file permissions are restricted to 600.
-HELP
-                return 0
-                ;;
-            *)
-                _secrets_warn "Unknown option: $1"
-                return 1
-                ;;
-        esac
-    done
-
-    [[ -f "$ZSH_SECRETS_MAP" ]] || { _secrets_warn "1Password mapping file not found: $ZSH_SECRETS_MAP"; return 1; }
-    _secrets_require_op "cannot refresh agent secrets" || return 1
-
-    local -a mapped_envvars=()
-    local line envvar
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        envvar="$(_secrets_map_envvar_from_line "$line" 2>/dev/null || true)"
-        [[ -n "$envvar" ]] && mapped_envvars+=("$envvar")
-    done < "$ZSH_SECRETS_MAP"
-
-    local var
-    for var in "${mapped_envvars[@]}"; do
-        unset "$var" 2>/dev/null || true
-    done
-
-    secrets_load_op "$account_arg" "$vault_arg" >/dev/null 2>&1 || true
-
-    local tmp
-    tmp="$(mktemp)"
-    umask 077
-    : > "$tmp"
-    chmod 600 "$tmp" 2>/dev/null || true
-
-    local loaded=0
-    local missing=0
-    local -a missing_vars=()
-    for var in "${mapped_envvars[@]}"; do
-        if typeset -p "$var" >/dev/null 2>&1; then
-            local value="${(P)var}"
-            printf '%s=%q\n' "$var" "$value" >> "$tmp"
-            loaded=$((loaded + 1))
-        else
-            missing=$((missing + 1))
-            missing_vars+=("$var")
-        fi
-    done
-
-    mkdir -p "$(dirname "$out_file")" 2>/dev/null || true
-    mv "$tmp" "$out_file"
-    chmod 600 "$out_file" 2>/dev/null || true
-
-    if (( missing > 0 )); then
-        _secrets_warn "agent env: loaded $loaded, missing $missing (${missing_vars[*]})"
-        (( strict == 1 )) && return 1
-    else
-        _secrets_info "agent env refreshed: $out_file ($loaded vars)"
-    fi
-}
-
-secrets_agent_source() {
-    local refresh=0
-    local out_file="${SECRETS_AGENT_ENV_FILE:-$HOME/.config/zsh/.agent-secrets.env}"
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --refresh) refresh=1; shift ;;
-            --output) out_file="${2:-}"; shift 2 ;;
-            -h|--help)
-                echo "Usage: secrets_agent_source [--refresh] [--output <file>]" >&2
-                return 0
-                ;;
-            *)
-                _secrets_warn "Unknown option: $1"
-                return 1
-                ;;
-        esac
-    done
-    (( refresh == 1 )) && secrets_agent_refresh --output "$out_file" || true
-    [[ -f "$out_file" ]] || { _secrets_warn "agent env file not found: $out_file"; return 1; }
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        _secrets_export_kv "$line"
-    done < "$out_file"
-    _secrets_info "Loaded agent env from $out_file"
-}
-
-secrets_agent_status() {
-    local out_file="${SECRETS_AGENT_ENV_FILE:-$HOME/.config/zsh/.agent-secrets.env}"
-    echo "🔐 Agent Secrets"
-    echo "================"
-    echo "Map file: $ZSH_SECRETS_MAP"
-    echo "Agent env file: $out_file"
-    if [[ -f "$out_file" ]]; then
-        local vars_count
-        vars_count="$(grep -Ec '^[A-Za-z_][A-Za-z0-9_]*=' "$out_file" 2>/dev/null || echo 0)"
-        echo "Agent env vars: $vars_count"
-    else
-        echo "Agent env vars: 0 (file missing)"
-    fi
-    if _secrets_require_op "cannot query 1Password status" >/dev/null 2>&1; then
-        echo "1Password: Ready"
-    else
-        echo "1Password: Not ready"
-    fi
-}
-
 _secrets_missing_from_1p_usage() {
     echo "Usage: secrets_missing_from_1p [--json] [--fix] [account] [vault]" >&2
 }
@@ -867,64 +754,6 @@ load_secrets() {
     esac
 }
 
-_secrets_check_profile() {
-    if [[ -n "${ZSH_ENV_PROFILE:-}" ]]; then
-        return 0
-    fi
-    if [[ -n "${_SECRETS_PROFILE_WARNED:-}" ]]; then
-        return 0
-    fi
-    if [[ -n "${ZSH_TEST_MODE:-}" ]]; then
-        return 0
-    fi
-    if [[ ! -o interactive ]]; then
-        return 0
-    fi
-    _SECRETS_PROFILE_WARNED=1
-    _secrets_warn "ZSH_ENV_PROFILE not set. Run: secrets_init_profile"
-    _secrets_info "Available profiles: dev, staging, prod, laptop"
-    _secrets_info "Run 'secrets_init_profile' for setup wizard"
-}
-
-_secrets_validate_profile() {
-    local profile="${1:-}"
-    local list
-    list="$(_secrets_profile_list)"
-    if [[ " $list " == *" $profile "* ]]; then
-        return 0
-    fi
-    _secrets_warn "Invalid profile: $profile (expected one of: $(_secrets_default_profiles))"
-    return 1
-}
-
-_secrets_profile_list() {
-    if typeset -p ZSH_PROFILE_ORDER >/dev/null 2>&1; then
-        local -a ordered
-        ordered=("${ZSH_PROFILE_ORDER[@]}")
-        if typeset -p ZSH_PROFILE_CONFIGS >/dev/null 2>&1; then
-            local -a filtered
-            local name
-            for name in "${ordered[@]}"; do
-                [[ -n "${ZSH_PROFILE_CONFIGS[$name]-}" ]] && filtered+=("$name")
-            done
-            [[ "${#filtered[@]}" -gt 0 ]] && echo "${filtered[*]}" && return 0
-        fi
-        echo "${ordered[*]}"
-        return 0
-    fi
-    if typeset -p ZSH_PROFILE_CONFIGS >/dev/null 2>&1; then
-        local -a keys
-        keys=("${(@k)ZSH_PROFILE_CONFIGS}")
-        echo "${keys[*]}"
-        return 0
-    fi
-    if [[ -n "${ZSH_PROFILE_LIST:-}" ]]; then
-        echo "$ZSH_PROFILE_LIST"
-        return 0
-    fi
-    _secrets_default_profiles
-}
-
 _secrets_default_profiles() {
     echo "dev staging prod laptop cyberpower"
 }
@@ -987,10 +816,6 @@ secrets_validate_setup() {
     return "$errors"
 }
 
-_secrets_policy_titles() {
-    echo "op-accounts-env zsh-secrets-env zsh-secrets-map codex-sessions-env"
-}
-
 _secrets_count_duplicate_titles() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
@@ -1005,97 +830,6 @@ _secrets_count_duplicate_titles() {
         fi
     done
     echo "$dup_count"
-}
-
-secrets_policy_preflight() {
-    local mode="text"
-    local account_arg="${1:-${OP_ACCOUNT-}}"
-    local vault_arg="${2:-${OP_VAULT-}}"
-    if [[ "$account_arg" == "--json" ]]; then
-        mode="json"
-        account_arg="${OP_ACCOUNT-}"
-        vault_arg="${OP_VAULT-}"
-    elif [[ "$1" == "--json" ]]; then
-        mode="json"
-        shift
-        account_arg="${1:-${OP_ACCOUNT-}}"
-        vault_arg="${2:-${OP_VAULT-}}"
-    fi
-
-    local source_ok=true map_ok=true duplicates_ok=true missing_ok=true
-    local duplicates=0 missing=0
-    local source_account source_vault
-    source_account="$(_op_source_account)"
-    source_vault="$(_op_source_vault)"
-    account_arg="$(_op_resolve_account_uuid "$account_arg")"
-    if ! _secrets_require_source "$account_arg" "$vault_arg" >/dev/null 2>&1; then
-        source_ok=false
-    fi
-    if ! secrets_map_sanitize >/dev/null 2>&1; then
-        map_ok=false
-    fi
-    duplicates="$(_secrets_count_duplicate_titles "$account_arg" "$vault_arg")"
-    if [[ "${duplicates:-0}" -gt 0 ]]; then
-        duplicates_ok=false
-    fi
-    local missing_file
-    missing_file="$(mktemp 2>/dev/null || mktemp -t secrets-missing 2>/dev/null)"
-    if ! secrets_missing_from_1p --json "$account_arg" "$vault_arg" >"$missing_file" 2>/dev/null; then
-        missing_ok=false
-    fi
-    if [[ -f "$missing_file" ]]; then
-        if command -v jq >/dev/null 2>&1; then
-            missing="$(jq 'length' "$missing_file" 2>/dev/null || echo 0)"
-        else
-            local py="python3"
-            command -v python3 >/dev/null 2>&1 || py="python"
-            missing="$("$py" - <<'PY' "$missing_file" 2>/dev/null || echo 0
-import json,sys
-try:
-    print(len(json.load(open(sys.argv[1]))))
-except Exception:
-    print(0)
-PY
-)"
-        fi
-        rm -f "$missing_file"
-    fi
-    [[ "${missing:-0}" -gt 0 ]] && missing_ok=false
-
-    local ok=true
-    [[ "$source_ok" == true && "$map_ok" == true && "$duplicates_ok" == true && "$missing_ok" == true ]] || ok=false
-    if [[ "$mode" == "json" ]]; then
-        printf '{"ok":%s,"checks":{"source":{"ok":%s,"account":"%s","vault":"%s"},"map":{"ok":%s},"duplicates":{"ok":%s,"count":%s},"missing":{"ok":%s,"count":%s}}}\n' \
-            "$ok" "$source_ok" "$(_secrets_safe_title "$source_account")" "$(_secrets_safe_title "$source_vault")" "$map_ok" "$duplicates_ok" "$duplicates" "$missing_ok" "$missing"
-        [[ "$ok" == true ]]
-        return $?
-    fi
-
-    echo "🔐 Secrets Policy Preflight"
-    echo "==========================="
-    [[ "$source_ok" == true ]] && echo "✅ source-of-truth guard: ok" || { _secrets_warn "source-of-truth guard failed"; echo "   fix: secrets_source_set <account> <vault>"; }
-    [[ "$map_ok" == true ]] && echo "✅ mapping format: clean" || { _secrets_warn "mapping format invalid"; echo "   fix: secrets_map_sanitize --fix"; }
-    [[ "$duplicates_ok" == true ]] && echo "✅ duplicates: none" || { _secrets_warn "duplicate secure notes detected ($duplicates titles)"; echo "   fix: secrets_prune_duplicates_1p"; }
-    [[ "$missing_ok" == true ]] && echo "✅ map references: resolvable" || { _secrets_warn "missing map references detected ($missing)"; echo "   fix: secrets_missing_from_1p --fix"; }
-    [[ "$ok" == true ]]
-}
-
-secrets_policy_status() {
-    if [[ "${1:-}" == "--json" ]]; then
-        secrets_policy_preflight --json
-        return $?
-    fi
-    secrets_policy_preflight
-}
-
-secrets_policy_recover_headless() {
-    local account_arg="${1:-${OP_ACCOUNT-}}"
-    local vault_arg="${2:-${OP_VAULT-}}"
-    op_accounts_sanitize --fix >/dev/null 2>&1 || true
-    secrets_map_sanitize --fix >/dev/null 2>&1 || true
-    secrets_prune_duplicates_1p "$account_arg" "$vault_arg" >/dev/null 2>&1 || true
-    secrets_missing_from_1p --fix "$account_arg" "$vault_arg" >/dev/null 2>&1 || true
-    secrets_policy_preflight "$account_arg" "$vault_arg"
 }
 
 secrets_init_profile() {
@@ -1568,71 +1302,6 @@ secrets_pull_all_from_1p() {
     return 0
 }
 
-secrets_profile_switch() {
-    local profile="" account="${OP_ACCOUNT-}" vault="${OP_VAULT-}"
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --profile)  profile="${2:-}"; shift 2 ;;
-            --account)  account="${2:-}"; shift 2 ;;
-            --vault)    vault="${2:-}"; shift 2 ;;
-            --help|-h)  echo "Usage: secrets_profile_switch --profile <name> [--account <acct>] [--vault <vault>]" >&2; return 0 ;;
-            *)          profile="$1"; shift ;;  # accept bare arg for convenience
-        esac
-    done
-    if [[ -z "$profile" ]]; then
-        echo "Usage: secrets_profile_switch --profile <name> [--account <acct>] [--vault <vault>]" >&2
-        return 1
-    fi
-    if ! _secrets_validate_profile "$profile"; then
-        echo "Available profiles: $(_secrets_profile_list)" >&2
-        return 1
-    fi
-    _secrets_update_env_file --key "ZSH_ENV_PROFILE" --value "$profile"
-    export ZSH_ENV_PROFILE="$profile"
-    if [[ -n "$account" ]]; then
-        if ! op_set_default "$account" "$vault"; then
-            return 1
-        fi
-    elif [[ -n "$vault" ]]; then
-        _secrets_warn "Vault specified without account; clearing vault"
-        OP_VAULT=""
-        unset OP_VAULT
-    fi
-    load_secrets
-    _secrets_info "Switched profile to $profile"
-}
-
-secrets_profiles() {
-    local list
-    local -a profiles
-    list="$(_secrets_profile_list)"
-    if [[ -z "$list" ]]; then
-        echo "No profiles configured." >&2
-        return 1
-    fi
-    profiles=("${(@s: :)list}")
-    local profile desc colors
-    for profile in "${profiles[@]}"; do
-        desc=""
-        colors=""
-        if typeset -p ZSH_PROFILE_CONFIGS >/dev/null 2>&1; then
-            desc="${ZSH_PROFILE_CONFIGS[$profile]-}"
-        fi
-        if typeset -p ZSH_PROFILE_COLORS >/dev/null 2>&1; then
-            colors="${ZSH_PROFILE_COLORS[$profile]-}"
-        fi
-        if [[ -n "$colors" && -n "$desc" ]]; then
-            echo "$profile - $desc (colors: $colors)"
-        elif [[ -n "$desc" ]]; then
-            echo "$profile - $desc"
-        elif [[ -n "$colors" ]]; then
-            echo "$profile (colors: $colors)"
-        else
-            echo "$profile"
-        fi
-    done
-}
-
 secrets_bootstrap_from_1p() {
     local account_arg="${1:-${OP_ACCOUNT-}}"
     local vault_arg="${2:-${OP_VAULT-}}"
@@ -1679,18 +1348,6 @@ PY
     export ZSH_SECRETS_FILE="$old_file"
     load_secrets
     _secrets_info "Bootstrap complete"
-}
-
-machine_profile() {
-    if [[ -n "${ZSH_ENV_PROFILE:-}" ]]; then
-        echo "$ZSH_ENV_PROFILE"
-        return 0
-    fi
-    if command -v hostname >/dev/null 2>&1; then
-        hostname -s 2>/dev/null || hostname
-        return 0
-    fi
-    echo "unknown-host"
 }
 
 secrets_push() {
