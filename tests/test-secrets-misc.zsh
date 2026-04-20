@@ -66,6 +66,7 @@ OP
 
 test_secrets_pull_fallback_notes_plain() {
     skip_if_missing "op"
+    (( TEST_SKIP )) && return 0
     local tmp bin out rc old_file
     tmp="$(mktemp -d)"
     bin="$tmp/bin"

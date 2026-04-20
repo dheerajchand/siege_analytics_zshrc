@@ -396,6 +396,7 @@ test_secrets_require_source_blocks_mismatch() {
 
 test_secrets_pull_requires_op() {
     skip_if_missing "op"
+    (( TEST_SKIP )) && return 0
     local tmp bin out rc
     tmp="$(mktemp -d)"
     bin="$tmp/bin"
