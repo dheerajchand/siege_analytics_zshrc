@@ -42,6 +42,16 @@ From a representative `ZSH_PROFILE=1` run on macOS (warm cache):
 | `_secrets_export_kv` | ~120 total (23 calls) | Bounded by secrets.env size. |
 | `fzf_setup_using_base_dir` | ~80 | One-time fzf plugin init. |
 
+## Opt-in deferral
+
+- `ZSH_DEFER_DATA_PLATFORM=1` — defers `spark`, `hadoop`, `livy`, and
+  `zeppelin` module sourcing via `zsh-defer` until after the first
+  prompt renders. Useful if you rarely (or never) use these tools
+  from this shell. Off by default because the startup status banner
+  calls a couple of spark/hadoop helpers during init; enabling the
+  flag makes those banner lines skip until the deferred sourcing
+  completes a moment later.
+
 ## Warp defaults
 
 Interactive startup now takes a lighter path inside Warp by default.

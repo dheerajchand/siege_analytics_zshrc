@@ -333,7 +333,7 @@ else
     export ZSH_IS_IDE_TERMINAL=0
     # Regular terminal - load everything immediately (fast enough)
     echo "🚀 Loading modules..."
-    
+
     load_module utils
     load_module settings
     load_module compat
@@ -351,10 +351,23 @@ else
     load_module dataworld
     load_module databricks
     load_module docker
-    load_module spark
-    load_module hadoop
-    load_module livy
-    load_module zeppelin
+
+    # Heavy data-platform modules. Defer past first prompt when the
+    # user opts in via ZSH_DEFER_DATA_PLATFORM=1. Deferring is not the
+    # default because the startup status banner calls spark_/hadoop_
+    # functions during init; deferring breaks them in that window.
+    if [[ "${ZSH_DEFER_DATA_PLATFORM:-0}" == "1" ]] \
+       && (( ${+functions[zsh-defer]} )); then
+        zsh-defer load_module spark
+        zsh-defer load_module hadoop
+        zsh-defer load_module livy
+        zsh-defer load_module zeppelin
+    else
+        load_module spark
+        load_module hadoop
+        load_module livy
+        load_module zeppelin
+    fi
 fi
 
 # =================================================================
