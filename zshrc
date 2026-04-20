@@ -6,6 +6,17 @@
 # No security theater, just useful functionality
 # =================================================================
 
+# Startup profiler — opt-in via ZSH_PROFILE=1. Loads zsh/zprof as early
+# as possible so every function call below is sampled. `zprof` is
+# printed on shell exit via zshexit_functions. See
+# wiki/Startup-Performance.md for how to read the output.
+if [[ -n "${ZSH_PROFILE:-}" ]]; then
+    zmodload zsh/zprof
+    _zsh_profile_dump() { zprof }
+    typeset -ga zshexit_functions
+    zshexit_functions+=(_zsh_profile_dump)
+fi
+
 # Basic environment
 export EDITOR="zed"
 export VISUAL="$EDITOR"
