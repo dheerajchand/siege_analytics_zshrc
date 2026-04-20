@@ -404,6 +404,10 @@ _secrets_default_profiles() {
 }
 
 secrets_validate_setup() {
+    # Scope options so a caller with errexit/pipefail (e.g. run-tests.zsh)
+    # doesn't abort partway through when `(( errors++ ))` produces a
+    # zero-result exit status. See #137.
+    emulate -L zsh
     local errors=0
     if [[ "$ZSH_SECRETS_MODE" == "op" || "$ZSH_SECRETS_MODE" == "both" ]]; then
         if ! command -v op >/dev/null 2>&1; then
