@@ -1201,6 +1201,70 @@ print_next_steps() {
     print_success "Ready to use your data science environment!"
 }
 
+install_shell_tooling() {
+    print_header "Installing Shell Tooling"
+    # Tools used by OMZ plugins, CI gates, and git workflow. Install only
+    # those missing. On macOS all are bottled; on Linux most come from apt
+    # except shfmt (released as a standalone binary).
+
+    local bin binary
+    local to_install_brew=()
+    local to_install_apt=()
+    for bin in fzf shellcheck jq git-delta git-extras; do
+        binary="$bin"
+        [[ "$bin" == "git-delta" ]] && binary="delta"
+        command -v "$binary" > /dev/null 2>&1 && continue
+        to_install_brew+=("$bin")
+        to_install_apt+=("$bin")
+    done
+
+    if [[ "$OS" == "macos" ]]; then
+        if ((${#to_install_brew[@]} > 0)); then
+            print_step "Installing: ${to_install_brew[*]}"
+            brew install "${to_install_brew[@]}" || print_warning "Some brew installs failed"
+        else
+            print_info "Shell tooling already present (fzf, shellcheck, jq, delta, git-extras)"
+        fi
+
+        if ! command -v shfmt > /dev/null 2>&1; then
+            print_step "Installing shfmt"
+            brew install shfmt || print_warning "shfmt install failed"
+        fi
+
+        # fzf ships with a shell-integration installer that writes ~/.fzf.zsh
+        # (Ctrl-R history, Ctrl-T files, Alt-C dirs). Run it non-interactively
+        # so keybindings + completion wire up without the user having to
+        # follow the brew caveats.
+        local fzf_prefix
+        fzf_prefix="$(brew --prefix fzf 2> /dev/null || true)"
+        if [[ -n "$fzf_prefix" && -x "$fzf_prefix/install" ]]; then
+            if [[ ! -f "$HOME/.fzf.zsh" ]]; then
+                print_step "Setting up fzf shell integration (keybindings + completion)"
+                "$fzf_prefix/install" --key-bindings --completion --no-update-rc > /dev/null ||
+                       print_warning "fzf shell integration setup failed"
+            else
+                print_info "fzf shell integration already configured (~/.fzf.zsh exists)"
+            fi
+        fi
+    else
+        if ((${#to_install_apt[@]} > 0)); then
+            print_step "Installing via apt: ${to_install_apt[*]}"
+            sudo apt-get install -y --no-install-recommends "${to_install_apt[@]}" ||
+                   print_warning "Some apt installs failed"
+        fi
+        if ! command -v shfmt > /dev/null 2>&1; then
+            print_step "Installing shfmt from GitHub release"
+            local ver="v3.13.1"
+            local url="https://github.com/mvdan/sh/releases/download/${ver}/shfmt_${ver}_linux_amd64"
+            sudo curl -fsSL -o /usr/local/bin/shfmt "$url" &&
+                   sudo chmod +x /usr/local/bin/shfmt ||
+                   print_warning "shfmt install failed"
+        fi
+    fi
+
+    print_success "Shell tooling ready"
+}
+
 # Main installation flow
 main() {
     parse_setup_args "$@"
@@ -1223,6 +1287,7 @@ main() {
     echo "  • Python virtual environment: $DEFAULT_VENV"
     echo "  • 1Password CLI (v2)"
     echo "  • Essential Python packages (pandas, numpy, jupyter, pyspark, etc.)"
+    echo "  • Shell tooling (fzf + keybindings, shellcheck, shfmt, jq, delta, git-extras)"
     echo ""
     if [[ "$SETUP_MODE" == "config" ]]; then
         echo "Estimated time: ~3-10 minutes"
@@ -1251,6 +1316,7 @@ main() {
         install_pyenv
         install_python
         install_python_packages
+        install_shell_tooling
         # Optional components
         check_docker
         check_postgresql
