@@ -242,9 +242,23 @@ _zsh_startup_use_staggered() {
     esac
 }
 
-# Module loader
+# Module loader.
+#
+# Per-module opt-out flag: set `ZSH_DISABLE_<UPPERNAME>=1` to skip a
+# module's load. Name-to-env-var mapping uppercases the module name
+# and replaces hyphens with underscores. Examples:
+#   ZSH_DISABLE_SPARK=1     # skip modules/spark.zsh
+#   ZSH_DISABLE_ZEPPELIN=1  # skip modules/zeppelin.zsh
+#   ZSH_DISABLE_SECRETS=1   # skip modules/secrets.zsh (advanced)
+#
+# Useful in per-host vars files or on-the-fly for debugging.
 load_module() {
     local module="$1"
+    local flag_name="ZSH_DISABLE_${module:u}"
+    flag_name="${flag_name//-/_}"
+    if [[ "${(P)flag_name:-0}" == "1" ]]; then
+        return 0
+    fi
     if [[ -f "$ZSH_CONFIG_DIR/modules/$module.zsh" ]]; then
         source "$ZSH_CONFIG_DIR/modules/$module.zsh"
     else
