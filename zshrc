@@ -291,6 +291,7 @@ if _zsh_startup_use_staggered; then
     load_module agents
     load_module paths
     load_module screen      # GNU screen helpers
+    load_module doctor      # zsh_doctor health-check
     
     # Tier 2: Credentials & paths (defer in current shell)
     _zsh_load_tier2() {
@@ -351,6 +352,7 @@ else
     load_module dataworld
     load_module databricks
     load_module docker
+    load_module doctor
 
     # Heavy data-platform modules. Defer past first prompt when the
     # user opts in via ZSH_DEFER_DATA_PLATFORM=1. Deferring is not the
