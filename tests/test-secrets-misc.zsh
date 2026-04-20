@@ -99,7 +99,7 @@ OP
     chmod +x "$bin/op"
     old_file="$ZSH_SECRETS_FILE"
     export ZSH_SECRETS_FILE="$tmp/secrets.env"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
+    out="$(BIN="$bin" ROOT_DIR="$ROOT_DIR" zsh -lc 'export ZSH_TEST_MODE=1; source $ROOT_DIR/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; secrets_pull_from_1p' 2>&1)"
     rc=$?
     assert_equal "0" "$rc" "should pull from notesPlain"
     assert_contains "$(cat "$tmp/secrets.env")" "HELLO=world" "should write notesPlain content"

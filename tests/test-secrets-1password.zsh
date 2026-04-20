@@ -431,7 +431,7 @@ case "$1 $2" in
 esac
 OP
     chmod +x "$bin/op"
-    out="$(BIN="$bin" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $HOME/.config/zsh/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; op_list_items' 2>&1)"
+    out="$(BIN="$bin" ROOT_DIR="$ROOT_DIR" zsh -lc 'export ZSH_TEST_MODE=1; export OP_ACCOUNT=acct-1; export OP_VAULT=; source $ROOT_DIR/modules/secrets.zsh; PATH="$BIN:/usr/bin:/bin"; unalias op 2>/dev/null || true; unfunction op 2>/dev/null || true; op(){ "$BIN/op" "$@"; }; op_list_items' 2>&1)"
     rc=$?
     assert_not_equal "0" "$rc" "op_list_items should fail on empty list"
     assert_contains "$out" "No items found" "op_list_items should warn on empty list"
