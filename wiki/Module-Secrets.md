@@ -5,6 +5,29 @@ Back: [Functions & Dependencies](Functions-Dependencies)
 ## Overview
 Secrets loading, 1Password integration, profiles, and rsync fallbacks.
 
+## File layout
+
+As of the #111 refactor, `modules/secrets.zsh` is a thin umbrella that
+sources focused files under `modules/secrets/`. Each file covers a
+single concern. No behavior change — all 93 original functions remain
+available under the same names.
+
+| File | Concern |
+|---|---|
+| `modules/secrets.zsh` | Umbrella: env-var defaults, `_SECRETS_JSON_CMD` detection, `source` directives, the `op` account-alias wrapper shim, the auto-load hook |
+| `modules/secrets/core.zsh` | Pure helpers: logging (`_secrets_warn`/`info`/`debug`), value normalization (`_secrets_strip_crlf`/`trim_ws`/`strip_quotes`/`normalize_value`), mode/agent-cache predicates |
+| `modules/secrets/1password-cli.zsh` | All 26 `_op_*` and `op_*` functions: account resolution, signin, list/find/verify, sessions |
+| `modules/secrets/agent-cache.zsh` | `secrets_agent_refresh`, `secrets_agent_source`, `secrets_agent_status` |
+| `modules/secrets/policy.zsh` | Preflight, status, recovery + `_secrets_policy_titles` |
+| `modules/secrets/profile.zsh` | `secrets_profile_switch`, `secrets_profiles`, `machine_profile` + check/validate/list helpers |
+| `modules/secrets/sync-1p.zsh` | 1Password push/pull/prune/missing/bootstrap + helpers |
+| `modules/secrets/sync-rsync.zsh` | Host-to-host rsync of secrets env files + verify |
+| `modules/secrets/load.zsh` | Entry points: `load_secrets`, `secrets_init*`, `secrets_load_file`, `secrets_load_op`, `secrets_source_*`, `secrets_edit`, `secrets_status`, `secrets_validate_setup`, `secrets_push`, `secrets_pull`, `secrets_sync_status`, `secrets_map_sanitize`, `_secrets_auto_signin_all_on_load`, plus the remaining `_secrets_*` helpers |
+
+Source order (from `modules/secrets.zsh`): `core → 1password-cli →
+agent-cache → policy → profile → sync-1p → sync-rsync → load`. Later
+files may depend on earlier ones; do not invert.
+
 ## Environment
 - `ZSH_SECRETS_MODE` (`file|op|both|off`)
 - `ZSH_SECRETS_FILE`, `ZSH_SECRETS_MAP`
