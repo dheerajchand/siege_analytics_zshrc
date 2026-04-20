@@ -121,6 +121,21 @@ test_conventions_runner_no_global_pipefail() {
     return 0
 }
 
+test_conventions_function_index_is_current() {
+    # wiki/Functions-Index.md is auto-generated from the modules tree
+    # by scripts/gen-function-index.sh. Fail if it's stale so drifted
+    # docs can't sneak into main.
+    local expected actual
+    expected="$(bash "$ROOT_DIR/scripts/gen-function-index.sh" >/dev/null && cat "$ROOT_DIR/wiki/Functions-Index.md")"
+    actual="$(cat "$ROOT_DIR/wiki/Functions-Index.md")"
+    if [[ "$expected" != "$actual" ]]; then
+        _print_fail "wiki/Functions-Index.md is stale — run ./scripts/gen-function-index.sh and commit"
+        return 1
+    fi
+    return 0
+}
+
 register_test "conventions_docstrings" test_conventions_docstrings
 register_test "conventions_no_bare_exit" test_conventions_no_bare_exit
 register_test "conventions_runner_no_global_pipefail" test_conventions_runner_no_global_pipefail
+register_test "conventions_function_index_is_current" test_conventions_function_index_is_current
