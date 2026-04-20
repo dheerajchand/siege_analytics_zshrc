@@ -8,9 +8,19 @@ on:
 
 jobs:
   test:
-    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install zsh (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends zsh
 
       - name: Verify zsh
         run: zsh --version
@@ -26,12 +36,22 @@ jobs:
           ZSH_TEST_MODE: "1"
         run: zsh run-tests.zsh --verbose
 
-      - name: Shellcheck (bash scripts only — zsh is not supported by shellcheck)
+      - name: Install shellcheck + shfmt (macOS)
+        if: runner.os == 'macOS'
+        run: brew install --quiet shellcheck shfmt
+
+      - name: Install shellcheck + shfmt (Linux)
+        if: runner.os == 'Linux'
         run: |
-          brew install --quiet shellcheck
-          shellcheck -S error install.sh setup-software.sh bash-bridge.sh
+          sudo apt-get install -y --no-install-recommends shellcheck
+          # shfmt isn't in Ubuntu default repos; grab the latest release binary.
+          SHFMT_VERSION="v3.13.1"
+          curl -fsSL -o /tmp/shfmt "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64"
+          chmod +x /tmp/shfmt
+          sudo mv /tmp/shfmt /usr/local/bin/shfmt
+
+      - name: Shellcheck (bash scripts only — zsh is not supported by shellcheck)
+        run: shellcheck -S error install.sh setup-software.sh bash-bridge.sh
 
       - name: Shfmt formatting check (bash scripts)
-        run: |
-          brew install --quiet shfmt
-          shfmt -d -i 4 -ci -kp -sr install.sh setup-software.sh bash-bridge.sh
+        run: shfmt -d -i 4 -ci -kp -sr install.sh setup-software.sh bash-bridge.sh
