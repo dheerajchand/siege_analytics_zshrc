@@ -14,7 +14,8 @@ node_modules/
 package.json
 package-lock.json
 
-# ZSH completion cache
+# ZSH completion cache — now written to $XDG_CACHE_HOME/zsh/
+# (see zshrc compinit block). Pattern kept to ignore stragglers.
 .zcompdump*
 
 # Editor artifacts

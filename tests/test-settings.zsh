@@ -50,6 +50,13 @@ test_settings_os_then_machine_override_order() {
 }
 
 test_settings_macos_gis_autoconfig_from_config_prefix() {
+    # macOS-specific autoconfig (.dylib paths, darwin guards). The
+    # module early-returns on non-darwin OSTYPE, which zsh sets from
+    # the real OS, not from env. Skip cleanly on Linux CI.
+    if [[ "$OSTYPE" != darwin* ]]; then
+        TEST_SKIP=1
+        return 0
+    fi
     local tmp out
     tmp="$(mktemp -d)"
     mkdir -p "$tmp/bin" "$tmp/gdal/lib" "$tmp/geos/lib" "$tmp/settings"

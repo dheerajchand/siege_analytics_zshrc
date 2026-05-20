@@ -2,6 +2,81 @@
 
 ## Common Issues and Solutions
 
+### `ollama: could not connect to ollama server`
+
+The brew install caveat warns about this. The server runs on demand
+via `ollama serve`, not as a brew service. From a fresh shell:
+
+```sh
+ollama_start              # background launch with the perf env vars
+ollama_status             # confirm
+ollama run <model>        # use it
+```
+
+Set `OLLAMA_AUTO_START=1` in `vars.mac.env` to make the `ollama`
+wrapper kick `ollama_start` automatically on first call.
+
+For a remote server, set `OLLAMA_HOST=hostname:11434` in the host's
+vars file. `/etc/hosts` aliases work transparently. See
+[wiki/Module-Ollama.md](wiki/Module-Ollama.md) for the full setup.
+
+### JetBrains pinwheels / Finder slow / system feels heavy
+
+Symptom: Finder windows beachball, JetBrains apps stutter, Activity
+Monitor shows `fileproviderd` near the top with high CPU and a long
+ELAPSED time (hours or days).
+
+Cause: a cloud-storage provider's local index (typically iCloud Drive)
+has corrupted or is mid-rebuild and `fileproviderd` is grinding through
+a SQLite VACUUM/reindex with a multi-GB temp spill.
+
+Fix:
+
+```sh
+# 1. See the full picture
+zsh_doctor                  # File providers section flags it
+fileprovider_status         # detail: per-provider DB sizes + spill files
+
+# 2. Try the cheap recovery first — bounce the daemon, watch trajectory
+fileprovider_unwedge        # confirms before sudo killall fileproviderd
+
+# 3. If still wedged after the bounce: toggle iCloud Drive off / on
+#    (System Settings → iCloud → Drive → tap tile → Sync this Mac off,
+#     choose "Keep a Copy", reboot, toggle back on).
+```
+
+The toggle path can't be automated — it requires the GUI. Resist
+suggesting "Optimize Mac Storage" as a follow-up; it has its own sync
+issues. See GitHub issue #161 for the full investigation that produced
+this tooling, and the May 2026 109-hour wedge that motivated it.
+
+### Test suite flakes with unexplained SIGPIPE / exit 141
+
+Symptom: `tests/test-*.zsh` assertions of the form
+`cmd | grep -q "..."` flake — sometimes pass, sometimes fail, with no
+code change. The failing run returns exit 141.
+
+Cause: `pipefail` is enabled globally somewhere. `grep -q` exits on
+first match; upstream producer gets SIGPIPE; `pipefail` surfaces the
+141 as the pipe's overall status, failing the assertion.
+
+Fix: ensure `run-tests.zsh` does **not** enable `pipefail` globally
+(test `conventions_runner_no_global_pipefail` guards this).
+Inside individual tests that genuinely need strict mode, use
+`emulate -L zsh` + `setopt pipefail` inside a function so the option
+is scoped.
+
+Workaround in a single assertion: capture output first, then grep the
+variable, so there's no live pipe:
+
+```zsh
+out="$(cmd)"
+echo "$out" | grep -q "..."
+```
+
+See [STYLE.md](STYLE.md) §Shell flags and GitHub issue #90 for the
+full investigation.
+
 ### Python/Pyenv Not Working - "command not found: pip/python"
 
 **Symptoms:**

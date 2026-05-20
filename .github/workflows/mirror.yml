@@ -8,6 +8,9 @@ on:
 
 jobs:
   mirror:
+    # This workflow file is force-pushed to the backup repo as part of mirroring.
+    # Only run on the source repo so the mirrored copy doesn't loop back on itself.
+    if: github.repository == 'dheerajchand/siege_analytics_zshrc'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

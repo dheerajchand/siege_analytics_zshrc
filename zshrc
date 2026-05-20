@@ -6,6 +6,17 @@
 # No security theater, just useful functionality
 # =================================================================
 
+# Startup profiler — opt-in via ZSH_PROFILE=1. Loads zsh/zprof as early
+# as possible so every function call below is sampled. `zprof` is
+# printed on shell exit via zshexit_functions. See
+# wiki/Startup-Performance.md for how to read the output.
+if [[ -n "${ZSH_PROFILE:-}" ]]; then
+    zmodload zsh/zprof
+    _zsh_profile_dump() { zprof }
+    typeset -ga zshexit_functions
+    zshexit_functions+=(_zsh_profile_dump)
+fi
+
 # Basic environment
 export EDITOR="zed"
 export VISUAL="$EDITOR"
@@ -72,16 +83,56 @@ fi
 # Oh-My-Zsh setup
 export ZSH="$HOME/.dotfiles/oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git)
+plugins=(
+    zsh-defer                 # must be first: defers other plugin work past first prompt
+    git                       # canonical alias set + helpers
+    git-extras                # completion for 60+ git-* subcommands (needs `brew install git-extras`)
+    gitfast                   # upstream git completion (faster than OMZ's default)
+    gh                        # gh CLI completion
+    fzf                       # Ctrl-R history, Ctrl-T file, Alt-C dir (fzf keybinds)
+    sudo                      # double-ESC prepends sudo to the current line
+    copybuffer                # Ctrl-O copies current command-line to clipboard
+    copypath                  # `copypath` copies $PWD to clipboard
+    copyfile                  # `copyfile <f>` copies contents to clipboard
+    history-substring-search  # up-arrow filters history by typed prefix
+    aliases                   # `aliases` command lists aliases by group
+    brew
+    zsh-completions           # extra completions OMZ doesn't ship
+    zsh-autosuggestions       # fish-style greyed suggestions as you type
+    zsh-syntax-highlighting   # MUST BE LAST: colorizes commands as valid/invalid
+)
+
+# OMZ overhead we don't use.
+# - auto-update: run manually via `omz update` instead of on every shell.
+# - COMPFIX: compinit security check is already handled above.
+# - MAGIC_FUNCTIONS: bracketed-paste handlers we don't rely on.
+# - AUTO_TITLE: we set our own terminal titles elsewhere.
+zstyle ':omz:update' mode disabled
+ZSH_DISABLE_COMPFIX=true
+DISABLE_MAGIC_FUNCTIONS=true
+DISABLE_AUTO_TITLE=true
 
 
-# Initialize completion system (rebuild dump at most once per day)
+# Initialize completion system (rebuild dump at most once per day).
+# Cache lives under $XDG_CACHE_HOME/zsh/ (not the repo root). Keyed by host
+# and zsh version so mixed-host setups don't step on each other.
+: "${XDG_CACHE_HOME:=$HOME/.cache}"
+[[ -d "$XDG_CACHE_HOME/zsh" ]] || mkdir -p "$XDG_CACHE_HOME/zsh"
 autoload -Uz compinit
-if [[ -f ~/.zcompdump && $(date +'%j') == $(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null) ]]; then
-    compinit -C  # fast: skip security check, use cached dump
-else
-    compinit      # full rebuild
+_zcompdump="$XDG_CACHE_HOME/zsh/zcompdump-${HOST}-${ZSH_VERSION}"
+# stat -f %m is BSD/macOS; stat -c %Y is GNU/Linux. Fall through both.
+_zcompdump_mtime=0
+if [[ -f "$_zcompdump" ]]; then
+    _zcompdump_mtime="$(stat -f %m "$_zcompdump" 2>/dev/null \
+                       || stat -c %Y "$_zcompdump" 2>/dev/null \
+                       || echo 0)"
 fi
+if (( _zcompdump_mtime > 0 )) && (( $(date +%s) - _zcompdump_mtime < 86400 )); then
+    compinit -C -d "$_zcompdump"  # fast: skip security check, use cached dump
+else
+    compinit -d "$_zcompdump"      # full rebuild
+fi
+unset _zcompdump _zcompdump_mtime
 
 # Warp is sensitive to noisy, probe-heavy interactive startup. Default it to a
 # lighter path unless explicitly overridden.
@@ -127,6 +178,20 @@ zmodload zsh/compctl 2>/dev/null
 # Load Oh-My-Zsh
 if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
     source "$ZSH/oh-my-zsh.sh"
+
+    # Bind history-substring-search to arrow keys (plugin must be loaded first).
+    if (( ${+functions[history-substring-search-up]} )); then
+        bindkey '^[[A' history-substring-search-up
+        bindkey '^[[B' history-substring-search-down
+    fi
+
+    # Deferred completion loads — heavy inits that don't need to block first prompt.
+    # command-not-found runs `brew command-not-found-init` on macOS (~150ms), so we
+    # source its plugin file via zsh-defer rather than listing it in plugins=(...).
+    if (( ${+functions[zsh-defer]} )); then
+        [[ -f "$ZSH/plugins/command-not-found/command-not-found.plugin.zsh" ]] \
+            && zsh-defer source "$ZSH/plugins/command-not-found/command-not-found.plugin.zsh"
+    fi
 fi
 
 # =================================================================
@@ -177,9 +242,23 @@ _zsh_startup_use_staggered() {
     esac
 }
 
-# Module loader
+# Module loader.
+#
+# Per-module opt-out flag: set `ZSH_DISABLE_<UPPERNAME>=1` to skip a
+# module's load. Name-to-env-var mapping uppercases the module name
+# and replaces hyphens with underscores. Examples:
+#   ZSH_DISABLE_SPARK=1     # skip modules/spark.zsh
+#   ZSH_DISABLE_ZEPPELIN=1  # skip modules/zeppelin.zsh
+#   ZSH_DISABLE_SECRETS=1   # skip modules/secrets.zsh (advanced)
+#
+# Useful in per-host vars files or on-the-fly for debugging.
 load_module() {
     local module="$1"
+    local flag_name="ZSH_DISABLE_${module:u}"
+    flag_name="${flag_name//-/_}"
+    if [[ "${(P)flag_name:-0}" == "1" ]]; then
+        return 0
+    fi
     if [[ -f "$ZSH_CONFIG_DIR/modules/$module.zsh" ]]; then
         source "$ZSH_CONFIG_DIR/modules/$module.zsh"
     else
@@ -226,6 +305,10 @@ if _zsh_startup_use_staggered; then
     load_module agents
     load_module paths
     load_module screen      # GNU screen helpers
+    load_module doctor       # zsh_doctor health-check
+    load_module env_detect   # zsh_env / zsh_env_snapshot registry
+    load_module fileprovider # fileprovider_status / unwedge for stuck fileproviderd
+    load_module ollama       # ollama_{start,stop,status,logs,health} + auto-start wrapper
     
     # Tier 2: Credentials & paths (defer in current shell)
     _zsh_load_tier2() {
@@ -234,11 +317,11 @@ if _zsh_startup_use_staggered; then
         load_module backup       # Git self-backup
         load_module github       # GitHub CLI workflows
         load_module gitlab       # GitLab CLI workflows
-        load_module bitbucket    # Bitbucket migration workflows
         load_module dataworld    # data.world CSV retention + geo cleanup
         load_module databricks   # Databricks + Lakebase workflows
+        load_module disk         # Disk audit + safe cache cleanup
     }
-    
+
     # Tier 3: Heavy tools (defer in current shell)
     _zsh_load_tier3() {
         load_module docker       # Docker management
@@ -269,7 +352,7 @@ else
     export ZSH_IS_IDE_TERMINAL=0
     # Regular terminal - load everything immediately (fast enough)
     echo "🚀 Loading modules..."
-    
+
     load_module utils
     load_module settings
     load_module compat
@@ -284,14 +367,31 @@ else
     load_module backup
     load_module github
     load_module gitlab
-    load_module bitbucket
     load_module dataworld
     load_module databricks
+    load_module disk
     load_module docker
-    load_module spark
-    load_module hadoop
-    load_module livy
-    load_module zeppelin
+    load_module doctor
+    load_module env_detect
+    load_module fileprovider
+    load_module ollama
+
+    # Heavy data-platform modules. Defer past first prompt when the
+    # user opts in via ZSH_DEFER_DATA_PLATFORM=1. Deferring is not the
+    # default because the startup status banner calls spark_/hadoop_
+    # functions during init; deferring breaks them in that window.
+    if [[ "${ZSH_DEFER_DATA_PLATFORM:-0}" == "1" ]] \
+       && (( ${+functions[zsh-defer]} )); then
+        zsh-defer load_module spark
+        zsh-defer load_module hadoop
+        zsh-defer load_module livy
+        zsh-defer load_module zeppelin
+    else
+        load_module spark
+        load_module hadoop
+        load_module livy
+        load_module zeppelin
+    fi
 fi
 
 # =================================================================
@@ -461,6 +561,15 @@ zsh_help() {
     echo "  hadoop_health           - HDFS/YARN health overview"
     echo "  yarn_health             - YARN health overview"
     echo ""
+    echo "💽 Disk:"
+    echo "  disk_audit [N]                       - Top space consumers in \$HOME (default N=15)"
+    echo "  disk_audit_deep [N]                  - Deeper audit + project virtualenvs"
+    echo "  disk_clean_caches [--execute]        - Sweep regenerable caches (dry-run by default)"
+    echo "  disk_prune_snapshots --root DIR [--keep N] [--pattern GLOB] [--execute] - Prune timestamped snapshots"
+    echo "  disk_prune_jetbrains_stale [--keep-prefix YEAR] [--execute] - Prune stale JetBrains version dirs"
+    echo "  disk_check_icloud_corruption [DIR]   - Detect iCloud duplicate-filename corruption"
+    echo "  disk_icloud_recovery_steps           - Print iCloud git-corruption recovery playbook"
+    echo ""
     echo "📦 Backup:"
     echo "  backup ['message']     - Commit and push current branch"
     echo "  backup_merge_main [branch] - Merge branch into main and push"
@@ -575,6 +684,7 @@ modules() {
     echo "✅ paths       - Custom path aliases"
     echo "✅ settings    - Vars/Aliases/Paths"
     echo "✅ backup      - Git self-backup system"
+    echo "✅ disk        - Disk audit + safe cache/snapshot cleanup"
     echo "✅ github      - GitHub CLI repo/issue/PR workflows"
     echo "✅ gitlab      - GitLab CLI repo/issue/MR workflows"
     echo "✅ databricks  - Databricks + Lakebase workflows"

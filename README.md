@@ -25,7 +25,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/dheerajchand/siege_analytics
 **What gets installed:**
 
 *Step 1 (ZSH Config):*
-- ✅ Modular zsh configuration (17 modules)
+- ✅ Modular zsh configuration (23 modules)
 - ✅ Oh-My-Zsh with Powerlevel10k theme
 - ✅ Symlinks and shell setup
 
@@ -266,6 +266,27 @@ git pull origin main
 exec zsh
 ```
 
+### **Style guide**
+
+Conventions for functions, variables, and error handling across the config
+live in [STYLE.md](STYLE.md). New code must conform; legacy code is
+grandfathered.
+
+To run the same checks CI runs — `shellcheck`, `shfmt -d`, the convention
+linter — before every commit, enable the repo's pre-commit hook:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Skip for a one-off commit with `SKIP_PRECOMMIT=1 git commit ...`.
+
+### **Git aliases & extras**
+
+For a curated cheat sheet of OMZ git plugin aliases plus `git-extras`
+subcommands worth knowing, see [docs/git-aliases.md](docs/git-aliases.md).
+Requires `brew install git-extras` to get the `git-*` subcommands.
+
 ### **Troubleshooting Installation**
 
 If you encounter issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md):
@@ -281,7 +302,7 @@ If you encounter issues, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md):
 - 🎯 **11/11 hostile tests passing** - Zero critical vulnerabilities
 - ⚡ **<0.5s startup time** - Optimized performance
 - 🔒 **Enterprise security** - Multi-backend credential management
-- 📦 **17 modules available** - Complete development environment
+- 📦 **23 modules available** - Complete development environment
 - 🧪 **Comprehensive verification** - Real terminal testing
 
 ## 🚀 Quick Start (After Installation)

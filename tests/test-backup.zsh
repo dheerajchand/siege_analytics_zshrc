@@ -74,14 +74,18 @@ test_backup_merge_main_merges_and_returns_branch() {
     assert_contains "$out" "Merged and pushed: feature/merge -> main" "should merge feature branch to main"
     current="$(git -C "$work" branch --show-current)"
     assert_equal "feature/merge" "$current" "should return to original branch after merge"
-    assert_command_success "git --git-dir '$root/origin.git' log --oneline main | grep -q \"feat: merge target\"" "origin main should include merged commit"
+    # Capture the log before greping so the pipe can't be killed by SIGPIPE
+    # under `pipefail` (grep -q short-circuits on match, producer gets
+    # SIGPIPE, and with pipefail the pipe as a whole reports failure).
+    local merge_log
+    merge_log="$(git --git-dir "$root/origin.git" log --oneline main 2>&1)"
+    assert_contains "$merge_log" "feat: merge target" "origin main should include merged commit"
 
     ZSHRC_CONFIG_DIR="$old_dir"
     rm -rf "$root"
 }
 
 test_pushmain_commits_pushes_and_merges() {
-    skip_in_ci
     local old_dir="$ZSHRC_CONFIG_DIR"
     local root work out current
     root="$(_make_backup_test_repo)"
@@ -94,7 +98,10 @@ test_pushmain_commits_pushes_and_merges() {
     assert_contains "$out" "Backup complete" "pushmain should run backup"
     assert_contains "$out" "Merged and pushed: feature/pushmain -> main" "pushmain should merge to main"
     assert_command_success "git --git-dir '$root/origin.git' show-ref --verify --quiet refs/heads/feature/pushmain" "origin should have pushed feature branch"
-    assert_command_success "git --git-dir '$root/origin.git' log --oneline main | grep -q \"pushmain integration test\"" "origin main should include pushmain commit"
+    # Capture then grep — see note in test_backup_merge_main_merges_and_returns_branch above.
+    local pushmain_log
+    pushmain_log="$(git --git-dir "$root/origin.git" log --oneline main 2>&1)"
+    assert_contains "$pushmain_log" "pushmain integration test" "origin main should include pushmain commit"
     current="$(git -C "$work" branch --show-current)"
     assert_equal "feature/pushmain" "$current" "pushmain should return to original branch"
 
@@ -103,7 +110,6 @@ test_pushmain_commits_pushes_and_merges() {
 }
 
 test_git_sync_safe_autostash() {
-    skip_in_ci
     local old_dir="$ZSHRC_CONFIG_DIR"
     local root work clone out
     root="$(_make_backup_test_repo)"

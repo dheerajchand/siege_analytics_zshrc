@@ -5,7 +5,12 @@ Minimal zsh test framework and test suites for this repo.
 ## Suites
 
 - `test-credentials.zsh`
-- `test-secrets.zsh`
+- `test-secrets-core.zsh`
+- `test-secrets-1password.zsh`
+- `test-secrets-load.zsh`
+- `test-secrets-sync.zsh`
+- `test-secrets-profile.zsh`
+- `test-secrets-misc.zsh`
 - `test-python.zsh`
 - `test-spark-hadoop.zsh`
 - `test-system-diagnostics.zsh`
@@ -16,6 +21,14 @@ Minimal zsh test framework and test suites for this repo.
 - `test-banner.zsh`
 - `test-utils.zsh`
 - `test-zshrc-startup.zsh`
+- `test-startup-budget.zsh`
+- `test-conventions.zsh`
+- `test-doctor.zsh`
+- `test-module-flags.zsh`
+- `test-env-detect.zsh`
+- `test-fileprovider.zsh`
+- `test-ollama.zsh`
+- `test-disk.zsh`
 - `test-backup.zsh`
 - `test-database.zsh`
 - `test-docker.zsh`
@@ -23,7 +36,6 @@ Minimal zsh test framework and test suites for this repo.
 - `test-git-hosting.zsh`
 - `test-databricks.zsh`
 - `test-bash-bridge.zsh`
-- `test-bitbucket.zsh`
 - `test-dataworld.zsh`
 - `test-wiki.zsh`
 - `test-livy.zsh`

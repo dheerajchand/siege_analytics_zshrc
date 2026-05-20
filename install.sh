@@ -59,8 +59,8 @@ check_prerequisites() {
             # shellcheck disable=SC1091
             source /etc/os-release
             case "$ID" in
-                ubuntu|debian) pkg_mgr="apt" ;;
-                rhel|centos|fedora) pkg_mgr="yum" ;;
+                ubuntu | debian) pkg_mgr="apt" ;;
+                rhel | centos | fedora) pkg_mgr="yum" ;;
                 *) pkg_mgr="unknown" ;;
             esac
         fi
@@ -74,7 +74,7 @@ check_prerequisites() {
     fi
 
     # Check for zsh
-    if ! command -v zsh >/dev/null 2>&1; then
+    if ! command -v zsh > /dev/null 2>&1; then
         print_error "zsh is not installed"
         case "$pkg_mgr" in
             brew) echo "Install with: brew install zsh" ;;
@@ -87,7 +87,7 @@ check_prerequisites() {
     print_success "zsh found: $(which zsh)"
 
     # Check for git
-    if ! command -v git >/dev/null 2>&1; then
+    if ! command -v git > /dev/null 2>&1; then
         print_error "git is not installed"
         case "$pkg_mgr" in
             brew) echo "Install with: brew install git" ;;
@@ -101,7 +101,7 @@ check_prerequisites() {
 
     # Check for homebrew (macOS)
     if [[ "$os" == "macos" ]]; then
-        if ! command -v brew >/dev/null 2>&1; then
+        if ! command -v brew > /dev/null 2>&1; then
             print_warning "Homebrew not found - some features may not work"
         else
             print_success "Homebrew found: $(which brew)"
@@ -111,17 +111,17 @@ check_prerequisites() {
 
 backup_existing_config() {
     print_header "Backing Up Existing Configuration"
-    
+
     local backed_up=false
-    
+
     # Backup ~/.zshrc
     if [ -f ~/.zshrc ] || [ -L ~/.zshrc ]; then
         mkdir -p "$BACKUP_DIR"
-        cp -L ~/.zshrc "$BACKUP_DIR/zshrc" 2>/dev/null || cp ~/.zshrc "$BACKUP_DIR/zshrc"
+        cp -L ~/.zshrc "$BACKUP_DIR/zshrc" 2> /dev/null || cp ~/.zshrc "$BACKUP_DIR/zshrc"
         print_success "Backed up ~/.zshrc"
         backed_up=true
     fi
-    
+
     # Backup ~/.zshenv
     if [ -f ~/.zshenv ]; then
         mkdir -p "$BACKUP_DIR"
@@ -129,7 +129,7 @@ backup_existing_config() {
         print_success "Backed up ~/.zshenv"
         backed_up=true
     fi
-    
+
     # Backup existing config dir
     if [ -d "$CONFIG_DIR" ] && [ ! -L "$CONFIG_DIR" ]; then
         mkdir -p "$BACKUP_DIR"
@@ -137,7 +137,7 @@ backup_existing_config() {
         print_success "Backed up $CONFIG_DIR"
         backed_up=true
     fi
-    
+
     if $backed_up; then
         print_info "Backups saved to: $BACKUP_DIR"
     else
@@ -147,32 +147,48 @@ backup_existing_config() {
 
 install_oh_my_zsh() {
     print_header "Installing Oh-My-Zsh"
-    
+
     if [ -d "$HOME/.dotfiles/oh-my-zsh" ]; then
         print_success "Oh-My-Zsh already installed"
         return
     fi
-    
+
     # Create dotfiles directory
     mkdir -p "$HOME/.dotfiles"
-    
+
     # Clone Oh-My-Zsh
     print_info "Cloning Oh-My-Zsh..."
     git clone https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.dotfiles/oh-my-zsh" --depth=1
-    
+
     # Install Powerlevel10k theme
     if [ ! -d "$HOME/.dotfiles/oh-my-zsh/custom/themes/powerlevel10k" ]; then
         print_info "Installing Powerlevel10k theme..."
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
             "$HOME/.dotfiles/oh-my-zsh/custom/themes/powerlevel10k"
     fi
-    
+
+    # Install third-party OMZ custom plugins referenced from zshrc.
+    local plugins_dir="$HOME/.dotfiles/oh-my-zsh/custom/plugins"
+    mkdir -p "$plugins_dir"
+    local repo name
+    for repo in \
+        romkatv/zsh-defer \
+        zsh-users/zsh-autosuggestions \
+        zsh-users/zsh-syntax-highlighting \
+        zsh-users/zsh-completions; do
+        name="${repo##*/}"
+        if [ ! -d "$plugins_dir/$name" ]; then
+            print_info "Installing $name..."
+            git clone --depth=1 "https://github.com/$repo.git" "$plugins_dir/$name"
+        fi
+    done
+
     print_success "Oh-My-Zsh installed"
 }
 
 clone_or_update_repo() {
     print_header "Installing ZSH Configuration"
-    
+
     if [ -d "$CONFIG_DIR/.git" ]; then
         print_info "Configuration already exists, updating..."
         cd "$CONFIG_DIR"
@@ -180,12 +196,12 @@ clone_or_update_repo() {
         print_success "Configuration updated"
     else
         print_info "Cloning configuration repository..."
-        
+
         # Remove directory if it exists but isn't a git repo
         if [ -d "$CONFIG_DIR" ]; then
             rm -rf "$CONFIG_DIR"
         fi
-        
+
         mkdir -p "$(dirname "$CONFIG_DIR")"
         git clone "$REPO_URL" "$CONFIG_DIR"
         print_success "Configuration cloned"
@@ -194,17 +210,17 @@ clone_or_update_repo() {
 
 create_symlinks() {
     print_header "Creating Symlinks"
-    
+
     # Remove existing ~/.zshrc if it exists
     if [ -f ~/.zshrc ] || [ -L ~/.zshrc ]; then
         rm ~/.zshrc
         print_info "Removed existing ~/.zshrc"
     fi
-    
+
     # Create symlink
     ln -s "$CONFIG_DIR/zshrc" ~/.zshrc
     print_success "Created symlink: ~/.zshrc -> $CONFIG_DIR/zshrc"
-    
+
     # Verify symlink
     if [ -L ~/.zshrc ]; then
         print_success "Symlink verified"
@@ -216,9 +232,9 @@ create_symlinks() {
 
 install_dependencies() {
     print_header "Checking Dependencies"
-    
+
     # Check for pyenv
-    if ! command -v pyenv >/dev/null 2>&1; then
+    if ! command -v pyenv > /dev/null 2>&1; then
         print_warning "pyenv not found"
         echo ""
         echo "To install pyenv:"
@@ -235,7 +251,7 @@ install_dependencies() {
     else
         print_success "pyenv found: $(which pyenv)"
     fi
-    
+
     # Check for SDKMAN (for Hadoop/Spark)
     if [ ! -d "$HOME/.sdkman" ]; then
         print_warning "SDKMAN not found (needed for Hadoop/Spark)"
@@ -246,9 +262,9 @@ install_dependencies() {
     else
         print_success "SDKMAN found"
     fi
-    
+
     # Check for Docker
-    if ! command -v docker >/dev/null 2>&1; then
+    if ! command -v docker > /dev/null 2>&1; then
         print_warning "Docker not found"
         echo "Install from: https://www.docker.com/products/docker-desktop"
     else
@@ -258,7 +274,7 @@ install_dependencies() {
 
 verify_installation() {
     print_header "Verifying Installation"
-    
+
     # Check symlink
     if [ -L ~/.zshrc ]; then
         print_success "Symlink exists: $(readlink ~/.zshrc)"
@@ -266,7 +282,7 @@ verify_installation() {
         print_error "Symlink not found"
         return 1
     fi
-    
+
     # Check config directory
     if [ -d "$CONFIG_DIR" ]; then
         print_success "Config directory exists"
@@ -274,7 +290,7 @@ verify_installation() {
         print_error "Config directory not found"
         return 1
     fi
-    
+
     # Check module files
     # Dynamically discover all modules
     local modules=()
@@ -283,21 +299,21 @@ verify_installation() {
         [ -f "$f" ] && modules+=("$(basename "${f%.zsh}")")
     done
     local missing_modules=()
-    
+
     for module in "${modules[@]}"; do
         if [ ! -f "$CONFIG_DIR/modules/$module.zsh" ]; then
             missing_modules+=("$module")
         fi
     done
-    
+
     if [ ${#missing_modules[@]} -eq 0 ]; then
         print_success "All modules present"
     else
         print_warning "Missing modules: ${missing_modules[*]}"
     fi
-    
+
     # Try to source the config (syntax check)
-    if zsh -n "$CONFIG_DIR/zshrc" 2>/dev/null; then
+    if zsh -n "$CONFIG_DIR/zshrc" 2> /dev/null; then
         print_success "Configuration syntax valid"
     else
         print_error "Configuration has syntax errors"
@@ -307,7 +323,7 @@ verify_installation() {
 
 print_next_steps() {
     print_header "Installation Complete! 🎉"
-    
+
     echo "Next steps:"
     echo ""
     echo "1. Restart your terminal or run:"
@@ -330,13 +346,13 @@ print_next_steps() {
     printf "   %b\n" "${BLUE}modules${NC}       - List loaded modules"
     printf "   %b\n" "${BLUE}python_status${NC} - Check Python environment"
     echo ""
-    
+
     if [ -d "$BACKUP_DIR" ]; then
         echo "Your old configuration was backed up to:"
         printf "   %b\n" "${YELLOW}$BACKUP_DIR${NC}"
         echo ""
     fi
-    
+
     print_success "Enjoy your new shell configuration!"
 }
 
@@ -344,20 +360,20 @@ print_next_steps() {
 main() {
     clear
     print_header "ZSH Configuration Installer"
-    
+
     echo "This script will install the modular zsh configuration"
     echo "Repository: $REPO_URL"
     echo ""
     echo "Press Enter to continue or Ctrl+C to cancel..."
     read
-    
+
     check_prerequisites
     backup_existing_config
     install_oh_my_zsh
     clone_or_update_repo
     create_symlinks
     install_dependencies
-    
+
     if verify_installation; then
         print_next_steps
     else

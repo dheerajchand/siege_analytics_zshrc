@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Pre-commit hook mirroring the CI gates.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# Skip for a one-off commit:
+#   SKIP_PRECOMMIT=1 git commit ...
+
+set -e
+
+if [[ "${SKIP_PRECOMMIT:-0}" == "1" ]]; then
+    exit 0
+fi
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+# Only run checks on files relevant to them.
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[[ -z "$staged" ]] && exit 0
+
+bash_files=()
+for f in install.sh setup-software.sh bash-bridge.sh; do
+    if grep -Fxq "$f" <<<"$staged"; then
+        bash_files+=("$f")
+    fi
+done
+
+any_module_or_zshrc=0
+if grep -qE '^(zshrc|modules/[^/]+\.zsh)$' <<<"$staged"; then
+    any_module_or_zshrc=1
+fi
+
+# shellcheck on bash scripts
+if (( ${#bash_files[@]} > 0 )); then
+    if command -v shellcheck >/dev/null 2>&1; then
+        echo "→ shellcheck ${bash_files[*]}"
+        shellcheck -S error "${bash_files[@]}"
+    else
+        echo "skip: shellcheck not installed (brew install shellcheck to enable)" >&2
+    fi
+fi
+
+# shfmt on bash scripts
+if (( ${#bash_files[@]} > 0 )); then
+    if command -v shfmt >/dev/null 2>&1; then
+        echo "→ shfmt -d -i 4 -ci -kp -sr ${bash_files[*]}"
+        shfmt -d -i 4 -ci -kp -sr "${bash_files[@]}"
+    else
+        echo "skip: shfmt not installed (brew install shfmt to enable)" >&2
+    fi
+fi
+
+# Convention linter + startup-budget when zshrc/modules touched.
+if (( any_module_or_zshrc )); then
+    echo "→ zsh tests (conventions + startup budget + zshrc structure)"
+    zsh run-tests.zsh --test conventions_docstrings
+    zsh run-tests.zsh --test conventions_no_bare_exit
+fi
+
+exit 0

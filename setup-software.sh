@@ -38,7 +38,7 @@ LIVY_SCALA_BINARY="${LIVY_SCALA_BINARY:-2.12}"
 # Usage: matrix_read '.profiles.stable.versions.spark'
 matrix_read() {
     local jq_path="$1"
-    if ! command -v python3 >/dev/null 2>&1; then
+    if ! command -v python3 > /dev/null 2>&1; then
         echo ""
         return 1
     fi
@@ -54,7 +54,7 @@ for k in keys:
     else:
         sys.exit(1)
 print(obj)
-" 2>/dev/null
+" 2> /dev/null
 }
 
 apply_stack_profile_config() {
@@ -74,7 +74,7 @@ import json
 with open('${MATRIX_FILE}') as f:
     data = json.load(f)
 print(', '.join(data.get('profiles', {}).keys()))
-" 2>/dev/null)"
+" 2> /dev/null)"
         echo "Available profiles: ${available:-stable, zeppelin_compatible}"
         exit 1
     fi
@@ -90,7 +90,7 @@ print(', '.join(data.get('profiles', {}).keys()))
     # Read defaults (allow env override)
     ZEPPELIN_SPARK_INTEGRATION_MODE="${ZEPPELIN_SPARK_INTEGRATION_MODE:-$(matrix_read "profiles.${STACK_PROFILE}.defaults.zeppelin_spark_integration_mode")}"
     local matrix_livy_url
-    matrix_livy_url="$(matrix_read "profiles.${STACK_PROFILE}.defaults.zeppelin_livy_url" 2>/dev/null)"
+    matrix_livy_url="$(matrix_read "profiles.${STACK_PROFILE}.defaults.zeppelin_livy_url" 2> /dev/null)"
     ZEPPELIN_LIVY_URL="${ZEPPELIN_LIVY_URL:-${matrix_livy_url:-http://127.0.0.1:8998}}"
 
     print_info "Profile '$STACK_PROFILE': $profile_desc"
@@ -126,7 +126,7 @@ print_step() {
 }
 
 print_usage() {
-    cat <<EOF
+    cat << EOF
 Usage: $(basename "$0") [--install-only|--config-only] [--profile <name>]
 
 Modes:
@@ -155,7 +155,7 @@ parse_setup_args() {
                 STACK_PROFILE="$2"
                 shift 2
                 ;;
-            --help|-h)
+            --help | -h)
                 print_usage
                 exit 0
                 ;;
@@ -170,7 +170,7 @@ parse_setup_args() {
 
 check_os() {
     print_header "Detecting Operating System"
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         OS="macos"
         print_success "macOS detected"
@@ -188,29 +188,29 @@ check_os() {
         DISTRO="${ID:-unknown}"
         print_info "Linux distro: $DISTRO"
     fi
-    
+
     export OS
     export DISTRO
 }
 
 install_homebrew() {
     print_header "Installing Homebrew (macOS Package Manager)"
-    
-    if command -v brew >/dev/null 2>&1; then
+
+    if command -v brew > /dev/null 2>&1; then
         print_success "Homebrew already installed: $(brew --version | head -1)"
         return
     fi
-    
+
     print_step "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
+
     # Add to PATH for this session (ARM64 or Intel)
     if [[ -f /opt/homebrew/bin/brew ]]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
     elif [[ -f /usr/local/bin/brew ]]; then
         eval "$(/usr/local/bin/brew shellenv)"
     fi
-    
+
     print_success "Homebrew installed"
 }
 
@@ -221,7 +221,7 @@ install_system_packages() {
         print_error "Don't run as root. Use sudo for individual commands."
         return 1
     fi
-    if ! command -v apt-get >/dev/null 2>&1; then
+    if ! command -v apt-get > /dev/null 2>&1; then
         print_error "apt-get not found. This step supports Ubuntu/Debian."
         return 1
     fi
@@ -254,9 +254,9 @@ install_system_packages() {
 install_1password_cli() {
     print_header "Installing 1Password CLI"
 
-    if command -v op >/dev/null 2>&1; then
+    if command -v op > /dev/null 2>&1; then
         local op_version
-        op_version="$(op --version 2>/dev/null | head -1)"
+        op_version="$(op --version 2> /dev/null | head -1)"
         if echo "$op_version" | grep -qE "1Password CLI 1\\.|^1\\.\\d+\\."; then
             print_warning "Detected legacy 1Password CLI: $op_version"
         else
@@ -266,17 +266,17 @@ install_1password_cli() {
     fi
 
     if [[ "$OS" == "macos" ]]; then
-        if command -v brew >/dev/null 2>&1; then
+        if command -v brew > /dev/null 2>&1; then
             print_step "Installing 1Password CLI via Homebrew..."
             brew install 1password-cli || brew upgrade 1password-cli
-            print_success "1Password CLI installed: $(op --version 2>/dev/null | head -1)"
+            print_success "1Password CLI installed: $(op --version 2> /dev/null | head -1)"
         else
             print_warning "Homebrew not found; install 1Password CLI from https://developer.1password.com/docs/cli/"
         fi
         return
     fi
 
-    if command -v apt-get >/dev/null 2>&1; then
+    if command -v apt-get > /dev/null 2>&1; then
         printf "Install/upgrade 1Password CLI via apt (adds 1Password repo if needed)? [y/N]: "
         read -r op_install
         if [[ "$op_install" != [Yy]* ]]; then
@@ -285,15 +285,15 @@ install_1password_cli() {
         fi
         if [[ ! -f /etc/apt/sources.list.d/1password.list ]]; then
             print_step "Adding 1Password apt repository..."
-            curl -sS https://downloads.1password.com/linux/keys/1password.asc \
-                | gpg --dearmor --yes --output /usr/share/keyrings/1password-archive-keyring.gpg
-            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" \
-                | sudo tee /etc/apt/sources.list.d/1password.list >/dev/null
+            curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+                  gpg --dearmor --yes --output /usr/share/keyrings/1password-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" |
+                  sudo tee /etc/apt/sources.list.d/1password.list > /dev/null
             sudo apt-get update
         fi
         print_step "Installing 1Password CLI via apt..."
         sudo apt-get install -y 1password-cli
-        print_success "1Password CLI installed: $(op --version 2>/dev/null | head -1)"
+        print_success "1Password CLI installed: $(op --version 2> /dev/null | head -1)"
         return
     fi
 
@@ -303,32 +303,32 @@ install_1password_cli() {
 
 install_sdkman() {
     print_header "Installing SDKMAN (Java, Hadoop, Spark Manager)"
-    
+
     if [[ -d "$HOME/.sdkman" ]]; then
         print_success "SDKMAN already installed"
         source "$HOME/.sdkman/bin/sdkman-init.sh"
         return
     fi
-    
+
     print_step "Installing SDKMAN..."
     curl -s "https://get.sdkman.io" | bash
-    
+
     # Source SDKMAN for this session
     source "$HOME/.sdkman/bin/sdkman-init.sh"
-    
+
     print_success "SDKMAN installed"
 }
 
 install_java() {
     print_header "Installing Java (via SDKMAN)"
-    
+
     source "$HOME/.sdkman/bin/sdkman-init.sh"
-    
+
     if sdk list java | grep -q "installed.*$JAVA_VERSION"; then
         print_success "Java $JAVA_VERSION already installed"
         return
     fi
-    
+
     print_step "Installing Java $JAVA_VERSION (Temurin)..."
     if ! sdk install java "$JAVA_VERSION"; then
         print_error "Failed to install Java $JAVA_VERSION via SDKMAN"
@@ -339,7 +339,7 @@ install_java() {
 
     print_success "Java installed: $(java -version 2>&1 | head -1)"
 
-    if command -v java >/dev/null 2>&1; then
+    if command -v java > /dev/null 2>&1; then
         local java_home
         java_home="$(_resolve_java_home)"
         echo "JAVA_HOME=$java_home"
@@ -349,11 +349,11 @@ install_java() {
 # Portable readlink -f alternative (works on stock macOS)
 _resolve_symlink() {
     local target="$1"
-    if command -v realpath >/dev/null 2>&1; then
+    if command -v realpath > /dev/null 2>&1; then
         realpath "$target"
-    elif command -v python3 >/dev/null 2>&1; then
+    elif command -v python3 > /dev/null 2>&1; then
         python3 -c "import os; print(os.path.realpath('$target'))"
-    elif readlink -f "$target" >/dev/null 2>&1; then
+    elif readlink -f "$target" > /dev/null 2>&1; then
         readlink -f "$target"
     else
         # Fallback: manual chase
@@ -371,7 +371,7 @@ _resolve_java_home() {
 }
 
 ensure_java_home_in_zshenv() {
-    if ! command -v java >/dev/null 2>&1; then
+    if ! command -v java > /dev/null 2>&1; then
         print_warning "java not found; skipping JAVA_HOME setup"
         return 1
     fi
@@ -380,9 +380,9 @@ ensure_java_home_in_zshenv() {
     line="export JAVA_HOME=\"$java_home\""
     if [[ -f "$HOME/.zshenv" ]]; then
         if grep -q "^export JAVA_HOME=" "$HOME/.zshenv"; then
-            if command -v sed >/dev/null 2>&1; then
+            if command -v sed > /dev/null 2>&1; then
                 sed -i.bak "s|^export JAVA_HOME=.*|$line|" "$HOME/.zshenv"
-                rm -f "$HOME/.zshenv.bak" 2>/dev/null || true
+                rm -f "$HOME/.zshenv.bak" 2> /dev/null || true
             else
                 print_warning "sed not found; skipping JAVA_HOME update"
             fi
@@ -397,7 +397,7 @@ ensure_java_home_in_zshenv() {
 }
 
 ensure_localhost_ssh_known_host() {
-    if ! command -v ssh-keygen >/dev/null 2>&1; then
+    if ! command -v ssh-keygen > /dev/null 2>&1; then
         print_warning "ssh-keygen not found; skipping localhost host key check"
         return 1
     fi
@@ -406,8 +406,8 @@ ensure_localhost_ssh_known_host() {
         printf "Reset localhost SSH host key? [y/N]: "
         read -r fix_host
         if [[ "$fix_host" == [Yy]* ]]; then
-            ssh-keygen -f "$kh" -R localhost >/dev/null 2>&1 || true
-            ssh-keygen -f "$kh" -R 127.0.0.1 >/dev/null 2>&1 || true
+            ssh-keygen -f "$kh" -R localhost > /dev/null 2>&1 || true
+            ssh-keygen -f "$kh" -R 127.0.0.1 > /dev/null 2>&1 || true
             print_info "Removed localhost host keys from known_hosts"
         else
             print_info "Skipping localhost host key reset"
@@ -418,10 +418,10 @@ ensure_localhost_ssh_known_host() {
 
 install_hadoop() {
     print_header "Installing Hadoop (via SDKMAN)"
-    
+
     source "$HOME/.sdkman/bin/sdkman-init.sh"
-    
-    if sdk list hadoop 2>/dev/null | grep -q "installed.*$HADOOP_VERSION"; then
+
+    if sdk list hadoop 2> /dev/null | grep -q "installed.*$HADOOP_VERSION"; then
         print_success "Hadoop $HADOOP_VERSION already installed"
     else
         print_step "Installing Hadoop $HADOOP_VERSION..."
@@ -433,7 +433,7 @@ install_hadoop() {
         sdk default hadoop "$HADOOP_VERSION"
         print_success "Hadoop installed"
     fi
-    
+
     local hadoop_data_dir="$HOME/hadoop-data"
 
     # Create Hadoop data directories
@@ -442,16 +442,16 @@ install_hadoop() {
     mkdir -p "$hadoop_data_dir/datanode"
     mkdir -p "$hadoop_data_dir/tmp"
     print_success "Hadoop directories created"
-    
+
     # Configure Hadoop
     print_step "Configuring Hadoop..."
     local hadoop_home="$HOME/.sdkman/candidates/hadoop/current"
-    
+
     if [[ -d "$hadoop_home/etc/hadoop" ]]; then
         # Backup existing configs
-        [[ -f "$hadoop_home/etc/hadoop/core-site.xml" ]] && \
+        [[ -f "$hadoop_home/etc/hadoop/core-site.xml" ]] &&
             cp "$hadoop_home/etc/hadoop/core-site.xml" "$hadoop_home/etc/hadoop/core-site.xml.bak"
-        
+
         # Create core-site.xml
         cat > "$hadoop_home/etc/hadoop/core-site.xml" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -467,7 +467,7 @@ install_hadoop() {
     </property>
 </configuration>
 EOF
-        
+
         # Create hdfs-site.xml
         cat > "$hadoop_home/etc/hadoop/hdfs-site.xml" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -487,7 +487,7 @@ EOF
     </property>
 </configuration>
 EOF
-        
+
         # Create yarn-site.xml
         cat > "$hadoop_home/etc/hadoop/yarn-site.xml" << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -503,7 +503,7 @@ EOF
     </property>
 </configuration>
 EOF
-        
+
         print_success "Hadoop configured"
     else
         print_warning "Hadoop config directory not found, skipping configuration"
@@ -529,17 +529,17 @@ _install_spark_from_binary() {
     local archive_url="https://archive.apache.org/dist/spark/spark-${version}/${spark_pkg}.tgz"
 
     print_step "Downloading Spark ${version} binary from Apache..."
-    if command -v curl >/dev/null 2>&1; then
-        if ! curl -fL "$url" -o "$tarball" 2>/dev/null; then
+    if command -v curl > /dev/null 2>&1; then
+        if ! curl -fL "$url" -o "$tarball" 2> /dev/null; then
             print_info "Primary mirror failed, trying archive..."
-            if ! curl -fL "$archive_url" -o "$tarball" 2>/dev/null; then
+            if ! curl -fL "$archive_url" -o "$tarball" 2> /dev/null; then
                 print_error "Failed to download Spark ${version} from any mirror"
                 return 1
             fi
         fi
-    elif command -v wget >/dev/null 2>&1; then
-        if ! wget -O "$tarball" "$url" 2>/dev/null; then
-            if ! wget -O "$tarball" "$archive_url" 2>/dev/null; then
+    elif command -v wget > /dev/null 2>&1; then
+        if ! wget -O "$tarball" "$url" 2> /dev/null; then
+            if ! wget -O "$tarball" "$archive_url" 2> /dev/null; then
                 print_error "Failed to download Spark ${version} from any mirror"
                 return 1
             fi
@@ -565,12 +565,12 @@ install_spark() {
 
     if [[ -d "$HOME/.sdkman/candidates/spark/${SPARK_VERSION}" ]]; then
         print_success "Spark $SPARK_VERSION already installed"
-        sdk default spark "$SPARK_VERSION" 2>/dev/null || \
+        sdk default spark "$SPARK_VERSION" 2> /dev/null ||
             ln -sfn "$HOME/.sdkman/candidates/spark/$SPARK_VERSION" "$HOME/.sdkman/candidates/spark/current"
     else
         # Try SDKMAN first
         print_step "Trying SDKMAN install for Spark $SPARK_VERSION..."
-        if sdk install spark "$SPARK_VERSION" 2>/dev/null; then
+        if sdk install spark "$SPARK_VERSION" 2> /dev/null; then
             sdk default spark "$SPARK_VERSION"
             print_success "Spark $SPARK_VERSION installed via SDKMAN"
         else
@@ -641,9 +641,9 @@ install_zeppelin() {
     mkdir -p "$zeppelin_root"
 
     print_step "Downloading Zeppelin ${ZEPPELIN_VERSION}..."
-    if command -v curl >/dev/null 2>&1; then
+    if command -v curl > /dev/null 2>&1; then
         curl -fL "$url" -o "$tarball" || curl -fL "$archive_url" -o "$tarball"
-    elif command -v wget >/dev/null 2>&1; then
+    elif command -v wget > /dev/null 2>&1; then
         wget -O "$tarball" "$url" || wget -O "$tarball" "$archive_url"
     else
         print_error "Neither curl nor wget found; cannot download Zeppelin"
@@ -677,9 +677,9 @@ install_livy() {
     mkdir -p "$livy_root"
 
     print_step "Downloading Livy ${LIVY_VERSION}..."
-    if command -v curl >/dev/null 2>&1; then
+    if command -v curl > /dev/null 2>&1; then
         curl -fL "$url" -o "$tarball" || curl -fL "$archive_url" -o "$tarball"
-    elif command -v wget >/dev/null 2>&1; then
+    elif command -v wget > /dev/null 2>&1; then
         wget -O "$tarball" "$url" || wget -O "$tarball" "$archive_url"
     else
         print_error "Neither curl nor wget found; cannot download Livy"
@@ -687,7 +687,7 @@ install_livy() {
     fi
 
     print_step "Extracting Livy..."
-    if command -v unzip >/dev/null 2>&1; then
+    if command -v unzip > /dev/null 2>&1; then
         unzip -q -o "$tarball" -d "$livy_root"
     else
         print_error "unzip not found; cannot extract Livy zip archive"
@@ -704,13 +704,13 @@ persist_vars_env_value() {
     [[ -z "$key" || -z "$value" ]] && return 1
     mkdir -p "$(dirname "$vars_file")"
     [[ -f "$vars_file" ]] || touch "$vars_file"
-    if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.config/zsh/modules/settings.zsh" ]]; then
+    if command -v zsh > /dev/null 2>&1 && [[ -f "$HOME/.config/zsh/modules/settings.zsh" ]]; then
         if ZSH_SETTINGS_DIR="$HOME/.config/zsh" ZSH_VARS_FILE="$vars_file" \
-            zsh -lc "source \"$HOME/.config/zsh/modules/settings.zsh\" >/dev/null 2>&1; settings_persist_var \"$key\" \"$value\" \"$vars_file\"" >/dev/null 2>&1; then
+            zsh -lc "source \"$HOME/.config/zsh/modules/settings.zsh\" >/dev/null 2>&1; settings_persist_var \"$key\" \"$value\" \"$vars_file\"" > /dev/null 2>&1; then
             return 0
         fi
     fi
-    python3 - "$vars_file" "$key" "$value" <<'PY'
+    python3 - "$vars_file" "$key" "$value" << 'PY'
 import sys
 path, key, value = sys.argv[1:4]
 with open(path, "r", encoding="utf-8") as f:
@@ -747,8 +747,8 @@ configure_stack_profile_defaults() {
 
 install_pyenv() {
     print_header "Installing pyenv (Python Version Manager)"
-    
-    if [[ -d "$HOME/.pyenv" ]] && ! command -v pyenv >/dev/null 2>&1; then
+
+    if [[ -d "$HOME/.pyenv" ]] && ! command -v pyenv > /dev/null 2>&1; then
         print_warning "Found existing ~/.pyenv but pyenv is not on PATH"
         printf "Remove existing ~/.pyenv and reinstall? [y/N]: "
         read -r pyenv_action
@@ -761,11 +761,11 @@ install_pyenv() {
         fi
     fi
 
-    if command -v pyenv >/dev/null 2>&1; then
+    if command -v pyenv > /dev/null 2>&1; then
         print_success "pyenv already installed: $(pyenv --version)"
         return
     fi
-    
+
     if [[ "$OS" == "macos" ]]; then
         print_step "Installing pyenv via Homebrew..."
         brew install pyenv pyenv-virtualenv
@@ -774,14 +774,14 @@ install_pyenv() {
         curl https://pyenv.run | bash
         ensure_pyenv_shell_init
     fi
-    
+
     # Add to current session
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init --path)"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
-    
+
     print_success "pyenv installed"
 }
 
@@ -790,7 +790,7 @@ ensure_pyenv_shell_init() {
     local zshrc="$HOME/.zshrc"
     local bashrc="$HOME/.bashrc"
 
-    if [[ -f "$zshenv" ]] && ! grep -q "PYENV_ROOT" "$zshenv" 2>/dev/null; then
+    if [[ -f "$zshenv" ]] && ! grep -q "PYENV_ROOT" "$zshenv" 2> /dev/null; then
         cat >> "$zshenv" << 'PYENV_ZSHENV'
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -804,7 +804,7 @@ PYENV_ZSHENV
         print_info "Created ~/.zshenv with pyenv PATH"
     fi
 
-    if [[ -f "$zshrc" ]] && ! grep -q "pyenv init" "$zshrc" 2>/dev/null; then
+    if [[ -f "$zshrc" ]] && ! grep -q "pyenv init" "$zshrc" 2> /dev/null; then
         cat >> "$zshrc" << 'PYENV_ZSHRC'
 if command -v pyenv >/dev/null 2>&1; then
   eval "$(pyenv init --path)"
@@ -822,7 +822,7 @@ PYENV_ZSHRC
         print_info "Created ~/.zshrc with pyenv init"
     fi
 
-    if [[ -f "$bashrc" ]] && ! grep -q "pyenv init" "$bashrc" 2>/dev/null; then
+    if [[ -f "$bashrc" ]] && ! grep -q "pyenv init" "$bashrc" 2> /dev/null; then
         cat >> "$bashrc" << 'PYENV_BASHRC'
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -837,7 +837,7 @@ ensure_screen_login_shell() {
     local screenrc="$HOME/.screenrc"
     local line="defshell -$SHELL"
     if [[ -f "$screenrc" ]]; then
-        if ! grep -q "defshell -$SHELL" "$screenrc" 2>/dev/null; then
+        if ! grep -q "defshell -$SHELL" "$screenrc" 2> /dev/null; then
             echo "" >> "$screenrc"
             echo "# Ensure screen starts login shell" >> "$screenrc"
             echo "$line" >> "$screenrc"
@@ -852,19 +852,19 @@ ensure_screen_login_shell() {
 
 ensure_screen_pyenv_setup() {
     if [[ -f "$HOME/.config/zsh/modules/screen.zsh" ]]; then
-        zsh -fc 'source "$HOME/.config/zsh/modules/screen.zsh"; screen_ensure_pyenv' >/dev/null 2>&1 || true
+        zsh -fc 'source "$HOME/.config/zsh/modules/screen.zsh"; screen_ensure_pyenv' > /dev/null 2>&1 || true
     fi
 }
 
 install_python() {
     print_header "Installing Python $PYTHON_VERSION"
-    
+
     # Ensure pyenv is in PATH for this session
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)" 2>/dev/null || true
-    eval "$(pyenv init -)" 2>/dev/null || true
-    
+    eval "$(pyenv init --path)" 2> /dev/null || true
+    eval "$(pyenv init -)" 2> /dev/null || true
+
     if pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
         print_success "Python $PYTHON_VERSION already installed"
     else
@@ -872,7 +872,7 @@ install_python() {
         pyenv install "$PYTHON_VERSION"
         print_success "Python $PYTHON_VERSION installed"
     fi
-    
+
     # Create virtual environment
     print_step "Creating virtual environment: $DEFAULT_VENV..."
     if pyenv versions --bare | grep -q "^${DEFAULT_VENV}$"; then
@@ -881,7 +881,7 @@ install_python() {
         pyenv virtualenv "$PYTHON_VERSION" "$DEFAULT_VENV"
         print_success "Virtual environment $DEFAULT_VENV created"
     fi
-    
+
     # Set as global default
     pyenv global "$DEFAULT_VENV"
     print_success "Python environment configured"
@@ -889,19 +889,19 @@ install_python() {
 
 install_python_packages() {
     print_header "Installing Essential Python Packages"
-    
+
     # Ensure we're in the right environment
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)" 2>/dev/null || true
-    eval "$(pyenv init -)" 2>/dev/null || true
-    pyenv shell "$DEFAULT_VENV" 2>/dev/null || true
-    
+    eval "$(pyenv init --path)" 2> /dev/null || true
+    eval "$(pyenv init -)" 2> /dev/null || true
+    pyenv shell "$DEFAULT_VENV" 2> /dev/null || true
+
     print_step "Installing packages..."
-    
+
     # Upgrade pip first
     python -m pip install --upgrade pip
-    
+
     # Essential packages
     pip install -q \
         ipython \
@@ -914,15 +914,15 @@ install_python_packages() {
         pyspark \
         pyarrow \
         pytest
-    
+
     print_success "Python packages installed"
 }
 
 check_docker() {
     print_header "Checking Docker"
-    
-    if command -v docker >/dev/null 2>&1; then
-        if docker info >/dev/null 2>&1; then
+
+    if command -v docker > /dev/null 2>&1; then
+        if docker info > /dev/null 2>&1; then
             print_success "Docker is installed and running"
         else
             print_warning "Docker is installed but not running"
@@ -941,8 +941,8 @@ check_docker() {
 
 check_postgresql() {
     print_header "Checking PostgreSQL"
-    
-    if command -v psql >/dev/null 2>&1; then
+
+    if command -v psql > /dev/null 2>&1; then
         print_success "PostgreSQL client installed: $(psql --version)"
     else
         print_warning "PostgreSQL not installed"
@@ -953,7 +953,7 @@ check_postgresql() {
             if [[ "$OS" == "macos" ]]; then
                 brew install postgresql
                 brew services start postgresql
-            elif command -v apt-get >/dev/null 2>&1; then
+            elif command -v apt-get > /dev/null 2>&1; then
                 sudo apt-get install -y postgresql postgresql-contrib
                 sudo systemctl start postgresql
                 sudo systemctl enable postgresql
@@ -968,11 +968,11 @@ check_postgresql() {
 
 format_namenode() {
     print_header "Formatting Hadoop NameNode"
-    
+
     source "$HOME/.sdkman/bin/sdkman-init.sh"
     local hadoop_home="$HOME/.sdkman/candidates/hadoop/current"
     local namenode_dir="$HOME/hadoop-data/namenode"
-    
+
     if [[ ! -d "$hadoop_home" ]]; then
         print_error "Hadoop not installed"
         return 1
@@ -985,11 +985,11 @@ format_namenode() {
             print_info "Skipping NameNode format"
             return 0
         fi
-        "$hadoop_home/bin/hdfs" --daemon stop datanode 2>/dev/null || true
-        "$hadoop_home/bin/hdfs" --daemon stop namenode 2>/dev/null || true
-        if command -v yarn >/dev/null 2>&1; then
-            yarn --daemon stop nodemanager 2>/dev/null || true
-            yarn --daemon stop resourcemanager 2>/dev/null || true
+        "$hadoop_home/bin/hdfs" --daemon stop datanode 2> /dev/null || true
+        "$hadoop_home/bin/hdfs" --daemon stop namenode 2> /dev/null || true
+        if command -v yarn > /dev/null 2>&1; then
+            yarn --daemon stop nodemanager 2> /dev/null || true
+            yarn --daemon stop resourcemanager 2> /dev/null || true
         fi
         sleep 2
     fi
@@ -1010,9 +1010,9 @@ format_namenode() {
 
 verify_installation() {
     print_header "Verifying Installation"
-    
+
     local all_good=true
-    
+
     # Check SDKMAN
     if [[ -d "$HOME/.sdkman" ]]; then
         print_success "SDKMAN: Installed"
@@ -1020,15 +1020,15 @@ verify_installation() {
         print_error "SDKMAN: Not found"
         all_good=false
     fi
-    
+
     # Check Java
-    if command -v java >/dev/null 2>&1; then
+    if command -v java > /dev/null 2>&1; then
         print_success "Java: $(java -version 2>&1 | head -1)"
     else
         print_error "Java: Not found"
         all_good=false
     fi
-    
+
     # Check Hadoop
     if [[ -d "$HOME/.sdkman/candidates/hadoop/current" ]]; then
         print_success "Hadoop: Installed at ~/.sdkman/candidates/hadoop/current"
@@ -1036,7 +1036,7 @@ verify_installation() {
         print_error "Hadoop: Not found"
         all_good=false
     fi
-    
+
     # Check Spark
     if [[ -d "$HOME/.sdkman/candidates/spark/current" ]]; then
         print_success "Spark: Installed at ~/.sdkman/candidates/spark/current"
@@ -1058,32 +1058,32 @@ verify_installation() {
     else
         print_warning "Livy: Not found (recommended for Spark 4.1 + Zeppelin)"
     fi
-    
+
     # Check pyenv
-    if command -v pyenv >/dev/null 2>&1; then
+    if command -v pyenv > /dev/null 2>&1; then
         print_success "pyenv: $(pyenv --version)"
     else
         print_error "pyenv: Not found"
         all_good=false
     fi
-    
+
     # Check Python
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
-    if command -v python >/dev/null 2>&1; then
+    if command -v python > /dev/null 2>&1; then
         print_success "Python: $(python --version)"
     else
         print_error "Python: Not found"
         all_good=false
     fi
-    
+
     # Check Docker
-    if command -v docker >/dev/null 2>&1; then
+    if command -v docker > /dev/null 2>&1; then
         print_success "Docker: Installed"
     else
         print_warning "Docker: Not installed (optional)"
     fi
-    
+
     echo ""
     if $all_good; then
         print_success "All core components verified!"
@@ -1105,8 +1105,9 @@ validate_compatibility_matrix() {
     fi
 
     local violations
-    violations="$(python3 - "$MATRIX_FILE" "$SPARK_VERSION" "$ZEPPELIN_VERSION" \
-        "$SPARK_SCALA_VERSION" "$ZEPPELIN_SPARK_INTEGRATION_MODE" <<'PY'
+    violations="$(
+                  python3 - "$MATRIX_FILE" "$SPARK_VERSION" "$ZEPPELIN_VERSION" \
+            "$SPARK_SCALA_VERSION" "$ZEPPELIN_SPARK_INTEGRATION_MODE" << 'PY'
 import json, sys, fnmatch
 
 matrix_file, spark_ver, zep_ver, scala_ver, zep_mode = sys.argv[1:6]
@@ -1152,7 +1153,7 @@ PY
 
 print_next_steps() {
     print_header "Installation Complete! 🎉"
-    
+
     echo "Next steps:"
     echo ""
     printf "1. %b\n" "${GREEN}Restart your terminal${NC} or run:"
@@ -1190,14 +1191,103 @@ print_next_steps() {
     printf "   Spark History: %b\n" "${BLUE}http://localhost:18080${NC}"
     printf "   Zeppelin: %b\n" "${BLUE}http://localhost:8081${NC}"
     echo ""
-    
+
     if [[ ! $(command -v docker) ]]; then
         echo "📦 Optional: Install Docker Desktop for container features"
         echo "   https://www.docker.com/products/docker-desktop"
         echo ""
     fi
-    
+
     print_success "Ready to use your data science environment!"
+}
+
+install_shell_tooling() {
+    print_header "Installing Shell Tooling"
+    # Tools used by OMZ plugins, CI gates, and git workflow. Install only
+    # those missing. On macOS all are bottled; on Linux most come from apt
+    # except shfmt (released as a standalone binary).
+
+    local bin binary
+    local to_install_brew=()
+    local to_install_apt=()
+    for bin in fzf shellcheck jq git-delta git-extras; do
+        binary="$bin"
+        [[ "$bin" == "git-delta" ]] && binary="delta"
+        command -v "$binary" > /dev/null 2>&1 && continue
+        to_install_brew+=("$bin")
+        to_install_apt+=("$bin")
+    done
+
+    if [[ "$OS" == "macos" ]]; then
+        if ((${#to_install_brew[@]} > 0)); then
+            print_step "Installing: ${to_install_brew[*]}"
+            brew install "${to_install_brew[@]}" || print_warning "Some brew installs failed"
+        else
+            print_info "Shell tooling already present (fzf, shellcheck, jq, delta, git-extras)"
+        fi
+
+        if ! command -v shfmt > /dev/null 2>&1; then
+            print_step "Installing shfmt"
+            brew install shfmt || print_warning "shfmt install failed"
+        fi
+
+        # fzf ships with a shell-integration installer that writes ~/.fzf.zsh
+        # (Ctrl-R history, Ctrl-T files, Alt-C dirs). Run it non-interactively
+        # so keybindings + completion wire up without the user having to
+        # follow the brew caveats.
+        local fzf_prefix
+        fzf_prefix="$(brew --prefix fzf 2> /dev/null || true)"
+        if [[ -n "$fzf_prefix" && -x "$fzf_prefix/install" ]]; then
+            if [[ ! -f "$HOME/.fzf.zsh" ]]; then
+                print_step "Setting up fzf shell integration (keybindings + completion)"
+                "$fzf_prefix/install" --key-bindings --completion --no-update-rc > /dev/null ||
+                       print_warning "fzf shell integration setup failed"
+            else
+                print_info "fzf shell integration already configured (~/.fzf.zsh exists)"
+            fi
+        fi
+    else
+        if ((${#to_install_apt[@]} > 0)); then
+            print_step "Installing via apt: ${to_install_apt[*]}"
+            sudo apt-get install -y --no-install-recommends "${to_install_apt[@]}" ||
+                   print_warning "Some apt installs failed"
+        fi
+        if ! command -v shfmt > /dev/null 2>&1; then
+            print_step "Installing shfmt from GitHub release"
+            local ver="v3.13.1"
+            local url="https://github.com/mvdan/sh/releases/download/${ver}/shfmt_${ver}_linux_amd64"
+            sudo curl -fsSL -o /usr/local/bin/shfmt "$url" &&
+                   sudo chmod +x /usr/local/bin/shfmt ||
+                   print_warning "shfmt install failed"
+        fi
+    fi
+
+    print_success "Shell tooling ready"
+}
+
+install_ollama() {
+    print_header "Installing Ollama"
+    if command -v ollama > /dev/null 2>&1; then
+        print_info "ollama already installed: $(ollama --version 2> /dev/null | head -1)"
+        return 0
+    fi
+    if [[ "$OS" == "macos" ]]; then
+        brew install ollama || {
+            print_warning "ollama install failed"
+            return 1
+        }
+    else
+        # Upstream provides a one-shot script for Linux.
+        print_step "Installing ollama via upstream script"
+        curl -fsSL https://ollama.com/install.sh | sh ||
+               {
+                 print_warning "ollama install failed"
+                                                        return 1
+            }
+    fi
+    print_info "Server is on demand. From a fresh shell: ollama_start"
+    print_info "Or set OLLAMA_AUTO_START=1 to lazy-start on first use"
+    print_success "ollama ready"
 }
 
 # Main installation flow
@@ -1206,7 +1296,7 @@ main() {
     clear
     print_header "Software Stack Installer"
     apply_stack_profile_config
-    
+
     echo "This script will install:"
     echo "  • Setup mode: $SETUP_MODE"
     echo "  • Stack profile: $STACK_PROFILE"
@@ -1222,6 +1312,8 @@ main() {
     echo "  • Python virtual environment: $DEFAULT_VENV"
     echo "  • 1Password CLI (v2)"
     echo "  • Essential Python packages (pandas, numpy, jupyter, pyspark, etc.)"
+    echo "  • Shell tooling (fzf + keybindings, shellcheck, shfmt, jq, delta, git-extras)"
+    echo "  • Ollama (local LLM server, on-demand)"
     echo ""
     if [[ "$SETUP_MODE" == "config" ]]; then
         echo "Estimated time: ~3-10 minutes"
@@ -1231,7 +1323,7 @@ main() {
     echo ""
     echo "Press Enter to continue or Ctrl+C to cancel..."
     read
-    
+
     check_os
 
     if [[ "$SETUP_MODE" != "config" ]]; then
@@ -1250,6 +1342,8 @@ main() {
         install_pyenv
         install_python
         install_python_packages
+        install_shell_tooling
+        install_ollama
         # Optional components
         check_docker
         check_postgresql
@@ -1267,7 +1361,7 @@ main() {
     else
         print_info "Install-only mode: skipping configuration writes"
     fi
-    
+
     if verify_installation; then
         print_next_steps
     else
