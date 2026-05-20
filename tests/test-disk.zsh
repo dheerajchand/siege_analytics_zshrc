@@ -58,7 +58,9 @@ test_clean_caches_dry_run_is_default() {
     local saved=("${_DISK_SAFE_CACHE_TARGETS[@]}")
     _DISK_SAFE_CACHE_TARGETS=("$tmp")
     disk_clean_caches >/dev/null 2>&1
+    local rc=$?
     _DISK_SAFE_CACHE_TARGETS=("${saved[@]}")
+    assert_equal "0" "$rc" "dry-run should exit 0"
     assert_true "[[ -f '$tmp/canary' ]]" "dry-run must NOT delete files"
     rm -rf "$tmp"
 }
@@ -109,8 +111,14 @@ test_prune_snapshots_execute_keeps_n_newest() {
     disk_prune_snapshots --root "$tmp" --keep 3 --execute >/dev/null 2>&1
     local count
     count=$(find "$tmp" -maxdepth 1 -type d -name 'config_*' 2>/dev/null | wc -l | tr -d ' ')
-    rm -rf "$tmp"
     assert_equal "3" "$count" "--execute keeps exactly N=3 snapshots"
+    assert_false "[[ -d '$tmp/config_2025-01' ]]" "oldest pruned"
+    assert_false "[[ -d '$tmp/config_2025-02' ]]" "older pruned"
+    assert_false "[[ -d '$tmp/config_2025-03' ]]" "older pruned"
+    assert_true  "[[ -d '$tmp/config_2025-04' ]]" "newer kept"
+    assert_true  "[[ -d '$tmp/config_2025-05' ]]" "newer kept"
+    assert_true  "[[ -d '$tmp/config_2025-06' ]]" "newest kept"
+    rm -rf "$tmp"
 }
 
 test_prune_snapshots_handles_spaces_in_names() {
@@ -166,6 +174,21 @@ test_prune_jetbrains_execute_drops_non_keep_year() {
     rm -rf "$tmp"
 }
 
+test_prune_jetbrains_refuses_icloud_base() {
+    # Inject a fake iCloud path into --base-dir and verify the function refuses
+    local fake_icloud="$HOME/Documents/.disk_jetbrains_test_$$"
+    mkdir -p "$fake_icloud/PyCharm2025.3"
+    local out rc
+    out=$(disk_prune_jetbrains_stale --base-dir "$fake_icloud" --keep-prefix 2026 --execute 2>&1)
+    rc=$?
+    local still_there=0
+    [[ -d "$fake_icloud/PyCharm2025.3" ]] && still_there=1
+    rm -rf "$fake_icloud"
+    assert_equal "2" "$rc" "must exit 2 when --base-dir is an iCloud path"
+    assert_equal "1" "$still_there" "the would-be-pruned dir must be preserved"
+    assert_contains "$out" "refusing to operate on iCloud path" "rejection message names iCloud"
+}
+
 # ---- disk_check_icloud_corruption ----
 
 test_corruption_check_clean() {
@@ -206,5 +229,6 @@ register_test "prune_snapshots_spaces"     test_prune_snapshots_handles_spaces_i
 register_test "prune_snapshots_neg_keep"   test_prune_snapshots_rejects_negative_keep
 register_test "prune_jetbrains_dry_run"    test_prune_jetbrains_dry_run_preserves
 register_test "prune_jetbrains_execute"    test_prune_jetbrains_execute_drops_non_keep_year
+register_test "prune_jetbrains_icloud"     test_prune_jetbrains_refuses_icloud_base
 register_test "corruption_check_clean"     test_corruption_check_clean
 register_test "corruption_check_dirty"     test_corruption_check_dirty

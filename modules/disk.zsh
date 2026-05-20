@@ -58,7 +58,10 @@ _disk_is_icloud_path() {
 _disk_top_n() {
     local dir="$1" n="${2:-10}"
     [[ -d "$dir" ]] || { echo "disk: not a directory: $dir" >&2; return 1; }
-    du -sh "$dir"/* 2>/dev/null | sort -rh | head -n "$n"
+    local -a entries
+    entries=("$dir"/*(N))
+    (( ${#entries[@]} )) || return 0
+    du -sh "${entries[@]}" 2>/dev/null | sort -rh | head -n "$n"
 }
 
 # Survey of biggest space consumers across the home dir.
@@ -68,8 +71,12 @@ disk_audit() {
     df -h "$HOME" 2>/dev/null | head -2
     echo
     echo "=== Top $n in \$HOME ==="
-    # .[!.]* excludes . and .. while including all hidden entries regardless of first-letter case
-    du -sh "$HOME"/* "$HOME"/.[!.]* 2>/dev/null | sort -rh | head -n "$n"
+    # (N) = nullglob, (D) includes dotfiles; combined avoids NOMATCH errors on sparse dirs.
+    local -a home_entries
+    home_entries=("$HOME"/*(DN))
+    if (( ${#home_entries[@]} )); then
+        du -sh "${home_entries[@]}" 2>/dev/null | sort -rh | head -n "$n"
+    fi
     echo
     echo "=== Top $n in ~/Library/Application Support ==="
     _disk_top_n "$HOME/Library/Application Support" "$n"
@@ -83,7 +90,11 @@ disk_audit_deep() {
     disk_audit "${1:-20}"
     echo
     echo "=== Top consumers under ~/Documents (3-deep) ==="
-    du -sh "$HOME/Documents"/*/*/ 2>/dev/null | sort -rh | head -20
+    local -a doc_dirs
+    doc_dirs=("$HOME/Documents"/*/*(N/))
+    if (( ${#doc_dirs[@]} )); then
+        du -sh "${doc_dirs[@]}" 2>/dev/null | sort -rh | head -20
+    fi
     echo
     echo "=== Project virtualenvs under ~/Documents/Professional ==="
     command find "$HOME/Documents/Professional" -maxdepth 5 -type d \
@@ -180,9 +191,15 @@ disk_prune_snapshots() {
     local root="" keep=5 execute=0 pattern='config_*'
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            --root)    root="${2:-}"; shift 2 ;;
-            --keep)    keep="${2:-5}"; shift 2 ;;
-            --pattern) pattern="${2:-config_*}"; shift 2 ;;
+            --root)
+                [[ -n "${2:-}" && "$2" != --* ]] || { echo "disk_prune_snapshots: --root requires a value" >&2; return 1; }
+                root="$2"; shift 2 ;;
+            --keep)
+                [[ -n "${2:-}" && "$2" != --* ]] || { echo "disk_prune_snapshots: --keep requires a value" >&2; return 1; }
+                keep="$2"; shift 2 ;;
+            --pattern)
+                [[ -n "${2:-}" && "$2" != --* ]] || { echo "disk_prune_snapshots: --pattern requires a value" >&2; return 1; }
+                pattern="$2"; shift 2 ;;
             --execute) execute=1; shift ;;
             --dry-run) execute=0; shift ;;
             -h|--help)
@@ -226,12 +243,18 @@ EOF
     printf "Found %d, keeping newest %d, %s %d:\n" \
         "$total" "$keep" "$action" "${#to_delete[@]}"
     local s
+    local rm_failures=0
     for s in "${to_delete[@]}"; do
         printf "  %s (%s)\n" "$s" "$(_disk_size "$s")"
-        (( execute )) && rm -rf "$s"
+        if (( execute )); then
+            if ! rm -rf "$s"; then
+                echo "disk_prune_snapshots: failed to remove $s" >&2
+                (( rm_failures++ ))
+            fi
+        fi
     done
     (( execute )) || echo "(dry-run; pass --execute to apply)"
-    return 0
+    (( rm_failures == 0 ))
 }
 
 # Prune stale JetBrains config/cache dirs (keeps only the newest 2026.x).
@@ -242,8 +265,12 @@ disk_prune_jetbrains_stale() {
         case "$1" in
             --execute)     execute=1; shift ;;
             --dry-run)     execute=0; shift ;;
-            --keep-prefix) keep_prefix="${2:-2026}"; shift 2 ;;
-            --base-dir)    base="${2:-}"; shift 2 ;;
+            --keep-prefix)
+                [[ -n "${2:-}" && "$2" != --* ]] || { echo "disk_prune_jetbrains_stale: --keep-prefix requires a value" >&2; return 1; }
+                keep_prefix="$2"; shift 2 ;;
+            --base-dir)
+                [[ -n "${2:-}" && "$2" != --* ]] || { echo "disk_prune_jetbrains_stale: --base-dir requires a value" >&2; return 1; }
+                base="$2"; shift 2 ;;
             -h|--help)
                 cat <<EOF
 disk_prune_jetbrains_stale [--execute] [--keep-prefix YEAR] [--base-dir DIR]
@@ -259,11 +286,16 @@ EOF
         esac
     done
     [[ -d "$base" ]] || { echo "JetBrains config dir not present: $base"; return 0; }
+    if _disk_is_icloud_path "$base"; then
+        echo "disk_prune_jetbrains_stale: refusing to operate on iCloud path: $base" >&2
+        return 2
+    fi
     # (/N) = only directories, nullglob; safer than `*/` literal when no matches
     local -a dirs
     dirs=("$base"/*(/N))
     local d name action="WOULD DELETE"
     (( execute )) && action="DELETING"
+    local rm_failures=0
     for d in "${dirs[@]}"; do
         name="${d:t}"
         case "$name" in
@@ -271,10 +303,15 @@ EOF
             Daemon|JBA|consentOptions|FileBrowser|edu) continue ;;
         esac
         printf "  %s (%s): %s\n" "$action" "$(_disk_size "$d")" "$d"
-        (( execute )) && rm -rf "$d"
+        if (( execute )); then
+            if ! rm -rf "$d"; then
+                echo "disk_prune_jetbrains_stale: failed to remove $d" >&2
+                (( rm_failures++ ))
+            fi
+        fi
     done
     (( execute )) || echo "(dry-run; pass --execute to apply)"
-    return 0
+    (( rm_failures == 0 ))
 }
 
 # Show the documented session-recovery for iCloud git corruption.
