@@ -319,8 +319,9 @@ if _zsh_startup_use_staggered; then
         load_module gitlab       # GitLab CLI workflows
         load_module dataworld    # data.world CSV retention + geo cleanup
         load_module databricks   # Databricks + Lakebase workflows
+        load_module disk         # Disk audit + safe cache cleanup
     }
-    
+
     # Tier 3: Heavy tools (defer in current shell)
     _zsh_load_tier3() {
         load_module docker       # Docker management
@@ -368,6 +369,7 @@ else
     load_module gitlab
     load_module dataworld
     load_module databricks
+    load_module disk
     load_module docker
     load_module doctor
     load_module env_detect
