@@ -113,6 +113,59 @@ test_prune_snapshots_execute_keeps_n_newest() {
     assert_equal "3" "$count" "--execute keeps exactly N=3 snapshots"
 }
 
+test_prune_snapshots_handles_spaces_in_names() {
+    local tmp
+    tmp=$(mktemp -d)
+    # iCloud-style duplicate naming with spaces — exact pattern this module exists to handle.
+    # Pattern 'config*' matches both underscore and space variants.
+    mkdir -p "$tmp/config_2025-01" "$tmp/config_2025-02" \
+             "$tmp/config 2025-05" "$tmp/config 2 2025-06"
+    disk_prune_snapshots --root "$tmp" --pattern 'config*' --keep 2 --execute >/dev/null 2>&1
+    local count
+    count=$(find "$tmp" -maxdepth 1 -type d -name 'config*' 2>/dev/null | wc -l | tr -d ' ')
+    # The space-containing dirs must remain whole — if word-splitting bug, count would be > 2 (partial dirs orphaned) or rm would fail entirely
+    rm -rf "$tmp"
+    assert_equal "2" "$count" "snapshot names with spaces must be handled atomically (keep 2, prune 2)"
+}
+
+test_prune_snapshots_rejects_negative_keep() {
+    local tmp
+    tmp=$(mktemp -d)
+    mkdir -p "$tmp/config_2025-01"
+    local out rc
+    out=$(disk_prune_snapshots --root "$tmp" --keep -3 --execute 2>&1)
+    rc=$?
+    rm -rf "$tmp"
+    assert_equal "1" "$rc" "--keep -3 must be rejected"
+    assert_contains "$out" "non-negative integer" "rejection message names the constraint"
+}
+
+# ---- disk_prune_jetbrains_stale (with --base-dir for testability) ----
+
+test_prune_jetbrains_dry_run_preserves() {
+    local tmp
+    tmp=$(mktemp -d)
+    mkdir -p "$tmp/PyCharm2026.1" "$tmp/PyCharm2025.3" "$tmp/Daemon"
+    disk_prune_jetbrains_stale --base-dir "$tmp" >/dev/null 2>&1
+    local count
+    count=$(find "$tmp" -maxdepth 1 -type d -not -path "$tmp" 2>/dev/null | wc -l | tr -d ' ')
+    rm -rf "$tmp"
+    assert_equal "3" "$count" "dry-run preserves all dirs"
+}
+
+test_prune_jetbrains_execute_drops_non_keep_year() {
+    local tmp
+    tmp=$(mktemp -d)
+    mkdir -p "$tmp/PyCharm2026.1" "$tmp/PyCharm2025.3" "$tmp/DataSpell2025.3" "$tmp/Daemon"
+    disk_prune_jetbrains_stale --base-dir "$tmp" --keep-prefix 2026 --execute >/dev/null 2>&1
+    # 2025.3 dirs gone, 2026.1 kept, Daemon (carve-out) kept
+    assert_true "[[ -d '$tmp/PyCharm2026.1' ]]"   "2026.1 preserved"
+    assert_false "[[ -d '$tmp/PyCharm2025.3' ]]"  "2025.3 PyCharm dropped"
+    assert_false "[[ -d '$tmp/DataSpell2025.3' ]]" "2025.3 DataSpell dropped"
+    assert_true "[[ -d '$tmp/Daemon' ]]"          "Daemon carve-out preserved"
+    rm -rf "$tmp"
+}
+
 # ---- disk_check_icloud_corruption ----
 
 test_corruption_check_clean() {
@@ -149,6 +202,10 @@ register_test "clean_caches_execute"       test_clean_caches_execute_deletes
 register_test "clean_caches_refuses_icloud" test_clean_caches_refuses_icloud
 register_test "prune_snapshots_dry_run"    test_prune_snapshots_dry_run
 register_test "prune_snapshots_execute"    test_prune_snapshots_execute_keeps_n_newest
+register_test "prune_snapshots_spaces"     test_prune_snapshots_handles_spaces_in_names
+register_test "prune_snapshots_neg_keep"   test_prune_snapshots_rejects_negative_keep
+register_test "prune_jetbrains_dry_run"    test_prune_jetbrains_dry_run_preserves
+register_test "prune_jetbrains_execute"    test_prune_jetbrains_execute_drops_non_keep_year
 register_test "corruption_check_clean"     test_corruption_check_clean
 register_test "corruption_check_dirty"     test_corruption_check_dirty
 

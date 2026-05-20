@@ -68,7 +68,8 @@ disk_audit() {
     df -h "$HOME" 2>/dev/null | head -2
     echo
     echo "=== Top $n in \$HOME ==="
-    du -sh "$HOME"/* "$HOME"/.[a-z]* 2>/dev/null | sort -rh | head -n "$n"
+    # .[!.]* excludes . and .. while including all hidden entries regardless of first-letter case
+    du -sh "$HOME"/* "$HOME"/.[!.]* 2>/dev/null | sort -rh | head -n "$n"
     echo
     echo "=== Top $n in ~/Library/Application Support ==="
     _disk_top_n "$HOME/Library/Application Support" "$n"
@@ -85,9 +86,9 @@ disk_audit_deep() {
     du -sh "$HOME/Documents"/*/*/ 2>/dev/null | sort -rh | head -20
     echo
     echo "=== Project virtualenvs under ~/Documents/Professional ==="
-    find "$HOME/Documents/Professional" -maxdepth 5 -type d \
+    command find "$HOME/Documents/Professional" -maxdepth 5 -type d \
         \( -name .venv -o -name venv -o -name node_modules -o -name target -o -name build \) \
-        2>/dev/null | head -20 | while read -r d; do
+        2>/dev/null | head -20 | while IFS= read -r d; do
             printf "%s\t%s\n" "$(_disk_size "$d")" "$d"
         done
 }
@@ -200,18 +201,26 @@ EOF
         esac
     done
     [[ -d "$root" ]] || { echo "disk_prune_snapshots: missing root: $root" >&2; return 1; }
+    if ! [[ "$keep" == <-> ]] || (( keep < 0 )); then
+        echo "disk_prune_snapshots: --keep must be a non-negative integer (got: $keep)" >&2
+        return 1
+    fi
     if _disk_is_icloud_path "$root"; then
         echo "disk_prune_snapshots: refusing to operate on iCloud path: $root" >&2
         return 2
     fi
+    # Line-oriented capture preserves whitespace in filenames (find -print0 not portable to ${(@f)})
     local -a snapshots
-    snapshots=($(find "$root" -maxdepth 5 -type d -name "$pattern" 2>/dev/null | sort -r))
+    snapshots=("${(@f)$(command find "$root" -maxdepth 5 -type d -name "$pattern" 2>/dev/null | sort -r)}")
+    # ${(@f)""} produces a single empty element; collapse to true empty
+    [[ ${#snapshots[@]} -eq 1 && -z "${snapshots[1]}" ]] && snapshots=()
     local total=${#snapshots[@]}
     if (( total <= keep )); then
         echo "Only $total snapshot(s) matching '$pattern' — nothing to prune."
         return 0
     fi
-    local to_delete=(${snapshots[$((keep+1)),-1]})
+    local -a to_delete
+    to_delete=("${snapshots[@]:$keep}")
     local action="WOULD DELETE"
     (( execute )) && action="DELETING"
     printf "Found %d, keeping newest %d, %s %d:\n" \
@@ -228,28 +237,34 @@ EOF
 # Prune stale JetBrains config/cache dirs (keeps only the newest 2026.x).
 disk_prune_jetbrains_stale() {
     local execute=0 keep_prefix='2026'
+    local base="$HOME/Library/Application Support/JetBrains"
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --execute)     execute=1; shift ;;
             --dry-run)     execute=0; shift ;;
             --keep-prefix) keep_prefix="${2:-2026}"; shift 2 ;;
+            --base-dir)    base="${2:-}"; shift 2 ;;
             -h|--help)
                 cat <<EOF
-disk_prune_jetbrains_stale [--execute] [--keep-prefix YEAR]
+disk_prune_jetbrains_stale [--execute] [--keep-prefix YEAR] [--base-dir DIR]
 
 Deletes JetBrains config dirs under
 ~/Library/Application Support/JetBrains/ whose version prefix is NOT
 the keep year (default 2026). Targets stale post-upgrade leftovers.
+--base-dir overrides the JetBrains config dir (used for tests).
 EOF
                 return 0
                 ;;
+            *) echo "disk_prune_jetbrains_stale: unknown arg: $1" >&2; return 1 ;;
         esac
     done
-    local base="$HOME/Library/Application Support/JetBrains"
-    [[ -d "$base" ]] || { echo "JetBrains config dir not present."; return 0; }
+    [[ -d "$base" ]] || { echo "JetBrains config dir not present: $base"; return 0; }
+    # (/N) = only directories, nullglob; safer than `*/` literal when no matches
+    local -a dirs
+    dirs=("$base"/*(/N))
     local d name action="WOULD DELETE"
     (( execute )) && action="DELETING"
-    for d in "$base"/*/; do
+    for d in "${dirs[@]}"; do
         name="${d:t}"
         case "$name" in
             *"$keep_prefix"*) continue ;;
