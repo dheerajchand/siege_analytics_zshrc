@@ -152,6 +152,19 @@ their source order. Underscore-prefixed helpers are included.
 - `dataworld_sync_csv`
 - `data_csv_prune_derived`
 
+## `modules/disk.zsh`
+
+- `_disk_size`
+- `_disk_is_icloud_path`
+- `_disk_top_n`
+- `disk_audit`
+- `disk_audit_deep`
+- `disk_check_icloud_corruption`
+- `disk_clean_caches`
+- `disk_prune_snapshots`
+- `disk_prune_jetbrains_stale`
+- `disk_icloud_recovery_steps`
+
 ## `modules/docker.zsh`
 
 - `docker_status`

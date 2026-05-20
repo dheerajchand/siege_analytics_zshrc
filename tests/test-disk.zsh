@@ -208,5 +208,3 @@ register_test "prune_jetbrains_dry_run"    test_prune_jetbrains_dry_run_preserve
 register_test "prune_jetbrains_execute"    test_prune_jetbrains_execute_drops_non_keep_year
 register_test "corruption_check_clean"     test_corruption_check_clean
 register_test "corruption_check_dirty"     test_corruption_check_dirty
-
-run_all_tests
