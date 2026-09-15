@@ -124,7 +124,17 @@ _agent_session_resume() {
     if [[ -z "$entry" ]]; then echo "Key not found: $key" >&2; return 1; fi
     local id="${entry%%|*}" desc="${entry#*|}"
     [[ "$id" == "$desc" ]] && desc=""
-    local cmd="${tool} resume $id"
+    # Resume invocation differs per CLI (verified against `claude --help` and
+    # `codex resume --help`):
+    #   claude : the flag form `claude --resume <id>` -- there is NO `resume`
+    #            subcommand; `claude resume <id>` is parsed as a prompt, not a
+    #            session resume.
+    #   codex  : the subcommand `codex resume <id>`.
+    # _agent_session_resume_args emits the correct argv per tool so the generic
+    # helper does not assume both CLIs share a syntax.
+    local -a resume_args
+    resume_args=("${(@f)$(_agent_session_resume_args "$tool" "$id")}")
+    local cmd="${tool} ${resume_args[*]}"
     [[ -n "$desc" ]] && echo "$cmd  # $desc" || echo "$cmd"
     local should_exec=0
     if [[ -o interactive ]]; then
@@ -135,8 +145,19 @@ _agent_session_resume() {
     fi
     if (( should_exec )); then
         [[ ! "$id" =~ ^[A-Za-z0-9._:-]+$ ]] && { echo "Unsafe session id: $id" >&2; return 1; }
-        command "$tool" resume "$id"
+        command "$tool" "${resume_args[@]}"
     fi
+}
+
+# Echo the resume argv (one arg per line) for a given tool + session id.
+# claude uses the --resume flag; every other tool (codex) uses a `resume`
+# subcommand. Centralized so the invocation is defined in exactly one place.
+_agent_session_resume_args() {
+    local tool="$1" id="$2"
+    case "$tool" in
+        claude) printf '%s\n' "--resume" "$id" ;;
+        *)      printf '%s\n' "resume" "$id" ;;
+    esac
 }
 
 # =================================================================

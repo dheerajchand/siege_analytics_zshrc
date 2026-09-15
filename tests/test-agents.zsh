@@ -75,7 +75,7 @@ test_claude_session_crud() {
     assert_contains "$out" "demo" "list should include key"
     claude_session_update --name "demo" --value "xyz999|Updated"
     out="$(claude_session --name demo)"
-    assert_contains "$out" "claude resume xyz999" "resume should use updated id"
+    assert_contains "$out" "claude --resume xyz999" "resume should use updated id via --resume flag"
     claude_session_remove "demo"
     out="$(claude_session_list)"
     assert_not_contains "$out" "demo" "key should be removed"
@@ -100,7 +100,7 @@ CLAUDE
     : > "$log"
     PATH="$bin:/usr/bin:/bin" ZSH_TEST_MODE=1 zsh -fc \
         "source $ROOT_DIR/modules/agents.zsh; claude_session --name demo >/dev/null"
-    assert_contains "$(cat "$log")" "resume abc123" "should execute claude resume in non-interactive mode"
+    assert_contains "$(cat "$log")" "--resume abc123" "should execute claude --resume in non-interactive mode"
     unset CLAUDE_SESSION_AUTO_EXEC_NONINTERACTIVE
     rm -rf "$tmp"
 }

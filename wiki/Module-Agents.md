@@ -26,7 +26,7 @@ Codex and Claude session management, plus Claude/Codex project initialization wi
 
 | Function | Purpose | Dependencies | Assumptions |
 |---|---|---|---|
-| `claude_session` | Print `claude resume` for saved session | `fzf` (optional) | Sessions file exists |
+| `claude_session` | Print `claude --resume` for saved session | `fzf` (optional) | Sessions file exists |
 | `claude_session_list` | List saved sessions | `awk` | None |
 | `claude_session_add` | Add session entry | `awk`, `mktemp` | `name=id|desc` |
 | `claude_session_update` | Update entry | `awk`, `mktemp` | Existing key |
